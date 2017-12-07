@@ -1,0 +1,19 @@
+spring:
+  application:
+      name: {{APP_NAME}}
+  profiles:
+    active: "dev"
+
+---
+spring:
+  profiles: dev
+  cloud:
+    config:
+      uri: {{CONFIG_SERVER_URL}}
+
+---
+spring:
+  profiles: docker
+  cloud:
+    config:
+      uri: {{CONFIG_SERVER_INTERNAL_URL}}

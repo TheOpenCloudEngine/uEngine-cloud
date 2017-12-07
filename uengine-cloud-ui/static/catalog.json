@@ -1,0 +1,37 @@
+{
+  "category": {
+    "app": {
+      "type": "애플리케이션",
+      "description": "기본 인프라 관리 없이 앱을 배치합니다.",
+      "items": [
+        {
+          "id": "springboot",
+          "header": "Spring boot (Netfflix OSS) 앱 작성",
+          "title": "Spring boot (Netfflix OSS)",
+          "description": "Spring Cloud Netflix는 Spring Boot 애플리케이션을위한 Netflix OSS 통합 환경을 제공합니다. 몇 가지 간단한 주석을 사용하여 애플리케이션 내부의 공통 패턴을 신속하게 활성화 및 구성하고 배틀 테스트를 거친 Netflix 구성 요소로 대규모 분산 시스템을 구축 할 수 있습니다. 제공되는 패턴에는 서비스 디스커버리 (Eureka), Api 차단기 (Hystrix), 라우팅 (Zuul) 및 클라이언트 로드발란서 (리본)이 포함됩니다.",
+          "version": "1.0",
+          "type": "애플리케이션",
+          "image": "/static/image/catalog/springboot.png"
+        },
+        {
+          "id": "vuejs",
+          "header": "Vue JS 앱 작성",
+          "title": "Vue.JS",
+          "description": "Vue 는 사용자 인터페이스를 만들기 위한 진보적인 프레임워크 입니다. 다른 단일형 프레임워크와 달리 Vue 는 점진적으로 채택할 수 있도록 설계하였고, 다른 라이브러리나 기존 프로젝트와의 통합이 매우 쉽습니다. 그리고 Vue 는 현대적 도구 및 지원하는 라이브러리와 함께 사용한다면 정교한 단일 페이지 응용프로그램을 완벽하게 지원할 수 있습니다.",
+          "version": "1.0",
+          "type": "애플리케이션",
+          "image": "/static/image/catalog/vuejs.jpeg"
+        },
+        {
+          "id": "polyglot",
+          "header": "Polyglot 앱 작성",
+          "title": "Polyglot 앱",
+          "description": "폴리글랏 앱은 별도의 템플릿을 제공하지 않습니다. 생성된 깃랩 프로젝트에 새로운 개발 내용을 커밋하여야 배포가 완료됩니다.",
+          "version": "1.0",
+          "type": "애플리케이션",
+          "image": "/static/image/catalog/polyglot.png"
+        }
+      ]
+    }
+  }
+}

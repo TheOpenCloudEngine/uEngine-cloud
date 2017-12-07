@@ -1,0 +1,69 @@
+image: docker:latest
+
+variables:
+  IMAGE_NAME: "${REGISTRY_URL}/${APP_NAME}:${CI_COMMIT_SHA}"
+
+stages:
+  - build
+  - package
+  - test
+  - deploy
+
+cache:
+  paths:
+    - node_modules/
+    - dist/
+
+build:
+  image: node:latest
+  stage: build
+  only:
+    - triggers
+  script:
+    - npm install
+    - npm run build
+
+docker-build:
+  stage: package
+  only:
+    - triggers
+  script:
+    - docker build --build-arg CI_PROJECT_NAME=${CI_PROJECT_NAME} --build-arg CI_COMMIT_SHA=${CI_COMMIT_SHA} -t ${IMAGE_NAME} .
+    - docker push ${IMAGE_NAME}
+    - docker rmi ${IMAGE_NAME}
+
+test:
+  image: sppark/curl-jq:v1
+  stage: test
+  only:
+    - triggers
+  script:
+    - ls
+    - curl ${UENGINE_CLOUD_URL}/gitlab/api/v4/projects/${CONFIG_REPO_ID}/repository/files/deployment%2F${APP_NAME}%2Fci-test.sh/raw?ref=master | sh
+
+dev:
+  image: sppark/curl-jq:v1
+  stage: deploy
+  only:
+    - triggers
+  when: manual
+  script:
+    - curl ${UENGINE_CLOUD_URL}/gitlab/api/v4/projects/${CONFIG_REPO_ID}/repository/files/deployment%2F${APP_NAME}%2Fci-deploy-dev.sh/raw?ref=master | sh
+
+staging:
+  image: sppark/curl-jq:v1
+  stage: deploy
+  only:
+    - triggers
+  when: manual
+  script:
+    - curl ${UENGINE_CLOUD_URL}/gitlab/api/v4/projects/${CONFIG_REPO_ID}/repository/files/deployment%2F${APP_NAME}%2Fci-deploy-staging.sh/raw?ref=master | sh
+
+production:
+  image: sppark/curl-jq:v1
+  stage: deploy
+  only:
+    - triggers
+  when: manual
+  script:
+    - curl ${UENGINE_CLOUD_URL}/gitlab/api/v4/projects/${CONFIG_REPO_ID}/repository/files/deployment%2F${APP_NAME}%2Fci-deploy-production.sh/raw?ref=master | sh

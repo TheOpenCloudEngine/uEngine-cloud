@@ -1,0 +1,27 @@
+---
+vcap:
+  services:
+    iam:
+      external: "iam.uengine.io:8080"
+      internal: "iam.uengine.io:8080"
+    uengine-cloud-config:
+      external: "config.pas-mini.io"
+      internal: "marathon-lb-internal.marathon.mesos:10000"
+    eureka-server:
+      external: "eureka-server.pas-mini.io"
+      internal: "marathon-lb-internal.marathon.mesos:10001"
+    zuul-prod-server:
+      external: "api.pas-mini.io"
+      internal: "marathon-lb-internal.marathon.mesos:10002"
+    zuul-stg-server:
+      external: "api-stg.pas-mini.io"
+      internal: "marathon-lb-internal.marathon.mesos:10003"
+    zuul-dev-server:
+      external: "api-dev.pas-mini.io"
+      internal: "marathon-lb-internal.marathon.mesos:10004"
+    uengine-cloud-server:
+      external: "cloud-server.pas-mini.io"
+      internal: "marathon-lb-internal.marathon.mesos:10005"
+    uengine-cloud-ui:
+      external: "cloud.pas-mini.io"
+      internal: "marathon-lb-internal.marathon.mesos:10006"

@@ -1,0 +1,97 @@
+server:
+  port: 4000
+
+endpoints:
+  routes:
+    sensitive: false
+
+management:
+  security:
+    enabled: false
+
+security:
+  basic:
+    enabled: false
+dcos:
+  apps-file: dcos-apps.yml
+  deployment:
+    role: ${ROLE}
+
+zuul:
+#  ignored-services: "*"
+  #Service will be mapped under the /api URI
+  #prefix: /api
+#  routes:
+#    uengine-eureka-client:
+#      path: /uengine-eureka-client/**
+#      serviceId: uengine-eureka-client
+
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 2000
+
+ribbon:
+  # Max number of retries on the same server (excluding the first try)
+  MaxAutoRetries: 1
+
+  # Max number of next servers to retry (excluding the first server)
+  MaxAutoRetriesNextServer: 1
+
+  # Whether all operations can be retried for this client
+  OkToRetryOnAllOperations: true
+
+  # Interval to refresh the server list from the source
+  ServerListRefreshInterval: 2000
+
+  # Connect timeout used by Apache HttpClient
+  ConnectTimeout: 3000
+
+  # Read timeout used by Apache HttpClient
+  ReadTimeout: 3000
+
+  # Initial list of servers, can be changed via Archaius dynamic property at runtime
+  #listOfServers: www.microsoft.com:80,www.yahoo.com:80,www.google.com:80
+
+turbine:
+  appConfig: uengine-eureka-client
+  #clusterNameExpression: "'default'"
+  aggregator:
+      clusterConfig: blue,green
+  clusterNameExpression: metadata['deployment']
+
+---
+spring:
+  profiles: dev
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+    healthcheck:
+      enabled: true
+  instance:
+    statusPageUrlPath: ${server.servletPath}info
+    healthCheckUrlPath: ${server.servletPath}health
+
+---
+spring:
+  profiles: docker
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://${vcap.services.eureka-server.internal}/eureka/
+    healthcheck:
+      enabled: true
+  instance:
+    hostname: ${HOST}
+    nonSecurePort: ${PORT}
+    preferIpAddress: false
+    statusPageUrl: http://${eureka.instance.hostname}:${eureka.instance.nonSecurePort}/info
+    healthCheckUrl: http://${eureka.instance.hostname}:${eureka.instance.nonSecurePort}/health
+    homePageUrl: http://${eureka.instance.hostname}:${eureka.instance.nonSecurePort}/
+    instanceId: ${HOST}:${spring.application.name}:${PORT}

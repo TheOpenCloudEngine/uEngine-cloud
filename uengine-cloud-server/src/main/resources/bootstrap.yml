@@ -1,0 +1,19 @@
+spring:
+  application:
+      name: uengine-cloud-server
+  profiles:
+    active: "dev"
+
+---
+spring:
+  profiles: dev
+  cloud:
+    config:
+      uri: http://config.uengine.io
+
+---
+spring:
+  profiles: docker
+  cloud:
+    config:
+      uri: http://marathon-lb-internal.marathon.mesos:10000

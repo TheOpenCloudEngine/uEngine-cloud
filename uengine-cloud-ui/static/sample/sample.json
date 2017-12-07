@@ -1,0 +1,69 @@
+{
+  "id": "/uengine-eureka-client-blue",
+  "acceptedResourceRoles": [
+    "*"
+  ],
+  "backoffFactor": 1.15,
+  "backoffSeconds": 1,
+  "container": {
+    "type": "DOCKER",
+    "docker": {
+      "forcePullImage": true,
+      "image": "gitlab.uengine.io:5000/uengine-eureka-client:v1",
+      "parameters": [],
+      "privileged": false
+    },
+    "volumes": [],
+    "portMappings": [
+      {
+        "containerPort": 8080,
+        "hostPort": 0,
+        "labels": {},
+        "protocol": "tcp",
+        "servicePort": 10010
+      }
+    ]
+  },
+  "cpus": 0.4,
+  "disk": 300,
+  "env": {
+    "DEPLOYMENT": "blue"
+  },
+  "executor": "",
+  "healthChecks": [
+    {
+      "gracePeriodSeconds": 300,
+      "ignoreHttp1xx": false,
+      "intervalSeconds": 60,
+      "maxConsecutiveFailures": 3,
+      "path": "/health",
+      "portIndex": 0,
+      "protocol": "HTTP",
+      "timeoutSeconds": 20,
+      "delaySeconds": 15
+    }
+  ],
+  "instances": 1,
+  "labels": {
+    "HAPROXY_GROUP": "external,internal",
+    "HAPROXY_0_VHOST": "uengine-eureka-client.uengine.io"
+  },
+  "maxLaunchDelaySeconds": 3600,
+  "mem": 512,
+  "gpus": 0,
+  "networks": [
+    {
+      "mode": "container/bridge"
+    }
+  ],
+  "requirePorts": false,
+  "upgradeStrategy": {
+    "maximumOverCapacity": 1,
+    "minimumHealthCapacity": 1
+  },
+  "killSelection": "YOUNGEST_FIRST",
+  "unreachableStrategy": {
+    "inactiveAfterSeconds": 300,
+    "expungeAfterSeconds": 600
+  }
+}

@@ -1,0 +1,1877 @@
+<template xmlns:v-on="http://www.w3.org/1999/xhtml">
+  <div>
+    <md-layout style="width:100%;height:83vh;">
+      <md-layout class="list-link" md-flex="20">
+        <div class="phone-viewport" style="width: 100%;">
+          <md-list class="md-dense">
+            <md-list-item>
+              <span class="listspan" @click="changeView('serviceview')">Service</span>
+            </md-list-item>
+
+            <md-list-item>
+              <span class="listspan" @click="changeView('networkingview')">Networking</span>
+            </md-list-item>
+
+            <md-list-item>
+              <span class="listspan" @click="changeView('volumesview')">Volumes</span>
+            </md-list-item>
+
+            <md-list-item>
+              <span class="listspan" @click="changeView('healthchecksview')">Health Checks</span>
+              <!--<md-divider class="md-inset"></md-divider>-->
+            </md-list-item>
+
+            <md-list-item>
+              <span class="listspan" @click="changeView('environmentview')">Environment</span>
+            </md-list-item>
+          </md-list>
+        </div>
+      </md-layout>
+      <md-layout class="main-body" style="margin-left: 3%;overflow-y: scroll;">
+        <!------------------------------------------------------------------------Service------------------------------------------------>
+        <div v-if="menu.serviceview" style="width: 100%">
+          <h3 class="md-title">Service</h3>
+          <span class="md-body-2">Configure your service below. Start by giving your service an ID.</span><br/>
+          <md-layout class="mt30">
+            <md-layout md-flex="70" class="mr5">
+              SERVICE ID &nbsp;<span style="color: #ff5c3c">*</span>
+              <div>
+                <md-button class="md-primary small">?
+                  <md-tooltip class="fontb" md-direction="top">Include the path to your service, if applicable.<br>E.g.
+                    /dev/tools/my-service.ool
+                  </md-tooltip>
+                </md-button>
+              </div>
+              <md-input-container>
+                <md-input v-model="service.id"></md-input>
+              </md-input-container>
+            </md-layout>
+            <md-layout md-flex="20">
+              INSTANCES
+              <md-input-container>
+                <md-input v-model="service.instances" type="number"></md-input>
+              </md-input-container>
+            </md-layout>
+          </md-layout>
+          <span class="md-caption">Give your service a unique name within the cluster, e.g. my-service.</span>
+
+          <md-layout class="mt30">
+            <md-layout md-flex="45" class="mr5">
+              CONTAINER IMAGE
+              <div>
+                <md-button class="md-primary small">?
+                  <md-tooltip class="fontb" md-direction="top">
+                    Enter a Docker image or browse Docker Hub to find more. You can also enter an image from your
+                    private registry
+                  </md-tooltip>
+                </md-button>
+              </div>
+              <md-input-container>
+                <md-input v-model="docker.image" @input="addDockerValue('image')"></md-input>
+              </md-input-container>
+            </md-layout>
+            <md-layout md-flex="20" class="mr5">
+              CPUs &nbsp;<span style="color: #ff5c3c">*</span>
+              <md-input-container>
+                <md-input v-model="service.cpus" type="number"></md-input>
+              </md-input-container>
+            </md-layout>
+            <md-layout md-flex="20">
+              Memory (MiB) &nbsp;<span style="color: #ff5c3c">*</span>
+              <md-input-container>
+                <md-input v-model="service.mem" type="number"></md-input>
+              </md-input-container>
+            </md-layout>
+          </md-layout>
+          <span class="md-caption">Enter a Docker image you want to run, e.g. nginx.</span>
+
+          <md-layout class="mt30">
+            <md-layout class="mr5">
+              COMMAND
+              <div>
+                <md-button class="md-primary small">?
+                  <md-tooltip class="fontb" md-direction="top">
+                    The command value will be wrapped by the underlying Mesos executor via /bin/sh -c ${cmd}.
+                  </md-tooltip>
+                </md-button>
+              </div>
+              <md-input-container>
+                <md-input v-model="cmd" @input="addServiceLv('cmd')"></md-input>
+              </md-input-container>
+              <span class="md-caption">A shell command for your container to execute.</span>
+            </md-layout>
+          </md-layout>
+          <a @click="expandSettings('moresetting')">
+            <span v-if="moresetting">▼</span> <span v-else>▶</span>
+            MORE SETTINGS
+          </a>
+          <div v-if="moresetting" class="mt30">
+            <span class="md-title">Container Runtime</span><br>
+            <span class="md-subheading">The container runtime is responsible for running your service. We support the Docker Engine and Universal Container Runtime (UCR).</span><br>
+            <div style="width: 100%">
+              <md-radio v-model="service.container.type" mdValue="DOCKER" class="md-primary">DOCKER ENGINE</md-radio>
+              <br>
+              <span class="md-caption">Docker’s container runtime. No support for multiple containers (Pods) or GPU resources.</span>
+            </div>
+            <div style="width: 100%">
+              <md-radio v-model="service.container.type" mdValue="MESOS" class="md-primary">
+                UNIVERSAL CONTAINER RUNTIME (UCR)
+              </md-radio>
+              <br>
+              <span class="md-caption">Universal Container Runtime using native Mesos engine. Supports Docker file format, multiple containers (Pods) and GPU resources.</span>
+            </div>
+
+            <span class="md-title">Placement Constraints</span><br>
+            <span class="md-subheading">Constraints control where apps run to allow optimization for either fault tolerance or locality.</span><br>
+            <div>
+              <md-layout v-for="(index,number) in placementNumber">
+                <md-layout md-flex="25" class="mr5">
+                  <div v-if="number==0">FIELD &nbsp;<span style="color: #ff5c3c">*</span>
+                    <div style="display: inline;">
+                      <md-button class="md-primary small">?
+                        <md-tooltip class="fontb" md-direction="top">
+                          If you enter `hostname`, the constraint will map to the agent node hostname. If you do not
+                          enter an agent node hostname, the field will be treated as a Mesos agent node attribute, which
+                          allows you to tag an agent node. More information.
+                        </md-tooltip>
+                      </md-button>
+                    </div>
+                  </div>
+                  <md-input-container>
+                    <!--<md-input v-model="service.constraints" ></md-input>-->
+                    <md-input v-model="constraints[number][0]" @input="addConstraints(number)"></md-input>
+                  </md-input-container>
+                </md-layout>
+                <md-layout md-flex class="mr5">
+                  <div v-if="number==0">OPERATOR &nbsp;<span style="color: #ff5c3c">*</span>
+                    <div style="display: inline;">
+                      <md-button class="md-primary small">?
+                        <md-tooltip class="fontb" md-direction="top">
+                          Operators specify where your app will run. More information.
+                        </md-tooltip>
+                      </md-button>
+                    </div>
+                  </div>
+                  <md-input-container>
+                    <md-select v-model="constraints[number][1]" @change="addConstraints(number)">
+                      <md-option value="">Select</md-option>
+                      <md-option v-for="value in operator" :value="value">{{value}}</md-option>
+                    </md-select>
+                  </md-input-container>
+                </md-layout>
+                <md-layout md-flex="25" v-if="constraints[number][1]!='UNIQUE'">
+                  <div v-if="number==0">VALUE &nbsp;<span style="color: #ff5c3c">*</span>
+                    <div style="display: inline;">
+                      <md-button class="md-primary small">?
+                        <md-tooltip class="fontb" md-direction="top">
+                          Values allow you to further specify your constraint. Learn more.
+                        </md-tooltip>
+                      </md-button>
+                    </div>
+                  </div>
+                  <md-input-container>
+                    <!--<md-input v-model="service.constraints"></md-input>-->
+                    <md-input v-model="constraints[number][2]" @input="addConstraints(number)"></md-input>
+                  </md-input-container>
+                </md-layout>
+                <md-layout md-flex="10">
+                  <button style="border: hidden; background-color: inherit;margin-bottom: 20px;"
+                          @click="removePlacement(number)"><b>X</b></button>
+                </md-layout>
+              </md-layout>
+              <a @click="addPlacement()">+ ADD PLACEMENT CONSTRAINT</a>
+              <div class="mt30">
+                <span class="md-title">Advanced Settings</span><br>
+                <span class="md-subheading">Advanced settings related to the runtime you have selected above.</span><br>
+                <div style="width: 100%">
+                  <md-checkbox class="md-primary" v-model="docker.privileged" @change="addDockerValue('privileged')"
+                               :disabled="service.container.type=='MESOS'">
+                    GRANT RUNTIME PRIVILEGES
+                  </md-checkbox>
+                  <div class="md-caption">
+                    By default, containers are “unprivileged” and cannot, for example, run a Docker daemon inside a
+                    Docker container.
+                  </div>
+                </div>
+                <div style="width: 100%">
+                  <md-checkbox class="md-primary" v-model="docker.forcePullImage"
+                               @change="addDockerValue('forcePullImage')">FORCE PULL IMAGE ON LAUNCH
+                  </md-checkbox>
+                  <div class="md-caption">Force Docker to pull the image before launching each instance.</div>
+                </div>
+              </div>
+              <md-layout>
+                <md-layout md-flex="25" class="mr5">
+                  GPUs
+                  <md-input-container>
+                    <!--<md-input v-model="service.constraints"></md-input>-->
+                    <md-input type="number" v-model="gpus" @input="addServiceLv('gpus')"
+                              :disabled="service.container.type!='MESOS'"></md-input>
+                  </md-input-container>
+                </md-layout>
+                <md-layout md-flex="25">
+                  Disk (MiB)
+                  <md-input-container>
+                    <!--<md-input v-model="service.constraints"></md-input>-->
+                    <md-input type="number" v-model="disk" @input="addServiceLv('disk')"></md-input>
+                  </md-input-container>
+                </md-layout>
+              </md-layout>
+              <div style="width: 100%;">
+                ARTIFACT URI
+                <div style="display: inline;">
+                  <md-button class="md-primary small">?
+                    <md-tooltip class="fontb" md-direction="top">
+                      If your service requires additional files and/or archives of files, enter their URIs to download
+                      and, if necessary, extract these resources.
+                    </md-tooltip>
+                  </md-button>
+                </div>
+                <md-layout v-for="(index,number) in artifactUriNumber">
+                  <md-layout md-flex="85" class="mr5">
+                    <md-input-container md-clearable>
+                      <!--<md-input v-model="service.constraints"></md-input>-->
+                      <md-input v-model="fetch[number].uri" placeholder="http://example.com"
+                                @input="fetchValue('uri',number)"></md-input>
+                    </md-input-container>
+                  </md-layout>
+                  <md-layout md-flex="10">
+                    <button style="border: hidden; background-color: inherit;margin-bottom: 20px;"
+                            @click="removeArtifact(number)"><b>X</b></button>
+                  </md-layout>
+                </md-layout>
+                <div>
+                  <a @click="addArtifact">+ ADD ARTIFACT</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <!------------------------------------------------------------------------Networking------------------------------------------------>
+        <div v-if="menu.networkingview" style="width: 100%">
+          <h1 class="md-title">Networking</h1>
+          <span class="md-body-2">Configure the networking for your service.</span><br/>
+          <md-layout class="mt30">
+            <md-layout md-flex="70" class="mr5">
+              NETWORK TYPE
+              <md-input-container>
+                <md-select v-model="networkType" @change="networkTypeChange">
+                  <md-option value="host">Host</md-option>
+                  <md-option value="container/bridge">Bridge</md-option>
+                </md-select>
+              </md-input-container>
+            </md-layout>
+          </md-layout>
+          <span class="md-title">Service Endpoints</span><br/>
+          <div class="md-caption">
+            DC/OS can automatically generate a Service Address to connect to each of your load balanced endpoints.
+          </div>
+          <md-checkbox v-if="networkType=='host'" v-model="requirePorts" class="md-primary"
+                       @change="hostPortChange">ASSIGN HOST PORTS AUTOMATICALLY
+          </md-checkbox>
+
+
+          <div class="add-input mt10" v-if="networkType=='host'" v-for="(index,number) in serviceEndpointNumber">
+            <span class="md-subheading">SERVICE ENDPOINT NAME</span>
+            <div style="display: inline;">
+              <md-button class="md-primary small">?
+                <md-tooltip class="fontb" md-direction="top">
+                  Name your endpoint to search for it by a meaningful name, rather than the port number.
+                </md-tooltip>
+              </md-button>
+            </div>
+            <div style="float: right;">
+              <button style="border: hidden; background-color: inherit;margin-bottom: 20px;"
+                      @click="removeServiceEndpoint(number)"><b>X</b></button>
+            </div>
+            <md-input-container style="width: 80%;height: 20px;">
+              <md-input @input="serviceEndpointsValue(number,'name')"
+                        v-model="portDefinitionsValue[number].name"></md-input>
+            </md-input-container>
+            <md-layout>
+              <md-layout md-flex="40" class="mr5">
+                <span class="md-subheading">HOST PORT</span>
+                <div style="display: inline;">
+                  <md-button class="md-primary small">?
+                    <md-tooltip class="fontb" md-direction="top">
+                      This host port will be accessible as an environment variable called '$PORT0'. More information
+                    </md-tooltip>
+                  </md-button>
+                </div>
+                <md-input-container style="width: 100%;height: 20px;">
+                  <md-input v-model="portDefinitionsValue[number].port" :disabled="service.requirePorts==false"
+                            :placeholder="service.requirePorts==false?'$PORT'+number:''"
+                            @input="serviceEndpointsValue(number,'port')" type="number"></md-input>
+                </md-input-container>
+              </md-layout>
+              <md-layout md-flex="30">
+                <span class="md-subheading">PROTOCOL</span>
+                <div style="">
+                  <md-button class="md-primary small">?
+                    <md-tooltip class="fontb" md-direction="top">
+                      Most services will use TCP. More information.
+                    </md-tooltip>
+                  </md-button>
+                </div>
+                <div>
+                  <md-checkbox v-if="networkType=='host'" v-model="protocol[number].udp"
+                               class="md-primary" :checked="protocol[number].tcp">UDP
+                    <!--@change="serviceEndpointsValue(number,'protocol')">UDP-->
+                  </md-checkbox>
+                  <md-checkbox v-if="networkType=='host'" v-model="protocol[number].tcp"
+                               class="md-primary" :checked="protocol[number].tcp">TCP
+                    <!--@change="serviceEndpointsValue(number,'protocol')">TCP-->
+                  </md-checkbox>
+                </div>
+              </md-layout>
+            </md-layout>
+            <md-checkbox v-if="networkType=='host'" v-model="elbServiceAddress[number]"
+                         @change="enableLoad(number,'labels')"
+                         class="md-primary">ENABLE LOAD BALANCED SERVICE ADDRESS
+            </md-checkbox>
+            <div v-if="elbServiceAddress[number]">
+              <md-layout>
+                <md-layout md-flex="40" class="mr5">
+                  <span class="md-subheading">LOAD BALANCED PORT</span>
+                  <div style="display: inline;">
+                    <md-button class="md-primary small">?
+                      <md-tooltip class="fontb" md-direction="top">
+                        This port will be used to load balance this service address internally
+                      </md-tooltip>
+                    </md-button>
+                  </div>
+                  <md-input-container style="width: 100%;height: 20px;">
+                    <!--<md-input v-model="portDefinitionsValue[number].labels['VIP_'+number]" :id="'label'+number"-->
+                    <md-input v-model="labelsPath[number]"
+                              @input="serviceEndpointsValue(number,'labels')" type="number"></md-input>
+                  </md-input-container>
+                </md-layout>
+              </md-layout>
+            </div>
+            <div class="md-caption">Load balance this service internally at .marathon.l4lb.thisdcos.directory:1</div>
+          </div>
+
+          <div class="add-input mt10" v-if="networkType!='host'"
+               v-for="(index,number) in serviceEndpointNumber">
+            <md-layout>
+              <md-layout md-flex="30" class="mr5">
+                <span class="md-subheading">CONTAINER PORT</span>
+                <md-input-container style="width: 100%;height: 20px;">
+                  <md-input @input="serviceEndpointsValue(number,'containerPort')"
+                            v-model="portMappings[number].containerPort"
+                            type="number"></md-input>
+                </md-input-container>
+              </md-layout>
+              <md-layout md-flex="50" class="mr5">
+                <span class="md-subheading">SERVICE ENDPOINT NAME</span>
+                <div style="display: inline;">
+                  <md-button class="md-primary small">?
+                    <md-tooltip class="fontb" md-direction="top">
+                      Name your endpoint to search for it by a meaningful name, rather than the port number.
+                    </md-tooltip>
+                  </md-button>
+                </div>
+                <md-input-container style="width: 100%;height: 20px;">
+                  <md-input @input="serviceEndpointsValue(number,'name')"
+                            v-model="portMappings[number].name"></md-input>
+                </md-input-container>
+              </md-layout>
+              <md-layout md-flex="10">
+                <button style="border: hidden; background-color: inherit;margin-bottom: 20px;"
+                        @click="removeServiceEndpoint(number)"><b>X</b></button>
+              </md-layout>
+            </md-layout>
+            <md-layout>
+              <md-layout md-flex="30" class="mr4">
+                <span class="md-subheading">HOST PORT</span>
+                <div style="display: inline;">
+                  <md-button class="md-primary small">?
+                    <md-tooltip class="fontb" md-direction="top">
+                      This host port will be accessible as an environment variable called '$PORT0'. More information
+                    </md-tooltip>
+                  </md-button>
+                </div>
+                <md-input-container style="width: 100%;height: 20px;">
+                  <md-input v-model="portMappings[number].hostPort" :disabled="service.requirePorts==false"
+                            type="number"
+                            :placeholder="service.requirePorts==false?'$PORT'+number:''"
+                            @input="serviceEndpointsValue(number,'hostPort')"></md-input>
+                </md-input-container>
+              </md-layout>
+              <md-layout md-flex="30">
+                <md-checkbox v-if="networkType!='host'" v-model="requirePorts" class="md-primary"
+                             @change="hostPortChange" style="margin-top: 40px;">ASSIGN AUTOMATICALLY
+                </md-checkbox>
+              </md-layout>
+              <md-layout md-flex="30">
+                <span class="md-subheading">PROTOCOL</span>
+                <div style="display: inline;">
+                  <md-button class="md-primary small">?
+                    <md-tooltip class="fontb" md-direction="top">
+                      Most services will use TCP. More information.
+                    </md-tooltip>
+                  </md-button>
+                </div>
+                <div style="width: 100%;">
+                  <!--<md-checkbox v-model="portMappings[number].protocol"-->
+                  <!--class="md-primary" :value="'udp'" @click="enableLoad(number,'udp')">UDP-->
+                  <!--</md-checkbox>-->
+                  <!--<md-checkbox v-model="portMappings[number].protocol"-->
+                  <!--class="md-primary" :value="'tcp'" @click="enableLoad(number,'tcp')">TCP-->
+                  <!--</md-checkbox>-->
+                  <md-checkbox v-if="networkType!='host'" v-model="protocol[number].udp"
+                               class="md-primary" :checked="protocol[number].tcp">UDP
+                    <!--@change="serviceEndpointsValue(number,'protocol')">UDP-->
+                  </md-checkbox>
+                  <md-checkbox v-if="networkType!='host'" v-model="protocol[number].tcp"
+                               class="md-primary" :checked="protocol[number].tcp">TCP
+                    <!--@change="serviceEndpointsValue(number,'protocol')">TCP-->
+                  </md-checkbox>
+                </div>
+              </md-layout>
+            </md-layout>
+            <md-checkbox v-if="networkType!='host'" v-model="elbServiceAddress[number]"
+                         @change="enableLoad(number,'labels')"
+                         class="md-primary">ENABLE LOAD BALANCED SERVICE ADDRESS
+            </md-checkbox>
+            <div v-if="elbServiceAddress[number]">
+              <md-layout>
+                <md-layout md-flex="35" class="mr5">
+                  <span class="md-subheading">LOAD BALANCED PORT</span>
+                  <div style="display: inline;">
+                    <md-button class="md-primary small">?
+                      <md-tooltip class="fontb" md-direction="top">
+                        This port will be used to load balance this service address internally
+                      </md-tooltip>
+                    </md-button>
+                  </div>
+                  <md-input-container style="width: 100%;height: 20px;">
+                    <!--<md-input v-model="portMappings[number].labels['VIP_'+number]" :id="'label'+number"-->
+                    <md-input v-model="labelsPath[number]"
+                              @input="serviceEndpointsValue(number,'labels')" type="number"></md-input>
+                  </md-input-container>
+                </md-layout>
+              </md-layout>
+            </div>
+            <div class="md-caption">Load balance this service internally at .marathon.l4lb.thisdcos.directory:1</div>
+          </div>
+
+          <br>
+          <a @click="addServiceEndpoint">+ ADD SERVICE ENDPOINT</a>
+        </div>
+
+        <!--Volumes-->
+        <div v-if="menu.volumesview" style="width: 100%">
+          <h1 class="md-title">Volumes</h1>
+          <span class="md-body-2">Create a stateful service by configuring a persistent volume. Persistent volumes enable instances to be restarted without data loss.</span><br/>
+          <div class="mt30">
+            <span class="md-title">Local Volumes</span><br/>
+            <div
+              class="md-caption">Choose a local persistent volume if you need quick access to stored data.
+            </div>
+            <br>
+
+            <div class="add-input mt10" v-for="(index,number) in localVolumesNumber">
+              <md-layout>
+                <md-layout md-flex="95">
+                  <span class="md-subheading">VOLUME TYPE</span>
+                </md-layout>
+                <md-layout md-flex="5">
+                  <button style="border: hidden; background-color: inherit;margin-bottom: 20px;"
+                          @click="removeLocalVolumes(number)"><b>X</b></button>
+                </md-layout>
+              </md-layout>
+              <md-input-container>
+                <md-select v-model="volumeType[number]" @change="volumeTypeChange(number)">
+                  <md-option value="default">Select..</md-option>
+                  <md-option value="hostVolume">Host Volume</md-option>
+                  <md-option value="persistentVolume">Persistance Volume</md-option>
+                </md-select>
+              </md-input-container>
+              <md-layout v-if="volumeType[number]=='hostVolume'">
+                <md-layout md-flex="30" class="mr5">
+                  <span class="md-subheading">HOST PATH</span>
+                  <md-input-container style="width: 100%;height: 20px;">
+                    <md-input v-model="localVolumes[number].hostPath"
+                              @input="addVolumeValue(number,'hostPath')"></md-input>
+                  </md-input-container>
+                </md-layout>
+                <md-layout md-flex="30" class="mr5">
+                  <span class="md-subheading">CONTAINER PATH</span>
+                  <md-input-container style="width: 100%;height: 20px;">
+                    <md-input v-model="localVolumes[number].containerPath"
+                              @input="addVolumeValue(number,'containerPath')"></md-input>
+                  </md-input-container>
+                </md-layout>
+                <md-layout md-flex="30">
+                  <span class="md-subheading">MODE</span>
+                  <md-input-container style="width: 100%;height: 20px;">
+                    <md-select v-model="localVolumes[number].mode" @change="addVolumeValue(number,'mode')">
+                      <md-option value="RW">Read and Write</md-option>
+                      <md-option value="RO">Read Only</md-option>
+                    </md-select>
+                  </md-input-container>
+                </md-layout>
+              </md-layout>
+
+              <md-layout v-if="volumeType[number]=='persistentVolume'">
+                <md-layout md-flex="30" class="mr5">
+                  <span class="md-subheading">SIZE (MiB)</span>
+                  <md-input-container style="width: 100%;height: 20px;">
+                    <md-input v-model="localVolumes[number].persistent.size"
+                              @input="addVolumeValue(number,'size')" type="number"></md-input>
+                  </md-input-container>
+                </md-layout>
+                <md-layout md-flex="45">
+                  <span class="md-subheading">CONTAINER PATH</span>
+                  <div style="display: inline;">
+                    <md-button class="md-primary small">?
+                      <md-tooltip class="fontb" md-direction="top">
+                        The path where your application will read and write data. This must be a single-level path
+                        relative to the container.
+                      </md-tooltip>
+                    </md-button>
+                  </div>
+                  <md-input-container style="width: 100%;height: 20px;">
+                    <md-input v-model="localVolumes[number].containerPath"
+                              @input="addVolumeValue(number,'containerPath')"></md-input>
+                  </md-input-container>
+                </md-layout>
+              </md-layout>
+
+            </div>
+
+            <a @click="addLocalVolume">+ ADD LOCAL VOLUME</a>
+          </div>
+          <div class="mt30">
+            <span class="md-title">External Volumes</span><br/>
+            <div
+              class="md-caption">
+              Choose an external persistent volume if fault-tolerance is crucial for your service. More information.
+            </div>
+
+            <div class="add-input mt10" v-for="(index,number) in externalVolumesNumber">
+              <md-layout>
+                <md-layout md-flex="95">
+                  <span class="md-subheading">NAME</span>
+                </md-layout>
+                <md-layout md-flex="5">
+                  <button style="border: hidden; background-color: inherit;margin-bottom: 20px;"
+                          @click="removeExternalVolumes(number)"><b>X</b></button>
+                </md-layout>
+              </md-layout>
+              <md-input-container style="width: 50%;height: 20px;">
+                <md-input v-model="externalVolumes[number].external.name"
+                          @input="addVolumeValue(number,'name')"></md-input>
+              </md-input-container>
+              <md-layout>
+                <md-layout md-flex="30" class="mr5">
+                  <span class="md-subheading">SIZE (GiB)</span>
+                  <md-input-container style="width: 100%;height: 20px;">
+                    <md-input v-model="externalVolumes[number].external.size" @input="addVolumeValue(number,'size')"
+                              :disabled="service.container.type!='MESOS'"></md-input>
+                  </md-input-container>
+                </md-layout>
+                <md-layout md-flex="60">
+                  <span class="md-subheading">CONTAINER PATH</span>
+                  <md-input-container style="width: 100%;height: 20px;">
+                    <md-input v-model="externalVolumes[number].containerPath"
+                              @input="addVolumeValue(number,'containerPath')"></md-input>
+                  </md-input-container>
+                </md-layout>
+              </md-layout>
+            </div>
+
+            <a @click="addExternalVolume">+ ADD EXTERNAL VOLUME</a>
+          </div>
+        </div>
+
+        <!--Health Checks-->
+        <div v-if="menu.healthchecksview" style="width: 100%">
+          <h1 class="md-title" style="display: flex;">Health Checks
+            <div>
+              <md-button class="md-primary small">?
+                <md-tooltip class="fontb" md-direction="top">
+                  A health check passes if (1) its HTTP response code is between 200 and 399 inclusive, and (2) its
+                  response is received within the timeoutSeconds period.
+                </md-tooltip>
+              </md-button>
+            </div>
+          </h1>
+
+          <span class="md-body-2">Health checks may be specified per application to be run against the application's instances.</span><br/>
+
+          <!--<div class="add-input mt30" v-if="Object.keys(service.healthChecks).length > 7"-->
+          <!--<div class="add-input mt30" v-if="service.healthChecks"-->
+          <!--v-for="(healthCheck,index) in service.healthChecks">-->
+          <!--</div>-->
+
+          <div class="add-input mt30" v-for="(index,number) in healthChecksNumber">
+            <div v-if="service.healthChecks[number].protocol == 'HTTP'">
+              <span class="md-subheading">UNABLE TO EDIT THIS HEALTHCHECK</span>
+              <button style="border: hidden; background-color: inherit;float:right;"
+                      @click="removeHealthCheck(index)"><b>X</b></button>
+              <pre lang="json" style="height:inherit;">{{service.healthChecks[number]}}</pre>
+            </div>
+            <div v-else>
+              <span class="md-subheading">PROTOCOL</span>
+              <button style="border: hidden; background-color: inherit;float:right;"
+                      @click="removeHealthCheck(number)"><b>X</b></button>
+              <div style="display: inline;">
+                <md-button class="md-primary small">?
+                  <md-tooltip class="fontb" md-direction="top">You have several protocol options.
+                  </md-tooltip>
+                </md-button>
+              </div>
+              <md-input-container style="width: 40%;height: 20px;">
+                <md-select v-model="healthChecksValue[number].protocol" @change="protocolChange(number)">
+                  <md-option value="">Select Protocol</md-option>
+                  <md-option value="COMMAND">Command</md-option>
+                  <!--<md-option v-if="healthChecksValue[number].protocol.indexOf('HTTPS') > 0" value="MESOS_HTTPS">HTTP</md-option>-->
+                  <!--<md-option v-else value="MESOS_HTTP">HTTP</md-option>-->
+                  <md-option value="MESOS_HTTP">HTTP</md-option>
+                </md-select>
+              </md-input-container>
+              <div v-if="healthChecksValue[number].protocol=='COMMAND'">
+                <span class="md-subheading">COMMAND</span>
+                <md-input-container style="width: 100%;height: 20px;">
+                  <md-input v-model="healthChecksValue[number].command.value"
+                            @input="addHealthChecksValue(number,'command')"></md-input>
+                </md-input-container>
+                <a @click="expandSettings('advancehealthcheck')">
+                  <span v-if="advancehealthcheck">▼</span> <span v-else>▶</span>
+                  ADVANCED HEALTH CHECK SETTINGS
+                </a>
+                <div v-if="advancehealthcheck">
+                  <md-layout>
+                    <md-layout md-flex="21" class="mr4">
+                      <span style="font-size: 13px;margin-top: 5px;">GRACE PERIOD (S)</span>
+                      <div style="display: inline;">
+                        <md-button class="md-primary small">?
+                          <md-tooltip class="fontb" md-direction="top">
+                            (Optional. Default: 300): Health check failures are ignored within this number of seconds or
+                            until the instance becomes healthy for the first time.
+                          </md-tooltip>
+                        </md-button>
+                      </div>
+                      <md-input-container>
+                        <md-input v-model="healthChecksValue[number].gracePeriodSeconds" placeholder="300" type="number"
+                                  @input="addHealthChecksValue(number,'gracePeriodSeconds')"></md-input>
+                      </md-input-container>
+                    </md-layout>
+                    <md-layout md-flex="23" class="mr4">
+                      <span style="font-size: 13px;margin-top: 5px;">INTERVAL (S)</span>
+                      <div style="display: inline;">
+                        <md-button class="md-primary small">?
+                          <md-tooltip class="fontb" md-direction="top">
+                            (Optional. Default: 60): Number of seconds to wait between health checks.
+                          </md-tooltip>
+                        </md-button>
+                      </div>
+                      <md-input-container>
+                        <md-input v-model="healthChecksValue[number].intervalSeconds" type="number" placeholder="60"
+                                  @input="addHealthChecksValue(number,'intervalSeconds')"></md-input>
+                      </md-input-container>
+                    </md-layout>
+                    <md-layout md-flex="20" class="mr4">
+                      <span style="font-size: 13px;margin-top: 5px;">TIMEOUT (S)</span>
+                      <div style="display: inline;">
+                        <md-button class="md-primary small">?
+                          <md-tooltip class="fontb" md-direction="top">
+                            (Optional. Default: 20): Number of seconds after which a health check is considered a
+                            failure
+                            regardless of the response.
+                          </md-tooltip>
+                        </md-button>
+                      </div>
+                      <md-input-container>
+                        <md-input v-model="healthChecksValue[number].timeoutSeconds" type="number" placeholder="20"
+                                  @input="addHealthChecksValue(number,'timeoutSeconds')"></md-input>
+                      </md-input-container>
+                    </md-layout>
+                    <md-layout md-flex="21">
+                      <span style="font-size: 13px;margin-top: 5px;">MAX FAILURES (S)</span>
+                      <div style="display: inline;">
+                        <md-button class="md-primary small">?
+                          <md-tooltip class="fontb" md-direction="top">
+                            (Optional. Default: 3): Number of consecutive health check failures after which the
+                            unhealthy
+                            instance should be killed. HTTP & TCP health checks: If this value is 0, instances will not
+                            be
+                            killed if they fail the health check.
+                          </md-tooltip>
+                        </md-button>
+                      </div>
+                      <md-input-container>
+                        <md-input v-model="healthChecksValue[number].maxConsecutiveFailures" type="number"
+                                  placeholder="3"
+                                  @input="addHealthChecksValue(number,'maxConsecutiveFailures')"></md-input>
+                      </md-input-container>
+                    </md-layout>
+                  </md-layout>
+                </div>
+              </div>
+              <div v-if="healthChecksValue[number].protocol=='MESOS_HTTP'">
+                <md-layout>
+                  <md-layout md-flex="45" class="mr5">
+                    <span class="md-subheading">SERVICE ENDPOINT</span>
+                    <div style="display: inline;">
+                      <md-button class="md-primary small">?
+                        <md-tooltip class="fontb" md-direction="top">
+                          Select a service endpoint that you configured in Networking.
+                        </md-tooltip>
+                      </md-button>
+                    </div>
+                    <md-input-container style="width: 100%;height: 20px;">
+                      <md-select @change="addPortIndex(number)" v-model="healthChecksValue[number].portIndex">
+                        <md-option value="host">Select Endpoint</md-option>
+                        <md-option v-for="(portDef,index) in service.portDefinitions" :value="index">
+                          {{portDef.name != null ? portDef.name : index }}
+                          <!--<md-option v-else v-for="(portDef,index) in service.portDefinitions" :value="index">{{index}}-->
+                        </md-option>
+                      </md-select>
+                    </md-input-container>
+                  </md-layout>
+                  <md-layout md-flex="45">
+                    <span class="md-subheading">PATH</span>
+                    <div style="display: inline;">
+                      <md-button class="md-primary small">?
+                        <md-tooltip class="fontb" md-direction="top">
+                          Enter a path that is reachable in your service and where you expect a response code between
+                          200
+                          and 399.
+                        </md-tooltip>
+                      </md-button>
+                    </div>
+                    <md-input-container style="width: 100%;height: 20px;">
+                      <md-input v-model="healthChecksValue[number].path"
+                                @input="addHealthChecksValue(number,'path')"></md-input>
+                    </md-input-container>
+                  </md-layout>
+                </md-layout>
+                <md-checkbox v-if="healthChecksValue[number].protocol.indexOf('HTTP') > 0 " v-model="makeHttps[number]"
+                             @change="httpChange(number)"
+                             class="md-primary">MAKE HTTPS
+                </md-checkbox>
+                <br>
+                <a @click="expandSettings('advancehealthcheck')">
+                  <span v-if="advancehealthcheck">▼</span> <span v-else>▶</span>
+                  ADVANCED HEALTH CHECK SETTINGS
+                </a>
+                <div v-if="advancehealthcheck">
+                  <md-layout>
+                    <md-layout md-flex="21" class="mr4">
+                      <span style="font-size: 13px;margin-top: 5px;">GRACE PERIOD (S)</span>
+                      <div style="display: inline;">
+                        <md-button class="md-primary small">?
+                          <md-tooltip class="fontb" md-direction="top">
+                            (Optional. Default: 300): Health check failures are ignored within this number of seconds or
+                            until the instance becomes healthy for the first time.
+                          </md-tooltip>
+                        </md-button>
+                      </div>
+                      <md-input-container>
+                        <md-input v-model="healthChecksValue[number].gracePeriodSeconds" placeholder="300"
+                                  @input="addHealthChecksValue(number,'gracePeriodSeconds')"></md-input>
+                      </md-input-container>
+                    </md-layout>
+                    <md-layout md-flex="23" class="mr4">
+                      <span style="font-size: 13px;margin-top: 5px;">INTERVAL (S)</span>
+                      <div style="display: inline;">
+                        <md-button class="md-primary small">?
+                          <md-tooltip class="fontb" md-direction="top">
+                            (Optional. Default: 60): Number of seconds to wait between health checks.
+                          </md-tooltip>
+                        </md-button>
+                      </div>
+                      <md-input-container>
+                        <md-input v-model="healthChecksValue[number].intervalSeconds" placeholder="60"
+                                  @input="addHealthChecksValue(number,'intervalSeconds')"></md-input>
+                      </md-input-container>
+                    </md-layout>
+                    <md-layout md-flex="20" class="mr4">
+                      <span style="font-size: 13px;margin-top: 5px;">TIMEOUT (S)</span>
+                      <div style="display: inline;">
+                        <md-button class="md-primary small">?
+                          <md-tooltip class="fontb" md-direction="top">
+                            (Optional. Default: 20): Number of seconds after which a health check is considered a
+                            failure
+                            regardless of the response.
+                          </md-tooltip>
+                        </md-button>
+                      </div>
+                      <md-input-container>
+                        <md-input v-model="healthChecksValue[number].timeoutSeconds" placeholder="20"
+                                  @input="addHealthChecksValue(number,'timeoutSeconds')"></md-input>
+                      </md-input-container>
+                    </md-layout>
+                    <md-layout md-flex="21">
+                      <span style="font-size: 13px;margin-top: 5px;">MAX FAILURES (S)</span>
+                      <div style="display: inline;">
+                        <md-button class="md-primary small">?
+                          <md-tooltip class="fontb" md-direction="top">
+                            (Optional. Default: 3): Number of consecutive health check failures after which the
+                            unhealthy
+                            instance should be killed. HTTP & TCP health checks: If this value is 0, instances will not
+                            be
+                            killed if they fail the health check.
+                          </md-tooltip>
+                        </md-button>
+                      </div>
+                      <md-input-container>
+                        <md-input v-model="healthChecksValue[number].maxConsecutiveFailures" placeholder="3"
+                                  @input="addHealthChecksValue(number,'maxConsecutiveFailures')"></md-input>
+                      </md-input-container>
+                    </md-layout>
+                  </md-layout>
+                </div>
+              </div>
+            </div>
+          </div>
+          <a @click="addHealthChecks">+ ADD HEALTH CHECK</a>
+        </div>
+
+        <!--Environment-->
+        <div v-if="menu.environmentview" style="width: 100%">
+          <h1 class="md-title" style="display: flex;">Environment</h1>
+          <span
+            class="md-body-2">Configure any environment values to be attached to each instance that is launched.</span>
+          <br/>
+
+          <div class="mt30">
+            <span class="md-title">Environment Variables</span>
+            <div style="display: inline;">
+              <md-button class="md-primary small">?
+                <md-tooltip class="fontb" md-direction="top">
+                  DC/OS also exposes environment variables for host ports and metdata.
+                </md-tooltip>
+              </md-button>
+            </div>
+            <br>
+            <span class="md-body-2">Set up environment variables for each instance your service launches.</span> <br/>
+            <div v-for="(index,number) in envNumber">
+              <md-layout class="mt10">
+                <md-layout md-flex="40">
+                  <div v-if="number == 0">KEY</div>
+                  <md-input-container>
+                    <md-input v-model="envValue[number].key" @input="addEnvValue(number,'key')"></md-input>
+                  </md-input-container>
+                </md-layout>
+                <md-layout md-flex="5">
+                  <div style="font-size: 20px;margin-top: 60%;margin-left: 50%;">:</div>
+                </md-layout>
+                <md-layout md-flex="40">
+                  <div v-if="number == 0">VALUE</div>
+                  <md-input-container>
+                    <md-input v-model="envValue[number].value" @input="addEnvValue(number,'value')"></md-input>
+                  </md-input-container>
+                </md-layout>
+                <md-layout md-flex="10">
+                  <button style="border: hidden; background-color: inherit;margin-bottom: 20%;"
+                          @click="removeEnv(number)"><b>X</b></button>
+                </md-layout>
+              </md-layout>
+            </div>
+
+            <a @click="addEnv">+ ADD ENVIRONMENT VARIABLE</a>
+          </div>
+          <div class="mt30">
+            <span class="md-title">Labels</span>
+            <div style="display: inline;">
+              <md-button class="md-primary small">?
+                <md-tooltip class="fontb" md-direction="top">
+                  For example, you could label services “staging” and “production” to mark them by their position in the
+                  pipeline.
+                </md-tooltip>
+              </md-button>
+            </div>
+            <br>
+            <span class="md-body-2">Set up environment variables for each instance your service launches.</span> <br/>
+            <div v-for="(index,number) in labelNumber">
+              <md-layout class="mt10">
+                <md-layout md-flex="40">
+                  <div v-if="number == 0">KEY</div>
+                  <md-input-container>
+                    <md-input v-model="labelsValue[number].key" @input="addLabelValue(number,'key')"></md-input>
+                  </md-input-container>
+                </md-layout>
+                <md-layout md-flex="5">
+                  <div style="font-size: 20px;margin-top: 20px;margin-left: 13px;">:</div>
+                </md-layout>
+                <md-layout md-flex="40">
+                  <div v-if="number == 0">VALUE</div>
+                  <md-input-container>
+                    <md-input v-model="labelsValue[number].value" @input="addLabelValue(number,'value')"></md-input>
+                  </md-input-container>
+                </md-layout>
+                <md-layout md-flex="10">
+                  <button style="border: hidden; background-color: inherit;margin-bottom: 20%;"
+                          @click="removeLabels(number)"><b>X</b></button>
+                </md-layout>
+              </md-layout>
+            </div>
+            <a @click="addLabel">+ ADD LABEL</a>
+          </div>
+        </div>
+      </md-layout>
+      <md-layout id="slideEditor" class="sideEditor">
+        <div class="md-right bgblack" ref="rightSidenav" style="width: 100%;">
+          <codemirror v-if="opened"
+                      :options="{
+                                  theme: 'dracula',
+                                  mode: 'javascript',
+                                  extraKeys: {'Ctrl-Space': 'autocomplete'},
+                                  lineNumbers: true,
+                                  lineWrapping: true
+                                }"
+                      :value="filteredService"
+                      v-on:change="editorToService"
+          >
+          </codemirror>
+        </div>
+      </md-layout>
+    </md-layout>
+  </div>
+</template>
+<script>
+  require('codemirror/mode/javascript/javascript');
+  require('codemirror/mode/yaml/yaml.js');
+  require('codemirror/mode/vue/vue');
+
+  require('codemirror/theme/dracula.css');
+  require('codemirror/addon/hint/show-hint.js');
+  require('codemirror/addon/hint/show-hint.css');
+  require('codemirror/addon/hint/javascript-hint.js');
+  export default {
+    props: {
+      _service: Object,
+      jsonEditor: Boolean
+    },
+    data() {
+      return {
+        service: this._service,
+        filteredService: '',
+        opened: false,
+        menu: {
+          serviceview: true,
+          networkingview: false,
+          volumesview: false,
+          healthchecksview: false,
+          environmentview: false
+        },
+        artifactUriNumber: 0,
+        placementNumber: 0,
+        serviceEndpointNumber: 0,
+        externalVolumesNumber: 0,
+        healthChecksNumber: 0,
+        labelNumber: 0,
+        envNumber: 0,
+        localVolumesNumber: 0,
+        networkType: "host",
+        advancehealthcheck: false,
+        elbServiceAddress: [false],
+        moresetting: false,
+        volumeType: ["default"],
+        labelsValue: [{
+          key: "",
+          value: ""
+        }],
+        labelsPath: [],
+        envValue: [{
+          key: "",
+          value: ""
+        }],
+        portDefinitionsValue: [{
+          labels: {},
+          name: "",
+          protocol: "tcp",
+          port: 0
+        }],
+        requirePorts: true,
+        portMappings: [{
+          containerPort: "",
+          hostPort: "",
+          protocol: "tcp"
+        }],
+        networks: [{
+          mode: ""
+        }],
+        protocol: [{udp: false, tcp: true}],
+        localVolumes: [{
+          mode: "RW",
+//          containerPath: "",
+//          hostPath: "",
+//          persistent: {size: 0}
+        }],
+        externalVolumes: [{
+          external: {
+            name: "",
+            provider: "dvdi",
+            options: {
+              "dvdi/driver": "rexray"
+            }
+          },
+          mode: "RW",
+//          containerPath: "",
+//          hostPath: "",
+        }],
+        healthChecksValue: [{
+          gracePeriodSeconds: "",
+          portIndex: 0,
+          intervalSeconds: "",
+          timeoutSeconds: "",
+          maxConsecutiveFailures: "",
+          path: "",
+          protocol: "",
+          command: {value: ""}
+        }],
+        constraints: [["", "", ""]],
+        makeHttps: [false],
+        cmd: "",
+        disk: "",
+        gpus: "",
+        docker: {
+          image: "",
+          privileged: false,
+          forcePullImage: false
+        },
+        fetch: [{uri: ""}],
+        operator: ["UNIQUE", "CLUSTER", "GROUP_BY", "LIKE", "UNLIKE", "MAX_PER"]
+      }
+    },
+    mounted() {
+      if (this.jsonEditor) {
+        this.$el.querySelector('#slideEditor').className = 'md-layout sideEditor-open md-flex-25';
+        this.opened = true;
+        this.serviceToEditor();
+      } else {
+        this.$el.querySelector('#slideEditor').className = 'md-layout sideEditor';
+        this.serviceToEditor();
+      }
+    }
+    ,
+    compute: {},
+    watch: {
+      service: {
+        handler(val, oldVal) {
+          this.serviceToEditor();
+          this.$emit('update:_service', val);
+        },
+        deep: true
+      },
+      protocol: {
+        handler(val, oldVal) {
+          var me = this;
+          $.each(this.protocol, function (key, value) {
+            if (me.service.portDefinitions != undefined) {
+              if (value.tcp && value.udp) {
+                me.service.portDefinitions[key].protocol = "udp,tcp";
+              } else if (value.udp) {
+                me.service.portDefinitions[key].protocol = "udp";
+              } else if (value.tcp) {
+                me.service.portDefinitions[key].protocol = "tcp";
+              } else {
+                me.$delete(me.service.portDefinitions[key], "protocol");
+              }
+            }
+            if (me.service.container.portMappings != undefined) {
+              me.service.container.portMappings[key].protocol = value;
+              if (value.tcp && value.udp) {
+                me.service.container.portMappings[key].protocol = "udp,tcp";
+              } else if (value.udp) {
+                me.service.container.portMappings[key].protocol = "udp";
+              } else if (value.tcp) {
+                me.service.container.portMappings[key].protocol = "tcp";
+              } else {
+                me.$delete(me.service.container.portMappings[key], "protocol");
+              }
+            }
+          })
+
+        },
+        deep: true
+      },
+      labelsPath: {
+        handler(val, oldVal) {
+          var me = this;
+          $.each(this.labelsPath, function (i, labelPath) {
+            //portDefinitions 과 container.portMappings 는 공존할 수 없음.
+            if (me.service.portDefinitions) {
+              if (me.service.portDefinitions[i].labels) {
+                me.service.portDefinitions[i].labels = {};
+                me.service.portDefinitions[i].labels['VIP_' + i] = '/' + me.service.id.replace("/", "") + ':' + labelPath;
+              }
+            }
+            if (me.service.container.portMappings) {
+              if (me.service.container.portMappings[i].labels) {
+                me.service.container.portMappings[i].labels = {};
+                me.service.container.portMappings[i].labels['VIP_' + i] = '/' + me.service.id.replace("/", "") + ':' + labelPath;
+              }
+            }
+
+//            //portDefinitions 속에 labels.['VIP_' + key] 가 있다면, '/' + me.service.id + ':' + value 형식으로 고침.
+//            if (me.service.portDefinitions) {
+//              $.each(Object.keys(me.service.portDefinitions[key].labels), function (label) {
+//                me.$delete(me.service.portDefinitions[key].labels, label);
+//              });
+//              me.service.portDefinitions[key].labels['VIP_' + key] = '/' + me.service.id + ':' + value;
+//            }
+
+//            if (me.service.container.portMappings) {
+//              $.each(Object.keys(me.service.container.portMappings[key].labels), function (label) {
+//                console.log('label', label);
+//                me.$delete(me.service.portDefinitions[key].labels, label);
+//              });
+//              me.service.portDefinitions[key].labels['VIP_' + key] = '/' + me.service.id + ':' + value;
+//            }
+          })
+        },
+        deep: true
+      },
+    },
+    methods: {
+      removeUnusedAppData: function (app) {
+        delete app['version'];
+        delete app['versionInfo'];
+        delete app['tasksStaged'];
+        delete app['tasksRunning'];
+        delete app['tasksHealthy'];
+        delete app['tasksUnhealthy'];
+        delete app['deployments'];
+        delete app['tasks'];
+        delete app['taskStats'];
+        return app;
+      },
+      editorToService: function (text) {
+        var me = this;
+        this.service = me.removeUnusedAppData(JSON.parse(text));
+
+        //서비스에 포트데피니션이 없으면 추가.
+//        if (!this.service.portDefinitions) {
+//          this.service.portDefinitions = [];
+//        }
+        //
+        //labelsPath
+
+        this.requirePorts = !this.service.requirePorts;
+        this.docker = this.service.container.docker;
+        this.cmd = this.service.cmd;
+        this.disk = this.service.disk;
+        this.gpus = this.service.gpus;
+        this.fetch = this.service.fetch;
+        this.artifactUriNumber = !this.service.fetch ? 0 : this.service.fetch.length;
+
+        this.constraints = this.service.constraints;
+        this.placementNumber = !this.service.constraints ? 0 : this.service.constraints.length;
+
+        this.healthChecksNumber = !this.service.healthChecks ? 0 : this.service.healthChecks.length;
+        this.healthChecksValue = this.service.healthChecks;
+
+        var envNumber = 0;
+        $.each(this.service.env, function (key, value) {
+          me.envValue.push({key: "", value: ""});
+          me.envValue[envNumber].key = key;
+          me.envValue[envNumber].value = value;
+          envNumber++;
+        })
+        this.envNumber = envNumber;
+
+        var labelNumber = 0;
+        $.each(this.service.labels, function (key, value) {
+          me.labelsValue.push({key: "", value: ""});
+          me.labelsValue[labelNumber].key = key;
+          me.labelsValue[labelNumber].value = value;
+          labelNumber++;
+        })
+        this.labelNumber = labelNumber;
+
+        $.each(this.healthChecksValue, function (key, value) {
+          me.makeHttps[key] = false;
+          if (value.protocol == 'MESOS_HTTPS') {
+            me.makeHttps[key] = true;
+          }
+        })
+        //networkType 확인
+        if (this.service.networks[0].mode) {
+          this.networkType = this.service.networks[0].mode;
+        }
+        if (this.service.portDefinitions && this.service.portDefinitions.length) {
+          this.serviceEndpointNumber = this.service.portDefinitions.length;
+          this.portDefinitionsValue = this.service.portDefinitions;
+          $.each(this.service.portDefinitions, function (key, value) {
+
+            //portDefinitions[key] 에 labels 값이 있을 경우
+            if (me.service.portDefinitions[key].labels) {
+
+              //labelsPath 에 없으면 삽입.
+              if (!me.labelsPath[key]) {
+                me.labelsPath.push({labels: {}});
+              }
+              me.elbServiceAddress[key] = true;
+              me.labelsPath[key] = value.labels['VIP_' + key].replace("/" + me.service.id + ":", "");
+            }
+
+            if (!me.protocol[key]) {
+              me.protocol.push({tcp: false, udp: false});
+            }
+            if (me.service.portDefinitions[key].protocol) {
+              if (me.service.portDefinitions[key].protocol == 'tcp') {
+                me.protocol[key].tcp = true;
+              } else if (me.service.portDefinitions[key].protocol == 'udp') {
+                me.protocol[key].udp = true;
+              } else {
+                me.protocol[key].udp = true;
+                me.protocol[key].tcp = true;
+              }
+            }
+          })
+        } else {
+          this.serviceEndpointNumber = 0;
+//          this.portDefinitionsValue = this.service.portDefinitions;
+          this.portDefinitionsValue = [{containerPort: "", hostPort: "", protocol: "tcp"}];
+        }
+
+        if (this.service.container.portMappings && this.service.container.portMappings.length) {
+          console.log("portMappings");
+          this.serviceEndpointNumber = this.service.container.portMappings.length;
+          this.portMappings = this.service.container.portMappings;
+          $.each(this.service.container.portMappings, function (key, value) {
+            if (value.labels) {
+              if (!me.labelsPath[key]) {
+                me.labelsPath.push('');
+                me.elbServiceAddress.push(true);
+              }
+              me.elbServiceAddress[key] = true;
+              if (value.labels['VIP_' + key]) {
+                me.labelsPath[key] = value.labels['VIP_' + key].replace("/" + me.service.id.replace("/", "") + ":", "");
+              }
+            }
+            if (!me.protocol[key]) {
+              me.protocol.push({tcp: false, udp: false});
+            }
+            if (me.service.container.portMappings[key].protocol) {
+              if (me.service.container.portMappings[key].protocol == 'tcp') {
+                me.protocol[key].tcp = true;
+              } else if (me.service.container.portMappings[key].protocol == 'udp') {
+                me.protocol[key].udp = true;
+              } else {
+                me.protocol[key].udp = true;
+                me.protocol[key].tcp = true;
+              }
+            }
+          })
+        } else {
+          this.serviceEndpointNumber = 0;
+//          this.portMappings = this.service.container.portMappings;
+          this.portMappings = {containerPort: "", hostPort: "", protocol: "tcp", labels: {}, name: ""};
+        }
+        if (me.service.container.volumes != undefined && me.service.container.volumes.length > 0) {
+          me.localVolumesNumber = 0;
+          me.externalVolumesNumber = 0;
+          $.each(me.service.container.volumes, function (key, value) {
+            if (value.external == undefined) {
+              if (me.volumeType[me.localVolumesNumber] == undefined) me.volumeType.push("default");
+              if (value.persistent == undefined) {
+                me.volumeType[me.localVolumesNumber] = 'hostVolume';
+              } else {
+                me.volumeType[me.localVolumesNumber] = 'persistentVolume';
+              }
+              if (me.localVolumes[me.localVolumesNumber] == undefined) {
+                me.localVolumes.push(value);
+              } else {
+                me.localVolumes[me.localVolumesNumber] = value;
+              }
+              me.localVolumesNumber += 1;
+
+            } else {
+              if (me.externalVolumes[me.externalVolumesNumber] == undefined) {
+                me.externalVolumes.push(value);
+              } else {
+                me.externalVolumes[me.externalVolumesNumber] = value;
+              }
+              me.externalVolumesNumber += 1;
+            }
+          })
+        } else {
+          me.localVolumesNumber = 0;
+          me.externalVolumesNumber = 0;
+          me.localVolumes = me.service.container.volumes;
+          me.externalVolumes = me.service.container.volumes;
+        }
+
+      },
+      serviceToEditor: function () {
+        //prettyPrint
+        this.filteredService = JSON.stringify(this.removeUnusedAppData(this.service), null, 2);
+      },
+      changeView: function (viewname) {
+        var me = this;
+        $.each(me.menu, function (key, value) {
+          me.menu[key] = false;
+        })
+        this.menu[viewname] = true;
+      },
+      expandSettings: function (name) {
+        if (this[name] == true) {
+          this[name] = false;
+        } else {
+          this[name] = true;
+        }
+      },
+      addPlacement: function (index) {
+        this.constraints.push(["", "", ""]);
+        this.placementNumber += 1;
+      },
+      removePlacement: function (index) {
+        this.placementNumber -= 1;
+        this.service.constraints.splice(index, 1);
+      },
+      addConstraints: function (index) {
+        var flag = true;
+        var me = this;
+        $.each(this.constraints[index], function (key, value) {
+          if (value == "") {
+            flag = false;
+          }
+        })
+        if (this.constraints[index][1] == "UNIQUE") {
+          flag = me.constraints[index][0] != "" ? true : false;
+          this.constraints[index].splice(2, 1);
+        }
+        if (flag) {
+          if (this.service.constraints[index] == undefined) {
+            this.service.constraints.push(this.constraints[index]);
+          } else {
+            this.$set(this.service.constraints, index, this.constraints[index]);
+          }
+        }
+      },
+      networkTypeChange: function () {
+        console.log("networkTypeChange");
+        var me = this;
+        if (this.service.networks[0] == undefined && this.networkType != 'host') {
+          var network = {mode: this.networkType};
+          this.service.networks.push(network);
+        }
+
+        if (this.networkType != 'host') {//Bridge일때
+          console.log("bridge")
+          var portMapping = [];
+
+          if (this.service.portDefinitions != undefined) {
+            $.each(me.service.portDefinitions, function (key, value) {
+              if (value.name && value.name!="") {
+                me.portMappings[key].name?me.$set(me.portMappings[key], "name", value.name):me.portMappings[key].name = value.name;
+              }
+//              if (value.protocol != undefined && value.protocol != "") me.$set(me.portMappings[key], "protocol", value.protocol);
+              if (value.port && value.port!="") {
+                me.portMappings[key].hostPort?me.$set(me.portMappings[key], "hostPort", value.port):me.portMappings[key].hostPort=value.port;
+              }
+//              if (value.labels && value.labels!="" ){
+              if (me.elbServiceAddress[key]){
+                me.portMappings[key].labels?me.$set(me.portMappings[key], "labels", value.labels):me.portMappings[key].labels = value.labels;
+              }
+              portMapping.push(me.portMappings[key]);
+              me.$set(me.service.container, "portMappings", portMapping);
+            })
+          } else {
+            me.$set(me.service.container, "portMappings", me.service.container.portMappings);
+          }
+
+          if (this.service.networks[0]) {
+            this.$set(me.service.networks[0], "mode", me.networkType);
+          }
+
+          if (me.service.portDefinitions) {
+            this.$delete(me.service, "portDefinitions");
+          }
+
+        } else { //Host일때
+
+          console.log("host")
+          var portDefinition = [];
+
+          if (this.service.container.portMappings) {
+            $.each(this.service.container.portMappings, function (key, value) {
+              if (!me.portDefinitionsValue[key]){
+                me.portDefinitionsValue.push({});
+              }
+              if (value.name && value.name!="") {
+                !me.portDefinitionsValue[key].name?me.$set(me.portDefinitionsValue[key],"name",value.name):me.portDefinitionsValue[key].name = value.name;
+              }
+//              if (value.protocol != undefined && value.protocol != "") me.portDefinitionsValue[key].protocol = value.protocol;
+              if (value.port && value.port!="") {
+                me.portDefinitionsValue[key].hostPort = value.port;
+              }
+              if (value.containerPort && value.containerPort!="") {
+                me.portDefinitionsValue[key].containerPort = value.containerPort;
+              }
+//              if (value.labels && value.labels!=""){
+              if (me.elbServiceAddress[key]){
+                !me.portDefinitionsValue[key].labels?me.$set(me.portDefinitionsValue[key],'labels',value.labels):me.portDefinitionsValue[key].labels = value.labels;
+              }
+              portDefinition.push(me.portDefinitionsValue[key]);
+              me.$set(me.service, "portDefinitions", portDefinition);
+            })
+          } else {
+            me.$set(me.service, "portDefinitions", me.service.portDefinitions);
+          }
+
+          if (this.service.networks[0]) {
+            this.$set(this.service.networks[0], "mode", this.networkType);
+          }
+          if (this.service.container.portMappings) {
+            this.$delete(this.service.container, "portMappings");
+          }
+
+        }
+      },
+      hostPortChange: function () {
+        if (!this.requirePorts) {
+          this.service.requirePorts = false;
+        } else {
+          this.service.requirePorts = true;
+        }
+      },
+      serviceEndpointsValue: function (index, key) {
+        if (this.networkType == 'host') {
+          if (key == 'labels') {
+            if (this.portDefinitionsValue[index][key]["VIP_" + index] == "/"+this.service.id+":") {
+              this.$delete(this.service.portDefinitions[index], key);
+            } else {
+              this.$set(this.service.portDefinitions[index][key], "VIP_" + index, "/" + this.service.id.replace("/", "") + ":" + this.portDefinitionsValue[index][key]["VIP_" + index]);
+            }
+          } else {
+            if (this.portDefinitionsValue[index][key] == "") {
+              this.$delete(this.service.portDefinitions[index], key);
+            } else {
+              this.$set(this.service.portDefinitions[index], key, this.portDefinitionsValue[index][key]);
+            }
+          }
+        } else {
+          if (key == 'labels') {
+            if (this.portMappings[index][key]["VIP_" + index] == "/"+this.service.id+":") {
+              this.$delete(this.service.container.portMappings[index], key);
+            } else {
+              this.$set(this.service.container.portMappings[index][key], "VIP_" + index, "/" + this.service.id.replace("/", "") + ":" + this.portMappings[index][key]["VIP_" + index]);
+            }
+          } else {
+            if (this.portMappings[index][key] == "") {
+              this.$delete(this.service.container.portMappings[index], key);
+            } else {
+              this.$set(this.service.container.portMappings[index], key, this.portMappings[index][key]);
+            }
+          }
+        }
+      },
+      enableLoad: function (index, key) {
+        if (!this.elbServiceAddress[index]) {
+          var label = {}
+          if (this.networkType == 'host') {
+//            this.$set(label, "VIP_" + index, this.portDefinitionsValue[index][key]["VIP_" + index]);
+            this.$set(label, "VIP_" + index, "/"+this.service.id.replace("/","")+":"+this.labelsPath[index]);
+            this.$set(this.service.portDefinitions[index], key, label);
+          } else {
+//            if (this.portMappings[index][key]){
+//              this.$set(label, "VIP_" + index, this.service.container.portMappings[index][key]["VIP_" + index]?this.portMappings[index][key]:this.service.container.portMappings[index][key]["VIP_" + index]);
+//            } else {
+              this.$set(label, "VIP_" + index, "/"+this.service.id.replace("/","")+":"+this.labelsPath[index]);
+//            }
+            this.$set(this.service.container.portMappings[index], key, label);
+          }
+        } else {
+          if (this.networkType == 'host'){
+            this.$delete(this.service.portDefinitions[index], key);
+          } else {
+            this.$delete(this.service.container.portMappings[index], key);
+          }
+          this.elbServiceAddress.splice(index,1);
+        }
+      },
+      addDockerValue: function (type) {
+        var object = {};
+        if (this.service.container.docker == undefined) {
+          this.$set(this.service.container, "docker", object);
+        } else {
+          this.$set(this.service.container.docker, type, this.docker[type]);
+        }
+      },
+      addServiceLv: function (key) {
+        this.$set(this.service, key, this[key]);
+      },
+      fetchValue: function (key, index) {
+        var data = {};
+        var me = this;
+//        me.$set(data, key, this.fetch[index][key]);
+        this.service.fetch = this.fetch;
+      },
+      addArtifact: function () {
+        var object = {uri: ""};
+        if (this.fetch[this.artifactUriNumber] == undefined) {
+          this.fetch.push(object);
+        }
+        this.artifactUriNumber += 1;
+      },
+      addServiceEndpoint: function () {
+        var obj = {protocol: "tcp", port: 0};
+        var valueObj = {labels: {}, name: "", protocol: "tcp", port: ""};
+        var portmapping = {containerPort: "", hostPort: "", protocol: "tcp", labels: {}, name: ""};
+        this.$set(valueObj.labels, "VIP_" + this.serviceEndpointNumber, "");
+        if (this.service.networks[0])
+          this.$set(this.service.networks[0], "mode", this.networkType);
+        if (this.portDefinitionsValue.length < this.serviceEndpointNumber + 1 || this.portMappings.length < this.serviceEndpointNumber + 1) {
+          this.portDefinitionsValue ? "" : this.portDefinitionsValue.push(valueObj);
+          this.portMappings ? "" : this.portMappings.push(portmapping);
+          this.protocol.push({udp: false, tcp: true});
+        } else {
+          this.portDefinitionsValue[0] = valueObj;
+          this.portMappings[0] = portmapping;
+        }
+        if (this.networkType == 'host') {
+//          this.$delete(this.service.container, "portMappings");
+          this.service.portDefinitions.push(obj);
+        } else {
+          if (this.service.container.portMappings == undefined) this.$set(this.service.container, "portMappings", []);
+          this.service.container.portMappings.push(portmapping);
+        }
+        this.serviceEndpointNumber += 1;
+      },
+      removeServiceEndpoint: function (index) {
+        var me = this;
+        $.each(me.service.healthChecks, function (key, value) {
+          if (value.portIndex != undefined && value.portIndex == index) {
+            me.service.healthChecks.splice(key, 1);
+          }
+        })
+        this.portDefinitionsValue.splice(index, 1);
+        this.portMappings.splice(index, 1);
+        if (this.networkType == 'host') {
+          this.service.portDefinitions.splice(index, 1);
+        } else {
+          this.service.container.portMappings.splice(index, 1);
+        }
+        this.labelsPath.splice(index, 1);
+        this.elbServiceAddress.splice(index, 1);
+        this.serviceEndpointNumber -= 1;
+      },
+      removeArtifact: function (index) {
+        if (index != 0) {
+          this.fetch.splice(index, 1);
+        }
+        this.service.fetch.splice(index, 1);
+        this.artifactUriNumber -= 1;
+      },
+      removeLocalVolumes: function (index) {
+        this.localVolumes.splice(index, 1);
+        this.volumeType.splice(index, 1);
+        this.localVolumesNumber -= 1;
+        this.volumeValueChange();
+      },
+      removeExternalVolumes: function (index) {
+        this.externalVolumes.splice(index, 1);
+        this.$delete(this.service, "residency");
+        this.externalVolumesNumber -= 1;
+        this.volumeValueChange();
+      },
+      addLocalVolume: function () {
+        var localObj = {mode: "RW"};
+        this.service.container.volumes.push(localObj);
+        if (this.localVolumes[this.localVolumesNumber] == undefined) {
+          this.localVolumes.push(localObj);
+          this.volumeType.push("default");
+        }
+        this.localVolumesNumber += 1;
+        this.volumeValueChange();
+      },
+      addExternalVolume: function (volumeType) {
+        var externalObj = {external: {provider: "dvdi", options: {"dvdi/driver": "rexray"}}, mode: "RW"};
+        this.service.container.volumes.push(externalObj);
+        if (this.externalVolumes[this.externalVolumesNumber] == undefined) {
+          this.externalVolumes.push(externalObj);
+        }
+        this.externalVolumesNumber += 1;
+        this.volumeValueChange();
+      },
+      addVolumeValue: function (index, key) {
+        this.volumeValueChange();
+      },
+      volumeValueChange: function () {
+        var me = this;
+        me.service.container.volumes = [];
+        $.each(this.localVolumes, function (key, value) {
+          if (me.localVolumesNumber != 0) {
+            me.service.container.volumes.push(value);
+          }
+        })
+        $.each(this.externalVolumes, function (key, value) {
+          if (me.externalVolumesNumber != 0) {
+            me.service.container.volumes.push(value);
+          }
+        })
+      },
+      volumeTypeChange: function (index) {
+        if (this.volumeType[index] == 'persistentVolume') {
+          var residency = {relaunchEscalationTimeoutSeconds: 10, taskLostBehavior: "WAIT_FOREVER"};
+          this.$set(this.localVolumes[index], "persistent", {size: 0});
+          this.$set(this.service.container.volumes[index], "persistent", this.localVolumes[index].persistent);
+          this.$set(this.service, "residency", residency);
+        } else {
+          this.$delete(this.service, "residency");
+          this.$delete(this.service.container.volumes[index], "persistent");
+          this.$set(this.service.container.volumes[index], "mode", "RW");
+        }
+      },
+      addLabel: function () {
+        var label = {key: "", value: ""};
+        this.labelsValue.push(label);
+        this.labelNumber += 1;
+      },
+      addLabelValue: function (index, location) {
+        if (this.labelsValue[index].key != "" && this.labelsValue[index].value != "") {
+          if (this.service.labels == undefined) {
+            this.$set(this.service, "labels", {});
+          }
+          var me = this;
+          var label = {};
+          $.each(this.labelsValue, function (key, value) {
+            if (value.key != "" && value.value != "") {
+              me.$set(label, value.key, value.value);
+            }
+          })
+          this.service.labels = label;
+        } else {
+          this.$delete(this.service.labels, this.labelsValue[index].key);
+        }
+      },
+      removeLabels: function (index) {
+        this.$delete(this.service.labels, this.labelsValue[index].key);
+        if (Object.keys(this.service.labels).length == 0) {
+          this.$delete(this.service, "labels");
+        }
+        this.labelsValue.splice(index, 1);
+        this.labelNumber -= 1;
+      },
+      addEnv: function () {
+        var env = {key: "", value: ""};
+        this.envValue.push(env);
+        this.envNumber += 1;
+      },
+      addEnvValue: function (index, location) {
+        if (this.envValue[index].key != "" && this.envValue[index].value != "") {
+          if (this.service.env == undefined) {
+            this.$set(this.service, "env", {});
+          }
+          var me = this;
+          var env = {};
+          $.each(this.envValue, function (key, value) {
+            if (value.key != "" && value.value != "") {
+              me.$set(env, value.key, value.value);
+            }
+          })
+          this.service.env = env;
+        } else {
+          this.$delete(this.service.env, this.envValue[index].key);
+        }
+      },
+      removeEnv: function (index) {
+        this.$delete(this.service.env, this.envValue[index].key);
+        if (Object.keys(this.service.env).length == 0) {
+          this.$delete(this.service, "env");
+        }
+        this.envValue.splice(index, 1);
+        this.envNumber -= 1;
+      },
+      addHealthChecks: function () {
+        var healthCheck = {
+          gracePeriodSeconds: "",
+          intervalSeconds: "",
+          timeoutSeconds: "",
+          maxConsecutiveFailures: "",
+          path: "",
+          portIndex: 0,
+          protocol: "",
+          command: {value: ""}
+        }
+        this.healthChecksValue.push(healthCheck);
+        this.healthChecksNumber += 1;
+      },
+      addPortIndex: function (index) {
+        this.$set(this.service.healthChecks[index], 'portIndex', this.healthChecksValue[index].portIndex);
+      },
+      addHealthChecksValue: function (index, key) {
+//        if (this.service.healthChecks[index][key] == undefined){
+        this.$set(this.service.healthChecks[index], key, this.healthChecksValue[index][key]);
+        if (this.healthChecksValue[index][key] == "") {
+          this.$delete(this.service.healthChecks[index], key);
+        }
+//        }
+        if (key == 'command') {
+          var command = {value: this.healthChecksValue[index].command.value};
+          this.$set(this.service.healthChecks[index], key, command);
+        }
+      },
+      removeHealthCheck: function (index) {
+        if (index != 0) {
+          this.healthChecksValue.splice(index, 1);
+        }
+        this.service.healthChecks.splice(index, 1);
+        this.healthChecksNumber -= 1;
+      },
+      httpChange: function (index) {
+        if (!this.makeHttps[index]) {
+          this.service.healthChecks[index].protocol = "MESOS_HTTPS";
+        } else {
+          this.service.healthChecks[index].protocol = "MESOS_HTTP"
+        }
+      },
+      protocolChange: function (index) {
+        var obj = {protocol: this.healthChecksValue[index].protocol};
+        if (this.service.healthChecks[index] == undefined) {
+          this.service.healthChecks.push(obj);
+        }
+        this.$set(this.service.healthChecks[index], 'protocol', this.healthChecksValue[index].protocol);
+      },
+      openSlideEditor: function () {
+        if (!this.jsonEditor) {
+          this.$el.querySelector('#slideEditor').className = 'md-layout sideEditor-open md-flex-25';
+          this.opened = true;
+          this.serviceToEditor();
+        } else {
+          this.$el.querySelector('#slideEditor').className = 'md-layout sideEditor';
+          this.serviceToEditor();
+        }
+      }
+    }
+  }
+</script>
+<style scoped lang="scss" rel="stylesheet/scss">
+  .list-link {
+    border-right: solid 1px #aaaaaa;
+  }
+
+  ,
+  a {
+    cursor: pointer;
+  }
+
+  ,
+  .fontb {
+    width: 300px;
+    min-height: 50px;
+    font-size: 12px;
+    padding: 10px;
+    word-break: break-all;
+    white-space: normal;
+  }
+
+  ,
+
+  .add-input {
+    width: 95%;
+    min-height: 100px;
+    border: solid 1px #cccccc;
+    border-radius: 5px;
+    padding: 10px;
+  }
+
+  ,
+  .add-input:hover {
+    width: 95%;
+    min-height: 100px;
+    border: solid 2px #4A78B3;
+    border-radius: 5px;
+    padding: 10px;
+  }
+
+  ,
+  .mt30 {
+    margin-top: 30px;
+  }
+
+  .mt10 {
+    margin-top: 10px;
+  }
+
+  ,
+  .after-list {
+    width: 100%;
+    border-right: solid 2px #4A78B3;
+  }
+
+  ,
+
+  .listspan {
+    color: #666666;
+    width: 100%;
+    text-align: right;
+  }
+
+  ,
+
+  md-list-item {
+    width: 100%;
+    border-right: solid 2px #4A78B3;
+  }
+
+  ,
+  .small {
+    min-width: 10px !important;
+    min-height: 10px !important;
+    height: 15px;
+    width: 15px;
+    border-radius: 10px;
+    padding: 2px;
+    background-color: #4A78B3 !important;
+    line-height: 0px !important;
+    color: #e6e6e6 !important;
+  }
+
+  ,
+  .mr5 {
+    margin-right: 5%;
+  }
+
+  ,
+  .mr4 {
+    margin-right: 4%;
+  }
+
+  ,
+  .listspan:hover {
+    color: #4E88CC;
+    cursor: pointer;
+  }
+
+  .bggray {
+    background-color: #2F3129;
+    height: inherit;
+  }
+
+  .main-body::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    background-color: #F5F5F5;
+  }
+
+  .main-body::-webkit-scrollbar {
+    width: 6px;
+    background-color: #F5F5F5;
+  }
+
+  .main-body::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background-color: #666666;
+  }
+
+  .sideEditor {
+    height: inherit;
+    display: none;
+  }
+
+  .sideEditor-open {
+    height: inherit;
+    will-change: transform;
+  }
+</style>

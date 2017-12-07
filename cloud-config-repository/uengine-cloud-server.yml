@@ -1,0 +1,22 @@
+dcos:
+  host: http://58.140.91.67:8081/
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJkYXJrZ29kYXJrZ29AZ21haWwuY29tIiwiZXhwIjozMTI1NTI2NDE5MzYuMjc2M30.IoIANXtSpc000tNFdpDGIC5MlbezSD7ovnellaJMOOs
+
+gitlab:
+  host: http://gitlab.pas-mini.io
+  token: -arWnfRY7S4h6oyRthNy
+  config-repo:
+    projectId: 1
+    deployment-path: /deployment
+    template-path: /template
+    
+iam:
+  host: iam.uengine.io
+  port: 8080
+  clientId: e74a9505-a811-407f-b4f6-129b7af1c703
+  clientSecret: 109cf590-ac67-4b8c-912a-913373ada046
+    
+registry:
+  host: gitlab.pas-mini.io:5000
+  
+public-agent-ip: 192.168.0.30
