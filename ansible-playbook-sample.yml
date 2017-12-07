@@ -27,6 +27,12 @@
         - sudo yum install haveged -y
         - sudo chkconfig haveged on
 
+    - name: Ntp
+      command: "{{ item }}"
+      with_items:
+        - sudo systemctl enable ntpd
+        - sudo service ntpd start
+
     - name: Group add
       command: "{{ item }}"
       with_items:

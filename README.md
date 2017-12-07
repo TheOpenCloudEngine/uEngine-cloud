@@ -398,6 +398,8 @@ check_interval = 0
     volumes = ["/root/m2:/root/.m2","/var/run/docker.sock:/var/run/docker.sock", "/cache"]
     shm_size = 0
   [runners.cache]
+  
+sudo gitlab-ci-multi-runner restart
 ```
 
 # 데이터베이스 설치
