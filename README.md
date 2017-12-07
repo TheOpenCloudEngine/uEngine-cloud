@@ -491,3 +491,26 @@ git add .
 git commit -m "Initial commit"
 git push -u origin master
 ```
+
+## 어플리케이션 실행
+
+```
+—— 마라톤 lb
+
+dcos package describe --config marathon-lb
+
+dcos package install marathon-lb
+
+vi marathon-lb-internal.json
+
+{ "marathon-lb":
+   {"name":"marathon-lb-internal","haproxy-group":"internal","bind-http-https":false,"role":"",  "cpus": 1.0, "mem": 1024.0} 
+}
+
+dcos package install --options=marathon-lb-internal.json marathon-lb
+```
+
+이후 각각 0.5 , 512 MB 로 줄일것.
+
+marathon-lb 는 특히 반드시 서스펜드 후 리소스 조정을 할것(host 서비스 특성)
+
