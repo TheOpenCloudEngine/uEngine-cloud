@@ -1,0 +1,87 @@
+# vi playbook.yml
+
+---
+- hosts: all
+  remote_user: "{{ansible_user}}"
+  tasks:
+    - name: Docker install
+      command: "{{ item }}"
+      with_items:
+        - sudo yum remove docker \
+                  docker-common \
+                  docker-selinux \
+                  docker-engine
+        - sudo yum install -y yum-utils \
+          device-mapper-persistent-data \
+          lvm2
+        - sudo yum-config-manager \
+          --add-repo \
+          https://download.docker.com/linux/centos/docker-ce.repo
+        - sudo yum install docker-ce -y
+
+    - name: Utils Install
+      command: "{{ item }}"
+      with_items:
+        - sudo yum install -y ntp tar xz unzip curl ipset bind-utils
+        - sudo sed -i s/SELINUX=enforcing/SELINUX=permissive/g /etc/selinux/config
+        - sudo yum install haveged -y
+        - sudo chkconfig haveged on
+
+    - name: Group add
+      command: "{{ item }}"
+      with_items:
+        - sudo groupadd nogroup
+        - sudo groupadd docker
+      ignore_errors: True
+
+- hosts: master:public:agent
+  remote_user: "{{ansible_user}}"
+  tasks:
+    - name: Restart machine
+      shell: sleep 2 && reboot
+      async: 1
+      poll: 0
+      ignore_errors: true
+      become: true
+      become_method: sudo
+
+    - name: Wait 600 seconds, but only start checking after 10 seconds
+      wait_for_connection:
+        delay: 10
+        timeout: 600
+
+- hosts: all
+  remote_user: "{{ansible_user}}"
+  tasks:
+    - name: Docker service file
+      become: true
+      become_method: sudo
+      copy:
+        src: ./docker.service
+        dest: /usr/lib/systemd/system/docker.service
+        owner: root
+        group: root
+        mode: 0644
+    - name: Docker conf file
+      become: true
+      become_method: sudo
+      copy:
+        content: |
+          ARG1=-H unix:///var/run/docker.sock --insecure-registry {{registry_host}}
+        dest: /etc/docker.conf
+        owner: root
+        group: root
+        mode: 0644
+    - name: Docker daemon reload
+      command: "{{ item }}"
+      with_items:
+        - sudo systemctl daemon-reload
+        - sudo systemctl enable docker
+        - sudo systemctl restart docker
+      ignore_errors: True
+
+# play book
+# ansible-playbook playbook.yml
+
+# play at task
+# ansible-playbook playbook.yml --start-at-task="genconf"

@@ -26,6 +26,7 @@ sudo docker push $REGISTRY_URL/uengine-cloud-server:v1
 
 
 cd $CURRENT_DIR/uengine-cloud-ui
+npm install
 npm run build
 sudo docker build -t $REGISTRY_URL/uengine-cloud-ui:v1 ./
 sudo docker push $REGISTRY_URL/uengine-cloud-ui:v1
