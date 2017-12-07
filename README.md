@@ -406,8 +406,10 @@ check_interval = 0
 
 ```
 sudo su
-curl --silent --location https://rpm.nodesource.com/setup | bash -
-yum -y install nodejs
+curl --silent --location https://rpm.nodesource.com/setup_7.x | bash -
+yum install nodejs -y
+node -v
+npm -v
 ```
 
 ## Java && Maven 설치
