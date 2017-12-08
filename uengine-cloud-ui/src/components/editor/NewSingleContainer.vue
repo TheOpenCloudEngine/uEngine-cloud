@@ -18,7 +18,6 @@
 
             <md-list-item>
               <span class="listspan" @click="changeView('healthchecksview')">Health Checks</span>
-              <!--<md-divider class="md-inset"></md-divider>-->
             </md-list-item>
 
             <md-list-item>
@@ -132,7 +131,7 @@
                         <md-tooltip class="fontb" md-direction="top">
                           If you enter `hostname`, the constraint will map to the agent node hostname. If you do not
                           enter an agent node hostname, the field will be treated as a Mesos agent node attribute, which
-                          allows you to tag an agent node. More information.
+                          allows you to tag an agent node.
                         </md-tooltip>
                       </md-button>
                     </div>
@@ -146,7 +145,7 @@
                     <div style="display: inline;">
                       <md-button class="md-primary small">?
                         <md-tooltip class="fontb" md-direction="top">
-                          Operators specify where your app will run. More information.
+                          Operators specify where your app will run.
                         </md-tooltip>
                       </md-button>
                     </div>
@@ -245,8 +244,6 @@
           </div>
         </div>
 
-        //TODO assign automatically check박스 따로동작하도록 하기
-        //jsoneditor 를 separate할 때 port를 hostport로 변경하도록 하기
         <!------------------------------------------------------------------------Networking------------------------------------------------>
         <div v-if="menu.networkingview" style="width: 100%">
           <h1 class="md-title">Networking</h1>
@@ -293,7 +290,7 @@
                 <div style="display: inline;">
                   <md-button class="md-primary small">?
                     <md-tooltip class="fontb" md-direction="top">
-                      This host port will be accessible as an environment variable called '$PORT0'. More information
+                      This host port will be accessible as an environment variable called '$PORT0'.
                     </md-tooltip>
                   </md-button>
                 </div>
@@ -307,7 +304,7 @@
                 <div style="">
                   <md-button class="md-primary small">?
                     <md-tooltip class="fontb" md-direction="top">
-                      Most services will use TCP. More information.
+                      Most services will use TCP.
                     </md-tooltip>
                   </md-button>
                 </div>
@@ -377,18 +374,18 @@
                 <div style="display: inline;">
                   <md-button class="md-primary small">?
                     <md-tooltip class="fontb" md-direction="top">
-                      This host port will be accessible as an environment variable called '$PORT0'. More information
+                      This host port will be accessible as an environment variable called '$PORT0'.
                     </md-tooltip>
                   </md-button>
                 </div>
                 <md-input-container style="width: 100%;height: 20px;">
-                  <md-input v-model="portDefinition.hostPort" :disabled="portsAutoAssign"
+                  <md-input v-model="portDefinition.hostPort" :disabled="portDefinition.portsAutoAssign"
                             type="number"
-                            :placeholder="portsAutoAssign?'$PORT'+index:''"></md-input>
+                            :placeholder="portDefinition.portsAutoAssign?'$PORT'+index:''"></md-input>
                 </md-input-container>
               </md-layout>
               <md-layout md-flex="30">
-                <md-checkbox v-if="networks[0].mode!='host'" v-model="portsAutoAssign" class="md-primary"
+                <md-checkbox v-if="networks[0].mode!='host'" v-model="portDefinition.portsAutoAssign" class="md-primary"
                              style="margin-top: 40px;">ASSIGN AUTOMATICALLY
                 </md-checkbox>
               </md-layout>
@@ -397,7 +394,7 @@
                 <div style="display: inline;">
                   <md-button class="md-primary small">?
                     <md-tooltip class="fontb" md-direction="top">
-                      Most services will use TCP. More information.
+                      Most services will use TCP.
                     </md-tooltip>
                   </md-button>
                 </div>
@@ -439,7 +436,6 @@
         </div>
 
         <!-------------------------------------------------Volumes -------------------------------------------------------------->
-//TODO externalVolumes 에서 GiB부분 alt띄워주기 persistent Volumes 변경시 size가 persistent{size:""}로 안들어감
         <div v-if="menu.volumesview" style="width: 100%">
           <h1 class="md-title">Volumes</h1>
           <span class="md-body-2">Create a stateful service by configuring a persistent volume. Persistent volumes enable instances to be restarted without data loss.</span><br/>
@@ -523,7 +519,7 @@
             <span class="md-title">External Volumes</span><br/>
             <div
               class="md-caption">
-              Choose an external persistent volume if fault-tolerance is crucial for your service. More information.
+              Choose an external persistent volume if fault-tolerance is crucial for your service.
             </div>
 
             <div class="add-input mt10" v-for="(externalVolume,index) in externalVolumes">
@@ -542,8 +538,11 @@
               <md-layout>
                 <md-layout md-flex="30" class="mr5">
                   <span class="md-subheading">SIZE (GiB)</span>
-                  <md-input-container style="width: 100%;height: 20px;">
-                    <md-input v-model="externalVolume.size" :disabled="container.type!='MESOS'"></md-input>
+                  <md-input-container style="width: 100%;height: 20px;" :class="{'md-input-invalid':container.type!='MESOS'}">
+                    <md-input v-model="externalVolume.size" :disabled="container.type!='MESOS'" :class="{'mouse-disabled':container.type!='MESOS'}"></md-input>
+                    <md-tooltip class="fontb" md-direction="top" v-if="container.type!='MESOS'">
+                      Docker Runtime only supports the default size for implicit volumes, please select Universal Container Runtime(UCR) if you want to modify the size.
+                    </md-tooltip>
                   </md-input-container>
                 </md-layout>
                 <md-layout md-flex="60">
@@ -1028,7 +1027,11 @@
               }
               definition.name ? copy.name = definition.name : "";
               definition.containerPort ? copy.containerPort = definition.containerPort : "";
-              definition.hostPort ? copy.hostPort = definition.hostPort : "";
+              if (definition.hostPort) {
+                definition.hostPort ? copy.hostPort = definition.hostPort : "";
+              } else if (definition.port) {
+                definition.port ? copy.port = definition.port : "";
+              }
               definition.servicePort ? copy.servicePort = definition.servicePort : "";
               me.portDefinitions.push(copy);
             }
@@ -1131,6 +1134,7 @@
                 }
                 var copy = JSON.parse(JSON.stringify(portDefinition[i]));
                 delete copy.protocolTcp;
+//                delete copy.portsAutoAssign;
                 delete copy.hostPort;
                 delete copy.protocolUdp;
                 delete copy.containerPort;
@@ -1159,10 +1163,13 @@
                 if (portDefinition.port) {
                   portDefinition.hostPort = portDefinition.port;
                 }
+                portDefinition.portsAutoAssign = portDefinition.portsAutoAssign ? portDefinition.portsAutoAssign : true;
                 var copy = JSON.parse(JSON.stringify(portDefinition));
                 delete copy.protocolTcp;
                 delete copy.protocolUdp;
+                delete copy.portsAutoAssign;
                 delete copy.vipPort;
+                delete copy.port;
                 delete copy.enableLoadBalanced;
                 me.model.container.portMappings[i] = copy;
               }
@@ -1182,24 +1189,25 @@
               } else {
                 me.model.residency ? delete me.model.residency : null;
               }
-              delete copy[i].type;
+//              delete copy[i].type;
               delete copy[i].size;
             }
             me.model.container.volumes = copy;
 
           },
           externalVolumes: function (val) {
-            var copy = JSON.parse(JSON.stringify(me.localVolumes));
+            var copy = JSON.parse(JSON.stringify(me.model.container.volumes));
             for (i in val) {
               copy.push(JSON.parse(JSON.stringify(val[i])));
             }
             for (var i in copy) {
-              var externalVolume = copy[i];
               if (!copy[i].type) {
                 copy[i].external = {provider: "dvdi", options: {"dvdi/driver": "rexray"}};
+                copy[i].size?copy[i].external.size =copy[i].size:null;
                 copy[i].name ? copy[i].external.name = copy[i].name : null;
                 copy[i].mode = "RW";
                 delete copy[i].name;
+                delete copy[i].size;
               }
               delete copy[i].type;
             }
@@ -1246,7 +1254,7 @@
                 delete label[copy[i].key];
               }
             }
-            me.model.labels=label;
+            me.model.labels = label;
           },
         }
       }
@@ -1513,7 +1521,10 @@
   a {
     cursor: pointer;
   }
-
+  .md-tooltip {
+    display:inline-block;
+    height: auto;
+  }
   ,
   .fontb {
     width: 300px;
@@ -1631,5 +1642,8 @@
   .sideEditor-open {
     height: inherit;
     will-change: transform;
+  }
+  .mouse-disabled {
+    cursor: not-allowed;
   }
 </style>
