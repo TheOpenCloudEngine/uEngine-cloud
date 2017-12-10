@@ -199,7 +199,7 @@
                   <div class="md-caption">Force Docker to pull the image before launching each instance.</div>
                 </div>
               </div>
-              <md-layout>
+              <md-layout class="mt10">
                 <md-layout md-flex="25" class="mr5">
                   GPUs
                   <md-input-container>
@@ -870,7 +870,7 @@
         </div>
 
       </md-layout>
-      <md-layout id="slideEditor" class="sideEditor">
+      <md-layout id="slideEditor" v-if="jsonEditor" :class="{'md-layout':jsonEditor,'sideEditor':!jsonEditor, 'sideEditor-open':jsonEditor, 'md-flex-30':jsonEditor}">
         <div class="md-right bgblack" ref="rightSidenav" style="width: 100%;">
           <codemirror v-if="opened"
                       :options="{
@@ -913,7 +913,8 @@
           };
         }
       },
-      jsonEditor: Boolean
+      jsonEditor: Boolean,
+      newSingleContainer: Boolean
     },
     data() {
       var me = this;
@@ -1261,6 +1262,7 @@
     },
     mounted() {
       this.serviceToModel();
+      this.openSlideEditor();
     },
     watch: {
       _service: {
@@ -1444,8 +1446,12 @@
         this.separate.healthChecks(this.model.healthChecks);
 
         //환경
-        this.separate.env(this.model.env);
-        this.separate.labels(this.model.labels);
+        if (this.model.env){
+          this.separate.env(this.model.env);
+        }
+        if (this.model.labels){
+          this.separate.labels(this.model.labels);
+        }
 
         this.$nextTick(function () {
           this.working = false;
@@ -1496,12 +1502,10 @@
 
       openSlideEditor: function () {
         if (!this.jsonEditor) {
-          this.$el.querySelector('#slideEditor').className = 'md-layout sideEditor-open md-flex-30';
           this.opened = true;
           this.combination();
         } else {
-          this.$el.querySelector('#slideEditor').className = 'md-layout sideEditor';
-//          this.combination();
+          this.combination();
         }
       }
       ,

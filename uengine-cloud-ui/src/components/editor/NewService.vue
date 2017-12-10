@@ -20,6 +20,7 @@
 
     <md-dialog-content ref="container" style="overflow-x: hidden;padding: inherit;overflow-y: hidden;">
       <new-single-container v-if="containerView" :_service.sync="service" :jsonEditor.sync="jsonEditor"
+                            :newSingleContainer.sync="newSingleContainer"
                             ref="rightSidenav"></new-single-container>
       <div v-if="!containerView && !appId">
         <md-layout md-gutter="16">
@@ -102,6 +103,7 @@
       return {
         containerView: false,
         jsonEditor: false,
+        newSingleContainer : false,
         service: undefined,
         beforeService: {}
       }
@@ -142,6 +144,7 @@
       },
       changeView: function () {
         this.containerView = true;
+        this.newSingleContainer = true;
         this.service = undefined;
       },
       toggleRightSidenav() {
