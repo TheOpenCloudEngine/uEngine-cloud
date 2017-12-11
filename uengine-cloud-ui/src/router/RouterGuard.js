@@ -34,6 +34,8 @@ module.exports = function (iam) {
       .done(function (info) {
         localStorage['user'] = info.context.user;
         localStorage['userId'] = info.context.userId;
+        localStorage['acl'] = info.context.user.acl;
+        console.log('acl', localStorage['acl']);
         callback(true);
       })
       .fail(function () {
