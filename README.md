@@ -496,8 +496,10 @@ git push -u origin master
 
 ## 어플리케이션 실행
 
+### 마라톤 LB(Haproxy) 실행
+
 ```
-—— 마라톤 lb
+—— 마라톤 lb external
 
 dcos package describe --config marathon-lb
 
@@ -509,10 +511,38 @@ vi marathon-lb-internal.json
    {"name":"marathon-lb-internal","haproxy-group":"internal","bind-http-https":false,"role":"",  "cpus": 1.0, "mem": 1024.0} 
 }
 
+
+-- 마라톤 lb internal
+
 dcos package install --options=marathon-lb-internal.json marathon-lb
 ```
 
 이후 각각 0.5 , 512 MB 로 줄일것.
 
 marathon-lb 는 특히 반드시 서스펜드 후 리소스 조정을 할것(host 서비스 특성)
+
+### 클라우드 패키지 실행 json 생성 - 추가 자동화 대상 TODO 
+
+
+### 클라우드 패키지 실행
+
+```
+-- 클라우드 콘피스 서버와 유레카 서버를 구동시킨다.
+
+dcos marathon app add uengine-cloud-config/deploy.json
+dcos marathon app add uengine-eureka-server/deploy.json
+
+
+
+-- 위의 두가지가 모두 구동완료되었을 때 나머지를 실행시킨다.
+
+dcos marathon app add uengine-eureka-zuul/deploy-dev-role.json
+dcos marathon app add uengine-eureka-zuul/deploy-stg-role.json
+dcos marathon app add uengine-eureka-zuul/deploy-prod-role.json
+dcos marathon app add uengine-cloud-server/deploy.json
+dcos marathon app add uengine-cloud-ui/deploy.json
+```
+
+
+
 

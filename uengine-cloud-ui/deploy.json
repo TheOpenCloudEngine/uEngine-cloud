@@ -23,7 +23,7 @@
       "parameters": []
     }
   },
-  "cpus": 0.2,
+  "cpus": 0.5,
   "disk": 0,
   "env": {
     "DEPLOYMENT": "blue"
@@ -47,7 +47,7 @@
     "HAPROXY_GROUP": "external,internal"
   },
   "maxLaunchDelaySeconds": 3600,
-  "mem": 256,
+  "mem": 512,
   "gpus": 0,
   "networks": [
     {
