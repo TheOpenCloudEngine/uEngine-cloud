@@ -1,4 +1,6 @@
-# 사전 준비 사항
+# 설치과정
+
+## 사전 준비 사항
 
  — 모든 노드
  - 내부망 UDP 뚤려있을것: UDP 가 뚤려있지 않으면 53 포트 domain resolve 가 작동하지 않는다.
@@ -9,15 +11,15 @@
  - 모든 서버는 동일한 pem 파일로 ssh 가 가능할 것.
  - 모든 서버의 /etc/ssh/ssh_config 는 PermitRootLogin 을 허용할 것.
 
-# 설치파일 다운로드
+## 설치파일 다운로드
 
 git clone https://github.com/TheOpenCloudEngine/uEngine-cloud
 wget https://s3.ap-northeast-2.amazonaws.com/uengine-cloud/dcos_generate_config.sh
 
 
-# DCOS
+## DCOS
 
-## 호스트 준비
+### 호스트 준비
 
 — RHEL
 
@@ -61,9 +63,9 @@ sudo vi /etc/ssh/ssh_config
 sudo service sshd restart
 ```
 
-## 클러스터 준비
+### 클러스터 준비
 
-### /etc/ansible/hosts
+#### /etc/ansible/hosts
 
 ansible-hosts-sample.yml 가이드 참조
 
@@ -100,7 +102,7 @@ registry_host=gitlab.pas-mini.io:5000
 192.168.0.33
 ```
 
-### playbook.yml
+#### playbook.yml
 
 ansible-playbook-sample.yml 참조
 
@@ -196,10 +198,10 @@ ansible-playbook playbook.yml
 ansible-playbook playbook.yml --start-at-task="genconf"
 ```
 
-## 클러스터 설치
+### 클러스터 설치
 
 
-### genconf
+#### genconf
 
 ```
 mkdir -p genconf
@@ -258,7 +260,7 @@ telemetry_enabled: true
 oauth_enabled: true
 ```
 
-### resolvers, dns_search
+#### resolvers, dns_search
 
 /etc/resolve.conf 참조하여 만약 다음의 값이라면
 
@@ -277,7 +279,7 @@ resolvers:
 dns_search: ap-northeast-2.compute.internal
 ```
 
-### 설치
+#### 프로비져닝
 
 ```
 sudo bash dcos_generate_config.sh --genconf
@@ -289,7 +291,7 @@ sudo bash dcos_generate_config.sh --deploy
 sudo bash dcos_generate_config.sh --postflight
 ```
 
-### 설치 후 동작 로그 확인
+#### 프로비져닝 후 동작 로그 확인
 
 ```
 journalctl -flu dcos-exhibitor
@@ -301,7 +303,7 @@ journalctl -flu dcos-mesos-master
 journalctl -flu dcos-gen-resolvconf
 ```
 
-### 사용자 생성
+#### 사용자 생성
 
 마스터 노드 중 한곳에서 실행한다.
 
@@ -320,7 +322,7 @@ curl --header "Authorization: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQ
 획득한 토큰은 깃랩 데이터베이스 설치에 필요하니 기억하고 있도록 하자.
 
 
-### CLI 설치
+#### CLI 설치
 
 ```
 curl -O https://downloads.dcos.io/binaries/cli/linux/x86-64/dcos-1.10/dcos
@@ -338,7 +340,7 @@ Enter OpenID Connect ID Token:
 콘솔의 url 로 이동하여, 화면에 나오는 토큰값을 대화창에 입력하면 CLI 를 사용가능하다.
 
 
-## Gitlab
+### Gitlab
 
 <Gitlab> <Ubuntu>
 
@@ -398,11 +400,13 @@ check_interval = 0
     volumes = ["/root/m2:/root/.m2","/var/run/docker.sock:/var/run/docker.sock", "/cache"]
     shm_size = 0
   [runners.cache]
+  
+sudo gitlab-ci-multi-runner restart
 ```
 
-# 데이터베이스 설치
+## 데이터베이스 설치
 
-## Node 설치
+### Node 설치
 
 ```
 sudo su
@@ -412,9 +416,9 @@ node -v
 npm -v
 ```
 
-## Java && Maven 설치
+### Java && Maven 설치
 
-### Java
+#### Java
 
 ```
 sudo su
@@ -440,7 +444,7 @@ export PATH=$PATH:/opt/jdk1.8.0_151/bin:/opt/jdk1.8.0_151/jre/bin
 source /etc/profile
 ```
 
-### Maven
+#### Maven
 
 ```
 wget http://apache.mirror.cdnetworks.com/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz
@@ -457,11 +461,11 @@ source /etc/profile
 mvn -version
 ```
 
-## 깃랩 데이터베이스 생성 - 추가 자동화 대상 TODO
+### 깃랩 데이터베이스 생성 - 추가 자동화 대상 TODO
 
-## 데이터베이스 설정값 변경 - 추가 자동화 대상 TODO
+### 데이터베이스 설정값 변경 - 추가 자동화 대상 TODO
 
-## 데이터베이스 업로드
+### 데이터베이스 업로드
 
 ```
 git config --global user.name "Administrator"
@@ -492,10 +496,12 @@ git commit -m "Initial commit"
 git push -u origin master
 ```
 
-## 어플리케이션 실행
+### 어플리케이션 실행
+
+#### 마라톤 LB(Haproxy) 실행
 
 ```
-—— 마라톤 lb
+—— 마라톤 lb external
 
 dcos package describe --config marathon-lb
 
@@ -507,10 +513,150 @@ vi marathon-lb-internal.json
    {"name":"marathon-lb-internal","haproxy-group":"internal","bind-http-https":false,"role":"",  "cpus": 1.0, "mem": 1024.0} 
 }
 
+
+-- 마라톤 lb internal
+
 dcos package install --options=marathon-lb-internal.json marathon-lb
 ```
 
 이후 각각 0.5 , 512 MB 로 줄일것.
 
 marathon-lb 는 특히 반드시 서스펜드 후 리소스 조정을 할것(host 서비스 특성)
+
+#### 클라우드 패키지 실행 json 생성 - 추가 자동화 대상 TODO 
+
+
+#### 클라우드 패키지 실행
+
+```
+-- 클라우드 콘피스 서버와 유레카 서버를 구동시킨다.
+
+dcos marathon app add uengine-cloud-config/deploy.json
+dcos marathon app add uengine-eureka-server/deploy.json
+
+
+
+-- 위의 두가지가 모두 구동완료되었을 때 나머지를 실행시킨다.
+
+dcos marathon app add uengine-eureka-zuul/deploy-dev-role.json
+dcos marathon app add uengine-eureka-zuul/deploy-stg-role.json
+dcos marathon app add uengine-eureka-zuul/deploy-prod-role.json
+dcos marathon app add uengine-cloud-server/deploy.json
+dcos marathon app add uengine-cloud-ui/deploy.json
+```
+
+# 운영
+
+## 에이전트 추가
+
+## 에이전트 삭제
+
+## 마스터 추가
+
+## 마스터 삭제
+
+## 트러블 슈팅
+
+## CLI 제작 - TODO CLI 클라이언트 언어 선택(Node JS process 유력)
+
+ - ** 메인 용어 정하기 / 프로덕션 이름 정하기
+ - CLI LIST
+ 
+ | snc-cloud                              |
+ |-----------------------------------|
+ | snc-cloud auth                         |
+ | snc-cloud auth login                   |
+ | snc-cloud auth logout                  |
+ | snc-cloud cluster                      |
+ | snc-cloud cluster attach               |
+ | snc-cloud cluster list                 |
+ | snc-cloud cluster remove               |
+ | snc-cloud cluster rename               |
+ | snc-cloud cluster setup                |
+ | snc-cloud config                       |
+ | snc-cloud config set                   |
+ | snc-cloud config show                  |
+ | snc-cloud config unset                 |
+ | snc-cloud config validate              |
+ | snc-cloud experimental                 |
+ | snc-cloud experimental add             |
+ | snc-cloud experimental package build   |
+ | snc-cloud experimental service start   |
+ | snc-cloud help                         |
+ | snc-cloud job                          |
+ | snc-cloud job add                      |
+ | snc-cloud job history                  |
+ | snc-cloud job kill                     |
+ | snc-cloud job list                     |
+ | snc-cloud job remove                   |
+ | snc-cloud job run                      |
+ | snc-cloud job schedule add             |
+ | snc-cloud job schedule remove          |
+ | snc-cloud job schedule show            |
+ | snc-cloud job schedule update          |
+ | snc-cloud job show                     |
+ | snc-cloud job show runs                |
+ | snc-cloud job update                   |
+ | snc-cloud marathon                     |
+ | snc-cloud marathon about               |
+ | snc-cloud marathon app add             |
+ | snc-cloud marathon app kill            |
+ | snc-cloud marathon app list            |
+ | snc-cloud marathon app remove          |
+ | snc-cloud marathon app restart         |
+ | snc-cloud marathon app show            |
+ | snc-cloud marathon app start           |
+ | snc-cloud marathon app stop            |
+ | snc-cloud marathon app update          |
+ | snc-cloud marathon app version list    |
+ | snc-cloud marathon debug details       |
+ | snc-cloud marathon debug list          |
+ | snc-cloud marathon debug summary       |
+ | snc-cloud marathon deployment list     |
+ | snc-cloud marathon deployment rollback |
+ | snc-cloud marathon deployment stop     |
+ | snc-cloud marathon deployment watch    |
+ | snc-cloud marathon group add           |
+ | snc-cloud marathon group list          |
+ | snc-cloud marathon group remove        |
+ | snc-cloud marathon group scale         |
+ | snc-cloud marathon group show          |
+ | snc-cloud marathon group update        |
+ | snc-cloud marathon pod add             |
+ | snc-cloud marathon pod kill            |
+ | snc-cloud marathon pod list            |
+ | snc-cloud marathon pod remove          |
+ | snc-cloud marathon pod show            |
+ | snc-cloud marathon pod update          |
+ | snc-cloud marathon task list           |
+ | snc-cloud marathon task show           |
+ | snc-cloud marathon task stop           |
+ | snc-cloud node                         |
+ | snc-cloud node diagnostics             |
+ | snc-cloud node diagnostics create      |
+ | snc-cloud node diagnostics delete      |
+ | snc-cloud node diagnostics download    |
+ | snc-cloud node list-components         |
+ | snc-cloud node log                     |
+ | snc-cloud node ssh                     |
+ | snc-cloud package                      |
+ | snc-cloud package describe             |
+ | snc-cloud package install              |
+ | snc-cloud package list                 |
+ | snc-cloud package repo add             |
+ | snc-cloud package repo list            |
+ | snc-cloud package repo remove          |
+ | snc-cloud package search               |
+ | snc-cloud package uninstall            |
+ | snc-cloud package update               |
+ | snc-cloud service                      |
+ | snc-cloud service log                  |
+ | snc-cloud service shutdown             |
+ | snc-cloud task                         |
+ | snc-cloud task exec                    |
+ | snc-cloud task log                     |
+ | snc-cloud task ls                      |
+
+
+
 
