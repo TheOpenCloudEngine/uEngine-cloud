@@ -2,7 +2,7 @@
   <div>
 
     <scale-app ref="scale-app"></scale-app>
-    <new-service ref="new-service" :appId="targetAppId"></new-service>
+    <new-service ref="new-service" :appId="targetAppId" :mode="mode"></new-service>
     <md-layout>
       <md-table-card style="width: 100%">
         <div class="header-top-line"></div>
@@ -166,7 +166,6 @@
         }
         if (me.mode == 'app') {
           for (var appId in me.dcosData.devopsApps.dcos.apps) {
-            var devopsApp = me.getDevopsAppById(appId);
             var app = {
               tasksStaged: 0,
               instances: 0,
