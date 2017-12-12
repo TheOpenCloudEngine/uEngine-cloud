@@ -17,13 +17,15 @@
             style="color: #aaaaaa;font-size:15px; align-items: right;">Json Editor</span></md-switch>
         </md-layout>
         <md-layout md-flex="20" v-if="containerView">
-          <md-button class="md-primary" v-on:click="reviewAndRun">REVIEW&RUN</md-button>
+          <md-button class="md-primary" v-if="!reviewFlag" v-on:click="reviewService">REVIEW&RUN</md-button>
+          <md-button class="md-primary" v-else v-on:click="runService">RUN SERVICE</md-button>
         </md-layout>
       </md-layout>
     </md-dialog-title>
 
     <md-dialog-content ref="container" style="overflow-x: hidden;padding: inherit;overflow-y: hidden;">
       <new-single-container v-if="containerView" :_service.sync="service" :jsonEditor.sync="jsonEditor"
+                            :editable.sync="editable"
                             :newSingleContainer.sync="newSingleContainer"
                             ref="rightSidenav"></new-single-container>
       <div v-if="!containerView && !appId">
@@ -110,9 +112,12 @@
         editable: true,
         containerView: false,
         jsonEditor: false,
+        reviewFlag : false,
         newSingleContainer: false,
         service: undefined,
-        beforeService: {}
+        beforeService: {},
+        appName: "",
+        deployment: "",
       }
     },
     mounted() {
@@ -129,6 +134,7 @@
       bindService: function () {
         var me = this;
         me.editable = true;
+        me.service = undefined;
         if (this.appId) {
           this.containerView = true;
           if (me.mode == 'app') {
@@ -149,14 +155,14 @@
             if (deployment == 'blue' || deployment == 'green') {
               stage = 'prod';
             }
-
+            me.deployment = stage;
             me.getDevAppByName(appName,
               function (response, fail) {
                 if (response) {
                   //성공
                   //프로덕션은 프로덕션(신규), 프로덕션(롤백), 프로덕션(현재)
                   //프로덕션은 현재만 수정가능.  현재인지 아닌지 구별법은 prod.deployment 값이 deployment 랑 같은지 보기
-                  if ((deployment == 'blue' || deployment == 'green') && response.data.prod.deployment != deployment) {
+                  if ((deployment == 'blue' || deployment == 'green') && (response.data.prod.deployment != deployment)) {
                     //현재 프로덕션이 아니므로 수정불가능 (롤백 또는 신규버젼 배포중){}
                     me.editable = false;
                   }
@@ -166,8 +172,10 @@
                   me.$root.$children[0].error('앱정보를 불러올 수 없습니다.');
                 }
               });
+            me.appName = appName;
           } else {
             this.service = this.getAppById(this.appId);
+            me.appName = this.appId;
           }
         }
       },
@@ -199,8 +207,83 @@
       closeRightSidenav() {
         this.$refs.rightSidenav.close();
       },
-      reviewAndRun: function () {
+      reviewService : function() {
+        this.reviewFlag = this.$refs.rightSidenav.changeView('reviewview');
+      },
+      runService: function () {
+        //앱일때
+        var me = this;
+        var devApp = null;
+        if (this.mode == 'app') {
+          me.getDevAppByName(me.appName.replace("/", ""), function (response, error) {
+            console.log("response", response)
+            if (response) {
+              devApp = response.data;
+              devApp[me.deployment]['deploy-json'] = me.service;
+              me.$root.backend('app' + me.appName).update(devApp)
+                .then(
+                  function (response) {
+                    //성공
+                    console.log("success", response);
+                    me.$root.backend('app' + me.appId + "/deploy?stage=" + me.deployment).save({})
+                      .then(function (response) {
+                          // deploy 성공 메시지 변경
+                          me.$root.$children[0].error("수정하였습니다.");
+                        },
+                        function (response) {
+                          // deploy 실패 메시지 변경
+                          me.$root.$children[0].error("수정에 실패하였습니다.");
+                        });
+                    me.$root.$children[0].error("수정하였습니다.");
+                  },
+                  function (response) {
+                    //실패 메시지 변경
+                    me.$root.$children[0].error("서버에 접속할 수 없습니다.");
+                  }
+                );
+            }
+          })
+        } else {
+          //서비스일때
+          console.log(this.$root.backend('app/' + this.appId));
+          if (this.newSingleContainer) {
+            //new
+            //POST http://cloud-server.pas-mini.io/dcos/service/marathon/v2/apps
+            this.$root.backend('app/' + this.appId).save(null, {
+              // 앱전문
+              //deploy-json : service
+            })
+              .then(
+                function (response) {
+                  //성공
+                  console.log(response);
+                },
+                function (response) {
+                  //실패
+                  console.log(response);
+                }
+              );
+          } else {
+            //update
+            //PUT http://cloud-server.pas-mini.io/dcos/service/marathon/v2/apps//uengine-cloud-ui?partialUpdate=false&force=false
+            this.$root.backend('app/' + this.appId).update(null, {
+              // 앱전문
+              //deploy-json : service
+            })
+              .then(
+                function (response) {
+                  //성공
+                  console.log(response);
+                },
+                function (response) {
+                  //실패
+                  console.log(response);
+                }
+              );
+          }
+          //PUT http://cloud-server.pas-mini.io/dcos/service/marathon/v2/apps//uengine-cloud-ui?partialUpdate=false&force=false
 
+        }
       }
     }
   }

@@ -42,7 +42,7 @@
                 </md-button>
               </div>
               <md-input-container>
-                <md-input v-model="id"></md-input>
+                <md-input v-model="id" :disabled="id.indexOf('{{')!=-1"></md-input>
               </md-input-container>
             </md-layout>
             <md-layout md-flex="20">
@@ -66,7 +66,8 @@
                 </md-button>
               </div>
               <md-input-container>
-                <md-input v-model="container.docker.image"></md-input>
+                <md-input v-model="container.docker.image"
+                          :disabled="id.indexOf('{{')!=-1 && id.indexOf('}}')!=-1"></md-input>
               </md-input-container>
             </md-layout>
             <md-layout md-flex="20" class="mr5">
@@ -538,8 +539,10 @@
               <md-layout>
                 <md-layout md-flex="30" class="mr5">
                   <span class="md-subheading">SIZE (GiB)</span>
-                  <md-input-container style="width: 100%;height: 20px;" :class="{'md-input-invalid':container.type!='MESOS'}">
-                    <md-input v-model="externalVolume.size" :disabled="container.type!='MESOS'" :class="{'mouse-disabled':container.type!='MESOS'}"></md-input>
+                  <md-input-container style="width: 100%;height: 20px;"
+                                      :class="{'md-input-invalid':container.type!='MESOS'}">
+                    <md-input v-model="externalVolume.size" :disabled="container.type!='MESOS'"
+                              :class="{'mouse-disabled':container.type!='MESOS'}"></md-input>
                     <md-tooltip class="fontb" md-direction="top" v-if="container.type!='MESOS'">
                       Docker Runtime only supports the default size for implicit volumes, please select Universal Container Runtime(UCR) if you want to modify the size.
                     </md-tooltip>
@@ -868,9 +871,179 @@
             <a v-on:click="labels.push({})">+ ADD LABEL</a>
           </div>
         </div>
+        <!-------------------------------------------------------ReviewView-------------------------------------------------------->
+        <div v-if="menu.reviewview" style="width: 100%">
+          <div v-if="model">
+            <md-table v-once>
+              <md-table-body>
+                <md-table-header>
+                  <md-table-head><span class="md-title" style="color: #111111;font-size: 30px;">General</span></md-table-head>
+                </md-table-header>
+                <md-table-row>
+                  <md-table-cell><span class="md-title">SERVICE ID</span></md-table-cell>
+                  <md-table-cell>{{id}}</md-table-cell>
+                </md-table-row>
+                <md-table-row>
+                  <md-table-cell><span class="md-title">INSTANCES</span></md-table-cell>
+                  <md-table-cell>{{instances}}</md-table-cell>
+                </md-table-row>
+                <md-table-row>
+                  <md-table-cell><span class="md-title">CONTAINER RUNTIME</span></md-table-cell>
+                  <md-table-cell>{{container.type}}</md-table-cell>
+                </md-table-row>
+                <md-table-row>
+                  <md-table-cell><span class="md-title">CPU</span></md-table-cell>
+                  <md-table-cell>{{cpus}}</md-table-cell>
+                </md-table-row>
+                <md-table-row>
+                  <md-table-cell><span class="md-title">MEMORY</span></md-table-cell>
+                  <md-table-cell>{{mem}} MiB</md-table-cell>
+                </md-table-row>
+                <md-table-row>
+                  <md-table-cell><span class="md-title">DISK</span></md-table-cell>
+                  <md-table-cell>{{disk}} B</md-table-cell>
+                </md-table-row>
+                <md-table-row>
+                  <md-table-cell><span class="md-title">BACKOFF SECONDS</span></md-table-cell>
+                  <md-table-cell>{{model.backoffSeconds}}</md-table-cell>
+                </md-table-row>
+                <md-table-row>
+                  <md-table-cell><span class="md-title">BACKOFF FACTOR</span></md-table-cell>
+                  <md-table-cell>{{model.backoffFactor}}</md-table-cell>
+                </md-table-row>
+                <md-table-row>
+                  <md-table-cell><span class="md-title">BACKOFF MAX LAUNCH DELAY</span></md-table-cell>
+                  <md-table-cell>{{model.maxLaunchDelaySeconds}}</md-table-cell>
+                </md-table-row>
+                <md-table-row>
+                  <md-table-cell><span class="md-title">CONTAINER IMAGE</span></md-table-cell>
+                  <md-table-cell>{{container.docker.image}}</md-table-cell>
+                </md-table-row>
+                <md-table-row>
+                  <md-table-cell><span class="md-title">EXTENDED RUNTIME PRIV.</span></md-table-cell>
+                  <md-table-cell>{{container.docker.privileged}}</md-table-cell>
+                </md-table-row>
+                <md-table-row>
+                  <md-table-cell><span class="md-title">FORCE PULL ON LAUNCH</span></md-table-cell>
+                  <md-table-cell>{{container.docker.forcePullImage}}</md-table-cell>
+                </md-table-row>
+                <md-table-row>
+                  <md-table-cell><span class="md-title">COMMAND</span></md-table-cell>
+                  <md-table-cell>
+                    <span v-if="model.command">{{model.command}}</span>
+                    <span v-else>Not Configured</span>
+                  </md-table-cell>
+                </md-table-row>
+                <md-table-row>
+                  <md-table-cell><span class="md-title">RESOURCE ROLES</span></md-table-cell>
+                  <md-table-cell v-if="model.acceptedResourceRoles">{{model.acceptedResourceRoles[0]}}</md-table-cell>
+                </md-table-row>
+                <md-table-row>
+                  <md-table-cell><span class="md-title">VERSION</span></md-table-cell>
+                  <md-table-cell>{{model.version}}</md-table-cell>
+                </md-table-row>
+              </md-table-body>
+            </md-table>
+
+
+            <md-table v-once style="margin-top: 10%;">
+
+              <md-table-header>
+                <md-table-head><span class="md-title" style="color: #111111;font-size: 30px;">Network</span></md-table-head>
+              </md-table-header>
+              <md-table-row>
+                <md-table-cell><span style="color: #111111;font-size: 15px;">NETWORK MODE</span></md-table-cell>
+                <md-table-cell>{{model.networks[0].mode}}</md-table-cell>
+              </md-table-row>
+              <md-table-header>
+                <md-table-head><span class="md-title" style="color: #111111;font-size: 25px;">Service Endpoints</span>
+                </md-table-head>
+              </md-table-header>
+              <md-table-header>
+                <md-table-row>
+                  <md-table-head><span style="font-size: 15px;">NAME</span></md-table-head>
+                  <md-table-head><span style="font-size: 15px;">PROTOCOL</span></md-table-head>
+                  <md-table-head><span style="font-size: 15px;">CONTAINER PORT</span></md-table-head>
+                  <md-table-head><span style="font-size: 15px;">HOST PORT</span></md-table-head>
+                  <md-table-head><span style="font-size: 15px;">SERVICE PORT</span></md-table-head>
+                  <md-table-head><span style="font-size: 15px;">LOAD BALANCED ADDRESS</span></md-table-head>
+                </md-table-row>
+              </md-table-header>
+              <md-table-body>
+                <md-table-row>
+                  <md-table-cell style="color: #111111;">
+                    <span v-if="container.portMappings[0].name">{{container.portMappings[0].name}}</span>
+                    <span v-else>Not Configured</span>
+                  </md-table-cell>
+                  <md-table-cell style="color: #111111;">{{container.portMappings[0].protocol}}</md-table-cell>
+                  <md-table-cell style="color: #111111;">{{container.portMappings[0].containerPort}}</md-table-cell>
+                  <md-table-cell style="color: #111111;">{{container.portMappings[0].hostPort}}</md-table-cell>
+                  <md-table-cell style="color: #111111;">{{container.portMappings[0].servicePort}}</md-table-cell>
+                  <md-table-cell style="color: #111111;">
+                    <span v-if="container.portMappings[0].loadBalancedAddress">{{container.portMappings[0].loadBalancedAddress}}</span>
+                    <span v-else>Not Enabled</span>
+                  </md-table-cell>
+                </md-table-row>
+              </md-table-body>
+            </md-table>
+
+            <md-table v-once style="margin-top: 10%;">
+              <md-table-header>
+                <md-table-head><span class="md-title" style="color: #111111;font-size: 30px;">Environment Variables</span>
+                </md-table-head>
+              </md-table-header>
+              <md-table-header>
+                <md-table-row>
+                  <md-table-head style="color: #111111;font-size: 12px;">KEY</md-table-head>
+                  <md-table-head style="color: #111111;font-size: 12px;">VALUE</md-table-head>
+                </md-table-row>
+              </md-table-header>
+              <md-table-body>
+                <md-table-row v-for="(envValue,index) in env">
+                  <md-table-cell>{{envValue.key}}</md-table-cell>
+                  <md-table-cell>{{envValue.value}}</md-table-cell>
+                </md-table-row>
+              </md-table-body>
+            </md-table>
+
+            <md-table v-once style="margin-top: 10%;">
+              <md-table-header>
+                <md-table-head><span class="md-title" style="color: #111111;font-size: 30px;">Labels</span></md-table-head>
+              </md-table-header>
+              <md-table-header>
+                <md-table-row>
+                  <md-table-head style="color: #111111;font-size: 13px;">KEY</md-table-head>
+                  <md-table-head style="color: #111111;font-size: 13px;">VALUE</md-table-head>
+                </md-table-row>
+              </md-table-header>
+              <md-table-body>
+                <md-table-row v-for="(label,index) in labels">
+                  <md-table-cell>{{label.key}}</md-table-cell>
+                  <md-table-cell>{{label.value}}</md-table-cell>
+                </md-table-row>
+              </md-table-body>
+            </md-table>
+
+            <md-table v-once style="margin-top: 10%;margin-bottom:10%;">
+              <md-table-body>
+                <md-table-header>
+                  <md-table-head>
+                    <span class="md-title" style="color: #111111;font-size: 30px;">Health Checks</span>
+                  </md-table-head>
+                </md-table-header>
+                <md-table-row>
+                  <!--<md-table-cell><span class="md-title">FIRST SUCCESS</span></md-table-cell>-->
+                  <!--<md-table-cell>{{model.tasks[0].healthCheckResults[0].firstSuccess}}</md-table-cell>-->
+                </md-table-row>
+              </md-table-body>
+            </md-table>
+
+          </div>
+        </div>
 
       </md-layout>
-      <md-layout id="slideEditor" v-if="jsonEditor" :class="{'md-layout':jsonEditor,'sideEditor':!jsonEditor, 'sideEditor-open':jsonEditor, 'md-flex-30':jsonEditor}">
+      <md-layout id="slideEditor" v-if="jsonEditor"
+                 :class="{'md-layout':jsonEditor,'sideEditor':!jsonEditor, 'sideEditor-open':jsonEditor, 'md-flex-30':jsonEditor}">
         <div class="md-right bgblack" ref="rightSidenav" style="width: 100%;">
           <codemirror v-if="opened"
                       :options="{
@@ -914,6 +1087,7 @@
         }
       },
       jsonEditor: Boolean,
+      editable: Boolean,
       newSingleContainer: Boolean
     },
     data() {
@@ -928,7 +1102,8 @@
           networkingview: false,
           volumesview: false,
           healthchecksview: false,
-          environmentview: false
+          environmentview: false,
+          reviewview: false
         },
 
         //돔 컨트롤
@@ -1204,7 +1379,7 @@
             for (var i in copy) {
               if (!copy[i].type) {
                 copy[i].external = {provider: "dvdi", options: {"dvdi/driver": "rexray"}};
-                copy[i].size?copy[i].external.size =copy[i].size:null;
+                copy[i].size ? copy[i].external.size = copy[i].size : null;
                 copy[i].name ? copy[i].external.name = copy[i].name : null;
                 copy[i].mode = "RW";
                 delete copy[i].name;
@@ -1264,10 +1439,13 @@
       this.serviceToModel();
       this.openSlideEditor();
     },
+    compute: {}
+    ,
     watch: {
       _service: {
         handler: function (newVal, oldVal) {
           this.serviceToModel();
+//          this.$emit('update:_service', newVal);
         },
         deep: true
       },
@@ -1359,9 +1537,13 @@
         },
         deep: true
       },
+//      editorData: {
+//        handler: function (newVal, oldVal) {
+//          this.$emit('update:_service', newVal);
+//        },
+//        deep: true
+//      }
     },
-    compute: {}
-    ,
     methods: {
       /**
        * 모델을 조합한다.
@@ -1403,7 +1585,7 @@
         this.combine.labels(this.labels);
 
         this.editorData = JSON.stringify(this.model, null, 2);
-
+        this.$emit('update:_service', this.model);
         //원래 메소드가 종료되는 시점에 바뀐 값들로 인해 watch,dom binding 이 활성화된다.
         //$nextTick 을 사용하게 되면, 위의 사항을 먼저 발생시킨 후, $nextTick 안의 메소드를 나중에 실행.
         this.$nextTick(function () {
@@ -1446,12 +1628,14 @@
         this.separate.healthChecks(this.model.healthChecks);
 
         //환경
-        if (this.model.env){
+        if (this.model.env) {
           this.separate.env(this.model.env);
         }
-        if (this.model.labels){
+        if (this.model.labels) {
           this.separate.labels(this.model.labels);
         }
+
+        this.$emit('update:_service', this.model);
 
         this.$nextTick(function () {
           this.working = false;
@@ -1473,9 +1657,9 @@
         delete this.model.version;
         delete this.model.killSelection;
         delete this.model.unreachableStrategy;
-        delete this.model.backoffSeconds;
+//        delete this.model.backoffSeconds;
         delete this.model.acceptedResourceRoles;
-        delete this.model.backoffFactor;
+//        delete this.model.backoffFactor;
         delete this.model.versionInfo;
         this.separation();
       }
@@ -1497,6 +1681,7 @@
           me.menu[key] = false;
         })
         this.menu[viewname] = true;
+        return this.menu[viewname];
       }
       ,
 
@@ -1525,10 +1710,12 @@
   a {
     cursor: pointer;
   }
+
   .md-tooltip {
-    display:inline-block;
+    display: inline-block;
     height: auto;
   }
+
   ,
   .fontb {
     width: 300px;
@@ -1647,6 +1834,7 @@
     height: inherit;
     will-change: transform;
   }
+
   .mouse-disabled {
     cursor: not-allowed;
   }
