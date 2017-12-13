@@ -1,5 +1,5 @@
 REGISTRY_URL=gitlab.pas-mini.io:5000
-CURRENT_DIR="$(pwd)"
+CURRENT_DIR="$(dirname $(pwd))"
 
 cd $CURRENT_DIR/uengine-cloud-config
 mvn package -B

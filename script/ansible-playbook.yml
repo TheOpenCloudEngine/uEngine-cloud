@@ -4,6 +4,15 @@
 - hosts: all
   remote_user: "{{ansible_user}}"
   tasks:
+    - name: Host file copy
+      become: true
+      become_method: sudo
+      copy:
+        src: ./etc-hosts
+        dest: /etc/hosts
+        owner: root
+        group: root
+        mode: 0644
     - name: Docker install
       command: "{{ item }}"
       with_items:
