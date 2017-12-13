@@ -113,9 +113,9 @@ public class AppService {
         this.saveDcosYaml(dcosMap);
 
         //ci-deploy-rollback.json 을  ci-deploy-production.json 으로.
-        try{
+        try {
             this.copyDeployJson(appName, "rollback", "prod");
-        }catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
 
@@ -323,6 +323,12 @@ public class AppService {
             int projectId = Integer.parseInt(((Map) app.get("gitlab")).get("projectId").toString());
             if (projectId > 0 && removeRepository) {
                 gitLabApi.getProjectApi().deleteProject(projectId);
+                try {
+                    //한번 더 삭제 TODO 이상함..
+                    gitLabApi.getProjectApi().deleteProject(projectId);
+                } catch (Exception exx) {
+
+                }
             }
         } catch (Exception ex) {
 

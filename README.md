@@ -572,6 +572,30 @@ sudo yum install gitlab-runner
 
 ```
 
+<Gitlal Configuration>
+
+```
+sudo vi /etc/gitlab/gitlab.rb
+
+.
+.
+external_url 'http://gitlab.pas-mini.io'
+
+gitlab_rails['smtp_enable'] = true
+gitlab_rails['smtp_address'] = "smtp.gmail.com"
+gitlab_rails['smtp_port'] = 587
+gitlab_rails['smtp_user_name'] = "flamingo.workflow@gmail.com"
+gitlab_rails['smtp_password'] = "princoprinco9"
+gitlab_rails['smtp_domain'] = "smtp.gmail.com"
+gitlab_rails['smtp_authentication'] = "login"
+gitlab_rails['smtp_enable_starttls_auto'] = true
+gitlab_rails['smtp_tls'] = false
+.
+.
+
+sudo gitlab-ctl reconfigure
+```
+
 <Gitlab CI Runner 등록>
 
 ```
@@ -614,6 +638,8 @@ sudo gitlab-ci-multi-runner restart
 sudo su
 curl --silent --location https://rpm.nodesource.com/setup_7.x | bash -
 yum install nodejs -y
+
+npm install npm@latest -g
 node -v
 npm -v
 ```

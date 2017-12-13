@@ -235,6 +235,12 @@ public class DefaultDcosJob implements Job {
                 //프로젝트 삭제
                 if (projectId > 0) {
                     gitLabApi.getProjectApi().deleteProject(projectId);
+                    //한번 더 삭제 TODO 이상함..
+                    try {
+                        gitLabApi.getProjectApi().deleteProject(projectId);
+                    } catch (Exception exx) {
+
+                    }
                 }
 
                 //vcap 서비스, config.yml 삭제
