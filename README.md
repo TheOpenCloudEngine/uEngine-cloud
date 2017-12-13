@@ -287,7 +287,7 @@ ansible-playbook.yml 을 살펴보면, 다음의 내용으로 이루어져있습
 
 ```
 cd install
-ansible-playbook playbook.yml
+ansible-playbook ansible-playbook.yml
 ```
 
 플레이북은 타스크들로 구성되어있으며, 만약 특정 타스크부터 수행하고 싶을 경우 다음의 명령어를 사용합니다.
@@ -442,6 +442,13 @@ journalctl -flu dcos-mesos-slave-public
 journalctl -flu dcos-mesos-master
 journalctl -flu dcos-gen-resolvconf
 ```
+
+ - 기존 시스템 구성을 모두 삭제하고 새로 인스톨 할 경우, 다음의 playbook 을 실행하도록 합니다.
+ 
+```
+cd install
+ansible-playbook ansible-playbook-remove.yml
+``` 
 
 #### 사용자 생성
 
