@@ -150,7 +150,7 @@ sudo vi /etc/ansible/hosts
 [all:vars]
 ansible_user=centos
 ansible_ssh_private_key_file=/home/centos/dcos-key.pem
-registry_host=gitlab.pas-mini.io:5000  # 깃랩 도메인:5000 
+registry_host=gitlab.pas-mini.io:5000 
 
 [bootstrap]
 192.168.0.25
@@ -287,7 +287,7 @@ ansible-playbook.yml 을 살펴보면, 다음의 내용으로 이루어져있습
 
 #### playbook.yml 실행
 
-다음의 명령어로 앤시블 프로비져닝을 실행합니다.
+다음의 명령어로 앤시블 프로비져닝을 실행합니다. 단계별로 실행을 원할 경우 --step 옵션을 추가하도록 합니다.
 
 ```
 *주의사항 : 사전에 모든 노드는 known hosts 파일에 등록이 되어있어야 합니다.
@@ -305,6 +305,13 @@ ansible-playbook ansible-playbook.yml
 ```
 cd install
 ansible-playbook ansible-playbook.yml --start-at-task="Docker service file"
+```
+
+또는, 한가지의 타스크만 실행하고 싶을때는 다음의 명령어를 사용합니다.
+
+```
+cd install
+ansible-playbook ansible-playbook.yml --step --start-at-task="Docker service file"
 ```
 
 ### 클러스터 설치

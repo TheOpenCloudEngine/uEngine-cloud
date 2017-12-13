@@ -13,7 +13,7 @@
         owner: root
         group: root
         mode: 0644
-    - name: Docker repository ready
+    - name: Docker util install
       command: "{{ item }}"
       with_items:
         - sudo yum remove docker \
@@ -23,9 +23,13 @@
         - sudo yum install -y yum-utils \
           device-mapper-persistent-data \
           lvm2
-        - sudo yum-config-manager \
-          --add-repo \
-          https://download.docker.com/linux/centos/docker-ce.repo
+
+    - name: Docker repository ready
+      become: true
+      become_method: sudo
+      command: yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+      async: 60
+      poll: 5
 
     - name: Yum update
       command: "{{ item }}"
