@@ -9,7 +9,7 @@ spring:
   profiles: dev
   cloud:
     config:
-      uri: http://config.uengine.io
+      uri: http://config.pas-mini.io
 
 ---
 spring:
