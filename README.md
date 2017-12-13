@@ -316,6 +316,8 @@ ansible-playbook ansible-playbook.yml --step --start-at-task="Docker service fil
 
 ### 클러스터 설치
 
+다음의 진행사항은 bootstrap 노드에서만 해당됩니다.
+
 #### genconf
 
 ```
@@ -392,9 +394,9 @@ oauth_enabled: true
 
 위의 구성중 resolvers 과 dns_search 항목은, mesos-dns 가 외부 네임스페이스 서버를 Lookup 할 때의 resolver 주소입니다.
 
-모든 서버의 resolvers 가 동일하다고 가정해야 하며, 보통은 OS 의 /etc/resolve.conf 에 정의되어있습니다.
+모든 서버의 resolvers 가 동일하다고 가정해야 하며, 보통은 OS 의 /etc/resolv.conf 에 정의되어있습니다.
  
-/etc/resolve.conf 참조하여 만약 다음의 값이라면
+/etc/resolv.conf 참조하여 만약 다음의 값이라면
 
 ```
 search ap-northeast-2.compute.internal
@@ -410,7 +412,7 @@ resolvers:
 dns_search: ap-northeast-2.compute.internal
 ```
 
-/etc/resolve.conf 에 search 가 없다면, genconf/config.yaml 파일에 dns_search 값은 없어도 됩니다. 
+/etc/resolv.conf 에 search 가 없다면, genconf/config.yaml 파일에 dns_search 값은 없어도 됩니다. 
 
 
 #### 프로비져닝
@@ -506,19 +508,41 @@ Enter OpenID Connect ID Token:
 
 ### Gitlab
 
-<Gitlab> <Ubuntu>
+<Gitlab>
+
+- Ubuntu
 
 ```
+sudo apt-get update
+sudo apt-get install -y curl openssh-server ca-certificates
+
 curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh | sudo bash
 
 
 sudo EXTERNAL_URL="http://gitlab.pas-mini.io" apt-get install gitlab-ce
 
+sudo dockerd -H unix:///var/run/docker.sock --insecure-registry gitlab.pas-mini.io:5000 &
+```
+
+- CentOS7
+
+```
+sudo yum install -y curl policycoreutils-python openssh-server
+sudo systemctl enable sshd
+sudo systemctl start sshd
+sudo firewall-cmd --permanent --add-service=http
+sudo systemctl reload firewalld
+
+curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.rpm.sh | sudo bash
+
+sudo EXTERNAL_URL="http://gitlab.example.com" yum install -y gitlab-ee
 
 sudo dockerd -H unix:///var/run/docker.sock --insecure-registry gitlab.pas-mini.io:5000 &
 ```
 
-<Gitlab CI> <Ubuntu>
+<Gitlab CI Runner>
+
+- Ubuntu
 
 ```
 curl -L https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.deb.sh | sudo bash
@@ -536,7 +560,20 @@ exit
 
 sudo apt-get install gitlab-runner
 
+```
 
+- CentOS7
+
+```
+curl -L https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.rpm.sh | sudo bash
+
+sudo yum install gitlab-runner
+
+```
+
+<Gitlab CI Runner 등록>
+
+```
 sudo gitlab-ci-multi-runner register -n \
   --url http://gitlab.pas-mini.io\
   --registration-token Kndb7ac3-4__EfEwxB_o \
