@@ -2,7 +2,7 @@
 
 ## 사전 준비 사항
 
- — 모든 노드
+ — 모든 노드는 CentOs/Rhel 7.2 ~ 7.3 OS 에서 구동됩니다.  
  - 내부망 UDP 뚤려있을것: UDP 가 뚤려있지 않으면 53 포트 domain resolve 가 작동하지 않는다. (운영시)
  - 내부망 TCP 포트는 모두 뚤려있을것 (운영시)
  - 외부망 인바운드 :  퍼블릭 에이전트 머신의 80 포트와 443 포트 (운영시)
@@ -11,21 +11,60 @@
  - 모든 서버는 동일한 pem 파일로 ssh 가 가능할 것. (운영시)
  - 모든 서버의 /etc/ssh/ssh_config 는 PermitRootLogin (설치시) 을 허용할 것.
 
-## 설치파일 다운로드
-
-git clone https://github.com/TheOpenCloudEngine/uEngine-cloud
-wget https://s3.ap-northeast-2.amazonaws.com/uengine-cloud/dcos_generate_config.sh
-
 
 ## DCOS
 
+### 서버 준비
+
+- 다음의 서버들을 준비해야 합니다. (사양은 추천사항입니다.)
+- 마스터 노드는 홀수개의 서버로 준비하도록 합니다. (1,3,5)
+- 퍼블릭 에이전트 노드는 최소 한개를 구성해야 합니다.
+- 퍼블릭 에이전트 노드의 80 포트와 443 포트는 외부에서 접속이 가능해야 합니다.
+
+
+| 역할/호스트네임  | 사양                   | IP 주소      |
+|--------------|------------------------|--------------|
+| bootstrap    | 2 CPU /2 GB/10 GB Disk | 192.168.0.25 |
+| master1      | 2 CPU /4 GB/20 GB Disk | 192.168.0.39 |
+| master2      | 2 CPU /4 GB/20 GB Disk | 192.168.0.23 |
+| master3      | 2 CPU /4 GB/20 GB Disk | 192.168.0.8  |
+| public-agent | 4 CPU /8 GB/20 GB Disk | 192.168.0.37 |
+| agent1       | 4 CPU /8 GB/20 GB Disk | 192.168.0.27 |
+| agent2       | 4 CPU /8 GB/20 GB Disk | 192.168.0.28 |
+| agent3       | 4 CPU /8 GB/20 GB Disk | 192.168.0.24 |
+| agent4       | 4 CPU /8 GB/20 GB Disk | 192.168.0.25 |
+| agent5       | 4 CPU /8 GB/20 GB Disk | 192.168.0.31 |
+| agent6       | 4 CPU /8 GB/20 GB Disk | 192.168.0.26 |
+| agent7       | 4 CPU /8 GB/20 GB Disk | 192.168.0.33 |
+
 ### 호스트 준비
+
+#### 도메인 준비
+
+다음의 도메인들을 준비하도록 합니다. 다음의 보기에서는 pas-mini.io 도메인을 소유했다고 가정하고, 다음의 A_Mask 들을 준비하도록 합니다.
+
+| A_MASK        | 도메인      | 역할                   |
+|---------------|-------------|------------------------|
+| gitlab        | pas-mini.io | 깃랩 / 도커 레지스트리 |
+| config        | pas-mini.io | 클라우드 콘피그 서버   |
+| eureka-server | pas-mini.io | 유레카 서버            |
+| api-dev       | pas-mini.io | 개발 Api-gateway       |
+| api-stg       | pas-mini.io | 스테이지 Api-gateway   |
+| api           | pas-mini.io | 프로덕션 Api-gateway   |
+| cloud-server  | pas-mini.io | 클라우드 플랫폼 서버   |
+| cloud         | pas-mini.io | 클라우드 플랫폼 UI     |
+
+#### 호스트네임 변경
+
+모든 서버에 각 역할에 맞는 호스트네임으로 변경합니다. 
+
+예) 192.168.0.25 bootstrap 서버
 
 — RHEL
 
 ```
 sudo vi /etc/sysconfig/network
-HOSTNAME=192.168.0.7
+HOSTNAME=bootstrap
 sudo reboot
 ```
 
@@ -37,23 +76,9 @@ bootstrap
 sudo hostname bootstrap
 ```
 
-— 호스트 파일
+#### ssh root 접속 허용
 
-```
-sudo vi /etc/hosts
-192.168.0.7  bootstrap
-192.168.0.14 master1
-192.168.0.23 master2
-192.168.0.8 master3
-192.168.0.30 public
-192.168.0.27 agent1
-192.168.0.28 agent2
-192.168.0.24 agent3
-192.168.0.25 agent4
-192.168.0.31 agent5
-192.168.0.26 agent6
-192.168.0.33 agent7
-```
+모든 서버의 /etc/ssh/ssh_config 의 PermitRootLogin 를 주석처리합니다.
 
 — ssh config
 
@@ -65,32 +90,71 @@ sudo service sshd restart
 
 ### 클러스터 준비
 
-#### /etc/ansible/hosts
+#### 설치파일 다운로드
 
-ansible-hosts-sample.yml 가이드 참조
+설치에 필요한 파일을 다운로드 받습니다.
+
+```
+git clone https://github.com/TheOpenCloudEngine/uEngine-cloud
+wget https://s3.ap-northeast-2.amazonaws.com/uengine-cloud/dcos_generate_config.sh
+```
+
+#### 설치 파일 복사
 
 ```
 cd uEngine-cloud
+cp -R ./script ./install 
+```
 
+#### 호스트 파일 수정
+
+```
+vi ./install/etc-hosts
+
+192.168.0.25  bootstrap
+192.168.0.39 master1
+192.168.0.23 master2
+192.168.0.8 master3
+192.168.0.37 public
+192.168.0.27 agent1
+192.168.0.28 agent2
+192.168.0.24 agent3
+192.168.0.25 agent4
+192.168.0.31 agent5
+192.168.0.26 agent6
+192.168.0.33 agent7
+```
+
+#### ansible 설치
+
+```
 sudo yum install epel-release
 sudo yum install ansible
+```
+
+#### /etc/ansible/hosts 생성
+
+- /etc/ansible/hosts 파일을 생성합니다. (./install/ansible-hosts.yml 파일을 참조)
+
+
+```
 sudo vi /etc/ansible/hosts
 
 [all:vars]
 ansible_user=centos
 ansible_ssh_private_key_file=/home/centos/dcos-key.pem
-registry_host=gitlab.pas-mini.io:5000
+registry_host=gitlab.pas-mini.io:5000  # 깃랩 도메인:5000 
 
 [bootstrap]
-192.168.0.7
+192.168.0.25
 
 [master]
-192.168.0.14
+192.168.0.39
 192.168.0.23
 192.168.0.8
 
 [public]
-192.168.0.30
+192.168.0.37
 
 [agent]
 192.168.0.27
@@ -102,9 +166,12 @@ registry_host=gitlab.pas-mini.io:5000
 192.168.0.33
 ```
 
-#### playbook.yml
+#### playbook.yml 리뷰
 
-ansible-playbook-sample.yml 참조
+ansible-playbook.yml 을 살펴보면, 다음의 내용으로 이루어져있습니다.
+
+이 플레이북을 실행시키면, DCOS 클러스터를 설치하기 위한 기반 유틸리티 및 시스템 구성이 완료될 것입니다.
+
 
 ```
 # vi playbook.yml
@@ -113,6 +180,15 @@ ansible-playbook-sample.yml 참조
 - hosts: all
   remote_user: "{{ansible_user}}"
   tasks:
+    - name: Host file copy
+      become: true
+      become_method: sudo
+      copy:
+        src: ./etc-hosts
+        dest: /etc/hosts
+        owner: root
+        group: root
+        mode: 0644
     - name: Docker install
       command: "{{ item }}"
       with_items:
@@ -135,6 +211,12 @@ ansible-playbook-sample.yml 참조
         - sudo sed -i s/SELINUX=enforcing/SELINUX=permissive/g /etc/selinux/config
         - sudo yum install haveged -y
         - sudo chkconfig haveged on
+
+    - name: Ntp
+      command: "{{ item }}"
+      with_items:
+        - sudo systemctl enable ntpd
+        - sudo service ntpd start
 
     - name: Group add
       command: "{{ item }}"
@@ -188,24 +270,44 @@ ansible-playbook-sample.yml 참조
         - sudo systemctl enable docker
         - sudo systemctl restart docker
       ignore_errors: True
-```
 
-```
 # play book
-ansible-playbook playbook.yml
+# ansible-playbook ansible-playbook.yml
 
-# play at task (IF failed, and restart from some task)
-ansible-playbook playbook.yml --start-at-task="genconf"
+# play at task
+# ansible-playbook ansible-playbook.yml --start-at-task="Docker service file"
+```
+
+#### playbook.yml 실행
+
+다음의 명령어로 앤시블 프로비져닝을 실행합니다.
+
+```
+cd install
+ansible-playbook playbook.yml
+```
+
+플레이북은 타스크들로 구성되어있으며, 만약 특정 타스크부터 수행하고 싶을 경우 다음의 명령어를 사용합니다.
+
+```
+cd install
+ansible-playbook ansible-playbook.yml --start-at-task="Docker service file"
 ```
 
 ### 클러스터 설치
 
-
 #### genconf
 
 ```
+cd install
 mkdir -p genconf
+```
 
+#### ip-detect
+
+ip-detect 는, DC/OS 클러스터 실행시 각 노드들이 자신의 아이피를 찾을 때 사용되는 스크립트입니다.
+
+```
 vi genconf/ip-detect
 
 #!/usr/bin/env bash
@@ -214,7 +316,9 @@ export PATH=/usr/sbin:/usr/bin:$PATH
 echo $(ip addr show eth0 | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | head -1)
 ```
 
-genconf/ssh_key 에 접속가능한 private key pem 파일 내용을 넣는다. 
+#### ssh_key
+
+genconf/ssh_key 에 접속가능한 private key pem 파일의 내용을 넣습니다. 
 
 ```
 vi genconf/ssh_key
@@ -224,7 +328,11 @@ vi genconf/ssh_key
 chmod 400 genconf/ssh_key
 ```
 
-config.yaml 생성한다.
+#### config.yaml
+
+config.yaml 은 DC/OS 프로비져닝에 필요한 스택구성 파일입니다.
+
+아래의 예제에서 각 아이피 리스트를 역할에 맞게 수정하여 줍니다.
 
 ```
 vi genconf/config.yaml
@@ -244,12 +352,12 @@ master_discovery: static
 ip_detect_public_filename: genconf/ip-detect
 ip_detect_path: genconf/ip-detect
 master_list:
-- 192.168.0.14
+- 192.168.0.39
 - 192.168.0.23
 - 192.168.0.8
 process_timeout: 10000
 public_agent_list:
-- 192.168.0.30
+- 192.168.0.37
 resolvers:
 - 121.88.255.50
 - 121.88.255.49
@@ -260,8 +368,12 @@ telemetry_enabled: true
 oauth_enabled: true
 ```
 
-#### resolvers, dns_search
+#### resolvers
 
+위의 구성중 resolvers 과 dns_search 항목은, mesos-dns 가 외부 네임스페이스 서버를 Lookup 할 때의 resolver 주소입니다.
+
+모든 서버의 resolvers 가 동일하다고 가정해야 하며, 보통은 OS 의 /etc/resolve.conf 에 정의되어있습니다.
+ 
 /etc/resolve.conf 참조하여 만약 다음의 값이라면
 
 ```
@@ -269,29 +381,54 @@ search ap-northeast-2.compute.internal
 nameserver 172.31.0.2
 ```
 
-genconf/config.yaml 의 resolvers 는 nameserver 리스트로, dns_search 값은 search 값으로 설정한다.
+genconf/config.yaml 의 resolvers 는 nameserver 리스트로, dns_search 값은 search 값으로 설정하도록 합니다.
 
 ```
-.
-.
 resolvers:
-- 172.31.0.2
+- 121.88.255.50
+- 121.88.255.49
 dns_search: ap-northeast-2.compute.internal
 ```
 
+/etc/resolve.conf 에 search 가 없다면, genconf/config.yaml 파일에 dns_search 값은 없어도 됩니다. 
+
+
 #### 프로비져닝
 
+모든 사항이 준비되었다면, 아래 명령어를 차례대로 수행합니다.
+
+- genconf 생성
+
 ```
+cd install
 sudo bash dcos_generate_config.sh --genconf
+```
 
+- preflight 는 사전 체크 단계입니다. 이 단계에서 모든 사항에 대해 pass 가 나오지 않는다면, 트러블 슈팅을 통해 해결하세요.
+
+```
+cd install
 sudo bash dcos_generate_config.sh --preflight
+```
 
+- deploy 는 설치 단계입니다. 수분 이상 소요될 수 있습니다.
+
+```
+cd install
 sudo bash dcos_generate_config.sh --deploy
+```
 
+- postflight 는 설치 후 확인 단계입니다. 이 단계에서 모든 DC/OS 컴포넌트의 헬스체크를 하게 되며, 만약 이 단계에서 수분간 동작을 멈추거나 Fail 이 떨어지게 된다면, 트러블 슈팅을 통해 이슈를 해결하셔야 합니다.
+
+```
+cd install
 sudo bash dcos_generate_config.sh --postflight
 ```
 
-#### 프로비져닝 후 동작 로그 확인
+#### 트러블 슈팅: 프로비져닝 후 동작 로그 확인
+
+ - DC/OS [트러블 슈팅](https://dcos.io/docs/1.10/installing/troubleshooting/) 문서
+
 
 ```
 journalctl -flu dcos-exhibitor
@@ -305,7 +442,7 @@ journalctl -flu dcos-gen-resolvconf
 
 #### 사용자 생성
 
-마스터 노드 중 한곳에서 실행한다.
+마스터 노드 중 한곳에서 실행하도록 합니다.
 
 ```
 sudo -i dcos-shell /opt/mesosphere/bin/dcos_add_user.py darkgodarkgo@gmail.com
@@ -319,7 +456,7 @@ echo $DCOS_ACS_TOKEN
 curl --header "Authorization: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJkYXJrZ29kYXJrZ29AZ21haWwuY29tIiwiZXhwIjozMTI1NTI2NDE5MzYuMjc2M30.IoIANXtSpc000tNFdpDGIC5MlbezSD7ovnellaJMOOs" http://localhost/service/marathon/v2/apps
 ```
 
-획득한 토큰은 깃랩 데이터베이스 설치에 필요하니 기억하고 있도록 하자.
+획득한 토큰은 깃랩 데이터베이스 설치에 필요하니 기억하고 있도록 합니다.
 
 
 #### CLI 설치
@@ -337,7 +474,7 @@ If your browser didn't open, please go to the following link:
 Enter OpenID Connect ID Token: 
 ```
 
-콘솔의 url 로 이동하여, 화면에 나오는 토큰값을 대화창에 입력하면 CLI 를 사용가능하다.
+콘솔의 url 로 이동하여, 화면에 나오는 토큰값을 대화창에 입력하면 CLI 를 사용가능 합니다.
 
 
 ### Gitlab
