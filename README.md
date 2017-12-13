@@ -22,20 +22,21 @@
 - 퍼블릭 에이전트 노드의 80 포트와 443 포트는 외부에서 접속이 가능해야 합니다.
 
 
-| 역할/호스트네임  | 사양                   | IP 주소      |
-|--------------|------------------------|--------------|
-| bootstrap    | 2 CPU /2 GB/10 GB Disk | 192.168.0.25 |
-| master1      | 2 CPU /4 GB/20 GB Disk | 192.168.0.39 |
-| master2      | 2 CPU /4 GB/20 GB Disk | 192.168.0.23 |
-| master3      | 2 CPU /4 GB/20 GB Disk | 192.168.0.8  |
-| public-agent | 4 CPU /8 GB/20 GB Disk | 192.168.0.37 |
-| agent1       | 4 CPU /8 GB/20 GB Disk | 192.168.0.27 |
-| agent2       | 4 CPU /8 GB/20 GB Disk | 192.168.0.28 |
-| agent3       | 4 CPU /8 GB/20 GB Disk | 192.168.0.24 |
-| agent4       | 4 CPU /8 GB/20 GB Disk | 192.168.0.25 |
-| agent5       | 4 CPU /8 GB/20 GB Disk | 192.168.0.31 |
-| agent6       | 4 CPU /8 GB/20 GB Disk | 192.168.0.26 |
-| agent7       | 4 CPU /8 GB/20 GB Disk | 192.168.0.33 |
+| 역할 / 호스트네임 | 사양                     | IP 주소      |
+|-------------------|--------------------------|--------------|
+| bootstrap         | 2 CPU /2 GB/10 GB Disk   | 192.168.0.25 |
+| master1           | 2 CPU /4 GB/20 GB Disk   | 192.168.0.39 |
+| master2           | 2 CPU /4 GB/20 GB Disk   | 192.168.0.23 |
+| master3           | 2 CPU /4 GB/20 GB Disk   | 192.168.0.8  |
+| public-agent      | 4 CPU /8 GB/20 GB Disk   | 192.168.0.37 |
+| agent1            | 4 CPU /8 GB/20 GB Disk   | 192.168.0.27 |
+| agent2            | 4 CPU /8 GB/20 GB Disk   | 192.168.0.28 |
+| agent3            | 4 CPU /8 GB/20 GB Disk   | 192.168.0.24 |
+| agent4            | 4 CPU /8 GB/20 GB Disk   | 192.168.0.25 |
+| agent5            | 4 CPU /8 GB/20 GB Disk   | 192.168.0.31 |
+| agent6            | 4 CPU /8 GB/20 GB Disk   | 192.168.0.26 |
+| agent7            | 4 CPU /8 GB/20 GB Disk   | 192.168.0.33 |
+| gitlab            | 4 CPU /32 GB/200 GB Disk | 192.168.0.35 |
 
 ### 호스트 준비
 
@@ -43,16 +44,16 @@
 
 다음의 도메인들을 준비하도록 합니다. 다음의 보기에서는 pas-mini.io 도메인을 소유했다고 가정하고, 다음의 A_Mask 들을 준비하도록 합니다.
 
-| A_MASK        | 도메인      | 역할                   |
-|---------------|-------------|------------------------|
-| gitlab        | pas-mini.io | 깃랩 / 도커 레지스트리 |
-| config        | pas-mini.io | 클라우드 콘피그 서버   |
-| eureka-server | pas-mini.io | 유레카 서버            |
-| api-dev       | pas-mini.io | 개발 Api-gateway       |
-| api-stg       | pas-mini.io | 스테이지 Api-gateway   |
-| api           | pas-mini.io | 프로덕션 Api-gateway   |
-| cloud-server  | pas-mini.io | 클라우드 플랫폼 서버   |
-| cloud         | pas-mini.io | 클라우드 플랫폼 UI     |
+| A_MASK        | 도메인      | 역할                   | 아이피/호스트              |
+|---------------|-------------|------------------------|----------------------------|
+| gitlab        | pas-mini.io | 깃랩 / 도커 레지스트리 | 192.168.0.35(gitlab)       |
+| config        | pas-mini.io | 클라우드 콘피그 서버   | 192.168.0.37(public-agent) |
+| eureka-server | pas-mini.io | 유레카 서버            | 192.168.0.37(public-agent) |
+| api-dev       | pas-mini.io | 개발 Api-gateway       | 192.168.0.37(public-agent) |
+| api-stg       | pas-mini.io | 스테이지 Api-gateway   | 192.168.0.37(public-agent) |
+| api           | pas-mini.io | 프로덕션 Api-gateway   | 192.168.0.37(public-agent) |
+| cloud-server  | pas-mini.io | 클라우드 플랫폼 서버   | 192.168.0.37(public-agent) |
+| cloud         | pas-mini.io | 클라우드 플랫폼 UI     | 192.168.0.37(public-agent) |
 
 #### 호스트네임 변경
 
