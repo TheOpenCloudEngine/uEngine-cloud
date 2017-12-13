@@ -13,7 +13,7 @@
         owner: root
         group: root
         mode: 0644
-    - name: Docker install
+    - name: Docker repository ready
       command: "{{ item }}"
       with_items:
         - sudo yum remove docker \
@@ -26,7 +26,15 @@
         - sudo yum-config-manager \
           --add-repo \
           https://download.docker.com/linux/centos/docker-ce.repo
-        - sudo yum update
+
+    - name: Yum update
+      command: "{{ item }}"
+      with_items:
+        - sudo yum update -y
+
+    - name: Docker install
+      command: "{{ item }}"
+      with_items:
         - sudo yum install docker-ce -y
 
     - name: Utils Install
