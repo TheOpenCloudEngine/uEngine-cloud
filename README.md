@@ -725,7 +725,7 @@ dcos package install --options=marathon-lb-internal.json marathon-lb
 
 marathon-lb 는 특히 반드시 서스펜드 후 리소스 조정을 할것(host 서비스 특성)
 
-#### 클라우드 패키지 실행 json 생성 - 추가 자동화 대상 TODO 
+#### 클라우드 패키지 파일 수정 
 
 다음의 파일 리스트들의 값을 변경하도록 합니다.
 
@@ -802,6 +802,113 @@ spring:
   cloud:
     config:
       uri: http://marathon-lb-internal.marathon.mesos:10000
+```
+
+#### 클라우드 패키지 배포 파일 수정
+
+- uengine-cloud-config/deploy.json
+
+```
+{
+.
+.
+"image": "gitlab.pas-mini.io:5000/uengine-cloud-config:v1",
+.
+.
+"HAPROXY_0_VHOST": "config.pas-mini.io",
+.
+.
+}
+```
+
+- uengine-cloud-server/deploy.json
+
+```
+{
+.
+.  
+"image": "gitlab.pas-mini.io:5000/uengine-cloud-server:v1",
+.
+.  
+"HAPROXY_0_VHOST": "cloud-server.pas-mini.io"
+.
+.
+}
+```
+
+- uengine-cloud-ui/deploy.json
+
+```
+{
+.
+.
+"image": "gitlab.pas-mini.io:5000/uengine-cloud-ui:v1",
+.
+.
+"HAPROXY_0_VHOST": "cloud.pas-mini.io",
+.
+.
+}
+
+```
+
+- uengine-eureka-server/deploy.json
+
+```
+.
+.
+"image": "gitlab.pas-mini.io:5000/uengine-eureka-server:v1",
+.
+.
+"HAPROXY_0_VHOST": "eureka-server.pas-mini.io"
+.
+.
+}
+```
+
+- uengine-eureka-zuul/deploy-dev-role.json
+
+```
+{
+.
+.
+"image": "gitlab.pas-mini.io:5000/uengine-eureka-zuul:v1",
+.
+.
+"HAPROXY_0_VHOST": "api-dev.pas-mini.io"
+.
+.
+}
+```
+
+- uengine-eureka-zuul/deploy-stg-role.json
+
+```
+{
+.
+.
+"image": "gitlab.pas-mini.io:5000/uengine-eureka-zuul:v1",
+.
+.
+"HAPROXY_0_VHOST": "api-stg.pas-mini.io"
+.
+.
+}
+```
+
+- uengine-eureka-zuul/deploy-prod-role.json
+
+```
+{
+.
+.
+"image": "gitlab.pas-mini.io:5000/uengine-eureka-zuul:v1",
+.
+.
+"HAPROXY_0_VHOST": "api-prod.pas-mini.io"
+.
+.
+}
 ```
 
 #### 클라우드 패키지 빌드 및 도커 파일 생성
