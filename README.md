@@ -99,14 +99,15 @@ sudo service sshd restart
 
 ```
 git clone https://github.com/TheOpenCloudEngine/uEngine-cloud
-wget https://s3.ap-northeast-2.amazonaws.com/uengine-cloud/dcos_generate_config.sh
 ```
 
-#### 설치 파일 복사
+#### 설치 파일 복사 및 추가 다운로드
 
 ```
 cd uEngine-cloud
-cp -R ./script ./install 
+cp -R ./script ./install
+cd ./install
+wget https://s3.ap-northeast-2.amazonaws.com/uengine-cloud/dcos_generate_config.sh
 ```
 
 #### 호스트 파일 수정
