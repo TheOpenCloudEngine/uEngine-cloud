@@ -105,6 +105,8 @@ git clone https://github.com/TheOpenCloudEngine/uEngine-cloud
 #### 설치 파일 복사 및 추가 다운로드
 
 ```
+sudo yum install wget
+
 cd uEngine-cloud
 cp -R ./script ./install
 cd ./install
@@ -286,6 +288,12 @@ ansible-playbook.yml 을 살펴보면, 다음의 내용으로 이루어져있습
 #### playbook.yml 실행
 
 다음의 명령어로 앤시블 프로비져닝을 실행합니다.
+
+```
+*주의사항 : 사전에 모든 노드는 known hosts 파일에 등록이 되어있어야 합니다.
+
+노드에 ssh 접속을 한번 이상 했다면 자동으로 등록됩니다.
+```
 
 ```
 cd install

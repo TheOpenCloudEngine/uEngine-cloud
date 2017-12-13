@@ -26,6 +26,7 @@
         - sudo yum-config-manager \
           --add-repo \
           https://download.docker.com/linux/centos/docker-ce.repo
+        - sudo yum update
         - sudo yum install docker-ce -y
 
     - name: Utils Install
