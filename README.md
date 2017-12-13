@@ -474,8 +474,8 @@ ansible-playbook ansible-playbook-remove.yml
 마스터 노드 중 한곳에서 실행하도록 합니다.
 
 ```
-sudo -i dcos-shell /opt/mesosphere/bin/dcos_add_user.py darkgodarkgo@gmail.com
-
+sudo su
+-i dcos-shell /opt/mesosphere/bin/dcos_add_user.py darkgodarkgo@gmail.com
 
 export DCOS_USER=darkgodarkgo@gmail.com
 DCOS_ACS_TOKEN="$(docker run --rm -v /var/lib/dcos/dcos-oauth/auth-token-secret:/key karlkfi/jwt-encoder ${DCOS_USER} /key --duration=86400000)"
@@ -495,6 +495,7 @@ curl -O https://downloads.dcos.io/binaries/cli/linux/x86-64/dcos-1.10/dcos
 sudo mv dcos /usr/local/bin
 chmod +x /usr/local/bin/dcos
 
+# 마스터 중 하나로 지정합니다.
 dcos cluster setup http://192.168.0.14
 
 If your browser didn't open, please go to the following link:
@@ -726,6 +727,89 @@ marathon-lb 는 특히 반드시 서스펜드 후 리소스 조정을 할것(hos
 
 #### 클라우드 패키지 실행 json 생성 - 추가 자동화 대상 TODO 
 
+다음의 파일 리스트들의 값을 변경하도록 합니다.
+
+- uengine-cloud-config/src/main/resources/application.yml
+
+```
+spring:
+  cloud:
+    config:
+      server:
+        git:
+          uri: http://gitlab.pas-mini.io/root/cloud-config-repository.git
+          username: root
+          password: adminadmin
+```
+
+- uengine-cloud-server/src/main/resources/bootstrap.yml
+
+```
+spring:
+  application:
+      name: uengine-cloud-server
+  profiles:
+    active: "dev"
+
+---
+spring:
+  profiles: dev
+  cloud:
+    config:
+      uri: http://config.pas-mini.io
+
+---
+spring:
+  profiles: docker
+  cloud:
+    config:
+      uri: http://marathon-lb-internal.marathon.mesos:10000
+
+```
+
+- uengine-cloud-ui/index.html
+
+```
+.
+.
+  <script>
+    var configServerUrl = 'http://config.pas-mini.io';
+    var baseUrl = location.protocol + '//' + location.hostname + (location.port ? ':' + location.port : '');
+  </script>
+.
+.
+```
+
+- uengine-eureka-zuul/src/main/resources/bootstrap.yml
+
+```
+spring:
+  application:
+      name: uengine-cloud
+  profiles:
+    active: "dev"
+
+---
+spring:
+  profiles: dev
+  cloud:
+    config:
+      uri: http://config.pas-mini.io
+
+---
+spring:
+  profiles: docker
+  cloud:
+    config:
+      uri: http://marathon-lb-internal.marathon.mesos:10000
+```
+
+#### 클라우드 패키지 빌드 및 도커 파일 생성
+
+```
+cd install
+sh docker-build.sh
+```
 
 #### 클라우드 패키지 실행
 
