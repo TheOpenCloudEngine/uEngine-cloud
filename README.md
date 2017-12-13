@@ -921,20 +921,22 @@ sh docker-build.sh
 #### 클라우드 패키지 실행
 
 ```
+cd install
+
 -- 클라우드 콘피스 서버와 유레카 서버를 구동시킨다.
 
-dcos marathon app add uengine-cloud-config/deploy.json
-dcos marathon app add uengine-eureka-server/deploy.json
+dcos marathon app add ../uengine-cloud-config/deploy.json
+dcos marathon app add ../uengine-eureka-server/deploy.json
 
 
 
 -- 위의 두가지가 모두 구동완료되었을 때 나머지를 실행시킨다.
 
-dcos marathon app add uengine-eureka-zuul/deploy-dev-role.json
-dcos marathon app add uengine-eureka-zuul/deploy-stg-role.json
-dcos marathon app add uengine-eureka-zuul/deploy-prod-role.json
-dcos marathon app add uengine-cloud-server/deploy.json
-dcos marathon app add uengine-cloud-ui/deploy.json
+dcos marathon app add ../uengine-eureka-zuul/deploy-dev-role.json
+dcos marathon app add ../uengine-eureka-zuul/deploy-stg-role.json
+dcos marathon app add ../uengine-eureka-zuul/deploy-prod-role.json
+dcos marathon app add ../uengine-cloud-server/deploy.json
+dcos marathon app add ../uengine-cloud-ui/deploy.json
 ```
 
 # 운영
