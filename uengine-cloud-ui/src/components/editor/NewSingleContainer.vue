@@ -27,6 +27,24 @@
         </div>
       </md-layout>
       <md-layout class="main-body" style="margin-left: 3%;overflow-y: scroll;">
+        <div id="errorForm" style="background-color: rgba(243,55,69,.1);width: 90%;margin-top:5%;" v-if="errorView">
+          <h3 style="color:#f33745;
+          background: url(' ../../../static/image/symbol/small_cancel_end.gif') left no-repeat;
+          padding-left:20px; margin-left:10px;">
+            There is an error with your configuration</h3>
+          <ul style="color:#f33745;list-style: none;">
+            <li v-if="id == '/'">Service ID must be defined</li>
+            <li v-if="!cpus && cpus==0">CPUs must be bigger than or equal to 0.001</li>
+            <li v-if="!cmd">cmd: You must specify a command, an argument or a container</li>
+            <li v-if="!container.docker.image">args: You must specify a command, an argument or a container</li>
+            <li v-if="!container.docker.image">
+              container.docker.image: You must specify a command, an argument or a container
+            </li>
+            <li v-if="!container.docker.image">container.docker.image: Must be defined</li>
+          </ul>
+        </div>
+
+
         <!------------------------------------------------------------------------Service------------------------------------------------>
         <div v-if="menu.serviceview" style="width: 100%">
           <h3 class="md-title">Service</h3>
@@ -42,13 +60,13 @@
                 </md-button>
               </div>
               <md-input-container>
-                <md-input v-model="id" :disabled="id.indexOf('{{')!=-1"></md-input>
+                <md-input v-model="id" :disabled="id.indexOf('{{')!=-1 && id.indexOf('}}')!=-1"></md-input>
               </md-input-container>
             </md-layout>
             <md-layout md-flex="20">
               INSTANCES
               <md-input-container>
-                <md-input v-model="instances" type="number"></md-input>
+                <md-input v-model.number="instances" type="number"></md-input>
               </md-input-container>
             </md-layout>
           </md-layout>
@@ -67,19 +85,19 @@
               </div>
               <md-input-container>
                 <md-input v-model="container.docker.image"
-                          :disabled="id.indexOf('{{')!=-1 && id.indexOf('}}')!=-1"></md-input>
+                          :disabled="container.docker.image.indexOf('{{')!=-1 && container.docker.image.indexOf('}}')!=-1"></md-input>
               </md-input-container>
             </md-layout>
             <md-layout md-flex="20" class="mr5">
               CPUs &nbsp;<span style="color: #ff5c3c">*</span>
               <md-input-container>
-                <md-input v-model="cpus" type="number"></md-input>
+                <md-input v-model.number="cpus" type="number"></md-input>
               </md-input-container>
             </md-layout>
             <md-layout md-flex="20">
               Memory (MiB) &nbsp;<span style="color: #ff5c3c">*</span>
               <md-input-container>
-                <md-input v-model="mem" type="number"></md-input>
+                <md-input v-model.number="mem" type="number"></md-input>
               </md-input-container>
             </md-layout>
           </md-layout>
@@ -204,14 +222,14 @@
                 <md-layout md-flex="25" class="mr5">
                   GPUs
                   <md-input-container>
-                    <md-input type="number" v-model="gpus"
+                    <md-input type="number" v-model.number="gpus"
                               :disabled="model.container.type!='MESOS'"></md-input>
                   </md-input-container>
                 </md-layout>
                 <md-layout md-flex="25">
                   Disk (MiB)
                   <md-input-container>
-                    <md-input type="number" v-model="disk"></md-input>
+                    <md-input type="number" v-model.number="disk"></md-input>
                   </md-input-container>
                 </md-layout>
               </md-layout>
@@ -296,7 +314,7 @@
                   </md-button>
                 </div>
                 <md-input-container style="width: 100%;height: 20px;">
-                  <md-input v-model="portDefinition.port" :disabled="portsAutoAssign"
+                  <md-input v-model.number="portDefinition.port" :disabled="portsAutoAssign"
                             :placeholder="portsAutoAssign?'$PORT'+index:''" type="number"></md-input>
                 </md-input-container>
               </md-layout>
@@ -334,7 +352,7 @@
                     </md-button>
                   </div>
                   <md-input-container style="width: 100%;height: 20px;">
-                    <md-input v-model="portDefinition.vipPort" type="number"></md-input>
+                    <md-input v-model.number="portDefinition.vipPort" type="number"></md-input>
                   </md-input-container>
                 </md-layout>
               </md-layout>
@@ -348,7 +366,7 @@
               <md-layout md-flex="30" class="mr5">
                 <span class="md-subheading">CONTAINER PORT</span>
                 <md-input-container style="width: 100%;height: 20px;">
-                  <md-input v-model="portDefinition.containerPort" type="number"></md-input>
+                  <md-input v-model.number="portDefinition.containerPort" type="number"></md-input>
                 </md-input-container>
               </md-layout>
               <md-layout md-flex="50" class="mr5">
@@ -380,7 +398,7 @@
                   </md-button>
                 </div>
                 <md-input-container style="width: 100%;height: 20px;">
-                  <md-input v-model="portDefinition.hostPort" :disabled="portDefinition.portsAutoAssign"
+                  <md-input v-model.number="portDefinition.hostPort" :disabled="portDefinition.portsAutoAssign"
                             type="number"
                             :placeholder="portDefinition.portsAutoAssign?'$PORT'+index:''"></md-input>
                 </md-input-container>
@@ -424,7 +442,7 @@
                     </md-button>
                   </div>
                   <md-input-container style="width: 100%;height: 20px;">
-                    <md-input v-model="portDefinition.vipPort" type="number"></md-input>
+                    <md-input v-model.number="portDefinition.vipPort" type="number"></md-input>
                   </md-input-container>
                 </md-layout>
               </md-layout>
@@ -492,7 +510,7 @@
                 <md-layout md-flex="30" class="mr5">
                   <span class="md-subheading">SIZE (MiB)</span>
                   <md-input-container style="width: 100%;height: 20px;">
-                    <md-input v-model="localVolume.size" type="number"></md-input>
+                    <md-input v-model.number="localVolume.size" type="number"></md-input>
                   </md-input-container>
                 </md-layout>
                 <md-layout md-flex="45">
@@ -622,7 +640,7 @@
                         </md-button>
                       </div>
                       <md-input-container>
-                        <md-input v-model="healthCheck.gracePeriodSeconds" placeholder="300"
+                        <md-input v-model.number="healthCheck.gracePeriodSeconds" placeholder="300"
                                   type="number"></md-input>
                       </md-input-container>
                     </md-layout>
@@ -636,7 +654,7 @@
                         </md-button>
                       </div>
                       <md-input-container>
-                        <md-input v-model="healthCheck.intervalSeconds" type="number"
+                        <md-input v-model.number="healthCheck.intervalSeconds" type="number"
                                   placeholder="60"></md-input>
                       </md-input-container>
                     </md-layout>
@@ -652,7 +670,7 @@
                         </md-button>
                       </div>
                       <md-input-container>
-                        <md-input v-model="healthCheck.timeoutSeconds" type="number"
+                        <md-input v-model.number="healthCheck.timeoutSeconds" type="number"
                                   placeholder="20"></md-input>
                       </md-input-container>
                     </md-layout>
@@ -667,7 +685,7 @@
                         </md-button>
                       </div>
                       <md-input-container>
-                        <md-input v-model="healthCheck.maxConsecutiveFailures" type="number"
+                        <md-input v-model.number="healthCheck.maxConsecutiveFailures" type="number"
                                   placeholder="3"></md-input>
                       </md-input-container>
                     </md-layout>
@@ -821,7 +839,8 @@
                 <md-layout md-flex="40">
                   <div v-if="index == 0">VALUE</div>
                   <md-input-container>
-                    <md-input v-model="environment.value"></md-input>
+                    <md-input v-model="environment.value"
+                              :disabled="environment.value.indexOf('{{') != -1 && environment.value.indexOf('}}') != -1 "></md-input>
                   </md-input-container>
                 </md-layout>
                 <md-layout md-flex="10">
@@ -873,11 +892,12 @@
         </div>
         <!-------------------------------------------------------ReviewView-------------------------------------------------------->
         <div v-if="menu.reviewview" style="width: 100%">
-          <div v-if="model">
+          <div>
             <md-table v-once>
               <md-table-body>
                 <md-table-header>
-                  <md-table-head><span class="md-title" style="color: #111111;font-size: 30px;">General</span></md-table-head>
+                  <md-table-head><span class="md-title" style="color: #111111;font-size: 30px;">General</span>
+                  </md-table-head>
                 </md-table-header>
                 <md-table-row>
                   <md-table-cell><span class="md-title">SERVICE ID</span></md-table-cell>
@@ -903,15 +923,15 @@
                   <md-table-cell><span class="md-title">DISK</span></md-table-cell>
                   <md-table-cell>{{disk}} B</md-table-cell>
                 </md-table-row>
-                <md-table-row>
+                <md-table-row v-if="model.backoffSeconds">
                   <md-table-cell><span class="md-title">BACKOFF SECONDS</span></md-table-cell>
                   <md-table-cell>{{model.backoffSeconds}}</md-table-cell>
                 </md-table-row>
-                <md-table-row>
+                <md-table-row v-if="model.backoffFactor">
                   <md-table-cell><span class="md-title">BACKOFF FACTOR</span></md-table-cell>
                   <md-table-cell>{{model.backoffFactor}}</md-table-cell>
                 </md-table-row>
-                <md-table-row>
+                <md-table-row v-if="model.maxLaunchDelaySeconds">
                   <md-table-cell><span class="md-title">BACKOFF MAX LAUNCH DELAY</span></md-table-cell>
                   <md-table-cell>{{model.maxLaunchDelaySeconds}}</md-table-cell>
                 </md-table-row>
@@ -930,17 +950,9 @@
                 <md-table-row>
                   <md-table-cell><span class="md-title">COMMAND</span></md-table-cell>
                   <md-table-cell>
-                    <span v-if="model.command">{{model.command}}</span>
+                    <span v-if="cmd">{{cmd}}</span>
                     <span v-else>Not Configured</span>
                   </md-table-cell>
-                </md-table-row>
-                <md-table-row>
-                  <md-table-cell><span class="md-title">RESOURCE ROLES</span></md-table-cell>
-                  <md-table-cell v-if="model.acceptedResourceRoles">{{model.acceptedResourceRoles[0]}}</md-table-cell>
-                </md-table-row>
-                <md-table-row>
-                  <md-table-cell><span class="md-title">VERSION</span></md-table-cell>
-                  <md-table-cell>{{model.version}}</md-table-cell>
                 </md-table-row>
               </md-table-body>
             </md-table>
@@ -949,11 +961,12 @@
             <md-table v-once style="margin-top: 10%;">
 
               <md-table-header>
-                <md-table-head><span class="md-title" style="color: #111111;font-size: 30px;">Network</span></md-table-head>
+                <md-table-head><span class="md-title" style="color: #111111;font-size: 30px;">Network</span>
+                </md-table-head>
               </md-table-header>
               <md-table-row>
                 <md-table-cell><span style="color: #111111;font-size: 15px;">NETWORK MODE</span></md-table-cell>
-                <md-table-cell>{{model.networks[0].mode}}</md-table-cell>
+                <md-table-cell>{{networks[0].mode}}</md-table-cell>
               </md-table-row>
               <md-table-header>
                 <md-table-head><span class="md-title" style="color: #111111;font-size: 25px;">Service Endpoints</span>
@@ -964,32 +977,44 @@
                   <md-table-head><span style="font-size: 15px;">NAME</span></md-table-head>
                   <md-table-head><span style="font-size: 15px;">PROTOCOL</span></md-table-head>
                   <md-table-head><span style="font-size: 15px;">CONTAINER PORT</span></md-table-head>
-                  <md-table-head><span style="font-size: 15px;">HOST PORT</span></md-table-head>
-                  <md-table-head><span style="font-size: 15px;">SERVICE PORT</span></md-table-head>
+                  <md-table-head><span style="font-size: 15px;" v-if="networks[0].mode=='host'">HOST PORT</span>
+                  </md-table-head>
+                  <!--<md-table-head><span style="font-size: 15px;">SERVICE PORT</span></md-table-head>-->
                   <md-table-head><span style="font-size: 15px;">LOAD BALANCED ADDRESS</span></md-table-head>
                 </md-table-row>
               </md-table-header>
-              <md-table-body>
+              <md-table-body v-for="(portDefinition,index) in portDefinitions">
                 <md-table-row>
                   <md-table-cell style="color: #111111;">
-                    <span v-if="container.portMappings[0].name">{{container.portMappings[0].name}}</span>
+                    <span v-if="portDefinition.name">{{portDefinition.name}}</span>
                     <span v-else>Not Configured</span>
                   </md-table-cell>
-                  <md-table-cell style="color: #111111;">{{container.portMappings[0].protocol}}</md-table-cell>
-                  <md-table-cell style="color: #111111;">{{container.portMappings[0].containerPort}}</md-table-cell>
-                  <md-table-cell style="color: #111111;">{{container.portMappings[0].hostPort}}</md-table-cell>
-                  <md-table-cell style="color: #111111;">{{container.portMappings[0].servicePort}}</md-table-cell>
+                  <md-table-cell style="color: #111111;">{{portDefinition.protocol}}</md-table-cell>
                   <md-table-cell style="color: #111111;">
-                    <span v-if="container.portMappings[0].loadBalancedAddress">{{container.portMappings[0].loadBalancedAddress}}</span>
+                    <span v-if="portDefinition.containerPort">{{portDefinition.containerPort}}</span>
+                    <span v-else>Not Configured</span>
+                  </md-table-cell>
+                  <md-table-cell style="color: #111111;">
+                    <span v-if="portDefinition.hostPort">{{portDefinition.hostPort}}</span>
+                    <span v-else-if="portDefinition.port">{{portDefinition.port}}</span>
+                    <span v-else>Not Configured</span>
+                  </md-table-cell>
+                  <!--<md-table-cell style="color: #111111;" v-if="portDefinition.servicePort">-->
+                  <!--<span v-if="portDefinition.servicePort">{{portDefinition.servicePort}}</span>-->
+                  <!--<span v-else>Not Configured</span>-->
+                  <!--</md-table-cell>-->
+                  <md-table-cell style="color: #111111;">
+                    <span v-if="portDefinition.loadBalancedAddress">{{portDefinition.loadBalancedAddress}}</span>
                     <span v-else>Not Enabled</span>
                   </md-table-cell>
                 </md-table-row>
               </md-table-body>
             </md-table>
 
-            <md-table v-once style="margin-top: 10%;">
+            <md-table v-once style="margin-top: 10%;" v-if="env">
               <md-table-header>
-                <md-table-head><span class="md-title" style="color: #111111;font-size: 30px;">Environment Variables</span>
+                <md-table-head><span class="md-title"
+                                     style="color: #111111;font-size: 30px;">Environment Variables</span>
                 </md-table-head>
               </md-table-header>
               <md-table-header>
@@ -1006,9 +1031,10 @@
               </md-table-body>
             </md-table>
 
-            <md-table v-once style="margin-top: 10%;">
+            <md-table v-once style="margin-top: 10%;" v-if="labels">
               <md-table-header>
-                <md-table-head><span class="md-title" style="color: #111111;font-size: 30px;">Labels</span></md-table-head>
+                <md-table-head><span class="md-title" style="color: #111111;font-size: 30px;">Labels</span>
+                </md-table-head>
               </md-table-header>
               <md-table-header>
                 <md-table-row>
@@ -1032,8 +1058,6 @@
                   </md-table-head>
                 </md-table-header>
                 <md-table-row>
-                  <!--<md-table-cell><span class="md-title">FIRST SUCCESS</span></md-table-cell>-->
-                  <!--<md-table-cell>{{model.tasks[0].healthCheckResults[0].firstSuccess}}</md-table-cell>-->
                 </md-table-row>
               </md-table-body>
             </md-table>
@@ -1108,6 +1132,7 @@
 
         //돔 컨트롤
         moresetting: false,
+        errorView: false,
 
 
         //====== Service =========//
@@ -1157,6 +1182,15 @@
         separate: {
           container: function (val) {
             for (var key in val) {
+              if (key == 'docker') {
+                for (var dockerKey in me.container[key]) {
+                  if (dockerKey == 'image') {
+                    if (val[key][dockerKey].indexOf("{{") != -1 && val[key][dockerKey].indexOf("{{") != -1) {
+                      val[key][dockerKey] = "{{IMAGE}}";
+                    }
+                  }
+                }
+              }
               me.container[key] = val[key];
             }
           },
@@ -1248,7 +1282,12 @@
             var copy = JSON.parse(JSON.stringify(val));
             var environment = [];
             for (var key in copy) {
-              environment.push({key: key, value: copy[key]})
+              if (copy[key].indexOf("{{") && copy[key].indexOf("}}") == -1) {
+                environment.push({key: key, value: copy[key]})
+              } else {
+                environment.push({key: key, value: "{{DEPLOYMENT}}"})
+              }
+//              environment.push({key: key, value: copy[key]})
             }
             me.env = environment;
           },
@@ -1267,6 +1306,7 @@
           //서비스
           container: function (val) {
             me.model.container = val;
+            console.log("me.model.container", me.model.container);
           },
           constraints: function (val) {
             if (val && val.length) {
@@ -1413,7 +1453,12 @@
             var environment = {};
             for (var i in copy) {
               if (copy[i].key && copy[i].value) {
-                environment[copy[i].key] = copy[i].value;
+                if (copy[i].value.indexOf("{{") && copy[i].value.indexOf("}}") == -1) {
+                  environment[copy[i].key] = copy[i].value;
+                } else {
+                  environment[copy[i].key] = "{{DEPLOYMENT}}";
+                }
+//                environment[copy[i].key] = copy[i].value;
               } else {
                 delete environment[copy[i].key];
               }
@@ -1472,6 +1517,9 @@
       },
       constraints: {
         handler: function (newVal, oldVal) {
+          if (this.working) {
+            this.working = !this.working;
+          }
           this.combination();
         },
         deep: true
@@ -1484,6 +1532,7 @@
       },
       container: {
         handler: function (newVal, oldVal) {
+          console.log("watch container newVal", newVal);
           this.combination();
         },
         deep: true
@@ -1537,18 +1586,13 @@
         },
         deep: true
       },
-//      editorData: {
-//        handler: function (newVal, oldVal) {
-//          this.$emit('update:_service', newVal);
-//        },
-//        deep: true
-//      }
     },
     methods: {
       /**
        * 모델을 조합한다.
        **/
       combination: function () {
+        console.log('this.working!!', this.working);
         if (this.working) {
           return;
         }
@@ -1557,7 +1601,13 @@
         console.log('combination Start!!');
 
         //서비스
-        this.model.id = this.id;
+
+        if (this.model.id.indexOf("{{") == -1 && this.model.id.indexOf("}}") == -1) {
+          this.model.id = this.id;
+        } else {
+          this.model.id = "{{APP_ID}}";
+        }
+
         this.model.instances = this.instances;
         this.combine.container(this.container);
         this.model.cpus = this.cpus;
@@ -1590,6 +1640,7 @@
         //$nextTick 을 사용하게 되면, 위의 사항을 먼저 발생시킨 후, $nextTick 안의 메소드를 나중에 실행.
         this.$nextTick(function () {
           this.working = false;
+          console.log("combination", this.working);
         });
       }
       ,
@@ -1604,7 +1655,12 @@
         console.log('separation Start!!', this.model);
 
         //서비스
-        this.id = this.model.id;
+        if (this.model.id.indexOf("{{") == -1 && this.model.id.indexOf("}}") == -1) {
+          this.id = this.model.id;
+        } else {
+          this.model.id = "{{APP_ID}}";
+          this.id = this.model.id;
+        }
         this.instances = this.model.instances;
         this.separate.container(this.model.container);
         this.cpus = this.model.cpus;
@@ -1639,6 +1695,7 @@
 
         this.$nextTick(function () {
           this.working = false;
+          console.log("separation", this.working);
         });
       }
       ,
@@ -1647,20 +1704,20 @@
        */
       serviceToModel: function () {
         this.model = JSON.parse(JSON.stringify(this._service));
-        delete this.model.tasksStaged;
-        delete this.model.tasksRunning;
-        delete this.model.tasksHealthy;
-        delete this.model.tasksUnhealthy;
-        delete this.model.deployments;
-        delete this.model.tasks;
-        delete this.model.taskStats;
-        delete this.model.version;
-        delete this.model.killSelection;
-        delete this.model.unreachableStrategy;
+//        delete this.model.tasksStaged;
+//        delete this.model.tasksRunning;
+//        delete this.model.tasksHealthy;
+//        delete this.model.tasksUnhealthy;
+//        delete this.model.deployments;
+//        delete this.model.tasks;
+//        delete this.model.taskStats;
+//        delete this.model.version;
+//        delete this.model.killSelection;
+//        delete this.model.unreachableStrategy;
 //        delete this.model.backoffSeconds;
-        delete this.model.acceptedResourceRoles;
+//        delete this.model.acceptedResourceRoles;
 //        delete this.model.backoffFactor;
-        delete this.model.versionInfo;
+//        delete this.model.versionInfo;
         this.separation();
       }
       ,
@@ -1698,6 +1755,14 @@
         this[key] = this[key] ? false : true;
       }
       ,
+      validation: function () {
+        if (!this.container.docker.image || !this.id || this.cpus != 0){
+          this.errorView = true;
+        } else {
+          this.errorView = false;
+        }
+        return this.errorView;
+      },
     }
   }
 </script>
@@ -1837,5 +1902,10 @@
 
   .mouse-disabled {
     cursor: not-allowed;
+  }
+
+  #errorForm > li:before {
+    content: "• ";
+    color: #666666;
   }
 </style>
