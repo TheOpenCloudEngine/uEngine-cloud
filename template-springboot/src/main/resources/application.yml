@@ -1,6 +1,6 @@
 ---
 spring:
-  profiles: dev
+  profiles: local
 
 server:
   port: 8080

@@ -562,7 +562,8 @@
                     <md-input v-model="externalVolume.size" :disabled="container.type!='MESOS'"
                               :class="{'mouse-disabled':container.type!='MESOS'}"></md-input>
                     <md-tooltip class="fontb" md-direction="top" v-if="container.type!='MESOS'">
-                      Docker Runtime only supports the default size for implicit volumes, please select Universal Container Runtime(UCR) if you want to modify the size.
+                      Docker Runtime only supports the default size for implicit volumes, please select Universal
+                      Container Runtime(UCR) if you want to modify the size.
                     </md-tooltip>
                   </md-input-container>
                 </md-layout>
@@ -680,7 +681,8 @@
                         <md-button class="md-primary small">?
                           <md-tooltip class="fontb" md-direction="top">
                             (Optional. Default: 3): Number of consecutive health check failures after which the
-                            unhealthy instance should be killed. HTTP & TCP health checks: If this value is 0, instances will not be killed if they fail the health check.
+                            unhealthy instance should be killed. HTTP & TCP health checks: If this value is 0, instances
+                            will not be killed if they fail the health check.
                           </md-tooltip>
                         </md-button>
                       </div>
@@ -1606,7 +1608,6 @@
         console.log('combination Start!!');
 
         //서비스
-
         if (this.model.id.indexOf("{{") == -1 && this.model.id.indexOf("}}") == -1) {
           this.model.id = this.id;
         } else {
@@ -1617,7 +1618,7 @@
         this.combine.container(this.container);
         this.model.cpus = this.cpus;
         this.model.mem = this.mem;
-        this.model.cmd = this.cmd?this.cmd:"";
+        this.model.cmd = this.cmd ? this.cmd : null;
         this.model.gpus = this.gpus;
         this.model.disk = this.disk;
         this.combine.constraints(this.constraints);
@@ -1669,7 +1670,7 @@
         this.separate.container(this.model.container);
         this.cpus = this.model.cpus;
         this.mem = this.model.mem;
-        this.cmd = this.model.cmd?this.model.cmd:"";
+        this.cmd = this.model.cmd ? this.model.cmd : null;
         this.gpus = this.model.gpus;
         this.disk = this.model.disk;
         this.separate.constraints(this.model.constraints);
@@ -1707,21 +1708,29 @@
        */
       serviceToModel: function () {
         this.model = JSON.parse(JSON.stringify(this._service));
-        console.log("this._service", this._service);
-//        delete this.model.tasksStaged;
-//        delete this.model.tasksRunning;
-//        delete this.model.tasksHealthy;
-//        delete this.model.tasksUnhealthy;
-//        delete this.model.deployments;
-//        delete this.model.tasks;
-//        delete this.model.taskStats;
-//        delete this.model.version;
-//        delete this.model.killSelection;
-//        delete this.model.unreachableStrategy;
-//        delete this.model.backoffSeconds;
-//        delete this.model.acceptedResourceRoles;
-//        delete this.model.backoffFactor;
-//        delete this.model.versionInfo;
+
+        //에디터시 필요한 필수 모델값 지정
+        if (this.model) {
+          if (!this.model.portDefinitions) {
+            this.model.portDefinitions = [];
+          }
+        }
+
+        //console.log("this._service", this._service);
+        delete this.model.tasksStaged;
+        delete this.model.tasksRunning;
+        delete this.model.tasksHealthy;
+        delete this.model.tasksUnhealthy;
+        delete this.model.deployments;
+        delete this.model.tasks;
+        delete this.model.taskStats;
+        delete this.model.version;
+        delete this.model.killSelection;
+        delete this.model.unreachableStrategy;
+        delete this.model.backoffSeconds;
+        delete this.model.acceptedResourceRoles;
+        delete this.model.backoffFactor;
+        delete this.model.versionInfo;
         this.separation();
       }
       ,

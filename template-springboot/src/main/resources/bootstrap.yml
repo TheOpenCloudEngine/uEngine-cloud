@@ -2,11 +2,11 @@ spring:
   application:
       name: uengine-eureka-client
   profiles:
-    active: "dev"
+    active: "local"
 
 ---
 spring:
-  profiles: dev
+  profiles: local
   cloud:
     config:
       uri: http://config.uengine.io

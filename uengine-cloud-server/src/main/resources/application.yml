@@ -11,7 +11,7 @@ security:
 spring:
   security:
     enabled: false
-  profiles: dev
+  profiles: local
 
 server:
   port: 8080
@@ -19,6 +19,8 @@ server:
 
 ---
 spring:
+  security:
+    enabled: false
   profiles: docker
 
 server:

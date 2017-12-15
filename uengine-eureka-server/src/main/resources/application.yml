@@ -5,11 +5,11 @@ spring:
   application:
       name: uengine-eureka-server
   profiles:
-    active: "dev"
+    active: "local"
 
 ---
 spring:
-  profiles: dev
+  profiles: local
 
 eureka:
   server:

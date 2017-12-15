@@ -65,7 +65,7 @@ turbine:
 
 ---
 spring:
-  profiles: dev
+  profiles: local
 
 eureka:
   client:
