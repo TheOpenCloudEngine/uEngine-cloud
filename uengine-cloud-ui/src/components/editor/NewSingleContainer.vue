@@ -35,7 +35,7 @@
           <ul style="color:#f33745;list-style: none;">
             <li v-if="id == '/'">Service ID must be defined</li>
             <li v-if="!cpus && cpus==0">CPUs must be bigger than or equal to 0.001</li>
-            <li v-if="!cmd">cmd: You must specify a command, an argument or a container</li>
+            <li v-if="!container.docker.image && !cmd">cmd: You must specify a command, an argument or a container</li>
             <li v-if="!container.docker.image">args: You must specify a command, an argument or a container</li>
             <li v-if="!container.docker.image">
               container.docker.image: You must specify a command, an argument or a container
@@ -1306,7 +1306,6 @@
           //서비스
           container: function (val) {
             me.model.container = val;
-            console.log("me.model.container", me.model.container);
           },
           constraints: function (val) {
             if (val && val.length) {
@@ -1532,7 +1531,6 @@
       },
       container: {
         handler: function (newVal, oldVal) {
-          console.log("watch container newVal", newVal);
           this.combination();
         },
         deep: true
@@ -1592,7 +1590,6 @@
        * 모델을 조합한다.
        **/
       combination: function () {
-        console.log('this.working!!', this.working);
         if (this.working) {
           return;
         }
@@ -1640,7 +1637,6 @@
         //$nextTick 을 사용하게 되면, 위의 사항을 먼저 발생시킨 후, $nextTick 안의 메소드를 나중에 실행.
         this.$nextTick(function () {
           this.working = false;
-          console.log("combination", this.working);
         });
       }
       ,
@@ -1695,7 +1691,6 @@
 
         this.$nextTick(function () {
           this.working = false;
-          console.log("separation", this.working);
         });
       }
       ,
@@ -1756,7 +1751,7 @@
       }
       ,
       validation: function () {
-        if (!this.container.docker.image || !this.id || this.cpus != 0){
+        if (!this.container.docker.image || !this.id || this.cpus == 0){
           this.errorView = true;
         } else {
           this.errorView = false;
