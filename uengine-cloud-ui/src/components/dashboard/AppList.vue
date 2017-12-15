@@ -105,6 +105,7 @@
 </template>
 <script>
   import DcosDataProvider from '../DcosDataProvider'
+
   export default {
     mixins: [DcosDataProvider],
     props: {
@@ -120,7 +121,7 @@
         page: 1
       }
     },
-    mounted(){
+    mounted() {
 
     },
     watch: {
@@ -152,6 +153,7 @@
         var me = this;
         me.list = [];
         var excludeServiced = [];
+
         if (!me.dcosData.devopsApps) {
           return;
         }
@@ -162,6 +164,7 @@
             excludeServiced.push('/' + appId + '-green');
             excludeServiced.push('/' + appId + '-blue');
             excludeServiced.push('/' + appId + '-dev');
+
           }
         }
         if (me.mode == 'app') {
@@ -177,7 +180,6 @@
               disk: 0,
               deployments: []
             };
-
             //메소스 app 를 합산.
             var additionalList = [];
             var isFocus = me.focusedList.indexOf(appId) == -1 ? false : true;
@@ -214,10 +216,12 @@
                 }
               }
             }
-            app.id = appId;
-            app.type = 'app';
-            list.push(app);
-            list = list.concat(additionalList);
+            if (me.dcosData.devopsApps.dcos.apps[appId].iam == window.localStorage['username'] || window.localStorage['acl']=='admin') {
+              app.id = appId;
+              app.type = 'app';
+              list.push(app);
+              list = list.concat(additionalList);
+            }
           }
         } else if (me.mode == 'service') {
           $.each(me.dcosData.groups.apps, function (i, service) {
@@ -277,7 +281,6 @@
       openEdit: function (appId) {
         var me = this;
         me.targetAppId = appId;
-        console.log('me.targetAppId ', me.targetAppId);
         this.$refs['new-service'].open();
       }
     }

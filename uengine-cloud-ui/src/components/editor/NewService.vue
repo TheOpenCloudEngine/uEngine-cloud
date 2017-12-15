@@ -167,6 +167,8 @@
                     me.editable = false;
                   }
                   me.service = response.data[stage]['deploy-json'];
+                  me.$set(me.service,"servicePort",response.data[stage]['service-port']);
+                  console.log("newService response.data[stage]", response.data[stage]);
                 } else if (fail) {
                   //실패
                   me.$root.$children[0].error('앱정보를 불러올 수 없습니다.');

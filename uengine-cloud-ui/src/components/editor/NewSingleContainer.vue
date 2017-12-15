@@ -1209,6 +1209,7 @@
             }
           },
           portDefinitions: function (val) {
+            console.log("separate", val);
             me.portDefinitions = [];
             //모델값이 없으면 패스
             if (!val || !val.length) {
@@ -1237,10 +1238,14 @@
               }
               definition.name ? copy.name = definition.name : "";
               definition.containerPort ? copy.containerPort = definition.containerPort : "";
-              if (definition.hostPort) {
-                definition.hostPort ? copy.hostPort = definition.hostPort : "";
-              } else if (definition.port) {
-                definition.port ? copy.port = definition.port : "";
+              console.log("definition.servicePort", definition.servicePort);
+              if (definition.hostPort != undefined) {
+                copy.hostPort = definition.hostPort;
+                copy.portsAutoAssign = true;
+              } else if (definition.port != undefined) {
+                copy.port = definition.port;
+              } else {
+                copy.portsAutoAssign = true;
               }
               definition.servicePort ? copy.servicePort = definition.servicePort : "";
               me.portDefinitions.push(copy);
@@ -1324,12 +1329,13 @@
             me.model.networks[0] = val[0]
           },
           portDefinitions: function (val) {
+            console.log("portDefinitions", val);
             if (!val.length) {
               me.model.portDefinitions = [];
               me.model.container.portMappings = [];
             }
             if (me.model.networks[0].mode == 'host') {
-              me.model.container.portMappings = [];
+              me.model.portDefinitions = [];
               for (var i in val) {
                 var portDefinition = val;
                 var label = {};
@@ -1349,8 +1355,6 @@
                 }
                 var copy = JSON.parse(JSON.stringify(portDefinition[i]));
                 delete copy.protocolTcp;
-//                delete copy.portsAutoAssign;
-                delete copy.hostPort;
                 delete copy.protocolUdp;
                 delete copy.containerPort;
                 delete copy.vipPort;
@@ -1358,7 +1362,7 @@
                 me.model.portDefinitions.push(copy);
               }
             } else {
-              me.model.portDefinitions = [];
+              me.model.container.portMappings = [];
               for (var i in val) {
                 var portDefinition = val[i];
                 var label = {};
@@ -1378,7 +1382,14 @@
                 if (portDefinition.port) {
                   portDefinition.hostPort = portDefinition.port;
                 }
-                portDefinition.portsAutoAssign = portDefinition.portsAutoAssign ? portDefinition.portsAutoAssign : true;
+//                console.log("bf portDefinition.portsAutoAssign",portDefinition.portsAutoAssign);
+//                if (portDefinition.portsAutoAssign == undefined){
+//                  portDefinition.portsAutoAssign = "true";
+//                  console.log("af portDefinition.portsAutoAssign",portDefinition.portsAutoAssign);
+//                } else {
+//
+//                }
+
                 var copy = JSON.parse(JSON.stringify(portDefinition));
                 delete copy.protocolTcp;
                 delete copy.protocolUdp;
@@ -1488,8 +1499,8 @@
     watch: {
       _service: {
         handler: function (newVal, oldVal) {
+          console.log(newVal);
           this.serviceToModel();
-//          this.$emit('update:_service', newVal);
         },
         deep: true
       },
@@ -1516,9 +1527,6 @@
       },
       constraints: {
         handler: function (newVal, oldVal) {
-          if (this.working) {
-            this.working = !this.working;
-          }
           this.combination();
         },
         deep: true
@@ -1609,7 +1617,7 @@
         this.combine.container(this.container);
         this.model.cpus = this.cpus;
         this.model.mem = this.mem;
-        this.model.cmd = this.cmd;
+        this.model.cmd = this.cmd?this.cmd:"";
         this.model.gpus = this.gpus;
         this.model.disk = this.disk;
         this.combine.constraints(this.constraints);
@@ -1661,7 +1669,7 @@
         this.separate.container(this.model.container);
         this.cpus = this.model.cpus;
         this.mem = this.model.mem;
-        this.cmd = this.model.cmd;
+        this.cmd = this.model.cmd?this.model.cmd:"";
         this.gpus = this.model.gpus;
         this.disk = this.model.disk;
         this.separate.constraints(this.model.constraints);
@@ -1670,7 +1678,7 @@
         //네트워크
         this.separate.networks(this.model.networks);
         this.portsAutoAssign = this.model.requirePorts ? false : true;
-        this.separate.portDefinitions(this.model.portDefinitions ? this.model.portDefinitions : this.model.container.portMappings);
+        this.separate.portDefinitions(this.model.portDefinitions.length ? this.model.portDefinitions : this.model.container.portMappings);
 
         //볼륨
         this.separate.localVolumes(this.model.container.volumes);
@@ -1699,6 +1707,7 @@
        */
       serviceToModel: function () {
         this.model = JSON.parse(JSON.stringify(this._service));
+        console.log("this._service", this._service);
 //        delete this.model.tasksStaged;
 //        delete this.model.tasksRunning;
 //        delete this.model.tasksHealthy;
@@ -1742,7 +1751,8 @@
           this.opened = true;
           this.combination();
         } else {
-          this.combination();
+          this.opened = false;
+//          this.combination();
         }
       }
       ,
@@ -1751,7 +1761,7 @@
       }
       ,
       validation: function () {
-        if (!this.container.docker.image || !this.id || this.cpus == 0){
+        if (!this.container.docker.image || !this.id || this.cpus == 0) {
           this.errorView = true;
         } else {
           this.errorView = false;

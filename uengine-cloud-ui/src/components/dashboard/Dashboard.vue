@@ -28,7 +28,7 @@
     <app-list :mode="'app'"></app-list>
 
     <br><br><br>
-    <md-layout>
+    <md-layout v-if="isAdmin">
       <md-layout>
         <span class="md-subheading">서비스 목록</span>
       </md-layout>
@@ -43,11 +43,13 @@
         </md-button>
       </md-layout>
     </md-layout>
+    <div v-if="isAdmin">
     <service-deployments ref="service-deployments"></service-deployments>
     <new-service ref="new-service"></new-service>
     <app-list :mode="'service'"></app-list>
-
     <br><br><br>
+    </div>
+
     <md-layout>
       <md-layout>
         <span class="md-subheading">잡 목록</span>
@@ -77,11 +79,12 @@
     props: {},
     data() {
       return {
-        view: 'list'
+        view: 'list',
+        isAdmin : false,
       }
     },
     mounted() {
-
+      this.isAdmin = window.localStorage['acl']=='admin'?true:false;
     },
     watch: {
 
