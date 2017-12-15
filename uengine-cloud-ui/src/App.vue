@@ -3,26 +3,26 @@
     <router-view></router-view>
 
     <!--서비스 로케이터 리스트-->
-    <service-locator v-if="config" :host="'http://' + config.vcap.services['uengine-cloud-server'].external" path="/"
+    <!--<service-locator v-if="config" :host="'http://' + config.vcap.services['uengine-cloud-server'].external" path="/"-->
+    <!--resource-name="backend"></service-locator>-->
+
+    <!--<service-locator v-if="config" :host="'http://' + config.vcap.services['uengine-cloud-server'].external"-->
+    <!--path="/dcos/"-->
+    <!--resource-name="dcos"></service-locator>-->
+
+    <!--<service-locator v-if="config" :host="'http://' + config.vcap.services['uengine-cloud-server'].external"-->
+    <!--path="/gitlab/"-->
+    <!--resource-name="gitlab"></service-locator>-->
+    <service-locator v-if="config" :host="'http://localhost:8080'" path="/"
                      resource-name="backend"></service-locator>
 
-    <service-locator v-if="config" :host="'http://' + config.vcap.services['uengine-cloud-server'].external"
+    <service-locator v-if="config" :host="'http://localhost:8080'"
                      path="/dcos/"
                      resource-name="dcos"></service-locator>
 
-    <service-locator v-if="config" :host="'http://' + config.vcap.services['uengine-cloud-server'].external"
+    <service-locator v-if="config" :host="'http://localhost:8080'"
                      path="/gitlab/"
                      resource-name="gitlab"></service-locator>
-    <!--<service-locator v-if="config" :host="'http://localhost:8080'" path="/"-->
-                     <!--resource-name="backend"></service-locator>-->
-
-    <!--<service-locator v-if="config" :host="'http://localhost:8080'"-->
-                     <!--path="/dcos/"-->
-                     <!--resource-name="dcos"></service-locator>-->
-
-    <!--<service-locator v-if="config" :host="'http://localhost:8080'"-->
-                     <!--path="/gitlab/"-->
-                     <!--resource-name="gitlab"></service-locator>-->
 
     <service-locator v-if="config" :host="configServerUrl"
                      path="/"
@@ -37,6 +37,9 @@
 </template>
 <script>
   export default {
+    props: {
+      dcosData: Object
+    },
     data () {
       return {
         configServerUrl: configServerUrl,
@@ -56,38 +59,34 @@
       this.fetchData();
     },
     methods: {
+      /**
+       * 2초에 한번 전체 데이터를 갱신하도록 조정.
+       */
       fetchData: function () {
         var me = this;
-        var p1 = this.$root.dcos('dcos-history-service/history/last').get();
-        var p2 = this.$root.dcos('service/metronome/v1/jobs?embed=activeRuns&embed=schedules&embed=historySummary').get();
-        var p3 = this.$root.dcos('service/marathon/v2/groups?embed=group.groups&embed=group.apps&embed=group.pods&embed=group.apps.deployments&embed=group.apps.counts&embed=group.apps.tasks&embed=group.apps.taskStats&embed=group.apps.lastTaskFailur').get();
-        var p4 = this.$root.dcos('service/marathon/v2/queue').get();
-        var p5 = this.$root.dcos('service/marathon/v2/deployments').get();
-        var p6 = this.$root.dcos('system/health/v1/units').get();
-        var p7 = this.$root.dcos('mesos/master/state').get();
-        var p8 = this.$root.config('dcos-apps.json').get();
+        var p1 = this.$root.backend('fetchData').get();
 
-        Promise.all([p1, p2, p3, p4, p5, p6, p7, p8])
-          .then(function ([r1, r2, r3, r4, r5, r6, r7, r8]) {
+        Promise.all([p1])
+          .then(function ([r1]) {
             me.$root.dcosData = {
-              last: r1.data,
-              jobs: r2.data,
-              groups: r3.data,
-              queue: r4.data,
-              deployments: r5.data,
-              units: r6.data,
-              state: r7.data,
-              devopsApps: r8.data,
+              last: r1.data.last,
+              jobs: r1.data.jobs,
+              groups: r1.data.groups,
+              queue: r1.data.queue,
+              deployments: r1.data.deployments,
+              units: r1.data.units,
+              state: r1.data.state,
+              devopsApps: r1.data.devopsApps,
               config: me.config
             };
             setTimeout(function () {
               me.fetchData();
-            }, 1000);
+            }, 2000);
           })
           .catch(function (b) {
             setTimeout(function () {
               me.fetchData();
-            }, 1000);
+            }, 2000);
           });
       },
       info: function (msg) {

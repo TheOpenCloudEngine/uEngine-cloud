@@ -49,87 +49,93 @@
       }
     },
     mounted(){
-
+      this.makeList();
     },
     watch: {
       'dcosData.jobs': {
         handler: function (newVal, oldVal) {
-          var me = this;
-          var list = [];
-          me.list = [];
-          if (!newVal) {
-            return;
-          }
-          $.each(newVal, function (i, job) {
-            var row = {
-              id: job.id
-            };
-
-            //status
-            if (job.activeRuns && job.activeRuns.length) {
-              row.status = 'Running';
-            } else if (job.schedules && job.schedules.length) {
-              $.each(job.schedules, function (s, schedule) {
-                if (schedule.enabled) {
-                  row.status = 'Scheduled';
-                }
-              });
-            }
-            if (!row.status) {
-              if (job.historySummary.lastSuccessAt || job.historySummary.lastFailureAt) {
-                row.status = 'Completed';
-              } else {
-                row.status = 'Unscheduled';
-              }
-            }
-
-            //last run
-            if (job.historySummary.lastSuccessAt || job.historySummary.lastFailureAt) {
-              if (job.historySummary.lastSuccessAt && !job.historySummary.lastFailureAt) {
-                row.lastrun = 'Success';
-              }
-              else if (!job.historySummary.lastSuccessAt && job.historySummary.lastFailureAt) {
-                row.lastrun = 'Failed';
-              } else {
-                var lastSuccessAt = new Date(job.historySummary.lastSuccessAt).getTime();
-                var lastFailureAt = new Date(job.historySummary.lastFailureAt).getTime();
-                if (lastSuccessAt >= lastFailureAt) {
-                  row.lastrun = 'Success';
-                } else {
-                  row.lastrun = 'Failed';
-                }
-              }
-            } else {
-              row.lastrun = 'N/A';
-            }
-            list.push(row);
-          });
-
-          //페이지네이션
-          var offset = (this.page - 1) * this.size;
-          var limit = (this.page) * this.size - 1;
-
-          var count = 0;
-          for (var i = 0; i < list.length; i++) {
-            //서브 항목일 경우
-            if (list[i].role) {
-              me.list.push(list[i]);
-            }
-            //그 외의 경우
-            else {
-              if (count >= offset && count <= limit) {
-                me.list.push(list[i]);
-              }
-              count++;
-            }
-          }
-          this.total = count;
+          this.makeList();
         },
         deep: true
       }
     }
     ,
     methods: {
+      makeList: function () {
+        var me = this;
+        if (!me.dcosData.jobs) {
+          return;
+        }
+        var list = [];
+        me.list = [];
+        if (!me.dcosData.jobs) {
+          return;
+        }
+        $.each(me.dcosData.jobs, function (i, job) {
+          var row = {
+            id: job.id
+          };
+
+          //status
+          if (job.activeRuns && job.activeRuns.length) {
+            row.status = 'Running';
+          } else if (job.schedules && job.schedules.length) {
+            $.each(job.schedules, function (s, schedule) {
+              if (schedule.enabled) {
+                row.status = 'Scheduled';
+              }
+            });
+          }
+          if (!row.status) {
+            if (job.historySummary.lastSuccessAt || job.historySummary.lastFailureAt) {
+              row.status = 'Completed';
+            } else {
+              row.status = 'Unscheduled';
+            }
+          }
+
+          //last run
+          if (job.historySummary.lastSuccessAt || job.historySummary.lastFailureAt) {
+            if (job.historySummary.lastSuccessAt && !job.historySummary.lastFailureAt) {
+              row.lastrun = 'Success';
+            }
+            else if (!job.historySummary.lastSuccessAt && job.historySummary.lastFailureAt) {
+              row.lastrun = 'Failed';
+            } else {
+              var lastSuccessAt = new Date(job.historySummary.lastSuccessAt).getTime();
+              var lastFailureAt = new Date(job.historySummary.lastFailureAt).getTime();
+              if (lastSuccessAt >= lastFailureAt) {
+                row.lastrun = 'Success';
+              } else {
+                row.lastrun = 'Failed';
+              }
+            }
+          } else {
+            row.lastrun = 'N/A';
+          }
+          list.push(row);
+        });
+
+        //페이지네이션
+        var offset = (this.page - 1) * this.size;
+        var limit = (this.page) * this.size - 1;
+
+        var count = 0;
+        for (var i = 0; i < list.length; i++) {
+          //서브 항목일 경우
+          if (list[i].role) {
+            me.list.push(list[i]);
+          }
+          //그 외의 경우
+          else {
+            if (count >= offset && count <= limit) {
+              me.list.push(list[i]);
+            }
+            count++;
+          }
+        }
+        this.total = count;
+      },
       onPagination: function (val) {
         this.focusedList = [];
         this.size = val.size;

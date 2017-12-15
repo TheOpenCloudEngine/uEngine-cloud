@@ -58,7 +58,7 @@
       }
     },
     mounted(){
-
+      this.makeList();
     },
     watch: {
       dcosData: {

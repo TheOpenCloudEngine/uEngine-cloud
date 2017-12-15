@@ -13,6 +13,7 @@ import org.opencloudengine.garuda.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
+import org.uengine.cloud.scheduler.CronTable;
 import org.uengine.cloud.scheduler.JobScheduler;
 import org.uengine.cloud.tenant.TenantContext;
 
@@ -43,11 +44,8 @@ public class AppService {
     @Autowired
     private HookController hookController;
 
-    //per commit,  manual 조정.
-    //GET app/appName/pipeline
-    //PUT app/appName/pipeline
-
-    //POST hook   pipeline 설정에 따라(commit 자동,수동)
+    @Autowired
+    private CronTable cronTable;
 
     public Map getAppCreateStatus(String appName) throws Exception {
         int repoId = Integer.parseInt(environment.getProperty("gitlab.config-repo.projectId"));
@@ -553,13 +551,17 @@ public class AppService {
      * @throws Exception
      */
     public Map<String, Map> getApps() throws Exception {
-        String configUrl = environment.getProperty("spring.cloud.config.uri");
-        String url = configUrl + "/" + "dcos-apps.json";
-        HttpResponse httpResponse = new HttpUtils().makeRequest("GET", url, null, new HashMap<>());
-        HttpEntity entity = httpResponse.getEntity();
-        String json = EntityUtils.toString(entity);
+//        String configUrl = environment.getProperty("spring.cloud.config.uri");
+//        String url = configUrl + "/" + "dcos-apps.json";
+//        HttpResponse httpResponse = new HttpUtils().makeRequest("GET", url, null, new HashMap<>());
+//        HttpEntity entity = httpResponse.getEntity();
+//        String json = EntityUtils.toString(entity);
 
-        Map map = JsonUtils.marshal(json);
+        //Map map = JsonUtils.marshal(json);
+
+
+        Map dcosData = cronTable.getDcosData();
+        Map map = (Map) dcosData.get("devopsApps");
         Map dcos = (Map) map.get("dcos");
         try {
             return (Map) dcos.get("apps");
