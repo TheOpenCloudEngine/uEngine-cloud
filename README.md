@@ -596,6 +596,9 @@ gitlab_rails['smtp_tls'] = false
 sudo gitlab-ctl reconfigure
 ```
 
+TODO - <Gitlab private 토큰 발급받기>
+
+
 <Gitlab CI Runner 등록>
 
 ```
