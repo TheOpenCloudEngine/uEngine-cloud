@@ -105,7 +105,6 @@
 </template>
 <script>
   import DcosDataProvider from '../DcosDataProvider'
-
   export default {
     mixins: [DcosDataProvider],
     props: {
@@ -121,8 +120,8 @@
         page: 1
       }
     },
-    mounted() {
-
+    mounted(){
+      this.makeList();
     },
     watch: {
       dcosData: {
@@ -153,7 +152,6 @@
         var me = this;
         me.list = [];
         var excludeServiced = [];
-
         if (!me.dcosData.devopsApps) {
           return;
         }
@@ -164,7 +162,6 @@
             excludeServiced.push('/' + appId + '-green');
             excludeServiced.push('/' + appId + '-blue');
             excludeServiced.push('/' + appId + '-dev');
-
           }
         }
         if (me.mode == 'app') {
@@ -180,6 +177,7 @@
               disk: 0,
               deployments: []
             };
+
             //메소스 app 를 합산.
             var additionalList = [];
             var isFocus = me.focusedList.indexOf(appId) == -1 ? false : true;

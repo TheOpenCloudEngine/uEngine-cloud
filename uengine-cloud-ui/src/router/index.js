@@ -165,7 +165,6 @@ Vue.component('gitlab-deploy', GitlabDeploy);
 import IAMAvatar from '../components/IAMAvatar'
 Vue.component('iam-avatar', IAMAvatar);
 
-
 /**
  * Get cloud configGet cloud configGet cloud configGet cloud config
  */

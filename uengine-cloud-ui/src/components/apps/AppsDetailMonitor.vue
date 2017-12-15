@@ -22,12 +22,7 @@
 
     },
     watch: {
-      dcosData: {
-        handler: function (newVal, oldVal) {
-          this.devopsApp = this.getDevopsAppById(this.appName);
-        },
-        deep: true
-      }
+
     },
     methods: {
 
