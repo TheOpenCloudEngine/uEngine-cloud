@@ -1,7 +1,7 @@
 docker login
 
 REGISTRY_URL=sppark
-CURRENT_DIR="$(pwd)"
+CURRENT_DIR="$(dirname $(pwd))"
 
 cd $CURRENT_DIR/uengine-cloud-config
 mvn package -B

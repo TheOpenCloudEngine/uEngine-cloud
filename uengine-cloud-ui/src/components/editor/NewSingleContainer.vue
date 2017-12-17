@@ -852,7 +852,7 @@
               </md-layout>
             </div>
 
-            <a @click="env.push({})">+ ADD ENVIRONMENT VARIABLE</a>
+            <a @click="env.push({key:'',value:''})">+ ADD ENVIRONMENT VARIABLE</a>
           </div>
           <div class="mt30">
             <span class="md-title">Labels</span>
@@ -1289,12 +1289,7 @@
             var copy = JSON.parse(JSON.stringify(val));
             var environment = [];
             for (var key in copy) {
-              if (copy[key].indexOf("{{") && copy[key].indexOf("}}") == -1) {
-                environment.push({key: key, value: copy[key]})
-              } else {
-                environment.push({key: key, value: "{{DEPLOYMENT}}"})
-              }
-//              environment.push({key: key, value: copy[key]})
+              environment.push({key: key, value: copy[key]})
             }
             me.env = environment;
           },
@@ -1465,12 +1460,7 @@
             var environment = {};
             for (var i in copy) {
               if (copy[i].key && copy[i].value) {
-                if (copy[i].value.indexOf("{{") && copy[i].value.indexOf("}}") == -1) {
-                  environment[copy[i].key] = copy[i].value;
-                } else {
-                  environment[copy[i].key] = "{{DEPLOYMENT}}";
-                }
-//                environment[copy[i].key] = copy[i].value;
+                environment[copy[i].key] = copy[i].value;
               } else {
                 delete environment[copy[i].key];
               }

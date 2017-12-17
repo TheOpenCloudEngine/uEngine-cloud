@@ -499,17 +499,17 @@
             cb(null, response);
           })
       },
-      getDevAppConfigYml: function (appName, cb) {
-        this.$root.backend('app/' + appName + '/config').get()
+      getDevAppConfigYml: function (appName, stage, cb) {
+        this.$root.backend('app/' + appName + '/config?stage=' + stage).get()
           .then(function (response) {
             cb(response);
           }, function (response) {
             cb(null, response);
           })
       },
-      updateDevAppConfigYml: function (appName, yml, cb) {
+      updateDevAppConfigYml: function (appName, stage, yml, cb) {
         var me = this;
-        this.$root.backend('app/' + appName + '/config')
+        this.$root.backend('app/' + appName + '/config?stage=' + stage)
           .update({}, yml)
           .then(
             function (response) {

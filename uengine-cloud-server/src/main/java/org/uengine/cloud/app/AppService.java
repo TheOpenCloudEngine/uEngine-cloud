@@ -561,17 +561,13 @@ public class AppService {
      * @throws Exception
      */
     public Map<String, Map> getApps() throws Exception {
-//        String configUrl = environment.getProperty("spring.cloud.config.uri");
-//        String url = configUrl + "/" + "dcos-apps.json";
-//        HttpResponse httpResponse = new HttpUtils().makeRequest("GET", url, null, new HashMap<>());
-//        HttpEntity entity = httpResponse.getEntity();
-//        String json = EntityUtils.toString(entity);
+        String configUrl = environment.getProperty("spring.cloud.config.uri");
+        String url = configUrl + "/" + "dcos-apps.json";
+        HttpResponse httpResponse = new HttpUtils().makeRequest("GET", url, null, new HashMap<>());
+        HttpEntity entity = httpResponse.getEntity();
+        String json = EntityUtils.toString(entity);
 
-        //Map map = JsonUtils.marshal(json);
-
-
-        Map dcosData = cronTable.getDcosData();
-        Map map = (Map) dcosData.get("devopsApps");
+        Map map = JsonUtils.marshal(json);
         Map dcos = (Map) map.get("dcos");
         try {
             return (Map) dcos.get("apps");

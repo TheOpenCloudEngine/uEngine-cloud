@@ -113,6 +113,9 @@
       ]
     },
     watch: {
+      stage: function (val) {
+        this.getCodes();
+      },
       menu: function (val) {
         var me = this;
         if (val == 'config') {
@@ -126,10 +129,11 @@
     methods: {
       getCodes: function () {
         var me = this;
+        me.codeChanged = false;
         me.getDevAppVcapYml(me.appName, function (response) {
           me.vcapCode = response.data;
         });
-        me.getDevAppConfigYml(me.appName, function (response) {
+        me.getDevAppConfigYml(me.appName, me.stage, function (response) {
           me.configCode = response.data;
         });
       },
@@ -139,7 +143,7 @@
       },
       saveConfig: function () {
         var me = this;
-        me.updateDevAppConfigYml(me.appName, me.configCode, function (response) {
+        me.updateDevAppConfigYml(me.appName, me.stage, me.configCode, function (response) {
           me.codeChanged = false;
           me.getCodes();
         })
