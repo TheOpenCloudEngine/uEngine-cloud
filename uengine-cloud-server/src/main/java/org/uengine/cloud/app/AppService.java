@@ -398,26 +398,36 @@ public class AppService {
         String content = yamlReader.writeValueAsString(map);
 
         gitlabExtentApi.updateOrCraeteRepositoryFile(repoId,
-                "master", appName + ".yml", content);
+                "master", appName + "-dev.yml", content);
+
+        gitlabExtentApi.updateOrCraeteRepositoryFile(repoId,
+                "master", appName + "-stg.yml", content);
+
+        gitlabExtentApi.updateOrCraeteRepositoryFile(repoId,
+                "master", appName + "-prod.yml", content);
     }
 
-    public String updateAppConfigYml(String appName, String content) throws Exception {
+    public String updateAppConfigYml(String appName, String content, String stage) throws Exception {
         int repoId = Integer.parseInt(environment.getProperty("gitlab.config-repo.projectId"));
         gitlabExtentApi.updateOrCraeteRepositoryFile(repoId,
-                "master", appName + ".yml", content);
+                "master", appName + "-" + stage + ".yml", content);
         return content;
     }
 
-    public String getAppConfigYml(String appName) throws Exception {
+    public String getAppConfigYml(String appName, String stage) throws Exception {
         int repoId = Integer.parseInt(environment.getProperty("gitlab.config-repo.projectId"));
         return gitlabExtentApi.getRepositoryFile(repoId,
-                "master", appName + ".yml");
+                "master", appName + "-" + stage + ".yml");
     }
 
     public void removeAppConfigYml(String appName) throws Exception {
         int repoId = Integer.parseInt(environment.getProperty("gitlab.config-repo.projectId"));
         gitlabExtentApi.removeRepositoryFile(repoId,
-                "master", appName + ".yml");
+                "master", appName + "-dev.yml");
+        gitlabExtentApi.removeRepositoryFile(repoId,
+                "master", appName + "-stg.yml");
+        gitlabExtentApi.removeRepositoryFile(repoId,
+                "master", appName + "-prod.yml");
     }
 
 
@@ -532,7 +542,7 @@ public class AppService {
         this.addAppToVcapService(appCreate.getAppName());
 
 
-        //<appName>.yml 생성
+        //<appName>-dev,stg,prod.yml 생성
         this.createAppConfigYml(appCreate.getAppName());
 
 
@@ -653,6 +663,8 @@ public class AppService {
         data.put("REGISTRY_URL", REGISTRY_URL);
         data.put("UENGINE_CLOUD_URL", "http://" + UENGINE_CLOUD_URL);
         data.put("CONFIG_REPO_ID", CONFIG_REPO_ID);
+        //data.put("PROFILE", stage);
+        data.put("APPLICATION_NAME", appName);
         return data;
     }
 

@@ -53,7 +53,6 @@ public class Application {
     private static Log logger = LogFactory.getLog(Application.class);
 
     public static void main(String[] args) {
-
         Map<String, String> stringStringMap = System.getenv();
         Set<Map.Entry<String, String>> entries = stringStringMap.entrySet();
         for (Map.Entry<String, String> entry : entries) {

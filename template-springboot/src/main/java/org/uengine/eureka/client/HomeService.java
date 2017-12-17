@@ -26,6 +26,6 @@ public class HomeService {
         if (info.getMetadata().get("deployment") != null) {
             deployment = info.getMetadata().get("deployment").toString();
         }
-        return "I am " + deployment + ",   instanceId:" + info.getInstanceId();
+        return "I am " + deployment + ",   instanceId:" + info.getInstanceId() + "profile:" + environment.getProperty("spring.profiles.active");
     }
 }

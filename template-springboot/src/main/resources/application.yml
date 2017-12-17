@@ -19,7 +19,7 @@ eureka:
         deployment: ${DEPLOYMENT}
 ---
 spring:
-  profiles: docker
+  profiles: dev,stg,prod
 
 server:
   port: 8080
@@ -44,3 +44,4 @@ eureka:
         commitSha: ${CI_COMMIT_SHA}
         image: ${MARATHON_APP_DOCKER_IMAGE}
         deployment: ${DEPLOYMENT}
+

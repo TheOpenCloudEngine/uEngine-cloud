@@ -13,7 +13,7 @@ spring:
 
 ---
 spring:
-  profiles: docker
+  profiles: dev,stg,prod
   cloud:
     config:
       uri: {{CONFIG_SERVER_INTERNAL_URL}}

@@ -1,4 +1,4 @@
-REGISTRY_URL=gitlab.pas-mini.io:5000
+REGISTRY_URL=sppark
 CURRENT_DIR="$(dirname $(pwd))"
 
 cd $CURRENT_DIR/uengine-cloud-config

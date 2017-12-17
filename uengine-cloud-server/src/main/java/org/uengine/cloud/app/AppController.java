@@ -160,17 +160,19 @@ public class AppController {
     @RequestMapping(value = "/{appName}/config", method = RequestMethod.GET, produces = "text/plain;charset=UTF-8")
     public String getAppConfigYml(HttpServletRequest request,
                                   HttpServletResponse response,
-                                  @PathVariable("appName") String appName
+                                  @PathVariable("appName") String appName,
+                                  @RequestParam(value = "stage") String stage
     ) throws Exception {
-        return appService.getAppConfigYml(appName);
+        return appService.getAppConfigYml(appName, stage);
     }
 
     @RequestMapping(value = "/{appName}/config", method = RequestMethod.PUT, produces = "text/plain;charset=UTF-8")
     public String updateAppConfigYml(HttpServletRequest request,
                                      HttpServletResponse response,
                                      @PathVariable("appName") String appName,
+                                     @RequestParam(value = "stage") String stage,
                                      @RequestBody String content) throws Exception {
-        return appService.updateAppConfigYml(appName, content);
+        return appService.updateAppConfigYml(appName, content, stage);
     }
 }
 

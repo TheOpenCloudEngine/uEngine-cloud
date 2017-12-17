@@ -57,7 +57,7 @@ ribbon:
   #listOfServers: www.microsoft.com:80,www.yahoo.com:80,www.google.com:80
 
 turbine:
-  appConfig: uengine-eureka-client
+  appConfig: uengine-eureka-zuul
   #clusterNameExpression: "'default'"
   aggregator:
       clusterConfig: blue,green

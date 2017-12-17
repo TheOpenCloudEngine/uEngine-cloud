@@ -294,6 +294,18 @@ public class DeployAppJob implements Job {
         return dockerImage;
     }
 
+    /**
+     * 마라톤 디플로이 json 을 치환하여 반환한다.
+     * @param appName
+     * @param stage
+     * @param marathonAppId
+     * @param dockerImage
+     * @param servicePort
+     * @param deployment
+     * @param externalUrl
+     * @return
+     * @throws Exception
+     */
     private String createDeployJson(
             String appName,
             String stage,
@@ -313,6 +325,8 @@ public class DeployAppJob implements Job {
         data.put("SERVICE_PORT", servicePort);
         data.put("DEPLOYMENT", deployment);
         data.put("EXTERNAL_URL", externalUrl);
+        data.put("PROFILE", stage);
+        data.put("APPLICATION_NAME", appName);
 
         String deployJsonString = JsonUtils.marshal(deployJson);
         MustacheTemplateEngine templateEngine = new MustacheTemplateEngine();

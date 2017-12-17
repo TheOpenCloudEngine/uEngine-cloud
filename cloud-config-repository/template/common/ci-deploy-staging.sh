@@ -52,6 +52,9 @@ DEV_EXTERNAL_URL=$( echo $JSON2 | jq -r '.dcos.apps["'${APP_NAME}'"].dev.externa
 DEV_INTERNAL_URL=$( echo $JSON2 | jq -r '.dcos.apps["'${APP_NAME}'"].dev.internal' )
 DEV_DEPLOYMENT=$( echo $JSON2 | jq -r '.dcos.apps["'${APP_NAME}'"].dev.deployment' )
 
+PROFILE="stg"
+APPLICATION_NAME=${APP_NAME}
+
 echo "REGISTRY_URL: $REGISTRY_URL"
 echo "CONFIG_REPO_ID: $CONFIG_REPO_ID"
 echo "DCOS_URL: $DCOS_URL"
@@ -69,17 +72,13 @@ echo "DEV_SERVICE_PORT: $DEV_SERVICE_PORT"
 echo "DEV_EXTERNAL_URL: $DEV_EXTERNAL_URL"
 echo "DEV_INTERNAL_URL: $DEV_INTERNAL_URL"
 echo "DEV_DEPLOYMENT: $DEV_DEPLOYMENT"
+echo "PROFILE: $PROFILE"
+echo "APPLICATION_NAME: $APPLICATION_NAME"
 
 #----------------------------------------------------------------------
 # 깃랩 환경 변수
 echo "IMAGE_NAME: ${IMAGE_NAME}"
 echo "APP_NAME: ${APP_NAME}"
-
-
-
-
-
-
 
 
 
@@ -107,6 +106,8 @@ sed -i'' -e "s|{{IMAGE}}|${IMAGE_NAME}|g" $DEPLOY_FILE_NAME
 sed -i'' -e "s|{{DEPLOYMENT}}|$STG_DEPLOYMENT|g" $DEPLOY_FILE_NAME
 sed -i'' -e "s|\"{{SERVICE_PORT}}\"|$STG_SERVICE_PORT|g" $DEPLOY_FILE_NAME
 sed -i'' -e "s|{{EXTERNAL_URL}}|$STG_EXTERNAL_URL|g" $DEPLOY_FILE_NAME
+sed -i'' -e "s|{{PROFILE}}|$PROFILE|g" $DEPLOY_FILE_NAME
+sed -i'' -e "s|{{APPLICATION_NAME}}|$APPLICATION_NAME|g" $DEPLOY_FILE_NAME
 
 echo "$MARATHON_APP_ID server update like:"
 cat $DEPLOY_FILE_NAME

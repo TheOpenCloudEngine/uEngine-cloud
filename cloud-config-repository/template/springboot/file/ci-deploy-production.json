@@ -27,7 +27,11 @@
     ]
   },
   "env": {
-    "DEPLOYMENT": "{{DEPLOYMENT}}"
+    "DEPLOYMENT": "{{DEPLOYMENT}}",
+    "PROFILE": "{{PROFILE}}",
+    "SPRING_PROFILES_ACTIVE": "{{PROFILE}}",
+    "APPLICATION_NAME": "{{APPLICATION_NAME}}",
+    "SPRING_APPLICATION_NAME": "{{APPLICATION_NAME}}"
   },
   "healthChecks": [
     {
