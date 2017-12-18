@@ -27,7 +27,6 @@ mail:
   port: 587
   smtp:
     auth: true
-  smtp:
     starttls:
       enable: true
   from:
