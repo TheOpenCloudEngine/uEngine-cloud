@@ -115,3 +115,4 @@ eureka:
         deployment: ${DEPLOYMENT}
         profile: ${PROFILE}
         appType: zuul
+        appname: ${APP_NAME}

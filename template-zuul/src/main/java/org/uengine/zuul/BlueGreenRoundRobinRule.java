@@ -65,7 +65,7 @@ public class BlueGreenRoundRobinRule extends AbstractLoadBalancerRule {
         System.out.println("serviceId : " + serviceId + " role:" + role);
 
         //로컬 개발일 경우는 바로 통과시킨다.
-        if(role.equals("local")){
+        if (role.equals("local")) {
             return servers;
         }
 
@@ -76,31 +76,32 @@ public class BlueGreenRoundRobinRule extends AbstractLoadBalancerRule {
         Map<String, Map> _apps = (Map) ((Map) apps.get("dcos")).get("apps");
         DcosState dcosState = null;
 
-        if (!_apps.isEmpty()) {
-            for (Map.Entry<String, Map> entry : _apps.entrySet()) {
-                //서비스 아이디 붙일 것.
-                App app = objectMapper.convertValue(entry.getValue(), App.class);
-                //스프링 부트이고, serviceId 가 동일할 경우
-                if (AppType.springboot.toString().equals(app.getAppType().toString())
-                        && serviceId.equals(entry.getKey())) {
-                    if (role.equals("prod")) {
-                        dcosState = app.getProd();
-                    } else if (role.equals("stg")) {
-                        dcosState = app.getStg();
-                    } else {
-                        dcosState = app.getDev();
-                    }
-                    if (dcosState != null) {
-                        BlueGreen blueGreen = dcosState.getDeployment();
-                        if (servers != null) {
-                            for (int i = 0; i < servers.size(); i++) {
-                                DiscoveryEnabledServer server = (DiscoveryEnabledServer) servers.get(i);
-                                InstanceInfo instanceInfo = server.getInstanceInfo();
-                                Map<String, String> metadata = instanceInfo.getMetadata();
-                                if (metadata != null && metadata.containsKey("deployment")) {
-                                    if (metadata.get("deployment").toString().equals(blueGreen.toString())) {
-                                        filteredServers.add(server);
-                                    }
+        if (!_apps.isEmpty() && servers != null) {
+            for (int i = 0; i < servers.size(); i++) {
+                DiscoveryEnabledServer server = (DiscoveryEnabledServer) servers.get(i);
+                InstanceInfo instanceInfo = server.getInstanceInfo();
+                Map<String, String> metadata = instanceInfo.getMetadata();
+                if (metadata != null && metadata.containsKey("deployment")) {
+                    String deployment = metadata.get("deployment");
+                    String appname = metadata.get("appname");
+
+                    for (Map.Entry<String, Map> entry : _apps.entrySet()) {
+                        App app = objectMapper.convertValue(entry.getValue(), App.class);
+
+                        //스프링 부트이고, appname 이 동일할 경우
+                        if (AppType.springboot.toString().equals(app.getAppType().toString())
+                                && appname.equals(entry.getKey())) {
+                            if (role.equals("prod")) {
+                                dcosState = app.getProd();
+                            } else if (role.equals("stg")) {
+                                dcosState = app.getStg();
+                            } else {
+                                dcosState = app.getDev();
+                            }
+                            if (dcosState != null) {
+                                BlueGreen blueGreen = dcosState.getDeployment();
+                                if (blueGreen.toString().equals(deployment)) {
+                                    filteredServers.add(server);
                                 }
                             }
                         }

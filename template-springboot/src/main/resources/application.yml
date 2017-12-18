@@ -46,4 +46,5 @@ eureka:
         image: ${MARATHON_APP_DOCKER_IMAGE}
         deployment: ${DEPLOYMENT}
         profile: ${PROFILE}
+        appname: ${APP_NAME}
 
