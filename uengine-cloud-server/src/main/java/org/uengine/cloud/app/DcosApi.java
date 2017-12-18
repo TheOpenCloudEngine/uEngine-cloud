@@ -133,12 +133,6 @@ public class DcosApi implements InitializingBean {
                 }
             }
         }
-
-//        HttpResponse response = new HttpUtils().makeRequest("GET",
-//                "http://" + environment.getProperty("vcap.services.zuul-prod-server.external") + "/refreshRoute",
-//                null,
-//                new HashMap<>()
-//        );
     }
 
     public Map getState() throws Exception {
