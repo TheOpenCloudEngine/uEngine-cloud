@@ -650,7 +650,7 @@ public class AppService {
         data.put("UENGINE_CLOUD_URL", "http://" + UENGINE_CLOUD_URL);
         data.put("CONFIG_REPO_ID", CONFIG_REPO_ID);
         //data.put("PROFILE", stage);
-        data.put("APPLICATION_NAME", appName);
+        //data.put("APPLICATION_NAME", appName);
         return data;
     }
 

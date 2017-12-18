@@ -51,7 +51,6 @@ DEV_INTERNAL_URL=$( echo $JSON2 | jq -r '.dcos.apps["'${APP_NAME}'"].dev.interna
 DEV_DEPLOYMENT=$( echo $JSON2 | jq -r '.dcos.apps["'${APP_NAME}'"].dev.deployment' )
 
 PROFILE="dev"
-APPLICATION_NAME=${APP_NAME}
 
 echo "REGISTRY_URL: $REGISTRY_URL"
 echo "CONFIG_REPO_ID: $CONFIG_REPO_ID"
@@ -71,7 +70,6 @@ echo "DEV_EXTERNAL_URL: $DEV_EXTERNAL_URL"
 echo "DEV_INTERNAL_URL: $DEV_INTERNAL_URL"
 echo "DEV_DEPLOYMENT: $DEV_DEPLOYMENT"
 echo "PROFILE: $PROFILE"
-echo "APPLICATION_NAME: $APPLICATION_NAME"
 
 #----------------------------------------------------------------------
 # 깃랩 환경 변수
@@ -111,7 +109,6 @@ sed -i'' -e "s|{{DEPLOYMENT}}|$DEV_DEPLOYMENT|g" $DEPLOY_FILE_NAME
 sed -i'' -e "s|\"{{SERVICE_PORT}}\"|$DEV_SERVICE_PORT|g" $DEPLOY_FILE_NAME
 sed -i'' -e "s|{{EXTERNAL_URL}}|$DEV_EXTERNAL_URL|g" $DEPLOY_FILE_NAME
 sed -i'' -e "s|{{PROFILE}}|$PROFILE|g" $DEPLOY_FILE_NAME
-sed -i'' -e "s|{{APPLICATION_NAME}}|$APPLICATION_NAME|g" $DEPLOY_FILE_NAME
 
 echo "$MARATHON_APP_ID server update like:"
 cat $DEPLOY_FILE_NAME

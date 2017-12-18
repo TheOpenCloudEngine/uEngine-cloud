@@ -160,8 +160,7 @@
           {title: '빌드 및 배포', icon: 'question_answer', routerName: 'appsDetailDeployment'},
           {title: '로그', icon: 'question_answer', routerName: 'appsDetailLog'},
           {title: '모니터링', icon: 'question_answer', routerName: 'appsDetailMonitor'},
-          {title: '레지스트리', icon: 'question_answer', routerName: 'registry'},
-          {title: 'Api 관리', icon: 'question_answer', routerName: 'appsDetailApi'}
+          {title: '레지스트리', icon: 'question_answer', routerName: 'registry'}
         ],
       }
     },
@@ -346,7 +345,7 @@
           me.moveGitlab('project');
         }
         else if (routeName == 'registry') {
-
+          me.moveRegistry();
         }
         else {
           this.$router.push(
@@ -356,6 +355,10 @@
             }
           )
         }
+      },
+      moveRegistry: function () {
+        var url = 'http://' + config.vcap.services['eureka-server'].external;
+        window.open(url);
       },
       moveGitlab: function (type, objectId) {
         if (type == 'project') {

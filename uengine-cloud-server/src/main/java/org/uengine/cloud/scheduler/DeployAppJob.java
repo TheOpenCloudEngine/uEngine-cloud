@@ -326,7 +326,7 @@ public class DeployAppJob implements Job {
         data.put("DEPLOYMENT", deployment);
         data.put("EXTERNAL_URL", externalUrl);
         data.put("PROFILE", stage);
-        data.put("APPLICATION_NAME", appName);
+        //data.put("APPLICATION_NAME", appName);
 
         String deployJsonString = JsonUtils.marshal(deployJson);
         MustacheTemplateEngine templateEngine = new MustacheTemplateEngine();
