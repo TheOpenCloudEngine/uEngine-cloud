@@ -11,7 +11,7 @@
   "container": {
     "type": "DOCKER",
     "docker": {
-      "forcePullImage": true,
+      "forcePullImage": false,
       "image": "{{IMAGE}}",
       "parameters": [],
       "privileged": false

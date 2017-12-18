@@ -5,6 +5,15 @@
       "description": "기본 인프라 관리 없이 앱을 배치합니다.",
       "items": [
         {
+          "id": "zuul",
+          "header": "Zuul router (Netfflix OSS) 앱 작성",
+          "title": "Zuul router (Netfflix OSS)",
+          "description": "Zuul은 동적 라우팅, 모니터링, 탄력성, 보안 등을 제공하는 엣지 서비스입니다. 사용법, 정보, HOWTO 등 위키를 보시기 바랍니다. https://github.com/Netflix/zuul/wiki",
+          "version": "1.0",
+          "type": "애플리케이션",
+          "image": "/static/image/catalog/springboot.png"
+        },
+        {
           "id": "springboot",
           "header": "Spring boot (Netfflix OSS) 앱 작성",
           "title": "Spring boot (Netfflix OSS)",

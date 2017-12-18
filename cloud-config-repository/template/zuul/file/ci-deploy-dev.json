@@ -11,7 +11,7 @@
   "container": {
     "type": "DOCKER",
     "docker": {
-      "forcePullImage": true,
+      "forcePullImage": false,
       "image": "{{IMAGE}}",
       "parameters": [],
       "privileged": false
@@ -19,7 +19,7 @@
     "volumes": [],
     "portMappings": [
       {
-        "containerPort": 8080,
+        "containerPort": 4000,
         "hostPort": 0,
         "labels": {},
         "protocol": "tcp",

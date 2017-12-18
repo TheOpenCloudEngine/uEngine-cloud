@@ -160,6 +160,7 @@
           {title: '빌드 및 배포', icon: 'question_answer', routerName: 'appsDetailDeployment'},
           {title: '로그', icon: 'question_answer', routerName: 'appsDetailLog'},
           {title: '모니터링', icon: 'question_answer', routerName: 'appsDetailMonitor'},
+          {title: '레지스트리', icon: 'question_answer', routerName: 'registry'},
           {title: 'Api 관리', icon: 'question_answer', routerName: 'appsDetailApi'}
         ],
       }
@@ -343,7 +344,11 @@
         var me = this;
         if (routeName == 'gitlab') {
           me.moveGitlab('project');
-        } else {
+        }
+        else if (routeName == 'registry') {
+
+        }
+        else {
           this.$router.push(
             {
               name: routeName,
