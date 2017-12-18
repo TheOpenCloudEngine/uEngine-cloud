@@ -4,57 +4,72 @@ import Login from '../components/Login'
 import ServiceLocator from '../components/ServiceLocator'
 import Home from '../components/Home'
 import AvatarUploader from '../components/AvatarUploader'
+
 Vue.component('avatar-uploader', AvatarUploader);
 
 import DcosDataProvider from '../components/DcosDataProvider'
+
 Vue.component('dcos-data-provider', DcosDataProvider);
 
 /**
  * 대쉬보드
  */
 import Dashboard from '../components/dashboard/Dashboard'
+
 Vue.component('dashboard', Dashboard);
 
 import Metrics from '../components/dashboard/Metrics'
+
 Vue.component('metrics', Metrics);
 
 import MovingChart from '../components/dashboard/MovingChart'
+
 Vue.component('moving-chart', MovingChart);
 
 import NodeList from '../components/dashboard/NodeList'
+
 Vue.component('node-list', NodeList);
 
 import AppList from '../components/dashboard/AppList'
+
 Vue.component('app-list', AppList);
 
 import JobList from '../components/dashboard/JobList'
+
 Vue.component('job-list', JobList);
 
 /**
  * 노드
  */
 import NodeDetail from '../components/node/NodeDetail'
+
 Vue.component('node-detail', NodeDetail);
 
 import NodeTaskList from '../components/node/NodeTaskList'
+
 Vue.component('node-task', NodeTaskList);
 
 /**
  * 서비스
  */
 import ServiceProgress from '../components/services/ServiceProgress'
+
 Vue.component('service-progress', ServiceProgress);
 
 import ServiceDetail from '../components/services/ServiceDetail'
+
 Vue.component('service-detail', ServiceDetail);
 
 import ServiceTaskList from '../components/services/ServiceTaskList'
+
 Vue.component('service-task', ServiceTaskList);
 
 import ServiceConfiguration from '../components/services/ServiceConfiguration'
+
 Vue.component('service-configuration', ServiceConfiguration);
 
 import ServiceDebug from '../components/services/ServiceDebug'
+
 Vue.component('service-debug', ServiceDebug);
 
 
@@ -62,48 +77,61 @@ Vue.component('service-debug', ServiceDebug);
  * 잡
  */
 import JobDetail from '../components/jobs/JobDetail'
+
 Vue.component('job-detail', JobDetail);
 
 import JobRunList from '../components/jobs/JobRunList'
+
 Vue.component('job-runlist', JobRunList);
 
 import JobConfiguration from '../components/jobs/JobConfiguration'
+
 Vue.component('job-configuration', JobConfiguration);
 
 /**
  * 타스크
  */
 import TaskList from '../components/task/TaskList'
+
 Vue.component('task-list', TaskList);
 
 import TaskMenu from '../components/task/TaskMenu'
+
 Vue.component('task-menu', TaskMenu);
 
 import TaskDetail from '../components/task/TaskDetail'
+
 Vue.component('task-detail', TaskDetail);
 
 import TaskFiles from '../components/task/TaskFiles'
+
 Vue.component('task-files', TaskFiles);
 
 import TaskLog from '../components/task/TaskLog'
+
 Vue.component('task-log', TaskLog);
 
 /**
  * 에디터
  */
 import NewSingleContainer from '../components/editor/NewSingleContainer'
+
 Vue.component('new-single-container', NewSingleContainer);
 
 import NewService from '../components/editor/NewService'
+
 Vue.component('new-service', NewService);
 
 import ScaleApp from '../components/editor/ScaleApp'
+
 Vue.component('scale-app', ScaleApp);
 
 import ServiceDeployments from '../components/editor/ServiceDeployments'
+
 Vue.component('service-deployments', ServiceDeployments);
 
 import DeploymentCanvas from '../components/editor/DeploymentCanvas'
+
 Vue.component('deployment-canvas', DeploymentCanvas);
 
 /**
@@ -111,58 +139,89 @@ Vue.component('deployment-canvas', DeploymentCanvas);
  */
 
 import Apps from '../components/apps/Apps'
+
 Vue.component('apps', Apps);
 
 import AppsCatalog from '../components/apps/AppsCatalog'
+
 Vue.component('apps-catalog', AppsCatalog);
 
 import AppsOverview from '../components/apps/AppsOverview'
+
 Vue.component('apps-overview', AppsOverview);
 
 import AppsCreate from '../components/apps/AppsCreate'
+
 Vue.component('apps-create', AppsCreate);
 
 import AppsDetail from '../components/apps/AppsDetail'
+
 Vue.component('apps-detail', AppsDetail);
 
 import AppsDetailDashboard from '../components/apps/AppsDetailDashboard'
+
 Vue.component('apps-detail-dashboard', AppsDetailDashboard);
 
 import AppsDetailRuntime from '../components/apps/AppsDetailRuntime'
+
 Vue.component('apps-detail-runtime', AppsDetailRuntime);
 
 import AppsDetailDeployment from '../components/apps/AppsDetailDeployment'
+
 Vue.component('apps-detail-deployment', AppsDetailDeployment);
 
 import AppsDetailLog from '../components/apps/AppsDetailLog'
+
 Vue.component('apps-detail-log', AppsDetailLog);
 
 import AppsDetailMonitor from '../components/apps/AppsDetailMonitor'
+
 Vue.component('apps-detail-deployment', AppsDetailMonitor);
 
 import AppRoute from '../components/apps/AppRoute'
+
 Vue.component('app-route', AppRoute);
 
 import AppRuntimeCard from '../components/apps/AppRuntimeCard'
+
 Vue.component('app-runtime-card', AppRuntimeCard);
 
 import AppCloudConfig from '../components/apps/AppCloudConfig'
+
 Vue.component('app-cloud-config', AppCloudConfig);
 
 import AppSsh from '../components/apps/AppSsh'
+
 Vue.component('app-ssh', AppSsh);
 
 import AppPipeLine from '../components/apps/AppPipeLine'
+
 Vue.component('app-pipeline', AppPipeLine);
 
 import GitlabDeploy from '../components/apps/GitlabDeploy'
+
 Vue.component('gitlab-deploy', GitlabDeploy);
 
+/**
+ * 조직
+ */
 
+import Organization from '../components/organization/Organization'
+
+Vue.component('organization', Organization);
+
+import UserList from '../components/organization/UserList'
+
+Vue.component('user-list', UserList);
+
+import UserDetail from '../components/organization/UserDetail'
+
+Vue.component('user-detail', UserDetail);
 /**
  * 아바타
  */
 import IAMAvatar from '../components/IAMAvatar'
+
 Vue.component('iam-avatar', IAMAvatar);
 
 /**
@@ -198,6 +257,7 @@ Vue.use(Router);
  */
 // https://github.com/waynecz/vue-img-inputer --Document
 import VueImgInputer from 'vue-img-inputer'
+
 Vue.component('vue-img-inputer', VueImgInputer)
 
 /**
@@ -473,7 +533,42 @@ export default new Router({
               ]
             },
           ]
-        }
+        },
+        {
+          path: 'organization/',
+          name: 'organization',
+          redirect: '/organization/list',
+          component: Organization,
+          beforeEnter: RouterGuard.requireUser,
+          props: {iam: iam},
+          meta: {
+            breadcrumb: 'Organization'
+          },
+          children: [
+            {
+              path: 'list',
+              name: 'user-list',
+              component: UserList,
+            },
+            {
+              path: 'detail/:email',
+              name: 'userDetail',
+              props: true,
+              component: UserDetail,
+              meta: {
+                preTitle:"사용자정보",
+                breadcrumb: ':email'
+              },
+              // children: [
+              //   {
+              //     path: 'detail',
+              //     name: 'userDetail',
+              //     component: UserDetail,
+              //   },
+              // ]
+            }
+          ]
+        },
       ]
     },
     {
