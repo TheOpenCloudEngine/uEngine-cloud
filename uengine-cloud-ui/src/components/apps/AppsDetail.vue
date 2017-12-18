@@ -175,6 +175,7 @@
 
       //어플리케이션 레파지토리 생성 상태와 어플리케이션 정보를 풀링한다.
       var intervalStatus = function () {
+        console.log('how many intervalStatus?');
         me.getDevAppStatusByName(me.appName, function (response, error) {
           if (response) {
             me.status = response.data.status;
