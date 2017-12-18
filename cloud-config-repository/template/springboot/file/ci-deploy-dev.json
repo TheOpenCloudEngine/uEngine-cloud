@@ -22,7 +22,8 @@
         "containerPort": 8080,
         "hostPort": 0,
         "labels": {},
-        "protocol": "tcp"
+        "protocol": "tcp",
+        "servicePort": "{{SERVICE_PORT}}"
       }
     ]
   },
@@ -46,7 +47,11 @@
       "delaySeconds": 15
     }
   ],
-  "labels": {},
+  "labels": {
+    "HAPROXY_GROUP": "external,internal",
+    "HAPROXY_0_REDIRECT_TO_HTTPS": "false",
+    "HAPROXY_0_VHOST": "{{EXTERNAL_URL}}"
+  },
   "networks": [
     {
       "mode": "container/bridge"

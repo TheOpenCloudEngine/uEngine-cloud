@@ -118,7 +118,7 @@ public class AppService {
         }
 
         //라우터 리프레쉬
-        dcosApi.refreshRouter();
+        dcosApi.refreshRoute();
 
         //기존 프로덕션은 삭제한다.
         try {
@@ -389,14 +389,8 @@ public class AppService {
         return gitlabExtentApi.getRepositoryFile(repoId, "master", filePath);
     }
 
-    public void createAppConfigYml(String appName) throws Exception {
+    public void createAppConfigYml(String appName, String content) throws Exception {
         int repoId = Integer.parseInt(environment.getProperty("gitlab.config-repo.projectId"));
-        String json = "{\"aaa\":{\"bbb\":{\"ccc\":\"Hello\"}}}";
-        Map map = JsonUtils.unmarshal(json);
-
-        ObjectMapper yamlReader = new ObjectMapper(new YAMLFactory());
-        String content = yamlReader.writeValueAsString(map);
-
         gitlabExtentApi.updateOrCraeteRepositoryFile(repoId,
                 "master", appName + "-dev.yml", content);
 
@@ -540,10 +534,6 @@ public class AppService {
 
         //vcapservice 등록
         this.addAppToVcapService(appCreate.getAppName());
-
-
-        //<appName>-dev,stg,prod.yml 생성
-        this.createAppConfigYml(appCreate.getAppName());
 
 
         //앱 생성 백그라운드 작업 시작.

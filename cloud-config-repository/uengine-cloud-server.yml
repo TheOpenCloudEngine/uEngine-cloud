@@ -19,4 +19,4 @@ iam:
 registry:
   host: gitlab.pas-mini.io:5000
   
-public-agent-ip: 192.168.0.30
+public-agent-ip: 192.168.0.14

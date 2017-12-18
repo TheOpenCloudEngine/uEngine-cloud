@@ -228,7 +228,7 @@ public class DeployAppJob implements Job {
                     appService.copyDeployJson(appName, stage, "rollback");
 
                     //라우터 리프레쉬
-                    dcosApi.refreshRouter();
+                    dcosApi.refreshRoute();
 
                     //springboot 가 아닌경우 이전 버젼 삭제
                     if (!appType.equals("springboot")) {
@@ -268,7 +268,7 @@ public class DeployAppJob implements Job {
                     dcosApi.createApp(deployJson);
                 }
                 //라우터 리프레쉬
-                dcosApi.refreshRouter();
+                dcosApi.refreshRoute();
             }
 
         } catch (Exception ex) {

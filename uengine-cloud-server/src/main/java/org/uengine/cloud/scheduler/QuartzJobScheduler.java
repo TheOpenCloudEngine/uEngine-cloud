@@ -55,7 +55,7 @@ public class QuartzJobScheduler implements JobScheduler {
     public JobKey startJob(String jobName, String jobGroupName, String cronExpression, Map<String, Object> dataMap) throws ServiceException {
         try {
             JobKey jobKey = new JobKey(jobName, jobGroupName);
-            JobDetail job = JobBuilder.newJob(DefaultDcosJob.class).withIdentity(jobKey).build();
+            JobDetail job = JobBuilder.newJob(CreateAppJob.class).withIdentity(jobKey).build();
             job.getJobDataMap().putAll(dataMap);
             job.getJobDataMap().put("status", "RUNNING");
 
@@ -76,7 +76,7 @@ public class QuartzJobScheduler implements JobScheduler {
     public JobKey registJob(String jobName, String jobGroupName, String cronExpression, Map<String, Object> dataMap) throws ServiceException {
         try {
             JobKey jobKey = new JobKey(jobName, jobGroupName);
-            JobDetail job = JobBuilder.newJob(DefaultDcosJob.class).withIdentity(jobKey).build();
+            JobDetail job = JobBuilder.newJob(CreateAppJob.class).withIdentity(jobKey).build();
             if (dataMap.get("status") == null) {
                 throw new ServiceException("Job status is null");
             }
@@ -102,7 +102,7 @@ public class QuartzJobScheduler implements JobScheduler {
 
             JobDetail job = null;
             if (jobGroupName.equals("appCreate")) {
-                job = JobBuilder.newJob(DefaultDcosJob.class).withIdentity(jobKey).build();
+                job = JobBuilder.newJob(CreateAppJob.class).withIdentity(jobKey).build();
             } else if (jobGroupName.equals("deployedApp")) {
                 job = JobBuilder.newJob(DeployAppJob.class).withIdentity(jobKey).build();
             }

@@ -16,7 +16,8 @@ eureka:
     statusPageUrlPath: ${server.servletPath}info
     healthCheckUrlPath: ${server.servletPath}health
     metadataMap:
-        deployment: ${DEPLOYMENT}
+        deployment: local
+        profile: local
 ---
 spring:
   profiles: dev,stg,prod
@@ -44,4 +45,5 @@ eureka:
         commitSha: ${CI_COMMIT_SHA}
         image: ${MARATHON_APP_DOCKER_IMAGE}
         deployment: ${DEPLOYMENT}
+        profile: ${PROFILE}
 

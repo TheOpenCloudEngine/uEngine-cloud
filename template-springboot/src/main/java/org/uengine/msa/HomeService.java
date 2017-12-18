@@ -1,4 +1,4 @@
-package org.uengine.eureka.client;
+package org.uengine.msa;
 
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClient;

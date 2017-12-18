@@ -1,5 +1,5 @@
 {
-  "id": "/zuul-dev-role",
+  "id": "/{{APP_ID}}",
   "cmd": null,
   "cpus": 0.4,
   "mem": 512,
@@ -12,24 +12,27 @@
     "type": "DOCKER",
     "docker": {
       "forcePullImage": true,
-      "image": "sppark/uengine-eureka-zuul:v1",
+      "image": "{{IMAGE}}",
       "parameters": [],
       "privileged": false
     },
     "volumes": [],
     "portMappings": [
       {
-        "containerPort": 4000,
+        "containerPort": 8080,
         "hostPort": 0,
         "labels": {},
         "protocol": "tcp",
-        "servicePort": 10004
+        "servicePort": "{{SERVICE_PORT}}"
       }
     ]
   },
   "env": {
-    "ROLE": "dev",
-    "SPRING_APPLICATION_NAME": "uengine-eureka-zuul"
+    "DEPLOYMENT": "{{DEPLOYMENT}}",
+    "PROFILE": "{{PROFILE}}",
+    "SPRING_PROFILES_ACTIVE": "{{PROFILE}}",
+    "APPLICATION_NAME": "{{APPLICATION_NAME}}",
+    "SPRING_APPLICATION_NAME": "{{APPLICATION_NAME}}"
   },
   "healthChecks": [
     {
@@ -46,7 +49,8 @@
   ],
   "labels": {
     "HAPROXY_GROUP": "external,internal",
-    "HAPROXY_0_VHOST": "api-dev.pas-mini.io"
+    "HAPROXY_0_REDIRECT_TO_HTTPS": "false",
+    "HAPROXY_0_VHOST": "{{EXTERNAL_URL}}"
   },
   "networks": [
     {

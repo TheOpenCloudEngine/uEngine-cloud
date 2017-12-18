@@ -33,7 +33,6 @@ JSON2="$(curl --request GET \
               -H 'content-type: application/json' \
               ${CONFIG_SERVER_URL}/dcos-apps.json)"
 
-ZUUL_PROD_URL=$( echo $JSON2 | jq -r '.vcap.services["zuul-prod-server"].external' )
 UENGINE_CLOUD_URL=$( echo $JSON2 | jq -r '.vcap.services["uengine-cloud-server"].external' )
 APP_TYPE=$( echo $JSON2 | jq -r '.dcos.apps["'${APP_NAME}'"].appType' )
 APP_OWNER=$( echo $JSON2 | jq -r '.dcos.apps["'${APP_NAME}'"].owner' )
@@ -228,6 +227,6 @@ echo "Router refresh"
 
 curl --request GET \
     -H 'content-type: application/json' \
-    ${ZUUL_PROD_URL}/refreshRoute
+    ${UENGINE_CLOUD_URL}/refreshRoute
 
 

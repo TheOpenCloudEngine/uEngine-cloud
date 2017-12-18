@@ -1,4 +1,4 @@
-package org.uengine.eureka.client;
+package org.uengine.msa;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

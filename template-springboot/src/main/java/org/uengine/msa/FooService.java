@@ -1,4 +1,4 @@
-package org.uengine.eureka.client;
+package org.uengine.msa;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import org.springframework.stereotype.Component;

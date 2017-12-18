@@ -1,4 +1,4 @@
-package org.uengine.eureka.client;
+package org.uengine.msa;
 
 /**
  * Created by uengine on 2017. 10. 6..

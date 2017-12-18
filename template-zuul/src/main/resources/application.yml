@@ -1,0 +1,117 @@
+server:
+  port: 4000
+
+endpoints:
+  routes:
+    sensitive: false
+
+management:
+  security:
+    enabled: false
+
+security:
+  basic:
+    enabled: false
+
+---
+spring:
+  profiles: local
+
+dcos:
+  deployment:
+    role: local
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+    healthcheck:
+      enabled: true
+  instance:
+    statusPageUrlPath: ${server.servletPath}info
+    healthCheckUrlPath: ${server.servletPath}health
+    metadataMap:
+        deployment: local
+        profile: local
+        appType: zuul
+
+zuul:
+#  ignored-services: "*"
+#  routes:
+#    template-springboot:
+#      path: /template-springboot/**
+#      serviceId: template-springboot
+
+ribbon:
+  # Max number of retries on the same server (excluding the first try)
+  MaxAutoRetries: 1
+
+  # Max number of next servers to retry (excluding the first server)
+  MaxAutoRetriesNextServer: 1
+
+  # Whether all operations can be retried for this client
+  OkToRetryOnAllOperations: true
+
+  # Interval to refresh the server list from the source
+  ServerListRefreshInterval: 2000
+
+  # Connect timeout used by Apache HttpClient
+  ConnectTimeout: 3000
+
+  # Read timeout used by Apache HttpClient
+  ReadTimeout: 3000
+
+  # Initial list of servers, can be changed via Archaius dynamic property at runtime
+  #listOfServers: www.microsoft.com:80,www.yahoo.com:80,www.google.com:80
+
+
+# When your api call is over than timeoutInMilliseconds, api would be fallback.
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 5000
+
+turbine:
+  # set appConfig as services which registered in eureka server.
+  appConfig: service-A,service-B
+
+  # You can monitor by application profile.
+  # stream url is hosted on zuul server, with parameter "cluster=[profile]"
+  # ex) http://localhost:4000/turbine.stream?cluster=local
+  aggregator:
+      clusterConfig: local,dev,stg,prod
+  clusterNameExpression: metadata['profile']
+
+---
+spring:
+  profiles: dev,stg,prod
+
+dcos:
+  apps-file: dcos-apps.yml
+  deployment:
+    role: ${PROFILE}
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://${vcap.services.eureka-server.internal}/eureka/
+    healthcheck:
+      enabled: true
+  instance:
+    hostname: ${HOST}
+    nonSecurePort: ${PORT}
+    preferIpAddress: false
+    statusPageUrl: http://${eureka.instance.hostname}:${eureka.instance.nonSecurePort}/info
+    healthCheckUrl: http://${eureka.instance.hostname}:${eureka.instance.nonSecurePort}/health
+    homePageUrl: http://${eureka.instance.hostname}:${eureka.instance.nonSecurePort}/
+    instanceId: ${HOST}:${spring.application.name}:${PORT}
+    metadataMap:
+        project: ${CI_PROJECT_NAME}
+        commitSha: ${CI_COMMIT_SHA}
+        image: ${MARATHON_APP_DOCKER_IMAGE}
+        deployment: ${DEPLOYMENT}
+        profile: ${PROFILE}
+        appType: zuul

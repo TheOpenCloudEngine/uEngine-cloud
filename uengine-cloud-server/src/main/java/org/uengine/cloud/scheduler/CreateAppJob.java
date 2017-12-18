@@ -41,7 +41,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class DefaultDcosJob implements Job {
+public class CreateAppJob implements Job {
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
@@ -153,21 +153,13 @@ public class DefaultDcosJob implements Job {
             //트리거 등록
             gitlabExtentApi.createTrigger(projectId, gitlabUsername, "dcosTrigger");
 
-            String[] deployFiles = null;
             //마라톤 디플로이 명세 파일 복사
-            if (appCreate.getCategoryItemId().equals("springboot")) {
-                deployFiles = new String[]{
-                        "template/springboot/file/ci-deploy-production.json",
-                        "template/springboot/file/ci-deploy-staging.json",
-                        "template/springboot/file/ci-deploy-dev.json"
-                };
-            } else {
-                deployFiles = new String[]{
-                        "template/polyglot/file/ci-deploy-production.json",
-                        "template/polyglot/file/ci-deploy-staging.json",
-                        "template/polyglot/file/ci-deploy-dev.json"
-                };
-            }
+            String[] deployFiles = null;
+            deployFiles = new String[]{
+                    "template/" + appCreate.getCategoryItemId() + "/file/ci-deploy-production.json",
+                    "template/" + appCreate.getCategoryItemId() + "/file/ci-deploy-staging.json",
+                    "template/" + appCreate.getCategoryItemId() + "/file/ci-deploy-dev.json"
+            };
 
             //생성시 결정한 시스템 자원을 반영한다.
             for (String deployFile : deployFiles) {
@@ -200,6 +192,10 @@ public class DefaultDcosJob implements Job {
                 gitlabExtentApi.updateOrCraeteRepositoryFile(
                         repoId, "master", "deployment/" + data.get("APP_NAME").toString() + "/" + fileName, scriptText);
             }
+
+            //클라우드 콘피그 파일 복사
+            String configText = gitlabExtentApi.getRepositoryFile(repoId, "master", "template/" + appCreate.getCategoryItemId() + "/file/config.yml");
+            appService.createAppConfigYml(appCreate.getAppName(), configText);
 
 
             //dcos projectId 업데이트

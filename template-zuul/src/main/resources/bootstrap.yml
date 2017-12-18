@@ -1,6 +1,6 @@
 spring:
   application:
-      name: {{APP_NAME}}
+      name: template-zuul
   profiles:
     active: "local"
 
@@ -9,11 +9,11 @@ spring:
   profiles: local
   cloud:
     config:
-      uri: {{CONFIG_SERVER_URL}}
+      uri: http://config.pas-mini.io
 
 ---
 spring:
   profiles: dev,stg,prod
   cloud:
     config:
-      uri: {{CONFIG_SERVER_INTERNAL_URL}}
+      uri: http://marathon-lb-internal.marathon.mesos:10000
