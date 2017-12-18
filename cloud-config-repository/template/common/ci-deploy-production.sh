@@ -129,6 +129,7 @@ sed -i'' -e "s|{{DEPLOYMENT}}|$NEW_PROD_DEPLOYMENT|g" $DEPLOY_FILE_NAME
 sed -i'' -e "s|\"{{SERVICE_PORT}}\"|$PROD_SERVICE_PORT|g" $DEPLOY_FILE_NAME
 sed -i'' -e "s|{{EXTERNAL_URL}}|$PROD_EXTERNAL_URL|g" $DEPLOY_FILE_NAME
 sed -i'' -e "s|{{PROFILE}}|$PROFILE|g" $DEPLOY_FILE_NAME
+sed -i'' -e "s|{{APP_NAME}}|${APP_NAME}|g" $DEPLOY_FILE_NAME
 
 echo "$NEW_MARATHON_APP_ID server update like:"
 cat $DEPLOY_FILE_NAME
