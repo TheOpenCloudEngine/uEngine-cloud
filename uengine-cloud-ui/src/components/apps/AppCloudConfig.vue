@@ -96,25 +96,12 @@
       var me = this;
       $(this.$el).find('.CodeMirror').height(600);
       this.getCodes();
-
-      this.configUrlList = [
-        {
-          text: 'springboot',
-          href: configServerUrl + '/' + me.appName + '/default'
-        },
-        {
-          text: 'json',
-          href: configServerUrl + '/' + me.appName + '.json'
-        },
-        {
-          text: 'yml',
-          href: configServerUrl + '/' + me.appName + '.yml'
-        }
-      ]
+      this.getConfigUrlList();
     },
     watch: {
       stage: function (val) {
         this.getCodes();
+        this.getConfigUrlList();
       },
       menu: function (val) {
         var me = this;
@@ -127,6 +114,23 @@
       }
     },
     methods: {
+      getConfigUrlList: function () {
+        var me = this;
+        this.configUrlList = [
+          {
+            text: 'springboot',
+            href: configServerUrl + '/' + me.appName + '/' + me.stage
+          },
+          {
+            text: 'json',
+            href: configServerUrl + '/' + me.appName + '-' + me.stage + '.json'
+          },
+          {
+            text: 'yml',
+            href: configServerUrl + '/' + me.appName + '-' + me.stage + '.yml'
+          }
+        ]
+      },
       getCodes: function () {
         var me = this;
         me.codeChanged = false;

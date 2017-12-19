@@ -228,7 +228,7 @@ public class DeployAppJob implements Job {
                     appService.copyDeployJson(appName, stage, "rollback");
 
                     //라우터 리프레쉬
-                    dcosApi.refreshRouter();
+                    dcosApi.refreshRoute();
 
                     //springboot 가 아닌경우 이전 버젼 삭제
                     if (!appType.equals("springboot")) {
@@ -268,7 +268,7 @@ public class DeployAppJob implements Job {
                     dcosApi.createApp(deployJson);
                 }
                 //라우터 리프레쉬
-                dcosApi.refreshRouter();
+                dcosApi.refreshRoute();
             }
 
         } catch (Exception ex) {
@@ -326,7 +326,7 @@ public class DeployAppJob implements Job {
         data.put("DEPLOYMENT", deployment);
         data.put("EXTERNAL_URL", externalUrl);
         data.put("PROFILE", stage);
-        data.put("APPLICATION_NAME", appName);
+        data.put("APP_NAME", appName);
 
         String deployJsonString = JsonUtils.marshal(deployJson);
         MustacheTemplateEngine templateEngine = new MustacheTemplateEngine();

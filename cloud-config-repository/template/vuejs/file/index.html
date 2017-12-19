@@ -12,8 +12,46 @@
         type="text/css">
 
   <script>
-    var applicationName = "{{APP_NAME}}";
-    var configServerUrl = '{{CONFIG_SERVER_URL}}';
+      var applicationName = "{{APP_NAME}}";
+      var configServerUrl = '{{CONFIG_SERVER_URL}}';
+      var profile = 'local';
+
+      /**
+       * Get profile from system env given by dcos
+       */
+      $.ajax({
+          url: "/static/env.txt",
+          type: "get",
+          async: false,
+          success: function (data) {
+              var lines = data.split('\n');
+              $.each(lines, function (i, line) {
+                  console.log(line);
+                  if (line && line.indexOf('PROFILE=') == 0) {
+                      profile = line.split('=')[1];
+                  }
+              })
+          },
+          error: function () {
+              console.log('Failed to get env');
+          }
+      });
+
+      /**
+       * Get cloud configGet
+       */
+      $.ajax({
+          url: configServerUrl + "/" + applicationName + "-" + profile + ".json",
+          type: "get",
+          async: false,
+          success: function (data) {
+              window.config = data;
+              console.log(window.config);
+          },
+          error: function () {
+              console.log('Failed to get config');
+          }
+      });
   </script>
   <style>
     body {
@@ -26,3 +64,4 @@
 <!-- built files will be auto injected -->
 </body>
 </html>
+

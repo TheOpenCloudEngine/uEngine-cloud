@@ -12,22 +12,6 @@ Vue.component('iam-avatar', IAMAvatar);
 import Dashboard from '@/components/Dashboard'
 Vue.component('dashboard', Dashboard);
 
-
-/**
- * Get cloud configGet cloud configGet cloud configGet cloud config
- */
-$.ajax({
-  url: configServerUrl + "/" + applicationName + ".json",
-  type: "get",
-  async: false,
-  success: function (data) {
-    window.config = data;
-  },
-  error: function () {
-    console.log('Failed to get config');
-  }
-});
-
 /**
  * Iam && Vue Router
  * @type {IAM}

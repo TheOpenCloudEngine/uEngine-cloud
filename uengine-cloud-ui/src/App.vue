@@ -24,9 +24,9 @@
                      <!--path="/gitlab/"-->
                      <!--resource-name="gitlab"></service-locator>-->
 
-    <service-locator v-if="config" :host="configServerUrl"
-                     path="/"
-                     resource-name="config"></service-locator>
+    <!--<service-locator v-if="config" :host="configServerUrl"-->
+                     <!--path="/"-->
+                     <!--resource-name="config"></service-locator>-->
 
     <!--글로벌 알림 컴포넌트-->
     <md-snackbar md-position="top right" ref="snackbar" :md-duration="4000">

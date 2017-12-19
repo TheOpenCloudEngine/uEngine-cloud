@@ -160,7 +160,7 @@
           {title: '빌드 및 배포', icon: 'question_answer', routerName: 'appsDetailDeployment'},
           {title: '로그', icon: 'question_answer', routerName: 'appsDetailLog'},
           {title: '모니터링', icon: 'question_answer', routerName: 'appsDetailMonitor'},
-          {title: 'Api 관리', icon: 'question_answer', routerName: 'appsDetailApi'}
+          {title: '레지스트리', icon: 'question_answer', routerName: 'registry'}
         ],
       }
     },
@@ -175,6 +175,7 @@
 
       //어플리케이션 레파지토리 생성 상태와 어플리케이션 정보를 풀링한다.
       var intervalStatus = function () {
+        console.log('how many intervalStatus?');
         me.getDevAppStatusByName(me.appName, function (response, error) {
           if (response) {
             me.status = response.data.status;
@@ -343,7 +344,11 @@
         var me = this;
         if (routeName == 'gitlab') {
           me.moveGitlab('project');
-        } else {
+        }
+        else if (routeName == 'registry') {
+          me.moveRegistry();
+        }
+        else {
           this.$router.push(
             {
               name: routeName,
@@ -351,6 +356,10 @@
             }
           )
         }
+      },
+      moveRegistry: function () {
+        var url = 'http://' + config.vcap.services['eureka-server'].external;
+        window.open(url);
       },
       moveGitlab: function (type, objectId) {
         if (type == 'project') {

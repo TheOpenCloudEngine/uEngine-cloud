@@ -33,7 +33,6 @@ JSON2="$(curl --request GET \
               -H 'content-type: application/json' \
               ${CONFIG_SERVER_URL}/dcos-apps.json)"
 
-ZUUL_PROD_URL=$( echo $JSON2 | jq -r '.vcap.services["zuul-prod-server"].external' )
 UENGINE_CLOUD_URL=$( echo $JSON2 | jq -r '.vcap.services["uengine-cloud-server"].external' )
 APP_TYPE=$( echo $JSON2 | jq -r '.dcos.apps["'${APP_NAME}'"].appType' )
 APP_OWNER=$( echo $JSON2 | jq -r '.dcos.apps["'${APP_NAME}'"].owner' )
@@ -53,7 +52,6 @@ DEV_INTERNAL_URL=$( echo $JSON2 | jq -r '.dcos.apps["'${APP_NAME}'"].dev.interna
 DEV_DEPLOYMENT=$( echo $JSON2 | jq -r '.dcos.apps["'${APP_NAME}'"].dev.deployment' )
 
 PROFILE="prod"
-APPLICATION_NAME=${APP_NAME}
 
 echo "REGISTRY_URL: $REGISTRY_URL"
 echo "CONFIG_REPO_ID: $CONFIG_REPO_ID"
@@ -73,7 +71,6 @@ echo "DEV_EXTERNAL_URL: $DEV_EXTERNAL_URL"
 echo "DEV_INTERNAL_URL: $DEV_INTERNAL_URL"
 echo "DEV_DEPLOYMENT: $DEV_DEPLOYMENT"
 echo "PROFILE: $PROFILE"
-echo "APPLICATION_NAME: $APPLICATION_NAME"
 
 #----------------------------------------------------------------------
 # 깃랩 환경 변수
@@ -132,7 +129,7 @@ sed -i'' -e "s|{{DEPLOYMENT}}|$NEW_PROD_DEPLOYMENT|g" $DEPLOY_FILE_NAME
 sed -i'' -e "s|\"{{SERVICE_PORT}}\"|$PROD_SERVICE_PORT|g" $DEPLOY_FILE_NAME
 sed -i'' -e "s|{{EXTERNAL_URL}}|$PROD_EXTERNAL_URL|g" $DEPLOY_FILE_NAME
 sed -i'' -e "s|{{PROFILE}}|$PROFILE|g" $DEPLOY_FILE_NAME
-sed -i'' -e "s|{{APPLICATION_NAME}}|$APPLICATION_NAME|g" $DEPLOY_FILE_NAME
+sed -i'' -e "s|{{APP_NAME}}|${APP_NAME}|g" $DEPLOY_FILE_NAME
 
 echo "$NEW_MARATHON_APP_ID server update like:"
 cat $DEPLOY_FILE_NAME
@@ -337,7 +334,7 @@ echo "Router refresh"
 
 curl --request GET \
     -H 'content-type: application/json' \
-    ${ZUUL_PROD_URL}/refreshRoute
+    ${UENGINE_CLOUD_URL}/refreshRoute
 
 
 #----------------------------------------------------------------------

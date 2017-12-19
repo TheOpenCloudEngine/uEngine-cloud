@@ -17,8 +17,15 @@
                      v-on:click="changeMenu('ssh')">SSH
           </md-button>
         </md-layout>
+        <md-layout>
+          <md-button class="md-raised"
+                     v-on:click="openEdit">고급 설정
+          </md-button>
+        </md-layout>
       </md-layout>
     </md-layout>
+
+    <new-service ref="new-service" :appId="targetAppId" :mode="'app'"></new-service>
 
     <br><br>
     <div v-if="menu == 'runtime'">
@@ -63,7 +70,8 @@
     },
     data() {
       return {
-        menu: 'runtime'
+        menu: 'runtime',
+        targetAppId: null
       }
     },
     mounted() {
@@ -71,6 +79,12 @@
     },
     watch: {},
     methods: {
+      openEdit: function () {
+        var me = this;
+        var marathonAppId = me.devApp[me.stage]['marathonAppId'];
+        me.targetAppId = marathonAppId;
+        this.$refs['new-service'].open();
+      },
       changeMenu: function (menu) {
         this.menu = menu;
       }

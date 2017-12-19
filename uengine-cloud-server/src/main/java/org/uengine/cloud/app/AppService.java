@@ -118,7 +118,7 @@ public class AppService {
         }
 
         //라우터 리프레쉬
-        dcosApi.refreshRouter();
+        dcosApi.refreshRoute();
 
         //기존 프로덕션은 삭제한다.
         try {
@@ -389,14 +389,8 @@ public class AppService {
         return gitlabExtentApi.getRepositoryFile(repoId, "master", filePath);
     }
 
-    public void createAppConfigYml(String appName) throws Exception {
+    public void createAppConfigYml(String appName, String content) throws Exception {
         int repoId = Integer.parseInt(environment.getProperty("gitlab.config-repo.projectId"));
-        String json = "{\"aaa\":{\"bbb\":{\"ccc\":\"Hello\"}}}";
-        Map map = JsonUtils.unmarshal(json);
-
-        ObjectMapper yamlReader = new ObjectMapper(new YAMLFactory());
-        String content = yamlReader.writeValueAsString(map);
-
         gitlabExtentApi.updateOrCraeteRepositoryFile(repoId,
                 "master", appName + "-dev.yml", content);
 
@@ -542,10 +536,6 @@ public class AppService {
         this.addAppToVcapService(appCreate.getAppName());
 
 
-        //<appName>-dev,stg,prod.yml 생성
-        this.createAppConfigYml(appCreate.getAppName());
-
-
         //앱 생성 백그라운드 작업 시작.
         appCreate.setUser(TenantContext.getThreadLocalInstance().getUser());
         jobScheduler.startJobImmediatly(UUID.randomUUID().toString(), "appCreate", JsonUtils.convertClassToMap(appCreate));
@@ -660,7 +650,7 @@ public class AppService {
         data.put("UENGINE_CLOUD_URL", "http://" + UENGINE_CLOUD_URL);
         data.put("CONFIG_REPO_ID", CONFIG_REPO_ID);
         //data.put("PROFILE", stage);
-        data.put("APPLICATION_NAME", appName);
+        //data.put("APPLICATION_NAME", appName);
         return data;
     }
 

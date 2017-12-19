@@ -11,7 +11,7 @@
   "container": {
     "type": "DOCKER",
     "docker": {
-      "forcePullImage": true,
+      "forcePullImage": false,
       "image": "{{IMAGE}}",
       "parameters": [],
       "privileged": false
@@ -22,7 +22,8 @@
         "containerPort": 8080,
         "hostPort": 0,
         "labels": {},
-        "protocol": "tcp"
+        "protocol": "tcp",
+        "servicePort": "{{SERVICE_PORT}}"
       }
     ]
   },
@@ -30,8 +31,7 @@
     "DEPLOYMENT": "{{DEPLOYMENT}}",
     "PROFILE": "{{PROFILE}}",
     "SPRING_PROFILES_ACTIVE": "{{PROFILE}}",
-    "APPLICATION_NAME": "{{APPLICATION_NAME}}",
-    "SPRING_APPLICATION_NAME": "{{APPLICATION_NAME}}"
+    "APP_NAME": "{{APP_NAME}}"
   },
   "healthChecks": [
     {
@@ -46,7 +46,11 @@
       "delaySeconds": 15
     }
   ],
-  "labels": {},
+  "labels": {
+    "HAPROXY_GROUP": "external,internal",
+    "HAPROXY_0_REDIRECT_TO_HTTPS": "false",
+    "HAPROXY_0_VHOST": "{{EXTERNAL_URL}}"
+  },
   "networks": [
     {
       "mode": "container/bridge"

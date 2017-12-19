@@ -17,6 +17,19 @@ server:
   port: 8080
   servletPath: /
 
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+    healthcheck:
+      enabled: true
+  instance:
+    statusPageUrlPath: ${server.servletPath}info
+    healthCheckUrlPath: ${server.servletPath}health
+    metadataMap:
+        deployment: local
+        profile: local
+
 ---
 spring:
   security:
@@ -26,3 +39,24 @@ spring:
 server:
   port: 8080
   servletPath: /
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://${vcap.services.eureka-server.internal}/eureka/
+    healthcheck:
+      enabled: true
+  instance:
+    hostname: ${HOST}
+    nonSecurePort: ${PORT}
+    preferIpAddress: false
+    statusPageUrl: http://${eureka.instance.hostname}:${eureka.instance.nonSecurePort}/info
+    healthCheckUrl: http://${eureka.instance.hostname}:${eureka.instance.nonSecurePort}/health
+    homePageUrl: http://${eureka.instance.hostname}:${eureka.instance.nonSecurePort}/
+    instanceId: ${HOST}:${spring.application.name}:${PORT}
+    metadataMap:
+        project: ${CI_PROJECT_NAME}
+        commitSha: ${CI_COMMIT_SHA}
+        image: ${MARATHON_APP_DOCKER_IMAGE}
+        deployment: ${DEPLOYMENT}
+        profile: ${PROFILE}

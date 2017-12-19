@@ -12,9 +12,9 @@
     <modules>
         <module>uengine-eureka-server</module>
         <module>uengine-cloud-config</module>
-        <module>uengine-eureka-zuul</module>
         <module>uengine-cloud-server</module>
         <module>template-springboot</module>
+        <module>template-zuul</module>
     </modules>
 
     <parent>

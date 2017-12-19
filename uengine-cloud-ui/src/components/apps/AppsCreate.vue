@@ -40,7 +40,7 @@
             <div class="bold">외부 접속 주소:</div>
             <md-input-container>
               <label>외부 프로덕션 도메인 주소</label>
-              <md-input :readonly="categoryItem.id == 'springboot'" v-model="externalProdDomain"></md-input>
+              <md-input v-model="externalProdDomain"></md-input>
             </md-input-container>
             <md-input-container>
               <label>외부 스테이징 도메인 주소</label>
@@ -182,34 +182,22 @@
         this.prodPort = prodPort;
         this.stgPort = stgPort;
         this.devPort = devPort;
-        if (this.categoryItem && this.categoryItem.id == 'springboot') {
-          this.externalProdDomain = this.dcosData.config.vcap.services['zuul-prod-server'].external + '/' + val;
-          this.externalStgDomain = this.dcosData.config.vcap.services['zuul-stg-server'].external + '/' + val;
-          this.externalDevDomain = this.dcosData.config.vcap.services['zuul-dev-server'].external + '/' + val;
-          this.internalProdDomain = this.dcosData.config.vcap.services['zuul-prod-server'].internal + '/' + val;
-          this.internalStgDomain = this.dcosData.config.vcap.services['zuul-stg-server'].internal + '/' + val;
-          this.internalDevDomain = this.dcosData.config.vcap.services['zuul-dev-server'].internal + '/' + val;
-        } else {
-          //this.externalDomain = this.dcosData.config.vcap.services['zuul-prod-server'].external + '/' + val;
-          this.internalProdDomain = 'marathon-lb-internal.marathon.mesos:' + prodPort;
-          this.internalStgDomain = 'marathon-lb-internal.marathon.mesos:' + stgPort;
-          this.internalDevDomain = 'marathon-lb-internal.marathon.mesos:' + devPort;
-        }
+        this.internalProdDomain = 'marathon-lb-internal.marathon.mesos:' + prodPort;
+        this.internalStgDomain = 'marathon-lb-internal.marathon.mesos:' + stgPort;
+        this.internalDevDomain = 'marathon-lb-internal.marathon.mesos:' + devPort;
       },
       externalProdDomain: function (val) {
-        if (this.categoryItem.id != 'springboot') {
-          if (val) {
-            let split = val.split('.');
-            let subDomain = split[0];
-            if (subDomain && subDomain.length > 0) {
-              var left = val.substring(subDomain.length, val.length);
-              this.externalStgDomain = subDomain + '-stg' + left;
-              this.externalDevDomain = subDomain + '-dev' + left;
-            }
-          } else {
-            this.externalStgDomain = '';
-            this.externalDevDomain = '';
+        if (val) {
+          let split = val.split('.');
+          let subDomain = split[0];
+          if (subDomain && subDomain.length > 0) {
+            var left = val.substring(subDomain.length, val.length);
+            this.externalStgDomain = subDomain + '-stg' + left;
+            this.externalDevDomain = subDomain + '-dev' + left;
           }
+        } else {
+          this.externalStgDomain = '';
+          this.externalDevDomain = '';
         }
       }
     }

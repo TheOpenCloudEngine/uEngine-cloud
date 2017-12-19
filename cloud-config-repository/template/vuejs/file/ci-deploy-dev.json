@@ -11,7 +11,7 @@
   "container": {
     "type": "DOCKER",
     "docker": {
-      "forcePullImage": true,
+      "forcePullImage": false,
       "image": "{{IMAGE}}",
       "parameters": [],
       "privileged": false
@@ -31,8 +31,7 @@
     "DEPLOYMENT": "{{DEPLOYMENT}}",
     "PROFILE": "{{PROFILE}}",
     "SPRING_PROFILES_ACTIVE": "{{PROFILE}}",
-    "APPLICATION_NAME": "{{APPLICATION_NAME}}",
-    "SPRING_APPLICATION_NAME": "{{APPLICATION_NAME}}"
+    "APP_NAME": "{{APP_NAME}}"
   },
   "healthChecks": [
     {
