@@ -31,7 +31,8 @@
             <md-table-cell>{{user.name}}</md-table-cell>
             <md-table-cell v-if="user.acl=='admin'">관리자</md-table-cell>
             <md-table-cell v-else>사용자</md-table-cell>
-            <md-table-cell>{{user.regDate}}</md-table-cell>
+            <md-table-cell>{{user.level}}</md-table-cell>
+            <md-table-cell>{{Date(user.regDate)}}</md-table-cell>
           </md-table-row>
         </md-table-body>
       </md-table>
@@ -58,7 +59,7 @@
     data() {
       return {
         users: [],
-        tablehead: ["ID", "Name", "Manager", "RegDate"],
+        tablehead: ["ID", "Name", "Manager","Level", "RegDate"],
         total: 0,
         page: 1,
         size: 10,
@@ -100,10 +101,10 @@
             me.page = response.offset;
           });
       },
-      move: function (id, email,routerName) {
-        if (routerName =='user') {
+      move: function (id, email, routerName) {
+        if (routerName == 'user') {
           this.$router.push({
-            name:"userDetail",
+            name: "userDetail",
             params: {
               id: id,
               email: email,
@@ -111,7 +112,7 @@
           });
         } else {
           this.$router.push({
-            name:"userCreate",
+            name: "userCreate",
           });
         }
 
