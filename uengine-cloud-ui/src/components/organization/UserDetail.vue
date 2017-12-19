@@ -2,6 +2,9 @@
   <div>
     <h2>사용자 정보</h2>
     <div style="text-align: right;">
+      <md-button class="md-raised md-primary" v-on:click="deleteUser">
+        삭제
+      </md-button>
       <md-button class="md-raised md-primary" v-if="!editable" v-on:click="updateUser">
         수정
       </md-button>
@@ -44,31 +47,25 @@
           <md-table-row>
             <md-table-cell><span class="md-subheader">가입일</span></md-table-cell>
             <md-table-cell>
-              <span v-if="editable">{{user.regDate}}</span>
-              <md-input-container v-else>
-                <md-input v-model="user.regDate"></md-input>
-              </md-input-container>
+              <span>{{user.regDate}}</span>
             </md-table-cell>
           </md-table-row>
           <md-table-row>
             <md-table-cell><span class="md-subheader">수정일</span></md-table-cell>
             <md-table-cell>
-              <span v-if="editable">{{user.updDate}}</span>
-              <md-input-container v-else>
-                <md-input v-model="user.updDate"></md-input>
-              </md-input-container>
+              <span>{{user.updDate}}</span>
             </md-table-cell>
           </md-table-row>
           <md-table-row>
             <md-table-cell><span class="md-subheader">관리자 여부</span></md-table-cell>
             <md-table-cell>
               <div v-if="editable">
-              <span v-if="user.acl=='admin'">관리자</span>
-              <span v-else>사용자</span>
+                <span v-if="user.acl=='admin'">관리자</span>
+                <span v-else>사용자</span>
               </div>
               <md-input-container v-else>
                 <md-select v-model="user.acl">
-                  <md-option>선택..</md-option>
+                  <md-option value="">선택..</md-option>
                   <md-option value="admin">관리자</md-option>
                   <md-option value="user">사용자</md-option>
                 </md-select>
@@ -78,7 +75,24 @@
         </md-table-body>
       </md-table>
     </md-table-card>
-    {{user}}
+    <md-layout md-gutter="8">
+      <md-layout md-flex="20"><h3 style="text-align: right; width: 100%;margin-top: 20%">Body : </h3></md-layout>
+      <md-layout md-flex="80">
+        <div style="margin-top: 5%;width: 50%">
+          <codemirror
+            :options="{
+                        theme: 'default',
+                        mode: 'javascript',
+                        extraKeys: {'Ctrl-Space': 'autocomplete'},
+                        lineNumbers: false,
+                        lineWrapping: true
+                      }"
+            :value="userString"
+            v-on:change="editorToModel">
+          </codemirror>
+        </div>
+      </md-layout>
+    </md-layout>
   </div>
 </template>
 <script>
@@ -89,6 +103,7 @@
     data() {
       return {
         user: {},
+        userString: "",
         editable: false,
       }
     },
@@ -96,19 +111,41 @@
       var me = this;
       me.$parent.iam.getUser(me.id).then(function (response) {
         me.user = response;
+        delete me.user.userPassword;
       });
     }
     ,
+    watch: {
+      user: {
+        handler: function (newVal, oldVal) {
+          this.userString = JSON.stringify(newVal, null, 2);
+        },
+        deep: true
+      },
+    },
     methods: {
       chageMode: function () {
         this.editable = !this.editable;
       },
-      updateUser: function() {
+      updateUser: function () {
         var me = this;
-        console.log("update User",this.id);
-        me.$parent.iam.updateUser(me.id,me.user).then(function(response){
+        console.log("update User", this.id);
+        me.$parent.iam.updateUser(me.id, me.user).then(function (response) {
           me.$root.$children[0].success("수정하였습니다.");
         })
+      },
+      deleteUser: function () {
+        var me = this;
+        console.log("delete User", this.id);
+        me.$parent.iam.deleteUser(me.id).then(function (response) {
+          me.$root.$children[0].success("삭제하였습니다.");
+          me.$router.push({name:"organization"});
+        })
+      },
+      editorToModel: function (text) {
+        var me = this;
+        me.user = JSON.parse(text);
+        console.log(me.user);
       },
     }
   }

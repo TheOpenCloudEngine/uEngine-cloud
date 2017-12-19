@@ -9,7 +9,7 @@
           <md-icon>search</md-icon>
           <md-input placeholder="사용자명검색" v-on:input="searchUser" v-model="searchKeyword"></md-input>
         </md-input-container>
-        <md-button class="md-raised md-primary" style="height: 40px;">사용자 추가
+        <md-button class="md-raised md-primary" style="height: 40px;" v-on:click="move('create')">사용자 추가
           <md-icon>control_point</md-icon>
         </md-button>
       </md-layout>
@@ -24,11 +24,11 @@
         <md-table-body>
           <md-table-row v-for="user in users">
             <md-table-cell>
-              <a v-on:click="moveUser(user._id,user.email)">
+              <a v-on:click="move(user._id,user.email,'user')">
                 {{user.email}}
               </a>
             </md-table-cell>
-            <md-table-cell>{{user.userName}}</md-table-cell>
+            <md-table-cell>{{user.name}}</md-table-cell>
             <md-table-cell v-if="user.acl=='admin'">관리자</md-table-cell>
             <md-table-cell v-else>사용자</md-table-cell>
             <md-table-cell>{{user.regDate}}</md-table-cell>
@@ -100,14 +100,21 @@
             me.page = response.offset;
           });
       },
-      moveUser: function (id, email) {
-        this.$router.push({
-          name:"userDetail",
-          params: {
-            id: id,
-            email: email,
-          },
-        });
+      move: function (id, email,routerName) {
+        if (routerName =='user') {
+          this.$router.push({
+            name:"userDetail",
+            params: {
+              id: id,
+              email: email,
+            },
+          });
+        } else {
+          this.$router.push({
+            name:"userCreate",
+          });
+        }
+
       }
     }
   }

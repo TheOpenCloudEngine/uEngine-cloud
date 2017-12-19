@@ -217,6 +217,10 @@ Vue.component('user-list', UserList);
 import UserDetail from '../components/organization/UserDetail'
 
 Vue.component('user-detail', UserDetail);
+
+import UserCreate from '../components/organization/UserCreate'
+
+Vue.component('user-create', UserCreate);
 /**
  * 아바타
  */
@@ -549,6 +553,11 @@ export default new Router({
               path: 'list',
               name: 'user-list',
               component: UserList,
+            },
+            {
+              path: 'create',
+              name: 'userCreate',
+              component: UserCreate,
             },
             {
               path: 'detail/:email',
