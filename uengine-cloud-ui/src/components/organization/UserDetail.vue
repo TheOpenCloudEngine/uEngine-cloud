@@ -5,8 +5,8 @@
       <md-button class="md-raised md-primary" v-on:click="deleteUser">
         삭제
       </md-button>
-      <md-button class="md-raised md-primary" v-if="!editable" v-on:click="updateUser">
-        수정
+      <md-button class="md-raised md-primary" v-if="editable" v-on:click="updateUser">
+        저장
       </md-button>
     </div>
     <md-table-card>
@@ -21,45 +21,44 @@
         </md-table-header>
         <md-table-body>
           <md-table-row>
-            <md-table-cell><span class="md-subheader">ID</span></md-table-cell>
+            <md-table-cell><span class="md-subheader">아이디</span></md-table-cell>
             <md-table-cell>
-              <span>{{user._id}}</span>
+              <span>{{user.userName}}</span>
+            </md-table-cell>
+          </md-table-row>
+          <md-table-row v-if="editable">
+            <md-table-cell><span class="md-subheader">패스워드</span></md-table-cell>
+            <md-table-cell>
+              <md-input-container>
+                <md-input type="password" v-model="userPassword" placeholder="변경하지 않을 경우 공란으로 남겨두세요."></md-input>
+              </md-input-container>
             </md-table-cell>
           </md-table-row>
           <md-table-row>
             <md-table-cell><span class="md-subheader">이름</span></md-table-cell>
             <md-table-cell>
-              <span v-if="editable">{{user.userName}}</span>
+              <span v-if="!editable">{{user.name}}</span>
               <md-input-container v-else>
-                <md-input v-model="user.userName"></md-input>
-              </md-input-container>
-            </md-table-cell>
-          </md-table-row>
-          <md-table-row>
-            <md-table-cell><span class="md-subheader">E-mail</span></md-table-cell>
-            <md-table-cell>
-              <span v-if="editable">{{user.email}}</span>
-              <md-input-container v-else>
-                <md-input v-model="user.email"></md-input>
+                <md-input v-model="user.name"></md-input>
               </md-input-container>
             </md-table-cell>
           </md-table-row>
           <md-table-row>
             <md-table-cell><span class="md-subheader">가입일</span></md-table-cell>
             <md-table-cell>
-              <span>{{Date(user.regDate)}}</span>
+              <span>{{new Date(user.regDate).toString()}}</span>
             </md-table-cell>
           </md-table-row>
           <md-table-row>
             <md-table-cell><span class="md-subheader">수정일</span></md-table-cell>
             <md-table-cell>
-              <span>{{Date(user.updDate)}}</span>
+              <span>{{new Date(user.updDate).toString()}}</span>
             </md-table-cell>
           </md-table-row>
           <md-table-row>
             <md-table-cell><span class="md-subheader">관리자 여부</span></md-table-cell>
             <md-table-cell>
-              <div v-if="editable">
+              <div v-if="!editable">
                 <span v-if="user.acl=='admin'">관리자</span>
                 <span v-else>사용자</span>
               </div>
@@ -105,6 +104,7 @@
         user: {},
         userString: "",
         editable: false,
+        userPassword: null
       }
     },
     mounted() {
@@ -130,7 +130,11 @@
       updateUser: function () {
         var me = this;
         console.log("update User", this.id);
-        me.$parent.iam.updateUser(me.id, me.user).then(function (response) {
+        var data = JSON.parse(JSON.stringify(me.user));
+        if (me.userPassword && me.userPassword.length > 0) {
+          data.userPassword = me.userPassword;
+        }
+        me.$parent.iam.updateUser(me.id, data).then(function (response) {
           me.$root.$children[0].success("수정하였습니다.");
         })
       },
@@ -139,7 +143,7 @@
         console.log("delete User", this.id);
         me.$parent.iam.deleteUser(me.id).then(function (response) {
           me.$root.$children[0].success("삭제하였습니다.");
-          me.$router.push({name:"organization"});
+          me.$router.push({name: "organization"});
         })
       },
       editorToModel: function (text) {

@@ -18,21 +18,21 @@
       <md-table md-sort="email" md-sort-type="desc">
         <md-table-header>
           <md-table-row>
-            <md-table-head md-sort-by="email" v-for="value in tablehead">{{value}}</md-table-head>
+            <md-table-head md-sort-by="userName" v-for="value in tablehead">{{value}}</md-table-head>
           </md-table-row>
         </md-table-header>
         <md-table-body>
           <md-table-row v-for="user in users">
             <md-table-cell>
-              <a v-on:click="move(user._id,user.email,'user')">
-                {{user.email}}
+              <a v-on:click="move(user._id,user.userName,'user')">
+                {{user.userName}}
               </a>
             </md-table-cell>
             <md-table-cell>{{user.name}}</md-table-cell>
             <md-table-cell v-if="user.acl=='admin'">관리자</md-table-cell>
             <md-table-cell v-else>사용자</md-table-cell>
             <md-table-cell>{{user.level}}</md-table-cell>
-            <md-table-cell>{{Date(user.regDate)}}</md-table-cell>
+            <md-table-cell>{{new Date(user.regDate).toString()}}</md-table-cell>
           </md-table-row>
         </md-table-body>
       </md-table>
@@ -59,7 +59,7 @@
     data() {
       return {
         users: [],
-        tablehead: ["ID", "Name", "Manager","Level", "RegDate"],
+        tablehead: ["ID", "Name", "Manager", "Level", "RegDate"],
         total: 0,
         page: 1,
         size: 10,
@@ -67,47 +67,31 @@
       }
     },
     mounted() {
-      var me = this;
-      me.iam.getUserSearch("", 0, 10)
-        .then(function (response) {
-          me.users = response.data;
-          me.total = response.total;
-          console.log("response", response);
-        });
+      this.searchUser();
     }
     ,
     methods: {
       onPagination: function (value) {
-        console.log("value", value);
         var me = this;
-//        console.log(value.page * value.size - value.size);
-        me.iam.getUserSearch("", value.page * value.size - value.size, value.size)
-          .then(function (response) {
-            console.log(response);
-            me.users = response.data;
-            me.total = response.total;
-            me.size = response.limit;
-            me.page = value.page;
-          });
+        me.page = value.page;
+        me.size = value.size;
+        this.searchUser();
       },
       searchUser: function () {
         var me = this;
-        me.iam.getUserSearch(me.searchKeyword, me.page, me.size)
+        me.iam.getUserSearch(me.searchKeyword, (me.page - 1) * me.size, me.size)
           .then(function (response) {
             me.users = response.data;
-            console.log("response.data", response.data);
             me.total = response.total;
-            me.size = response.limit;
-            me.page = response.offset;
           });
       },
-      move: function (id, email, routerName) {
+      move: function (id, userName, routerName) {
         if (routerName == 'user') {
           this.$router.push({
             name: "userDetail",
             params: {
               id: id,
-              email: email,
+              userName: userName,
             },
           });
         } else {

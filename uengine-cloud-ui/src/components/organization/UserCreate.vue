@@ -10,17 +10,6 @@
       <md-table>
         <md-table-body>
           <md-table-row>
-            <md-table-cell><span class="md-subheader">LEVEL</span></md-table-cell>
-            <md-table-cell>
-              <md-input-container>
-                <md-select v-model="user.level">
-                  <md-option v-for="(i, index) in 6"  :value="index">{{index}}</md-option>
-                </md-select>
-                <!--<md-input v-model="user.level"></md-input>-->
-              </md-input-container>
-            </md-table-cell>
-          </md-table-row>
-          <md-table-row>
             <md-table-cell><span class="md-subheader">이름</span></md-table-cell>
             <md-table-cell>
               <md-input-container>
@@ -84,7 +73,9 @@
     props: {},
     data() {
       return {
-        user: {},
+        user: {
+          level: 0
+        },
         userString: "",
       }
     },
@@ -94,6 +85,7 @@
     watch: {
       user: {
         handler: function (newVal, oldVal) {
+          newVal.userName = newVal.email;
           this.userString = JSON.stringify(newVal, null, 2);
         },
         deep: true
@@ -103,11 +95,10 @@
       createUser: function () {
         var me = this;
         console.log("create User");
-        me.user.userName = me.user.email;
-        console.log("me.user",me.user);
+        console.log("me.user", me.user);
         me.$parent.iam.createUser(me.user).then(function (response) {
           me.$root.$children[0].success("회원을 추가하였습니다.");
-          me.$router.push({name:"organization"});
+          me.$router.push({name: "organization"});
         })
       },
     }
