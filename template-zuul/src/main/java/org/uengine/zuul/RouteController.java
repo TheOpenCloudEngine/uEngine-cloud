@@ -3,7 +3,7 @@ package org.uengine.zuul;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.shared.*;
-import org.opencloudengine.garuda.util.HttpUtils;
+import org.uengine.iam.util.HttpUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.RequestMapping;

@@ -1,7 +1,7 @@
 package org.uengine.cloud;
 
 import org.gitlab4j.api.GitLabApi;
-import org.opencloudengine.garuda.util.ApplicationContextRegistry;
+import org.uengine.iam.util.ApplicationContextRegistry;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.SchedulerFactory;

@@ -16,8 +16,8 @@
  */
 package org.uengine.cloud.scheduler;
 
-import org.opencloudengine.garuda.common.exception.ServiceException;
-import org.opencloudengine.garuda.util.DateUtils;
+import org.uengine.iam.util.ServiceException;
+import org.uengine.iam.util.DateUtils;
 import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.slf4j.Logger;

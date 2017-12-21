@@ -7,6 +7,10 @@ security:
     enabled: false
   ignored: /**
 
+#spring:
+#  data:
+#    rest:
+#      basePath: /api/v1
 ---
 spring:
   security:

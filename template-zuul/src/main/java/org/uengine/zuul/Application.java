@@ -2,7 +2,7 @@ package org.uengine.zuul;
 
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.*;
-import org.opencloudengine.garuda.util.ApplicationContextRegistry;
+import org.uengine.iam.util.ApplicationContextRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;

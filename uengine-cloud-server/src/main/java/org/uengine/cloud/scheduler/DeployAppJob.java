@@ -17,9 +17,9 @@
 package org.uengine.cloud.scheduler;
 
 import org.gitlab4j.api.GitLabApi;
-import org.opencloudengine.garuda.util.ApplicationContextRegistry;
-import org.opencloudengine.garuda.util.JsonUtils;
-import org.opencloudengine.garuda.util.StringUtils;
+import org.uengine.iam.util.ApplicationContextRegistry;
+import org.uengine.iam.util.JsonUtils;
+import org.uengine.iam.util.StringUtils;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;

@@ -14,7 +14,7 @@ import com.netflix.loadbalancer.ILoadBalancer;
 import com.netflix.loadbalancer.Server;
 import com.netflix.niws.loadbalancer.DiscoveryEnabledServer;
 import com.netflix.zuul.context.RequestContext;
-import org.opencloudengine.garuda.util.ApplicationContextRegistry;
+import org.uengine.iam.util.ApplicationContextRegistry;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 import org.uengine.zuul.BlueGreen;
