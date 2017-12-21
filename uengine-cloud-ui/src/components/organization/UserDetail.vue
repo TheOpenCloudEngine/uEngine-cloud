@@ -47,13 +47,13 @@
           <md-table-row>
             <md-table-cell><span class="md-subheader">가입일</span></md-table-cell>
             <md-table-cell>
-              <span>{{user.regDate}}</span>
+              <span>{{Date(user.regDate)}}</span>
             </md-table-cell>
           </md-table-row>
           <md-table-row>
             <md-table-cell><span class="md-subheader">수정일</span></md-table-cell>
             <md-table-cell>
-              <span>{{user.updDate}}</span>
+              <span>{{Date(user.updDate)}}</span>
             </md-table-cell>
           </md-table-row>
           <md-table-row>
