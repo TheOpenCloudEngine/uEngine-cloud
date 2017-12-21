@@ -1,15 +1,21 @@
 package org.uengine.zuul;
 
-import com.netflix.loadbalancer.IRule;
+import com.netflix.client.config.IClientConfig;
+import com.netflix.loadbalancer.*;
+import org.opencloudengine.garuda.util.ApplicationContextRegistry;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.netflix.hystrix.EnableHystrix;
 import org.springframework.cloud.netflix.hystrix.dashboard.EnableHystrixDashboard;
+import org.springframework.cloud.netflix.ribbon.ZonePreferenceServerListFilter;
 import org.springframework.cloud.netflix.turbine.EnableTurbine;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Scope;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
@@ -26,10 +32,8 @@ import org.springframework.web.filter.CorsFilter;
 @EnableTurbine
 public class Application {
 
-    @Bean
-    public IRule getIRule() {
-        return new BlueGreenRoundRobinRule();
-    }
+    @Autowired
+    ApplicationContext applicationContext;
 
     @Bean
     public AddFallbackProvider addResponseHeaderFilter() {
@@ -56,6 +60,13 @@ public class Application {
         config.addAllowedMethod("PATCH");
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
+    }
+
+    @Bean
+    public ApplicationContextRegistry applicationContextRegistry() {
+        ApplicationContextRegistry contextRegistry = new ApplicationContextRegistry();
+        contextRegistry.setApplicationContext(applicationContext);
+        return contextRegistry;
     }
 
 }
