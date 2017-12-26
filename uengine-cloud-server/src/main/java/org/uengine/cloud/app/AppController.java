@@ -1,8 +1,13 @@
 package org.uengine.cloud.app;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import net.minidev.json.JSONObject;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
+import org.uengine.cloud.entity.AppLogEntity;
+import org.uengine.cloud.repository.AppLogRepository;
+import org.uengine.cloud.tenant.TenantContext;
 import org.uengine.iam.util.HttpUtils;
 import org.uengine.iam.util.JsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +16,14 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,6 +40,8 @@ public class AppController {
     @Autowired
     Environment environment;
 
+    @Autowired
+    AppLogRepository appLogRepository;
     /**
      * 앱의 도커 이미지 목록을 가져온다.
      *
@@ -86,6 +101,19 @@ public class AppController {
                                      @RequestParam(value = "ref", defaultValue = "master") String ref,
                                      @RequestParam(value = "stage", required = false) String stage
     ) throws Exception {
+        try {
+            Map<String, Object> content = new HashMap<String, Object>();
+            content.put("action","excutePipelineTrigger");
+            content.put("appName",appName);
+            content.put("ref",ref);
+            content.put("stage",stage);
+
+            appHistory(appName, TenantContext.getThreadLocalInstance().getUserId(), TenantContext.getThreadLocalInstance().getUserId(), JsonUtils.marshal(content));
+        }
+        //이력 저장에 실패해도 결과물은 리턴해야 한다.
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
         return appService.excutePipelineTrigger(appName, ref, stage);
     }
 
@@ -122,6 +150,17 @@ public class AppController {
                                      @PathVariable("appName") String appName,
                                      @RequestBody Map pipelineJson
     ) throws Exception {
+        try {
+            Map<String, Object> content = new HashMap<String, Object>();
+            content.put("action","updateAppPipeLineJson");
+            content.put("appName",appName);
+
+            appHistory(appName, TenantContext.getThreadLocalInstance().getUserId(), TenantContext.getThreadLocalInstance().getUserId(), JsonUtils.marshal(content));
+        }
+        //이력 저장에 실패해도 결과물은 리턴해야 한다.
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
         return appService.updatePipeLineJson(appName, pipelineJson);
     }
 
@@ -140,6 +179,19 @@ public class AppController {
                                   @PathVariable("appName") String appName,
                                   @RequestParam(value = "stage") String stage
     ) throws Exception {
+        try {
+            Map<String, Object> content = new HashMap<String, Object>();
+            content.put("action","removeDeployedApp");
+            content.put("stage",stage);
+            content.put("appName",appName);
+
+            appHistory(appName, TenantContext.getThreadLocalInstance().getUserId(), TenantContext.getThreadLocalInstance().getUserId(), JsonUtils.marshal(content));
+        }
+        //이력 저장에 실패해도 결과물은 리턴해야 한다.
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
         appService.removeDeployedApp(appName, stage);
         response.setStatus(200);
     }
@@ -157,6 +209,17 @@ public class AppController {
                                     HttpServletResponse response,
                                     @PathVariable("appName") String appName
     ) throws Exception {
+        try {
+            Map<String, Object> content = new HashMap<String, Object>();
+            content.put("action","rollbackDeployedApp");
+            content.put("appName",appName);
+
+            appHistory(appName, TenantContext.getThreadLocalInstance().getUserId(), TenantContext.getThreadLocalInstance().getUserId(), JsonUtils.marshal(content));
+        }
+        //이력 저장에 실패해도 결과물은 리턴해야 한다.
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
         appService.rollbackDeployedApp(appName);
         response.setStatus(200);
     }
@@ -178,6 +241,18 @@ public class AppController {
                                @RequestParam(value = "stage") String stage,
                                @RequestParam(value = "commit", required = false) String commit
     ) throws Exception {
+        try {
+            Map<String, Object> content = new HashMap<String, Object>();
+            content.put("action","runDeployedApp");
+            content.put("stage",stage);
+            content.put("commit",commit);
+
+            appHistory(appName, TenantContext.getThreadLocalInstance().getUserId(), TenantContext.getThreadLocalInstance().getUserId(), JsonUtils.marshal(content));
+        }
+        //이력 저장에 실패해도 결과물은 리턴해야 한다.
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
         appService.runDeployedApp(appName, stage, commit);
         response.setStatus(200);
     }
@@ -216,6 +291,16 @@ public class AppController {
                          @PathVariable("appName") String appName,
                          @RequestBody Map appMap
     ) throws Exception {
+        try {
+            Map<String, Object> content = new HashMap<String, Object>();
+            content.put("action","updateApp");
+            //(appName, 사용자, 변경자, 변경일시, JsonUtils.marshal(content))
+            appHistory(appName, appMap.get("iam").toString(), TenantContext.getThreadLocalInstance().getUserId(), JsonUtils.marshal(content));
+        }
+        //이력 저장에 실패해도 결과물은 리턴해야 한다.
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
 
         return appService.updateAppIncludDeployJson(appName, appMap);
     }
@@ -235,7 +320,17 @@ public class AppController {
                           @PathVariable("appName") String appName,
                           @RequestParam(value = "removeRepository", defaultValue = "true") boolean removeRepository
     ) throws Exception {
-
+        try {
+            Map<String, Object> content = new HashMap<String, Object>();
+            content.put("action","deleteApp");
+            content.put("appName",appName);
+            content.put("removeRepository",removeRepository);
+            appHistory(appName, TenantContext.getThreadLocalInstance().getUserId(), TenantContext.getThreadLocalInstance().getUserId(), JsonUtils.marshal(content));
+        }
+        //이력 저장에 실패해도 결과물은 리턴해야 한다.
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
         appService.deleteApp(appName, removeRepository);
         response.setStatus(200);
     }
@@ -254,6 +349,18 @@ public class AppController {
     public String createApp(HttpServletRequest request,
                             HttpServletResponse response,
                             @RequestBody AppCreate appCreate) throws Exception {
+
+        try {
+            Map<String, Object> content = new HashMap<String, Object>();
+            content.put("action","createApp");
+            appHistory(appCreate.getAppName(), TenantContext.getThreadLocalInstance().getUserId(), TenantContext.getThreadLocalInstance().getUserId(), JsonUtils.marshal(content));
+
+            //appHistory 는 jpa 레파지토리라는 것을 알겠지요?
+        }
+        //이력 저장에 실패해도 결과물은 리턴해야 한다.
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
 
         return JsonUtils.marshal(appService.createApp(appCreate));
     }
@@ -291,6 +398,7 @@ public class AppController {
                                   @PathVariable("appName") String appName,
                                   @RequestParam(value = "stage") String stage
     ) throws Exception {
+
         return appService.getAppConfigYml(appName, stage);
     }
 
@@ -311,7 +419,68 @@ public class AppController {
                                      @PathVariable("appName") String appName,
                                      @RequestParam(value = "stage") String stage,
                                      @RequestBody String content) throws Exception {
+        try {
+            Map<String, Object> contentMap = new HashMap<String, Object>();
+            contentMap.put("action","updateAppConfigYml");
+            contentMap.put("appName",appName);
+            contentMap.put("stage",stage);
+            appHistory(appName, TenantContext.getThreadLocalInstance().getUserId(), TenantContext.getThreadLocalInstance().getUserId(), JsonUtils.marshal(contentMap));
+
+            //appHistory 는 jpa 레파지토리라는 것을 알겠지요?
+        }
+        //이력 저장에 실패해도 결과물은 리턴해야 한다.
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
         return appService.updateAppConfigYml(appName, content, stage);
+    }
+
+    public void appHistory(String appName, String ownerUserName, String updateUserName, String appInfo) throws Exception {
+        //업데이트날짜는 현재날짜의 시간형식으로 넣어준다
+//        Date date = new Date();
+
+        AppLogEntity appLogEntity = new AppLogEntity();
+        appLogEntity.setAppName(appName);
+//        appLogEntity.setUpdateDate(date.getTime());
+        appLogEntity.setAppInfo(appInfo);
+        appLogEntity.setOwnerName(ownerUserName);
+        appLogEntity.setUpdateUserName(updateUserName);
+        appLogRepository.save(appLogEntity);
+
+//        String USER_AGENT = "Mozilla/5.0";
+//        URL urlObj = new URL("http://localhost:8080/appLogs");
+//        HttpURLConnection con = (HttpURLConnection) urlObj.openConnection();
+//        con.setRequestMethod("POST");
+//        con.setRequestProperty("User-Agent", USER_AGENT);
+//        con.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
+//        con.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
+//
+//        // Send post request
+//        con.setDoOutput(true);
+//        DataOutputStream wr = new DataOutputStream(con.getOutputStream());
+//        wr.writeBytes(jsonObj.toJSONString());
+//        wr.flush();
+//        wr.close();
+//
+//        int responseCode = con.getResponseCode();
+//        System.out.println("\nSending 'POST' request to URL : " + urlObj);
+//        System.out.println("Post parameters : " + jsonObj.toJSONString());
+//        System.out.println("Response Code : " + responseCode);
+//
+//        BufferedReader in = new BufferedReader(
+//                new InputStreamReader(con.getInputStream()));
+//        String inputLine;
+//        StringBuffer response = new StringBuffer();
+//
+//        while ((inputLine = in.readLine()) != null) {
+//            response.append(inputLine);
+//        }
+//        in.close();
+//
+//        //print result
+//        System.out.println(response.toString());
+
+
     }
 }
 
