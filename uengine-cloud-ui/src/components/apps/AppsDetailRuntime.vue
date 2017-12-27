@@ -3,6 +3,11 @@
     <md-layout md-align="center">
       <md-layout md-flex="60" class="bar-wrapper">
         <md-layout>
+          <md-button class="md-raised" v-bind:class="{ 'md-primary': menu == 'zuul' }"
+                     v-on:click="changeMenu('zuul')">Zuul 환경설정
+          </md-button>
+        </md-layout>
+        <md-layout>
           <md-button class="md-raised" v-bind:class="{ 'md-primary': menu == 'runtime' }"
                      v-on:click="changeMenu('runtime')">메모리 및 인스턴스
           </md-button>
@@ -28,6 +33,13 @@
     <new-service ref="new-service" :appId="targetAppId" :mode="'app'"></new-service>
 
     <br><br>
+    <div v-if="menu == 'zuul'">
+      <apps-zuul-config
+        :stage="stage"
+        :devApp="devApp"
+        :catalogItem="catalogItem"
+      ></apps-zuul-config>
+    </div>
     <div v-if="menu == 'runtime'">
       <app-runtime-card
         :stage="stage"
@@ -61,6 +73,7 @@
 <script>
   import DcosDataProvider from '../DcosDataProvider'
   import PathProvider from '../PathProvider'
+
   export default {
     mixins: [DcosDataProvider, PathProvider],
     props: {

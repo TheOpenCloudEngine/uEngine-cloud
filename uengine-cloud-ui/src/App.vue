@@ -14,6 +14,10 @@
     path="/gitlab/"
     resource-name="gitlab"></service-locator>
 
+    <service-locator v-if="config" :host="'http://' + config.vcap.services['eureka-server'].external"
+                     path="/eureka/"
+                     resource-name="eureka"></service-locator>
+
     <!--<service-locator v-if="config" :host="'http://localhost:8080'" path="/"-->
                      <!--resource-name="backend"></service-locator>-->
 
@@ -57,6 +61,7 @@
       }
     },
     mounted() {
+      console.log("config",this.config);
       this.fetchData();
     },
     methods: {

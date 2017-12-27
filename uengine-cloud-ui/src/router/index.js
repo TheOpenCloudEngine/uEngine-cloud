@@ -178,6 +178,10 @@ import AppsDetailMonitor from '../components/apps/AppsDetailMonitor'
 
 Vue.component('apps-detail-deployment', AppsDetailMonitor);
 
+import AppsDetailZuulConfig from '../components/apps/AppsDetailZuulConfig.vue'
+
+Vue.component('apps-zuul-config', AppsDetailZuulConfig);
+
 import AppRoute from '../components/apps/AppRoute'
 
 Vue.component('app-route', AppRoute);

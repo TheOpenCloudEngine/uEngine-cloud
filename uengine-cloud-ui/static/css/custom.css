@@ -98,3 +98,11 @@ body.md-theme-default {
  .bgblack >.CodeMirror {
   height:100%;
 }
+
+.mt30 {
+  margin-top: 30px;
+}
+
+.mt10 {
+  margin-top: 10px;
+}

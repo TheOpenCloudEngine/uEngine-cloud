@@ -26,6 +26,9 @@ require('codemirror/addon/hint/show-hint.js');
 require('codemirror/addon/hint/show-hint.css');
 require('codemirror/addon/hint/javascript-hint.js');
 
+var YAML = require('yamljs');
+Vue.use(YAML);
+
 window.busVue = new Vue();
 
 import VueBreadcrumbs from 'vue-breadcrumbs'
