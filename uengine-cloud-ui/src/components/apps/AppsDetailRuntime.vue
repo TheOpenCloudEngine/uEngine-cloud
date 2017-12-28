@@ -3,8 +3,12 @@
     <md-layout md-align="center">
       <md-layout md-flex="60" class="bar-wrapper">
         <md-layout>
-          <md-button class="md-raised" v-bind:class="{ 'md-primary': menu == 'zuul' }"
-                     v-on:click="changeMenu('zuul')">Zuul 환경설정
+          <!--v-if="appType && $refs['extension-menu'].tagExists()"-->
+          <!--apptype이 zuul일때만 버튼나오도록 수정되어야함  -->
+          <md-button
+                  v-if="appType =='zuul'"
+                  class="md-raised" v-bind:class="{ 'md-primary': menu == appType }"
+                  v-on:click="changeMenu(appType)">{{appType}} 환경설정
           </md-button>
         </md-layout>
         <md-layout>
@@ -33,12 +37,15 @@
     <new-service ref="new-service" :appId="targetAppId" :mode="'app'"></new-service>
 
     <br><br>
-    <div v-if="menu == 'zuul'">
-      <apps-zuul-config
+    <div v-if="menu == appType">
+
+      <extension-menu
+        ref="extension-menu"
+        :appType="appType"
         :stage="stage"
         :devApp="devApp"
         :catalogItem="catalogItem"
-      ></apps-zuul-config>
+      ></extension-menu>
     </div>
     <div v-if="menu == 'runtime'">
       <app-runtime-card
@@ -73,8 +80,10 @@
 <script>
   import DcosDataProvider from '../DcosDataProvider'
   import PathProvider from '../PathProvider'
+  import ExtensionMenu from "./AppsExtensionMenu.vue";
 
   export default {
+    components: {ExtensionMenu},
     mixins: [DcosDataProvider, PathProvider],
     props: {
       stage: String,
@@ -83,14 +92,21 @@
     },
     data() {
       return {
-        menu: 'runtime',
-        targetAppId: null
+        menu: 'zuul',
+        targetAppId: null,
+        appType: "",
       }
     },
     mounted() {
-
     },
-    watch: {},
+    watch: {
+      devApp: {
+        handler: function (newVal, oldVal) {
+          this.appType = newVal.appType;
+        },
+        deep: true
+      }
+    },
     methods: {
       openEdit: function () {
         var me = this;
@@ -100,7 +116,7 @@
       },
       changeMenu: function (menu) {
         this.menu = menu;
-      }
+      },
     }
   }
 </script>

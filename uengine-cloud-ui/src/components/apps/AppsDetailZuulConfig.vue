@@ -1,6 +1,5 @@
 <template>
   <div>
-    Zuul 환경설정
     <md-layout class="bg-white">
       <div class="header-top-line"></div>
       <div style="width: 100%">
@@ -17,6 +16,37 @@
                     </md-layout>
                     <md-button class="md-primary md-raised">Zuul Config 저장</md-button>
                   </md-layout>
+
+                  <div v-if="zuulObject.zuul.addIamFilters" class="add-input mt10">
+                    <h3>IAM 인증 필터</h3>
+                    <div>Host:</div>
+                    <div>
+                      <md-input-container>
+                        <md-input v-model="iam.host"></md-input>
+                      </md-input-container>
+                    </div>
+                    <div class="md-subheading" style="margin-bottom: 20px;">Admin</div>
+                    <md-layout>
+                      <md-layout md-flex="20">
+                        UserName :
+                      </md-layout>
+                      <md-layout md-flex="80">
+                        <md-input-container>
+                          <md-input v-model="iam.admin.userName"></md-input>
+                        </md-input-container>
+                      </md-layout>
+                    </md-layout>
+                    <md-layout>
+                      <md-layout md-flex="20">
+                        Password :
+                      </md-layout>
+                      <md-layout md-flex="80">
+                        <md-input-container>
+                          <md-input v-model="iam.admin.password" type="password"></md-input>
+                        </md-input-container>
+                      </md-layout>
+                    </md-layout>
+                  </div>
 
                   <div class="add-input mt10" v-for="(route,index) in routes">
                     <button style="border: hidden; background-color: inherit;float: right;"
@@ -44,8 +74,8 @@
                       <div>Service ID</div>
                       <md-input-container>
                         <md-select v-model="route.serviceId">
-                          <md-option>== 선택 ==</md-option>
-                          <md-option v-for="serviceId in serviceIds">{{serviceId}}</md-option>
+                          <md-option value="">== 선택 ==</md-option>
+                          <md-option v-for="serviceId in serviceIds" :value="serviceId">{{serviceId}}</md-option>
                         </md-select>
                       </md-input-container>
                     </div>
@@ -53,6 +83,12 @@
                       <div>URL</div>
                       <md-input-container>
                         <md-input v-model="route.url"></md-input>
+                      </md-input-container>
+                    </div>
+                    <div>Required-Scopes:</div>
+                    <div>
+                      <md-input-container>
+                        <md-input v-model="route['required-scopes']"></md-input>
                       </md-input-container>
                     </div>
                     <div style="width:100%;">
@@ -90,8 +126,10 @@
 <script>
   import DcosDataProvider from '../DcosDataProvider'
   import PathProvider from '../PathProvider'
+  import MdInputContainer from "../../../node_modules/vue-material/src/components/mdInputContainer/mdInputContainer.vue";
 
   export default {
+    components: {MdInputContainer},
     mixins: [DcosDataProvider, PathProvider],
     props: {
       stage: String,
@@ -108,26 +146,26 @@
         zuulConfigCode: '',
         configObject: {},
         zuulObject: {zuul: {routes: {}}},
+        iam:{admin:{}},
       }
     },
     mounted() {
       var me = this;
-//      this.$root.config('eureka/apps').get()
-//        .then(function (response) {
-//          console.log(response.data);
-//          response.data.applications.application.forEach(function (application) {
-//            if (me.serviceIds == null) me.serviceIds = [];
-//            me.serviceIds.push(application.name);
-//            console.log("me.serviceIds", me.serviceIds);
-//          });
-//        });
+      this.$root.eureka('apps').get()
+        .then(function (response) {
+          console.log(response.data);
+          response.data.applications.application.forEach(function (application) {
+            if (me.serviceIds == null) me.serviceIds = [];
+            me.serviceIds.push(application.name);
+            console.log("me.serviceIds", me.serviceIds);
+          });
+        });
       var yamlObj = {};
       me.getDevAppConfigYml(me.appName, me.stage, function (response) {
         yamlObj = YAML.parse(response.data);
         me.configObject = yamlObj;
         me.objectToCode(yamlObj);
       });
-//      me.zuulConfigCode = YAML.stringify(yamlObj.zuul);
 
     },
     watch: {
@@ -152,7 +190,7 @@
       zuulObject: {
         handler: function (newVal, oldVal) {
           console.log(newVal);
-          console.log("this.configObject",this.configObject);
+          console.log("this.configObject", this.configObject);
           this.configObject.zuul = newVal.zuul;
           this.objectToCode(this.configObject);
         },
@@ -160,8 +198,17 @@
       },
       configObject: {
         handler: function (newVal, oldVal) {
-          console.log("configObject",newVal);
+          console.log("configObject", newVal);
           this.objectToCode(newVal);
+        },
+        deep: true
+      },
+      iam: {
+        handler: function (newVal, oldVal) {
+
+          var copy = JSON.stringify(newVal);
+          this.configObject.iam = JSON.parse(copy);
+          this.objectToCode(this.configObject);
         },
         deep: true
       },

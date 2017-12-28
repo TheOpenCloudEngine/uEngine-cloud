@@ -29,6 +29,10 @@
                      <!--path="/gitlab/"-->
                      <!--resource-name="gitlab"></service-locator>-->
 
+    <!--<service-locator v-if="config" :host="'http://localhost:8761'"-->
+                     <!--path="/eureka/"-->
+                     <!--resource-name="eureka"></service-locator>-->
+
     <service-locator v-if="config" :host="configServerUrl"
                      path="/"
                      resource-name="config"></service-locator>
