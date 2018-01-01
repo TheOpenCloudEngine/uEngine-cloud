@@ -47,6 +47,7 @@
         - sudo yum install -y ntp tar xz unzip curl ipset bind-utils
         - sudo sed -i s/SELINUX=enforcing/SELINUX=permissive/g /etc/selinux/config
         - sudo systemctl stop firewalld
+        - sudo systemctl disable firewalld
         - sudo yum install haveged -y
         - sudo chkconfig haveged on
 
