@@ -15,12 +15,6 @@ docker build -t $REGISTRY_URL/uengine-eureka-server:v1 ./
 docker push $REGISTRY_URL/uengine-eureka-server:v1
 
 
-cd $CURRENT_DIR/uengine-eureka-zuul
-mvn package -B
-docker build -t $REGISTRY_URL/uengine-eureka-zuul:v1 ./
-docker push $REGISTRY_URL/uengine-eureka-zuul:v1
-
-
 cd $CURRENT_DIR/uengine-cloud-server
 mvn package -B
 docker build -t $REGISTRY_URL/uengine-cloud-server:v1 ./

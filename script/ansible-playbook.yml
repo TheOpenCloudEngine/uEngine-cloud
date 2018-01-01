@@ -1,4 +1,4 @@
-# vi playbook.yml
+# vi ansible-playbook.yml
 
 ---
 - hosts: all
@@ -111,7 +111,7 @@
       ignore_errors: True
 
 # play book
-# ansible-playbook playbook.yml
+# ansible-playbook ansible-playbook.yml
 
 # play at task
-# ansible-playbook playbook.yml --start-at-task="genconf"
+# ansible-playbook ansible-playbook.yml --start-at-task="genconf"

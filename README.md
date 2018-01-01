@@ -181,7 +181,7 @@ ansible-playbook.yml 을 살펴보면, 다음의 내용으로 이루어져있습
 
 
 ```
-# vi playbook.yml
+# vi ansible-playbook.yml
 
 ---
 - hosts: all
@@ -196,7 +196,7 @@ ansible-playbook.yml 을 살펴보면, 다음의 내용으로 이루어져있습
         owner: root
         group: root
         mode: 0644
-    - name: Docker install
+    - name: Docker util install
       command: "{{ item }}"
       with_items:
         - sudo yum remove docker \
@@ -206,9 +206,22 @@ ansible-playbook.yml 을 살펴보면, 다음의 내용으로 이루어져있습
         - sudo yum install -y yum-utils \
           device-mapper-persistent-data \
           lvm2
-        - sudo yum-config-manager \
-          --add-repo \
-          https://download.docker.com/linux/centos/docker-ce.repo
+
+    - name: Docker repository ready
+      become: true
+      become_method: sudo
+      command: yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+      async: 60
+      poll: 5
+
+    - name: Yum update
+      command: "{{ item }}"
+      with_items:
+        - sudo yum update -y
+
+    - name: Docker install
+      command: "{{ item }}"
+      with_items:
         - sudo yum install docker-ce -y
 
     - name: Utils Install
@@ -216,6 +229,8 @@ ansible-playbook.yml 을 살펴보면, 다음의 내용으로 이루어져있습
       with_items:
         - sudo yum install -y ntp tar xz unzip curl ipset bind-utils
         - sudo sed -i s/SELINUX=enforcing/SELINUX=permissive/g /etc/selinux/config
+        - sudo systemctl stop firewalld
+        - sudo systemctl disable firewalld
         - sudo yum install haveged -y
         - sudo chkconfig haveged on
 
@@ -282,7 +297,7 @@ ansible-playbook.yml 을 살펴보면, 다음의 내용으로 이루어져있습
 # ansible-playbook ansible-playbook.yml
 
 # play at task
-# ansible-playbook ansible-playbook.yml --start-at-task="Docker service file"
+# ansible-playbook ansible-playbook.yml --start-at-task="genconf"
 ```
 
 #### playbook.yml 실행
@@ -475,7 +490,7 @@ ansible-playbook ansible-playbook-remove.yml
 
 ```
 sudo su
--i dcos-shell /opt/mesosphere/bin/dcos_add_user.py darkgodarkgo@gmail.com
+dcos-shell /opt/mesosphere/bin/dcos_add_user.py darkgodarkgo@gmail.com
 
 export DCOS_USER=darkgodarkgo@gmail.com
 DCOS_ACS_TOKEN="$(docker run --rm -v /var/lib/dcos/dcos-oauth/auth-token-secret:/key karlkfi/jwt-encoder ${DCOS_USER} /key --duration=86400000)"
@@ -705,7 +720,6 @@ git config --global user.email "sppark@uengine.org"
 cd cloud-config-repository
 git init
 git remote add origin http://gitlab.pas-mini.io/root/cloud-config-repository.git
-
 git add .
 git commit -m "Initial commit"
 git push -u origin master
@@ -722,6 +736,13 @@ git push -u origin master
 cd template-vuejs
 git init
 git remote add origin http://gitlab.pas-mini.io/root/template-vuejs.git
+git add .
+git commit -m "Initial commit"
+git push -u origin master
+
+cd template-zuul
+git init
+git remote add origin http://gitlab.pas-mini.io/root/template-zuul.git
 git add .
 git commit -m "Initial commit"
 git push -u origin master
@@ -809,29 +830,6 @@ spring:
 .
 ```
 
-- uengine-eureka-zuul/src/main/resources/bootstrap.yml
-
-```
-spring:
-  application:
-      name: uengine-cloud
-  profiles:
-    active: "dev"
-
----
-spring:
-  profiles: dev
-  cloud:
-    config:
-      uri: http://config.pas-mini.io
-
----
-spring:
-  profiles: docker
-  cloud:
-    config:
-      uri: http://marathon-lb-internal.marathon.mesos:10000
-```
 
 #### 클라우드 패키지 배포 파일 수정
 
@@ -895,50 +893,6 @@ spring:
 }
 ```
 
-- uengine-eureka-zuul/deploy-dev-role.json
-
-```
-{
-.
-.
-"image": "gitlab.pas-mini.io:5000/uengine-eureka-zuul:v1",
-.
-.
-"HAPROXY_0_VHOST": "api-dev.pas-mini.io"
-.
-.
-}
-```
-
-- uengine-eureka-zuul/deploy-stg-role.json
-
-```
-{
-.
-.
-"image": "gitlab.pas-mini.io:5000/uengine-eureka-zuul:v1",
-.
-.
-"HAPROXY_0_VHOST": "api-stg.pas-mini.io"
-.
-.
-}
-```
-
-- uengine-eureka-zuul/deploy-prod-role.json
-
-```
-{
-.
-.
-"image": "gitlab.pas-mini.io:5000/uengine-eureka-zuul:v1",
-.
-.
-"HAPROXY_0_VHOST": "api-prod.pas-mini.io"
-.
-.
-}
-```
 
 #### 클라우드 패키지 빌드 및 도커 파일 생성
 
@@ -961,9 +915,6 @@ dcos marathon app add ../uengine-eureka-server/deploy.json
 
 -- 위의 두가지가 모두 구동완료되었을 때 나머지를 실행시킨다.
 
-dcos marathon app add ../uengine-eureka-zuul/deploy-dev-role.json
-dcos marathon app add ../uengine-eureka-zuul/deploy-stg-role.json
-dcos marathon app add ../uengine-eureka-zuul/deploy-prod-role.json
 dcos marathon app add ../uengine-cloud-server/deploy.json
 dcos marathon app add ../uengine-cloud-ui/deploy.json
 ```
