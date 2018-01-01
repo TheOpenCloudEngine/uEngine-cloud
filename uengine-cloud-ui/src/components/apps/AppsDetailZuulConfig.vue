@@ -1,4 +1,4 @@
-<template>
+<template xmlns:v-on="http://www.w3.org/1999/xhtml">
   <div>
     <md-layout class="bg-white">
       <div class="header-top-line"></div>
@@ -126,10 +126,9 @@
 <script>
   import DcosDataProvider from '../DcosDataProvider'
   import PathProvider from '../PathProvider'
-  import MdInputContainer from "../../../node_modules/vue-material/src/components/mdInputContainer/mdInputContainer.vue";
+  var YAML = require('js-yaml');
 
   export default {
-    components: {MdInputContainer},
     mixins: [DcosDataProvider, PathProvider],
     props: {
       stage: String,
@@ -146,7 +145,7 @@
         zuulConfigCode: '',
         configObject: {},
         zuulObject: {zuul: {routes: {}}},
-        iam:{admin:{}},
+        iam: {admin: {}},
       }
     },
     mounted() {
@@ -162,7 +161,7 @@
         });
       var yamlObj = {};
       me.getDevAppConfigYml(me.appName, me.stage, function (response) {
-        yamlObj = YAML.parse(response.data);
+        yamlObj = YAML.load(response.data);
         me.configObject = yamlObj;
         me.objectToCode(yamlObj);
       });
@@ -215,7 +214,7 @@
     },
     methods: {
       objectToCode: function (data) {
-        this.zuulConfigCode = YAML.stringify(data, 4);
+        this.zuulConfigCode = YAML.dump(data);
       }
 
     }
@@ -231,7 +230,6 @@
     padding: 10px;
   }
 
-  ,
   .add-input:hover {
     width: 95%;
     min-height: 100px;

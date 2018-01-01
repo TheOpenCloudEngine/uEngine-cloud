@@ -17,10 +17,6 @@ module.exports = merge(baseWebpackConfig, {
   },
   // cheap-module-eval-source-map is faster for development
   devtool: '#cheap-module-eval-source-map',
-  // yamljs 사용할때 fs를 찾는 에러를 계속발생 이부분생성후 해결
-  node: {
-    fs: "empty"
-  },
   plugins: [
     new webpack.DefinePlugin({
       'process.env': config.dev.env
