@@ -90,6 +90,204 @@ sudo vi /etc/ssh/ssh_config
 sudo service sshd restart
 ```
 
+#### 네트워크 고정 아이피(옵셔널)
+
+DHCP 서버 이외에, 고정 아이피를 할당할 경우, 모든 서버에 다음과 같이 설정하시길 바랍니다.
+
+```
+경로 이동
+#cd /etc/sysconfig/network-scripts
+
+하위파일 탐색
+#ls
+ifcfg-eno16777736  ifdown-ppp       ifup-ib      ifup-Team
+ifcfg-lo           ifdown-routes    ifup-ippp    ifup-TeamPort
+ifdown             ifdown-sit       ifup-ipv6    ifup-tunnel
+ifdown-bnep        ifdown-Team      ifup-isdn    ifup-wireless
+ifdown-eth         ifdown-TeamPort  ifup-plip    init.ipv6-global
+ifdown-ib          ifdown-tunnel    ifup-plusb   network-functions
+ifdown-ippp        ifup             ifup-post    network-functions-ipv6
+ifdown-ipv6        ifup-aliases     ifup-ppp
+ifdown-isdn        ifup-bnep        ifup-routes
+ifdown-post        ifup-eth         ifup-sit
+// 대부분 eth0 이나 eth1일 것임
+
+vmware에서 edit -> virtual Network Editor -> NAT settings 에 보면 subnet mask와
+Gateway ip를 볼 수 있다 subnet ip가 (192.168.33.0)이라면 33번대역을 가지므로
+192.168.33.xxx로 ip를 설정
+
+이더넷 장치파일을 열고 알맞게 수정
+
+#vi ifcfg-eno16777736
+TYPE=Ethernet
+BOOTPROTO=static
+DEVICE=eth0
+ONBOOT=yes
+IPADDR=192.168.0.8
+NETMASK=255.255.255.0
+GATEWAY=192.168.0.1
+DNS1=121.88.255.50
+DNS2=121.88.255.49
+
+네트워크 재시작
+# service network restart
+```
+
+게이트웨이 아이피 보기
+
+```
+ip route | grep default
+```
+
+DNS 설정 보기
+
+```
+nmcli dev show eth0
+
+GENERAL.장치:                           eth0
+GENERAL.유형:                           ethernet
+GENERAL.하드웨어주소:                   52:54:00:A9:9B:21
+GENERAL.MTU:                            1500
+GENERAL.상태:                           100 (연결됨)
+GENERAL.연결 :                          System eth0
+GENERAL.CON-경로:                       /org/freedesktop/NetworkManager/ActiveConnection/1
+WIRED-PROPERTIES.캐리어:                켜짐
+IP4.주소[1]:                            192.168.0.8/24
+IP4.게이트웨이:                         192.168.0.1
+IP4.DNS[1]:                             121.88.255.50
+IP4.DNS[2]:                             121.88.255.49
+IP6.주소[1]:                            fe80::5054:ff:fea9:9b21/64
+IP6.게이트웨이:                         --
+```
+
+#### 마스터 로그 디렉토리 마운트
+
+- 마스터 서버는 많은 양의 로그가 발생하게 되므로, /var/log 에 충분한 디스크 공간을 할당하길 바랍니다.
+- 슬레이브 노드는 도커가 실행되게 되므로, /var/lib/docker 에 충분한 디스크 공간을 할당하길 바랍니다.
+
+1. 파티션 확인
+
+```
+lsblk
+
+sda               8:0    0   20G  0 disk 
+├─sda1            8:1    0  500M  0 part /boot
+├─sda2            8:2    0  9.5G  0 part 
+│ ├─centos-root 253:0    0  8.5G  0 lvm  /
+│ └─centos-swap 253:1    0    1G  0 lvm  [SWAP]
+sr0              11:0    1  366K  0 rom  
+```
+
+
+2. sda 하위에 파티션을 추가할 경우
+
+```
+sudo su
+fdisk /dev/sda
+
+Welcome to fdisk (util-linux 2.23.2).
+
+Changes will remain in memory only, until you decide to write them.
+Be careful before using the write command.
+
+
+Command (m for help): n
+Partition type:
+   p   primary (2 primary, 0 extended, 1 free)
+   e   extended
+Select (default p): p
+
+Select (default 3,4): 3
+Selected partition 3
+
+First sector (39845888-41943039, default 39845888): 
+Using default value 39845888
+Last sector, +sectors or +size{K,M,G} (39845888-41943039, default 41943039): +30G
+Partition 3 of type Linux and of size 30G is set
+
+Command (m for help): w
+
+# reboot
+
+# lsblk
+```
+
+3. 디스크 마운트
+
+
+OS 가 이미 충분한 양의 디스크에서 운용이 되고있다면 이 단계는 넘어가도 됩니다. 하지만 100GB 이하의 디스크 볼륨에서 OS 가 운용되고있거나, 장기적인 운용을 생각한다면 각 서버의 데이터 디렉토리에 대해 별도의 볼륨 디스크를 활용하시길 권장합니다.
+
+- 모든 서버에 100GB 이상의 볼륨을 생성했다고 가정합니다. 생성한 볼륨을 서버별로 다음의 디렉토리에 마운트를 수행하여야 합니다.
+
+- Master : /var/log
+- Slave : /var/lib/docker
+
+- 다음 명령어로 마운트를 수행할 수 있습니다.
+
+```
+$ sudo lsblk
+.
+.
+NAME    MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+xvda    202:0    0    8G  0 disk
+└─xvda1 202:1    0    8G  0 part /
+xvdf    202:80  0  100G  0 disk
+.
+.
+마지막의 xvdf 볼륨이 100G 인 것을 확인할 수 있습니다.
+해당 볼륨을 ext4 로 포맷합니다.
+
+$ sudo file -s /dev/xvdf
+$ sudo mkfs -t ext4 /dev/xvdf
+.
+.
+Done
+.
+.
+
+1) 에서 정의한 마운트포인트로 마운트합니다.
+
+$ sudo mount /dev/xvdf <mount point>
+
+예시:
+$ sudo mount /dev/xvdf /var/lib/docker
+
+df 명령어를 통해 마운트 된 사항을 볼 수 있습니다.
+$ sudo df
+.
+.
+Filesystem    1K-blocks    Used Available Use% Mounted on
+/dev/xvda1      8115168 2189708  5490184  29% /
+none                  4      0        4  0% /sys/fs/cgroup
+udev            2009928      12  2009916  1% /dev
+tmpfs            404688    404    404284  1% /run
+none                5120      0      5120  0% /run/lock
+none            2023436    316  2023120  1% /run/shm
+none              102400      0    102400  0% /run/user
+/dev/xvdf      103081248  448452  97373532  1% /var/lib/docker
+.
+.
+
+```
+
+
+- 해당 마운트를 시스템 부팅때 자동으로 수행하도록 설정합니다.
+
+```
+/etc/fstab 파일을 백업합니다.
+$ sudo cp /etc/fstab /etc/fstab.orig
+
+$ sudo vi /etc/fstab
+.
+.
+/dev/xvdf <mount point> ext4 defaults,nofail 0 2
+⇒ 해당 라인을 추가합니다.
+.
+.
+$ sudo mount -a
+```
+
+
 ### 클러스터 준비
 
 하기의 모든 사항은, bootstrap 노드에서 진행하도록 합니다.
@@ -143,6 +341,7 @@ sudo yum install ansible
 
 - /etc/ansible/hosts 파일을 생성합니다. (./install/ansible-hosts.yml 파일을 참조)
 
+- 하기 내용중 ansible_ssh_private_key_file 은 ssh 키 파일 위치이며, 퍼미션이 400 이여야 합니다.
 
 ```
 sudo vi /etc/ansible/hosts

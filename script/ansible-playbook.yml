@@ -102,6 +102,16 @@
         owner: root
         group: root
         mode: 0644
+    - name: Docker devicemapper
+      become: true
+      become_method: sudo
+      copy:
+        content: |
+          {"storage-driver": "vfs"}
+        dest: /etc/docker/daemon.json
+        owner: root
+        group: root
+        mode: 0644
     - name: Docker daemon reload
       command: "{{ item }}"
       with_items:
@@ -114,4 +124,7 @@
 # ansible-playbook ansible-playbook.yml
 
 # play at task
-# ansible-playbook ansible-playbook.yml --start-at-task="genconf"
+# ansible-playbook ansible-playbook.yml --start-at-task="Docker devicemapper"
+
+# play at task and step
+# ansible-playbook ansible-playbook.yml --step --start-at-task="genconf"
