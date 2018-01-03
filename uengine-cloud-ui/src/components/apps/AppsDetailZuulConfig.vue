@@ -112,7 +112,8 @@
               lineNumbers: true,
               lineWrapping: true,
             }"
-                    :value="zuulConfigCode"></codemirror>
+                    :value="zuulConfigCode"
+                    v-on:change="editorToObject"></codemirror>
 
                 </md-card-content>
               </md-card-area>
@@ -126,6 +127,7 @@
 <script>
   import DcosDataProvider from '../DcosDataProvider'
   import PathProvider from '../PathProvider'
+
   var YAML = require('js-yaml');
 
   export default {
@@ -152,11 +154,9 @@
       var me = this;
       this.$root.eureka('apps').get()
         .then(function (response) {
-          console.log(response.data);
           response.data.applications.application.forEach(function (application) {
             if (me.serviceIds == null) me.serviceIds = [];
-            me.serviceIds.push(application.name);
-            console.log("me.serviceIds", me.serviceIds);
+            me.serviceIds.push(application.name.toLowerCase());
           });
         });
       var yamlObj = {};
@@ -164,6 +164,7 @@
         yamlObj = YAML.load(response.data);
         me.configObject = yamlObj;
         me.objectToCode(yamlObj);
+        me.editorToObject(response.data);
       });
 
     },
@@ -188,8 +189,6 @@
       },
       zuulObject: {
         handler: function (newVal, oldVal) {
-          console.log(newVal);
-          console.log("this.configObject", this.configObject);
           this.configObject.zuul = newVal.zuul;
           this.objectToCode(this.configObject);
         },
@@ -215,8 +214,21 @@
     methods: {
       objectToCode: function (data) {
         this.zuulConfigCode = YAML.dump(data);
-      }
-
+      },
+      editorToObject: function (text) {
+        var me = this;
+        var yamlObj = YAML.load(text);
+        this.zuulObject.zuul = yamlObj.zuul;
+        this.routes = yamlObj.zuul.routes;
+        for (var key in yamlObj.zuul.routes) {
+          me.routes[key].routeName = key;
+          if (me.routes[key].serviceId) {
+            me.routes[key].routeWay = "serviceID"
+          } else {
+            me.routes[key].routeWay = "url"
+          }
+        }
+      },
     }
   }
 </script>
