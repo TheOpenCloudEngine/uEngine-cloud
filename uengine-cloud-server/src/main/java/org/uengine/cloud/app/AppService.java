@@ -297,6 +297,26 @@ public class AppService {
     }
 
     /**
+     * 어플리케이션의 dcos-apps.yml 정보만 업데이트 한다.
+     *
+     * @param appName
+     * @param appMap
+     * @return
+     * @throws Exception
+     */
+    public Map updateAppExcludDeployJson(String appName, Map appMap) throws Exception {
+        String copy = JsonUtils.marshal(appMap);
+
+        //appMap 최종 업로드
+        Map dcosMap = this.getDcosMap();
+        Map apps = (Map) ((Map) dcosMap.get("dcos")).get("apps");
+        apps.put(appName, appMap);
+        this.saveDcosYaml(dcosMap);
+
+        return JsonUtils.unmarshal(copy);
+    }
+
+    /**
      * 어플리케이션을 삭제한다.
      *
      * @param appName

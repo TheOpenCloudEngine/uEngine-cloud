@@ -42,6 +42,7 @@ public class AppController {
 
     @Autowired
     AppLogRepository appLogRepository;
+
     /**
      * 앱의 도커 이미지 목록을 가져온다.
      *
@@ -103,10 +104,10 @@ public class AppController {
     ) throws Exception {
         try {
             Map<String, Object> content = new HashMap<String, Object>();
-            content.put("action","excutePipelineTrigger");
-            content.put("appName",appName);
-            content.put("ref",ref);
-            content.put("stage",stage);
+            content.put("action", "excutePipelineTrigger");
+            content.put("appName", appName);
+            content.put("ref", ref);
+            content.put("stage", stage);
 
             appHistory(appName, TenantContext.getThreadLocalInstance().getUserId(), TenantContext.getThreadLocalInstance().getUserId(), JsonUtils.marshal(content));
         }
@@ -152,8 +153,8 @@ public class AppController {
     ) throws Exception {
         try {
             Map<String, Object> content = new HashMap<String, Object>();
-            content.put("action","updateAppPipeLineJson");
-            content.put("appName",appName);
+            content.put("action", "updateAppPipeLineJson");
+            content.put("appName", appName);
 
             appHistory(appName, TenantContext.getThreadLocalInstance().getUserId(), TenantContext.getThreadLocalInstance().getUserId(), JsonUtils.marshal(content));
         }
@@ -181,9 +182,9 @@ public class AppController {
     ) throws Exception {
         try {
             Map<String, Object> content = new HashMap<String, Object>();
-            content.put("action","removeDeployedApp");
-            content.put("stage",stage);
-            content.put("appName",appName);
+            content.put("action", "removeDeployedApp");
+            content.put("stage", stage);
+            content.put("appName", appName);
 
             appHistory(appName, TenantContext.getThreadLocalInstance().getUserId(), TenantContext.getThreadLocalInstance().getUserId(), JsonUtils.marshal(content));
         }
@@ -211,8 +212,8 @@ public class AppController {
     ) throws Exception {
         try {
             Map<String, Object> content = new HashMap<String, Object>();
-            content.put("action","rollbackDeployedApp");
-            content.put("appName",appName);
+            content.put("action", "rollbackDeployedApp");
+            content.put("appName", appName);
 
             appHistory(appName, TenantContext.getThreadLocalInstance().getUserId(), TenantContext.getThreadLocalInstance().getUserId(), JsonUtils.marshal(content));
         }
@@ -243,9 +244,9 @@ public class AppController {
     ) throws Exception {
         try {
             Map<String, Object> content = new HashMap<String, Object>();
-            content.put("action","runDeployedApp");
-            content.put("stage",stage);
-            content.put("commit",commit);
+            content.put("action", "runDeployedApp");
+            content.put("stage", stage);
+            content.put("commit", commit);
 
             appHistory(appName, TenantContext.getThreadLocalInstance().getUserId(), TenantContext.getThreadLocalInstance().getUserId(), JsonUtils.marshal(content));
         }
@@ -289,11 +290,12 @@ public class AppController {
     public Map updateApp(HttpServletRequest request,
                          HttpServletResponse response,
                          @PathVariable("appName") String appName,
-                         @RequestBody Map appMap
+                         @RequestBody Map appMap,
+                         @RequestParam(value = "excludeDeploy", defaultValue = "false") boolean excludeDeploy
     ) throws Exception {
         try {
             Map<String, Object> content = new HashMap<String, Object>();
-            content.put("action","updateApp");
+            content.put("action", "updateApp");
             //(appName, 사용자, 변경자, 변경일시, JsonUtils.marshal(content))
             appHistory(appName, appMap.get("iam").toString(), TenantContext.getThreadLocalInstance().getUserId(), JsonUtils.marshal(content));
         }
@@ -301,8 +303,11 @@ public class AppController {
         catch (Exception ex) {
             ex.printStackTrace();
         }
-
-        return appService.updateAppIncludDeployJson(appName, appMap);
+        if (excludeDeploy) {
+            return appService.updateAppExcludDeployJson(appName, appMap);
+        } else {
+            return appService.updateAppIncludDeployJson(appName, appMap);
+        }
     }
 
     /**
@@ -322,9 +327,9 @@ public class AppController {
     ) throws Exception {
         try {
             Map<String, Object> content = new HashMap<String, Object>();
-            content.put("action","deleteApp");
-            content.put("appName",appName);
-            content.put("removeRepository",removeRepository);
+            content.put("action", "deleteApp");
+            content.put("appName", appName);
+            content.put("removeRepository", removeRepository);
             appHistory(appName, TenantContext.getThreadLocalInstance().getUserId(), TenantContext.getThreadLocalInstance().getUserId(), JsonUtils.marshal(content));
         }
         //이력 저장에 실패해도 결과물은 리턴해야 한다.
@@ -352,7 +357,7 @@ public class AppController {
 
         try {
             Map<String, Object> content = new HashMap<String, Object>();
-            content.put("action","createApp");
+            content.put("action", "createApp");
             appHistory(appCreate.getAppName(), TenantContext.getThreadLocalInstance().getUserId(), TenantContext.getThreadLocalInstance().getUserId(), JsonUtils.marshal(content));
 
             //appHistory 는 jpa 레파지토리라는 것을 알겠지요?
@@ -421,9 +426,9 @@ public class AppController {
                                      @RequestBody String content) throws Exception {
         try {
             Map<String, Object> contentMap = new HashMap<String, Object>();
-            contentMap.put("action","updateAppConfigYml");
-            contentMap.put("appName",appName);
-            contentMap.put("stage",stage);
+            contentMap.put("action", "updateAppConfigYml");
+            contentMap.put("appName", appName);
+            contentMap.put("stage", stage);
             appHistory(appName, TenantContext.getThreadLocalInstance().getUserId(), TenantContext.getThreadLocalInstance().getUserId(), JsonUtils.marshal(contentMap));
 
             //appHistory 는 jpa 레파지토리라는 것을 알겠지요?

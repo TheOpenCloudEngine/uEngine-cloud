@@ -370,6 +370,30 @@
             cb(null, response);
           })
       },
+      updateAppExcludeDeployJson: function (appName, json, cb) {
+        var me = this;
+        this.$root.backend('app/' + appName + '?excludeDeploy=true')
+          .update({}, json)
+          .then(function (response) {
+            me.$root.$children[0].success('어플리케이션 정보를 업데이트 하였습니다.');
+            cb(response);
+          }, function (response) {
+            me.$root.$children[0].error('어플리케이션 정보를 업데이트 할 수 없습니다.');
+            cb(null, response);
+          })
+      },
+      updateApp: function (appName, json, cb) {
+        var me = this;
+        this.$root.backend('app/' + appName)
+          .update({}, json)
+          .then(function (response) {
+            me.$root.$children[0].success('어플리케이션 빌드 설정을 하였습니다.');
+            cb(response);
+          }, function (response) {
+            me.$root.$children[0].error('어플리케이션 빌드 설정을 할 수 없습니다.');
+            cb(null, response);
+          })
+      },
       updateAppPipeLineJson: function (appName, json, cb) {
         var me = this;
         this.$root.backend('app/' + appName + '/pipeline/info')
