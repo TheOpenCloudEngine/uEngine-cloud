@@ -92,7 +92,7 @@
     },
     data() {
       return {
-        menu: 'zuul',
+        menu: 'runtime',
         targetAppId: null,
         appType: "",
       }

@@ -10,14 +10,14 @@
                 <md-card-content>
                   <md-layout>
                     <md-layout>
-                      <md-checkbox v-model="zuulObject.zuul.addCorsHeaders">CORS Header</md-checkbox>
-                      <md-checkbox v-model="zuulObject.zuul.addIamFilters">IAM 인증필터</md-checkbox>
-                      <md-checkbox v-model="zuulObject.zuul.addProxyHeaders">Proxy Header 추가</md-checkbox>
+                      <md-checkbox v-model="zuul.addCorsHeaders">CORS Header</md-checkbox>
+                      <md-checkbox v-model="zuul.addIamFilters">IAM 인증필터</md-checkbox>
+                      <md-checkbox v-model="zuul.addProxyHeaders">Proxy Header 추가</md-checkbox>
                     </md-layout>
                     <md-button class="md-primary md-raised">Zuul Config 저장</md-button>
                   </md-layout>
 
-                  <div v-if="zuulObject.zuul.addIamFilters" class="add-input mt10">
+                  <div v-if="zuul.addIamFilters" class="add-input mt10">
                     <h3>IAM 인증 필터</h3>
                     <div>Host:</div>
                     <div>
@@ -138,16 +138,87 @@
       catalogItem: Object
     },
     data() {
+      var me = this;
       return {
-        routes: [{routeWay: "serviceID"}],
+        routes: [],
         serviceIds: null,
-        addProxyHeaders: false,
-        addCorsHeaders: false,
-        addIamFilters: false,
         zuulConfigCode: '',
-        configObject: {},
-        zuulObject: {zuul: {routes: {}}},
+        zuul: {},
         iam: {admin: {}},
+        model: {},
+
+        separate: {
+          zuul: function (val) {
+            var copy = YAML.load(YAML.dump(val));
+            me.routes = [];
+            for (var key in copy.routes) {
+              copy.routes[key].routeName = key;
+              if (copy.routes[key].serviceId) {
+                copy.routes[key].routeWay = "serviceID"
+              } else {
+                copy.routes[key].routeWay = "url"
+              }
+              me.routes.push(copy.routes[key]);
+            }
+            me.zuul = copy;
+          },
+          iam: function (val) {
+            var copy = YAML.load(YAML.dump(val));
+            me.iam = iam;
+          },
+        },
+        //조합
+        combine: {
+          zuul: function (val) {
+            var copy = YAML.load(YAML.dump(val));
+            if (copy.addCorsHeaders != undefined){
+              me.model.zuul.addCorsHeaders = copy.addCorsHeaders;
+            }
+            if (copy.addIamFilters != undefined){
+              me.model.zuul.addIamFilters = copy.addIamFilters;
+            }
+            if (copy.addProxyHeaders != undefined){
+              me.model.zuul.addProxyHeaders = copy.addProxyHeaders;
+            }
+            for (var key in copy.routes) {
+              if (copy.routes[key].routeWay == 'url') {
+                delete copy.routes[key].serviceId;
+              } else {
+                delete copy.routes[key].url;
+              }
+              delete copy.routes[key].routeWay;
+              delete copy.routes[key].routeName;
+              if (me.model.zuul.routes){
+                me.model.zuul.routes[key] = copy[key];
+              }
+            }
+
+          },
+          iam: function (val) {
+            me.model.iam = val;
+          },
+          routes: function (val) {
+            var copy = YAML.load(YAML.dump(val));
+            var routesObj = {};
+            for (var i in copy) {
+              if (copy[i].routeWay == 'url') {
+                delete copy[i].serviceId;
+              } else {
+                delete copy[i].url;
+              }
+              routesObj[copy[i].routeName] = copy[i];
+              delete copy[i].routeWay;
+              delete copy[i].routeName;
+
+            }
+            if (Object.keys(routesObj).length){
+              me.model.zuul.routes = routesObj;
+            } else {
+              delete me.model.zuul.routes;
+            }
+
+          },
+        }
       }
     },
     mounted() {
@@ -159,75 +230,80 @@
             me.serviceIds.push(application.name.toLowerCase());
           });
         });
-      var yamlObj = {};
       me.getDevAppConfigYml(me.appName, me.stage, function (response) {
-        yamlObj = YAML.load(response.data);
-        me.configObject = yamlObj;
-        me.objectToCode(yamlObj);
-        me.editorToObject(response.data);
+        me.model = YAML.load(response.data);
+        me.zuulConfigCode = response.data;
+        me.separation();
       });
 
     },
     watch: {
       routes: {
         handler: function (newVal, oldVal) {
-          var copy = newVal;
-          var zuulObj = {};
-          $.each(copy, function (i, value) {
-            zuulObj[copy[i].routeName] = JSON.parse(JSON.stringify(value));
-            delete zuulObj[copy[i].routeName].routeName;
-            delete zuulObj[copy[i].routeName].routeWay;
-            if (copy[i].routeWay == 'url') {
-              delete zuulObj[copy[i].routeName].serviceId;
-            } else {
-              delete zuulObj[copy[i].routeName].url;
-            }
-          });
-          this.zuulObject.zuul.routes = zuulObj;
-        },
-        deep: true
-      },
-      zuulObject: {
-        handler: function (newVal, oldVal) {
-          this.configObject.zuul = newVal.zuul;
-          this.objectToCode(this.configObject);
-        },
-        deep: true
-      },
-      configObject: {
-        handler: function (newVal, oldVal) {
-          console.log("configObject", newVal);
-          this.objectToCode(newVal);
+          this.combination();
         },
         deep: true
       },
       iam: {
         handler: function (newVal, oldVal) {
-
-          var copy = JSON.stringify(newVal);
-          this.configObject.iam = JSON.parse(copy);
-          this.objectToCode(this.configObject);
+          this.combination();
+        },
+        deep: true
+      },
+      zuul: {
+        handler: function (newVal, oldVal) {
+          this.combination();
         },
         deep: true
       },
     },
     methods: {
-      objectToCode: function (data) {
-        this.zuulConfigCode = YAML.dump(data);
-      },
       editorToObject: function (text) {
-        var me = this;
-        var yamlObj = YAML.load(text);
-        this.zuulObject.zuul = yamlObj.zuul;
-        this.routes = yamlObj.zuul.routes;
-        for (var key in yamlObj.zuul.routes) {
-          me.routes[key].routeName = key;
-          if (me.routes[key].serviceId) {
-            me.routes[key].routeWay = "serviceID"
-          } else {
-            me.routes[key].routeWay = "url"
-          }
+        this.model = YAML.load(text);
+        this.separation();
+      },
+      combination: function () {
+        if (this.working) {
+          return;
         }
+        this.working = true;
+        console.log('combination Start!!');
+
+        if (this.iam) {
+          this.combine.iam(this.iam);
+        }
+        this.combine.zuul(this.zuul);
+
+        this.combine.routes(this.routes);
+
+        this.zuulConfigCode = YAML.dump(this.model, null, 2);
+
+        this.$nextTick(function () {
+          this.working = false;
+        });
+      }
+      ,
+      /**
+       * 모델을 분리한다.
+       **/
+      separation: function () {
+        if (this.working) {
+          return;
+        }
+        this.working = true;
+        console.log('separation Start!!', this.model);
+
+        //서비스
+        if (this.model.iam) {
+          this.separate.iam(this.model.iam);
+        }
+        this.separate.zuul(this.model.zuul);
+//        this.combine.routes(this.routes);
+
+
+        this.$nextTick(function () {
+          this.working = false;
+        });
       },
     }
   }
