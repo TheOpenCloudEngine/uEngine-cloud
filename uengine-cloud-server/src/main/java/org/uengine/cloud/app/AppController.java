@@ -1,7 +1,5 @@
 package org.uengine.cloud.app;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import net.minidev.json.JSONObject;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
@@ -16,14 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -255,6 +245,13 @@ public class AppController {
             ex.printStackTrace();
         }
         appService.runDeployedApp(appName, stage, commit);
+
+        Map app = appService.getAppByName(appName);
+        Map stageMap = (Map)app.get(stage);
+        stageMap.remove("config-changed");
+        app.put(stage,stageMap);
+        appService.updateAppExcludDeployJson(appName, app);
+
         response.setStatus(200);
     }
 
@@ -303,11 +300,7 @@ public class AppController {
         catch (Exception ex) {
             ex.printStackTrace();
         }
-        if (excludeDeploy) {
-            return appService.updateAppExcludDeployJson(appName, appMap);
-        } else {
-            return appService.updateAppIncludDeployJson(appName, appMap);
-        }
+        return appService.updateAppIncludDeployJson(appName, appMap);
     }
 
     /**
@@ -437,6 +430,13 @@ public class AppController {
         catch (Exception ex) {
             ex.printStackTrace();
         }
+
+        Map app = appService.getAppByName(appName);
+        Map stageMap = (Map) app.get(stage);
+        stageMap.put("config-changed", true);
+        app.put(stage,stageMap);
+        appService.updateAppExcludDeployJson(appName, app);
+
         return appService.updateAppConfigYml(appName, content, stage);
     }
 

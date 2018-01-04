@@ -16,7 +16,16 @@ spring:
   security:
     enabled: false
   profiles: local
-
+#  jpa:
+#      hibernate:
+#        ddl-auto: update
+#      properties:
+#        hibernate:
+#          dialect: org.hibernate.dialect.MySQLDialect
+#    datasource:
+#      url: jdbc:mysql://localhost:3306/msa
+#      username: root
+#      password:
 server:
   port: 8080
   servletPath: /

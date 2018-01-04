@@ -14,7 +14,7 @@
                       <md-checkbox v-model="zuul.addIamFilters">IAM 인증필터</md-checkbox>
                       <md-checkbox v-model="zuul.addProxyHeaders">Proxy Header 추가</md-checkbox>
                     </md-layout>
-                    <md-button class="md-primary md-raised">Zuul Config 저장</md-button>
+                    <md-button class="md-primary md-raised" v-on:click="saveConfig">Zuul Config 저장</md-button>
                   </md-layout>
 
                   <div v-if="zuul.addIamFilters" class="add-input mt10">
@@ -32,7 +32,7 @@
                       </md-layout>
                       <md-layout md-flex="80">
                         <md-input-container>
-                          <md-input v-model="iam.admin.userName"></md-input>
+                          <md-input v-model="iam.userName"></md-input>
                         </md-input-container>
                       </md-layout>
                     </md-layout>
@@ -42,7 +42,7 @@
                       </md-layout>
                       <md-layout md-flex="80">
                         <md-input-container>
-                          <md-input v-model="iam.admin.password" type="password"></md-input>
+                          <md-input v-model="iam.password" type="password"></md-input>
                         </md-input-container>
                       </md-layout>
                     </md-layout>
@@ -135,18 +135,18 @@
     props: {
       stage: String,
       devApp: Object,
-      catalogItem: Object
+      catalogItem: Object,
     },
     data() {
       var me = this;
       return {
         routes: [],
         serviceIds: null,
+        codeChanged: false,
         zuulConfigCode: '',
         zuul: {},
-        iam: {admin: {}},
-        model: {},
-
+        iam: {},
+        model: null,
         separate: {
           zuul: function (val) {
             var copy = YAML.load(YAML.dump(val));
@@ -171,13 +171,16 @@
         combine: {
           zuul: function (val) {
             var copy = YAML.load(YAML.dump(val));
-            if (copy.addCorsHeaders != undefined){
+            if (copy.addCorsHeaders != undefined) {
               me.model.zuul.addCorsHeaders = copy.addCorsHeaders;
             }
-            if (copy.addIamFilters != undefined){
+            if (copy.addIamFilters != undefined) {
               me.model.zuul.addIamFilters = copy.addIamFilters;
+              if (!copy.addIamFilters) {
+                delete me.model.iam;
+              }
             }
-            if (copy.addProxyHeaders != undefined){
+            if (copy.addProxyHeaders != undefined) {
               me.model.zuul.addProxyHeaders = copy.addProxyHeaders;
             }
             for (var key in copy.routes) {
@@ -188,14 +191,28 @@
               }
               delete copy.routes[key].routeWay;
               delete copy.routes[key].routeName;
-              if (me.model.zuul.routes){
+              if (me.model.zuul.routes && key != undefined) {
                 me.model.zuul.routes[key] = copy[key];
               }
             }
 
           },
           iam: function (val) {
-            me.model.iam = val;
+            var copy = JSON.parse(JSON.stringify(val));
+            if (Object.keys(copy).length) {
+              var admin = {};
+              for (var key in copy) {
+                if (key != 'host') {
+                  admin[key] = copy[key];
+                  delete copy[key];
+                }
+              }
+              if (Object.keys(admin).length) {
+                copy.admin = admin;
+              }
+              console.log(copy);
+              me.model.iam = copy;
+            }
           },
           routes: function (val) {
             var copy = YAML.load(YAML.dump(val));
@@ -206,12 +223,16 @@
               } else {
                 delete copy[i].url;
               }
-              routesObj[copy[i].routeName] = copy[i];
+              if (copy[i].routeName != undefined && Object.keys(copy[i]).length > 2) {
+                routesObj[copy[i].routeName] = copy[i];
+              }
+              console.log(copy[i]);
+              console.log("routesObj", routesObj);
               delete copy[i].routeWay;
               delete copy[i].routeName;
 
             }
-            if (Object.keys(routesObj).length){
+            if (Object.keys(routesObj).length) {
               me.model.zuul.routes = routesObj;
             } else {
               delete me.model.zuul.routes;
@@ -259,6 +280,7 @@
     },
     methods: {
       editorToObject: function (text) {
+        this.codeChanged = true;
         this.model = YAML.load(text);
         this.separation();
       },
@@ -269,9 +291,7 @@
         this.working = true;
         console.log('combination Start!!');
 
-        if (this.iam) {
-          this.combine.iam(this.iam);
-        }
+        this.combine.iam(this.iam);
         this.combine.zuul(this.zuul);
 
         this.combine.routes(this.routes);
@@ -293,18 +313,35 @@
         this.working = true;
         console.log('separation Start!!', this.model);
 
-        //서비스
         if (this.model.iam) {
           this.separate.iam(this.model.iam);
         }
         this.separate.zuul(this.model.zuul);
-//        this.combine.routes(this.routes);
 
 
         this.$nextTick(function () {
           this.working = false;
         });
       },
+      getCodes: function () {
+        var me = this;
+        me.codeChanged = false;
+        me.getDevAppConfigYml(me.appName, me.stage, function (response) {
+          console.log("response.data", response.data);
+          me.zuulConfigCode = response.data;
+        });
+      },
+      saveConfig: function () {
+        var me = this;
+        var jsonObj = "";
+        jsonObj = JSON.stringify(YAML.load(me.zuulConfigCode));
+        console.log(me.appName, me.zuulConfigCode);
+        // config저장
+        me.updateDevAppConfigYml(me.appName, me.stage, me.zuulConfigCode, function (response) {
+          me.codeChanged = false;
+          me.getCodes();
+        })
+      }
     }
   }
 </script>
@@ -325,4 +362,24 @@
     border-radius: 5px;
     padding: 10px;
   }
+
+  /*.exclamation {*/
+  /*width: 25px;*/
+  /*height: 25px;*/
+  /*text-align: center;*/
+  /*margin-top: 10px;*/
+  /*color: #CD0000;*/
+  /*border: solid #CD0000 2px;*/
+  /*border-radius: 20px;*/
+  /*}*/
+
+  /*.exclamation:hover {*/
+  /*width: 25px;*/
+  /*height: 25px;*/
+  /*text-align: center;*/
+  /*margin-top: 10px;*/
+  /*color: #CD7E83;*/
+  /*border: solid #CD7E83 2px;*/
+  /*border-radius: 20px;*/
+  /*}*/
 </style>

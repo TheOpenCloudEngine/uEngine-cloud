@@ -6,9 +6,9 @@
           <!--v-if="appType && $refs['extension-menu'].tagExists()"-->
           <!--apptype이 zuul일때만 버튼나오도록 수정되어야함  -->
           <md-button
-                  v-if="appType =='zuul'"
-                  class="md-raised" v-bind:class="{ 'md-primary': menu == appType }"
-                  v-on:click="changeMenu(appType)">{{appType}} 환경설정
+            v-if="appType =='zuul'"
+            class="md-raised" v-bind:class="{ 'md-primary': menu == appType }"
+            v-on:click="changeMenu(appType)">{{appType}} 환경설정
           </md-button>
         </md-layout>
         <md-layout>
@@ -30,6 +30,12 @@
           <md-button class="md-raised"
                      v-on:click="openEdit">고급 설정
           </md-button>
+        </md-layout>
+        <md-layout style="margin-left: 20px;">
+          <div v-if="configChanged" class="exclamation">!
+            <md-tooltip class="fontb" md-direction="top">Yml 설정이 변경되고 나서, 앱 디플로이(재시작)를 하셔야 적용됩니다.
+            </md-tooltip>
+          </div>
         </md-layout>
       </md-layout>
     </md-layout>
@@ -94,15 +100,32 @@
       return {
         menu: 'runtime',
         targetAppId: null,
+        configChanged: false,
         appType: "",
       }
     },
     mounted() {
+      var me = this;
+      me.getDevAppByName(me.appName, function (response) {
+        var devops = response.data;
+        if (devops[me.stage]['config-changed']) {
+          me.configChanged = devops[me.stage]['config-changed'];
+        }
+//        console.log("devops", devops);
+      });
     },
     watch: {
       devApp: {
         handler: function (newVal, oldVal) {
           this.appType = newVal.appType;
+        },
+        deep: true
+      },
+      dcosData: {
+        handler: function (newVal, oldVal) {
+          var copy = newVal;
+          this.configChanged = copy.devopsApps.dcos.apps[this.appName][this.stage]['config-changed']?copy.devopsApps.dcos.apps[this.appName][this.stage]['config-changed']:false;
+//          console.log("configChaged",this.configChanged);
         },
         deep: true
       }
@@ -122,10 +145,31 @@
 </script>
 
 <style scoped lang="scss" rel="stylesheet/scss">
+
   .bar-wrapper {
     .md-button {
       width: 100%;
       margin: 0px;
     }
+  }
+
+  .exclamation {
+    width: 25px;
+    height: 25px;
+    text-align: center;
+    margin-top: 10px;
+    color: #CD0000;
+    border: solid #CD0000 2px;
+    border-radius: 20px;
+  }
+
+  .exclamation:hover {
+    width: 25px;
+    height: 25px;
+    text-align: center;
+    margin-top: 10px;
+    color: #CD7E83;
+    border: solid #CD7E83 2px;
+    border-radius: 20px;
   }
 </style>
