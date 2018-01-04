@@ -20,6 +20,7 @@ public class AppLogEntity {
 
     String appName;
 
+    @Column(length=100000)
     String appInfo;
 
     @Column(name = "updateDate", nullable = false, updatable = false, insertable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
