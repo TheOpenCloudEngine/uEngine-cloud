@@ -1,6 +1,6 @@
 package org.uengine.cloud;
 
-import org.uengine.iam.util.ExceptionUtils;
+import org.opencloudengine.garuda.util.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 

@@ -16,7 +16,7 @@
  */
 package org.uengine.cloud.scheduler;
 
-import org.uengine.iam.util.ServiceException;
+import org.opencloudengine.garuda.common.exception.ServiceException;
 import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobKey;

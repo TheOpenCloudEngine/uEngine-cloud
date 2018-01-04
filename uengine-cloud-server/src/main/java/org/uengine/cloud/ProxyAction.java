@@ -18,8 +18,8 @@ import org.apache.http.message.HeaderGroup;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
-import org.uengine.iam.util.ServiceException;
-import org.uengine.iam.util.StringUtils;
+import org.opencloudengine.garuda.common.exception.ServiceException;
+import org.opencloudengine.garuda.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -23,10 +23,11 @@ import org.gitlab4j.api.models.Project;
 import org.gitlab4j.api.models.ProjectHook;
 import org.gitlab4j.api.models.User;
 import org.gitlab4j.api.models.Visibility;
+
 import org.opencloudengine.garuda.client.IamClient;
 import org.opencloudengine.garuda.client.model.OauthUser;
-import org.uengine.iam.util.ApplicationContextRegistry;
-import org.uengine.iam.util.JsonUtils;
+import org.opencloudengine.garuda.util.ApplicationContextRegistry;
+import org.opencloudengine.garuda.util.JsonUtils;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
