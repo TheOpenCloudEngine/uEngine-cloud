@@ -14,11 +14,11 @@
     <md-sidenav class="md-left" ref="leftSidenav">
       <md-toolbar class="md-account-header">
         <md-layout>
-          <iam-avatar :iam="iam"></iam-avatar>
+          <iam-avatar></iam-avatar>
         </md-layout>
         <md-layout>
           <md-button class="md-raised md-primary" @click="logout">로그 아웃</md-button>
-          <avatar-uploader :iam="iam"></avatar-uploader>
+          <avatar-uploader></avatar-uploader>
         </md-layout>
       </md-toolbar>
 

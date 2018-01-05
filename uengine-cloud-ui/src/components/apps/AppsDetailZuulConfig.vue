@@ -210,7 +210,6 @@
               if (Object.keys(admin).length) {
                 copy.admin = admin;
               }
-              console.log(copy);
               me.model.iam = copy;
             }
           },
@@ -226,8 +225,6 @@
               if (copy[i].routeName != undefined && Object.keys(copy[i]).length > 2) {
                 routesObj[copy[i].routeName] = copy[i];
               }
-              console.log(copy[i]);
-              console.log("routesObj", routesObj);
               delete copy[i].routeWay;
               delete copy[i].routeName;
 
@@ -327,7 +324,6 @@
         var me = this;
         me.codeChanged = false;
         me.getDevAppConfigYml(me.appName, me.stage, function (response) {
-          console.log("response.data", response.data);
           me.zuulConfigCode = response.data;
         });
       },
@@ -335,7 +331,6 @@
         var me = this;
         var jsonObj = "";
         jsonObj = JSON.stringify(YAML.load(me.zuulConfigCode));
-        console.log(me.appName, me.zuulConfigCode);
         // config저장
         me.updateDevAppConfigYml(me.appName, me.stage, me.zuulConfigCode, function (response) {
           me.codeChanged = false;

@@ -160,7 +160,8 @@
           {title: '빌드 및 배포', icon: 'question_answer', routerName: 'appsDetailDeployment'},
           {title: '로그', icon: 'question_answer', routerName: 'appsDetailLog'},
           {title: '모니터링', icon: 'question_answer', routerName: 'appsDetailMonitor'},
-          {title: '레지스트리', icon: 'question_answer', routerName: 'registry'}
+          {title: '레지스트리', icon: 'question_answer', routerName: 'registry'},
+          {title: '변경이력', icon: 'question_answer', routerName: 'appLogsList'}
         ],
       }
     },

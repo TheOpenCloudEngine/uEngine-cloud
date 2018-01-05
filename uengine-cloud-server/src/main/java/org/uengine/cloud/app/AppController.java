@@ -237,8 +237,8 @@ public class AppController {
             content.put("action", "runDeployedApp");
             content.put("stage", stage);
             content.put("commit", commit);
-
-            appHistory(appName, TenantContext.getThreadLocalInstance().getUserId(), TenantContext.getThreadLocalInstance().getUserId(), JsonUtils.marshal(content));
+            Map appDataMap = appService.getAppByName(appName);
+            appHistory(appName, appDataMap.get("iam").toString(), TenantContext.getThreadLocalInstance().getUserId(), JsonUtils.marshal(content));
         }
         //이력 저장에 실패해도 결과물은 리턴해야 한다.
         catch (Exception ex) {

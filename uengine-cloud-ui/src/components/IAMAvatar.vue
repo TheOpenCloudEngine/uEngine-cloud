@@ -16,8 +16,8 @@
 
       <md-list-item>
         <div class="md-list-text-container">
-          <span v-if="user.name">{{user.name}}</span>
-          <span v-if="user.email">{{user.email}}</span>
+          <span v-if="user.metaData.name">{{user.metaData.name}}</span>
+          <span v-if="user.metaData.email">{{user.metaData.email}}</span>
         </div>
 
         <md-button class="md-icon-button md-list-action" @click="openDialog('userProfile')">
@@ -41,8 +41,8 @@
                 </md-card-header>
 
                 <md-card-content>
-                  <div>Email : {{user.email}}</div>
-                  <div>Name : {{user.name}}</div>
+                  <div>Email : {{user.metaData.email}}</div>
+                  <div>Name : {{user.metaData.name}}</div>
                 </md-card-content>
               </md-card-area>
             </md-card>
