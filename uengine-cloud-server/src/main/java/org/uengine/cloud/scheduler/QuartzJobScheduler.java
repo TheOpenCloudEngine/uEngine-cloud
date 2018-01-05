@@ -16,14 +16,15 @@
  */
 package org.uengine.cloud.scheduler;
 
-import org.opencloudengine.garuda.common.exception.ServiceException;
-import org.opencloudengine.garuda.util.DateUtils;
+import org.uengine.iam.util.ServiceException;
+import org.uengine.iam.util.DateUtils;
 import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.uengine.iam.util.ServiceException;
 
 import java.util.ArrayList;
 import java.util.Date;

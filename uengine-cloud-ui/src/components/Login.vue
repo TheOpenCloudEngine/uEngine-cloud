@@ -150,17 +150,16 @@
 <script>
   export default {
     name: 'Login',
-    props: {
-      iam: Object
-    },
+    props: {},
     data: function () {
       return {
+        iam: window.iam,
         command: null,
         username: null,
         password: null,
         name: null,
         file: null,
-        scope: 'uEngineSubscriptions/subscriptionsapi',
+        scope: 'cloud-server',
         myUrl: location.protocol + '//' + location.hostname + (location.port ? ':' + location.port : '')
       };
     },

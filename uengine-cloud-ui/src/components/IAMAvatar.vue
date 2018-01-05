@@ -6,7 +6,7 @@
         <md-avatar class="md-large">
           <!--<img src="https://placeimg.com/64/64/people/8" alt="People">-->
           <img
-            :src="'http://iam.uengine.io:8080/rest/v1/avatar?userName='+ user.userName"
+            :src="iamHost + '/rest/v1/avatar?userName='+ user.userName"
             v-if="user.userName"
             alt="People">
         </md-avatar>
@@ -31,7 +31,7 @@
               <md-card-area md-inset>
                 <md-card-media md-ratio="16:9">
                   <img
-                    :src="'http://iam.uengine.io:8080/rest/v1/avatar?userName='+ user.userName"
+                    :src="iamHost + '/rest/v1/avatar?userName='+ user.userName"
                     v-if="user.userName"
                     alt="User Image">
                 </md-card-media>
@@ -60,11 +60,11 @@
 
 <script>
   export default {
-    props: {
-      iam: Object,
-    },
+    props: {},
     data: function () {
       return {
+        iam: window.iam,
+        iamHost: 'http://' + window.config.vcap.services.iam.external,
         user: {
 //          username : "",
 //          email : "",
@@ -75,7 +75,7 @@
     watch: {},
     mounted() {
       var me = this;
-      me.iam.getUser(localStorage['userId']).then(function (response) {
+      me.iam.getUser(localStorage['userName']).then(function (response) {
         me.user = response;
       })
 

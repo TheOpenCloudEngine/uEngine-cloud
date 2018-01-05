@@ -24,10 +24,10 @@ import org.gitlab4j.api.models.ProjectHook;
 import org.gitlab4j.api.models.User;
 import org.gitlab4j.api.models.Visibility;
 
-import org.opencloudengine.garuda.client.IamClient;
-import org.opencloudengine.garuda.client.model.OauthUser;
-import org.opencloudengine.garuda.util.ApplicationContextRegistry;
-import org.opencloudengine.garuda.util.JsonUtils;
+import org.uengine.iam.client.IamClient;
+import org.uengine.iam.client.model.OauthUser;
+import org.uengine.iam.util.ApplicationContextRegistry;
+import org.uengine.iam.util.JsonUtils;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
@@ -71,7 +71,7 @@ public class CreateAppJob implements Job {
             String iamUserName = app.get("iam").toString();
 
             //name 은 사람 이름(Iam 에 name 필드가 있다고 가정)
-            String gitlabName = appCreate.getUser().get("name").toString();
+            String gitlabName = ((Map) appCreate.getUser().get("metaData")).get("name").toString();
 
 
             //IAM 유저정보(패스워드 포함)
@@ -79,7 +79,7 @@ public class CreateAppJob implements Job {
                     Integer.parseInt(environment.getProperty("iam.port")),
                     environment.getProperty("iam.clientId"),
                     environment.getProperty("iam.clientSecret"));
-            OauthUser oauthUser = iamClient.getUserByName(iamUserName);
+            OauthUser oauthUser = iamClient.getUser(iamUserName);
 
             //깃랩 사용자 등록
             User user = null;
@@ -111,6 +111,11 @@ public class CreateAppJob implements Job {
 
             //포크하기
             Map forkProject = gitlabExtentApi.forkProject(tempProjectId, gitlabUsername);
+
+            //TODO 만약, 그룹개념이 들어간다면, 다음과 같이 코드를 추가할것
+            //Map forkProject = gitlabExtentApi.forkProject(tempProjectId, "msa"); //msa 는 그룹네임스페이스
+
+
             projectId = (int) forkProject.get("id");
             Project project = gitLabApi.getProjectApi().getProject(projectId);
 

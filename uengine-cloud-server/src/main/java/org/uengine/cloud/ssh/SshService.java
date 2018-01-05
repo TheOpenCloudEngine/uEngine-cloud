@@ -1,7 +1,7 @@
 package org.uengine.cloud.ssh;
 
 import org.gitlab4j.api.GitLabApi;
-import org.opencloudengine.garuda.util.StringUtils;
+import org.uengine.iam.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;

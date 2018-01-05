@@ -40,11 +40,10 @@
 </template>
 <script>
   export default {
-    props: {
-      iam: Object
-    },
+    props: {},
     data() {
       return {
+        iam: window.iam,
         isAppDetail: true,
         drawer: null,
         items: [

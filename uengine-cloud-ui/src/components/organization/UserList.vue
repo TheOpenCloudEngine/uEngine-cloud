@@ -24,14 +24,13 @@
         <md-table-body>
           <md-table-row v-for="user in users">
             <md-table-cell>
-              <a v-on:click="move(user._id,user.userName,'user')">
+              <a v-on:click="move(user.userName,'user')">
                 {{user.userName}}
               </a>
             </md-table-cell>
-            <md-table-cell>{{user.name}}</md-table-cell>
-            <md-table-cell v-if="user.acl=='admin'">관리자</md-table-cell>
+            <md-table-cell>{{user.metaData.name}}</md-table-cell>
+            <md-table-cell v-if="user.metaData.acl=='admin'">관리자</md-table-cell>
             <md-table-cell v-else>사용자</md-table-cell>
-            <md-table-cell>{{user.level}}</md-table-cell>
             <md-table-cell>{{new Date(user.regDate).toString()}}</md-table-cell>
           </md-table-row>
         </md-table-body>
@@ -53,13 +52,12 @@
 
   export default {
     mixins: [DcosDataProvider],
-    props: {
-      iam: Object
-    },
+    props: {},
     data() {
       return {
+        iam: window.iam,
         users: [],
-        tablehead: ["ID", "Name", "Manager", "Level", "RegDate"],
+        tablehead: ["ID", "Name", "Manager", "RegDate"],
         total: 0,
         page: 1,
         size: 10,
@@ -85,12 +83,11 @@
             me.total = response.total;
           });
       },
-      move: function (id, userName, routerName) {
+      move: function (userName, routerName) {
         if (routerName == 'user') {
           this.$router.push({
             name: "userDetail",
             params: {
-              id: id,
               userName: userName,
             },
           });

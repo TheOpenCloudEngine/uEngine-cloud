@@ -247,14 +247,16 @@ $.ajax({
   }
 });
 
+console.log('window.config', window.config);
+
 /**
  * Iam && Vue Router
  * @type {IAM}
  */
 //var iam = new IAM('http://localhost:18080');
 var iam = new IAM('http://' + config.vcap.services.iam.external);
-//TODO Implict grant flow 로 전환하기. (클라이언트 시크릿키가 필요없는 flow, 로그인 창을 iam 이 제공.)
-iam.setDefaultClient('e74a9505-a811-407f-b4f6-129b7af1c703', '109cf590-ac67-4b8c-912a-913373ada046');
+iam.setDefaultClient('my-client-key', 'my-client-secret');
+window.iam = iam;
 
 
 let RouterGuard = require("./RouterGuard.js")(iam);
@@ -297,7 +299,6 @@ export default new Router({
       redirect: '/dashboard',
       name: 'home',
       component: Home,
-      props: {iam: iam},
       meta: {
         breadcrumb: '홈'
       },
@@ -549,7 +550,6 @@ export default new Router({
           redirect: '/organization/list',
           component: Organization,
           beforeEnter: RouterGuard.requireUser,
-          props: {iam: iam},
           meta: {
             breadcrumb: 'Organization'
           },
@@ -589,7 +589,6 @@ export default new Router({
       path: '/auth/:command',
       name: 'login',
       component: Login,
-      props: {iam: iam},
       beforeEnter: RouterGuard.requireGuest
     }
   ]

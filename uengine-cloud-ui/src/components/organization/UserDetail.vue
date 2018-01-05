@@ -37,9 +37,9 @@
           <md-table-row>
             <md-table-cell><span class="md-subheader">이름</span></md-table-cell>
             <md-table-cell>
-              <span v-if="!editable">{{user.name}}</span>
+              <span v-if="!editable">{{user.metaData.name}}</span>
               <md-input-container v-else>
-                <md-input v-model="user.name"></md-input>
+                <md-input v-model="user.metaData.name"></md-input>
               </md-input-container>
             </md-table-cell>
           </md-table-row>
@@ -59,11 +59,11 @@
             <md-table-cell><span class="md-subheader">관리자 여부</span></md-table-cell>
             <md-table-cell>
               <div v-if="!editable">
-                <span v-if="user.acl=='admin'">관리자</span>
+                <span v-if="user.metaData.acl=='admin'">관리자</span>
                 <span v-else>사용자</span>
               </div>
               <md-input-container v-else>
-                <md-select v-model="user.acl">
+                <md-select v-model="user.metaData.acl">
                   <md-option value="">선택..</md-option>
                   <md-option value="admin">관리자</md-option>
                   <md-option value="user">사용자</md-option>
@@ -97,11 +97,13 @@
 <script>
   export default {
     props: {
-      id: String,
+      userName: String,
     },
     data() {
       return {
-        user: {},
+        user: {
+          metaData: {}
+        },
         userString: "",
         editable: false,
         userPassword: null
@@ -109,7 +111,7 @@
     },
     mounted() {
       var me = this;
-      me.$parent.iam.getUser(me.id).then(function (response) {
+      window.iam.getUser(me.userName).then(function (response) {
         me.user = response;
         delete me.user.userPassword;
       });
@@ -129,19 +131,19 @@
       },
       updateUser: function () {
         var me = this;
-        console.log("update User", this.id);
+        console.log("update User", this.userName);
         var data = JSON.parse(JSON.stringify(me.user));
         if (me.userPassword && me.userPassword.length > 0) {
           data.userPassword = me.userPassword;
         }
-        me.$parent.iam.updateUser(me.id, data).then(function (response) {
+        window.iam.updateUser(me.userName, data).then(function (response) {
           me.$root.$children[0].success("수정하였습니다.");
         })
       },
       deleteUser: function () {
         var me = this;
-        console.log("delete User", this.id);
-        me.$parent.iam.deleteUser(me.id).then(function (response) {
+        console.log("delete User", this.userName);
+        window.iam.deleteUser(me.userName).then(function (response) {
           me.$root.$children[0].success("삭제하였습니다.");
           me.$router.push({name: "organization"});
         })

@@ -7,9 +7,9 @@ import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
 import org.gitlab4j.api.GitLabApi;
 import org.gitlab4j.api.models.Project;
-import org.opencloudengine.garuda.util.HttpUtils;
-import org.opencloudengine.garuda.util.JsonUtils;
-import org.opencloudengine.garuda.util.StringUtils;
+import org.uengine.iam.util.HttpUtils;
+import org.uengine.iam.util.JsonUtils;
+import org.uengine.iam.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
@@ -493,7 +493,6 @@ public class AppService {
         //깃랩 사용자 정의
         String userId = TenantContext.getThreadLocalInstance().getUserId();
         String gitlabUsername = userId.split("@")[0];
-        String gitlabName = TenantContext.getThreadLocalInstance().getUser().get("name").toString();
 
         //신규 app 맵
         Map app = new HashMap();

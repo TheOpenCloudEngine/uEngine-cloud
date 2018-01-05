@@ -13,6 +13,7 @@
         <module>uengine-eureka-server</module>
         <module>uengine-cloud-config</module>
         <module>uengine-cloud-server</module>
+        <module>uengine-cloud-iam</module>
         <module>template-springboot</module>
         <module>template-zuul</module>
     </modules>

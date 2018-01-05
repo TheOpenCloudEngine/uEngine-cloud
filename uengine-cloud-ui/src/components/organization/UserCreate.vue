@@ -13,7 +13,7 @@
             <md-table-cell><span class="md-subheader">이름</span></md-table-cell>
             <md-table-cell>
               <md-input-container>
-                <md-input v-model="user.name"></md-input>
+                <md-input v-model="user.metaData.name"></md-input>
               </md-input-container>
             </md-table-cell>
           </md-table-row>
@@ -21,7 +21,7 @@
             <md-table-cell><span class="md-subheader">E-mail</span></md-table-cell>
             <md-table-cell>
               <md-input-container>
-                <md-input v-model="user.email"></md-input>
+                <md-input v-model="user.metaData.email"></md-input>
               </md-input-container>
             </md-table-cell>
           </md-table-row>
@@ -37,7 +37,7 @@
             <md-table-cell><span class="md-subheader">관리자 여부</span></md-table-cell>
             <md-table-cell>
               <md-input-container>
-                <md-select v-model="user.acl">
+                <md-select v-model="user.metaData.acl">
                   <md-option>선택..</md-option>
                   <md-option value="admin">관리자</md-option>
                   <md-option value="user">사용자</md-option>
@@ -74,7 +74,7 @@
     data() {
       return {
         user: {
-          level: 0
+          metaData: {}
         },
         userString: "",
       }
@@ -85,7 +85,7 @@
     watch: {
       user: {
         handler: function (newVal, oldVal) {
-          newVal.userName = newVal.email;
+          newVal.userName = newVal.metaData.email;
           this.userString = JSON.stringify(newVal, null, 2);
         },
         deep: true

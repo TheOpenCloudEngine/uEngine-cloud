@@ -33,8 +33,8 @@ module.exports = function (iam) {
     module.iam.validateToken(localStorage['access_token'])
       .done(function (info) {
         localStorage['user'] = info.context.user;
-        localStorage['userId'] = info.context.userId;
-        localStorage['acl'] = info.context.user.acl;
+        localStorage['userName'] = info.context['userName'];
+        localStorage['acl'] = info.context.user['metaData'].acl;
         console.log('acl', localStorage['acl']);
         callback(true);
       })
