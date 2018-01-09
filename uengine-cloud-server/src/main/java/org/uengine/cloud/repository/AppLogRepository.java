@@ -11,8 +11,6 @@ import java.util.List;
 @RepositoryRestResource(collectionResourceRel = "appLogs", path = "appLogs")
 public interface AppLogRepository extends PagingAndSortingRepository<AppLogEntity, Long>{
 
-    List<AppLogEntity> findAppLogEntitiesBy();
-
-    @Query("select ale from AppLogEntity ale where ale.appName = ?#{appName}")
-    List<AppLogEntity> findAppLogEntitiesByAppName(@Param("appName") String appName);
+//    @Query("select ale from AppLogEntity ale where ale.appName = ?#{appName}")
+    List<AppLogEntity> findAppLogByAppName(@Param("appName") String appName);
 }

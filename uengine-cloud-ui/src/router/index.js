@@ -206,6 +206,10 @@ import GitlabDeploy from '../components/apps/GitlabDeploy'
 
 Vue.component('gitlab-deploy', GitlabDeploy);
 
+import AppLogsList from '../components/apps/AppLogsList'
+
+Vue.component('apps-logs-list', AppLogsList);
+
 /**
  * 조직
  */
@@ -538,6 +542,12 @@ export default new Router({
                   path: 'monitor',
                   name: 'appsDetailMonitor',
                   component: AppsDetailMonitor,
+                  beforeEnter: RouterGuard.requireUser,
+                },
+                {
+                  path: 'appLogs',
+                  name: 'appLogsList',
+                  component: AppLogsList,
                   beforeEnter: RouterGuard.requireUser,
                 }
               ]
