@@ -1,0 +1,25 @@
+spring:
+  application:
+      name: {{APP_NAME}}
+  profiles:
+    active: "local"
+
+---
+spring:
+  profiles: local
+  cloud:
+    config:
+      uri: {{CONFIG_SERVER_URL}}
+
+# ui host for embedded front-end. Not in docker(local), front-end and server is separated for development
+ui-host: http://localhost:8081/
+
+---
+spring:
+  profiles: dev,stg,prod
+  cloud:
+    config:
+      uri: {{CONFIG_SERVER_INTERNAL_URL}}
+
+# ui host for embedded front-end.
+ui-host: /

@@ -16,6 +16,7 @@
         <module>uengine-cloud-iam</module>
         <module>template-springboot</module>
         <module>template-zuul</module>
+        <module>template-iam</module>
     </modules>
 
     <parent>

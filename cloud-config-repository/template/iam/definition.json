@@ -1,0 +1,13 @@
+{
+    "projectId": 5,
+    "mappings": [
+        {
+            "path": "pom.xml",
+            "file": "file/pom.xml"
+        },
+        {
+            "path": "src/main/resources/bootstrap.yml",
+            "file": "file/bootstrap.yml"
+        }
+    ]
+}

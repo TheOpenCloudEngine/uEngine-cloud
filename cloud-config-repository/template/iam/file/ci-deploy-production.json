@@ -1,0 +1,60 @@
+{
+  "id": "/{{APP_ID}}",
+  "cmd": null,
+  "cpus": 0.4,
+  "mem": 512,
+  "disk": 0,
+  "instances": 1,
+  "acceptedResourceRoles": [
+    "*"
+  ],
+  "container": {
+    "type": "DOCKER",
+    "docker": {
+      "forcePullImage": false,
+      "image": "{{IMAGE}}",
+      "parameters": [],
+      "privileged": false
+    },
+    "volumes": [],
+    "portMappings": [
+      {
+        "containerPort": 8080,
+        "hostPort": 0,
+        "labels": {},
+        "protocol": "tcp",
+        "servicePort": "{{SERVICE_PORT}}"
+      }
+    ]
+  },
+  "env": {
+    "DEPLOYMENT": "{{DEPLOYMENT}}",
+    "PROFILE": "{{PROFILE}}",
+    "SPRING_PROFILES_ACTIVE": "{{PROFILE}}",
+    "APP_NAME": "{{APP_NAME}}"
+  },
+  "healthChecks": [
+    {
+      "gracePeriodSeconds": 300,
+      "ignoreHttp1xx": false,
+      "intervalSeconds": 60,
+      "maxConsecutiveFailures": 3,
+      "path": "/health",
+      "portIndex": 0,
+      "protocol": "HTTP",
+      "timeoutSeconds": 20,
+      "delaySeconds": 15
+    }
+  ],
+  "labels": {
+    "HAPROXY_GROUP": "external,internal",
+    "HAPROXY_0_REDIRECT_TO_HTTPS": "false",
+    "HAPROXY_0_VHOST": "{{EXTERNAL_URL}}"
+  },
+  "networks": [
+    {
+      "mode": "container/bridge"
+    }
+  ],
+  "portDefinitions": []
+}

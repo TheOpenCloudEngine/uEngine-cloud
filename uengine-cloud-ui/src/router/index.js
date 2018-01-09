@@ -572,14 +572,7 @@ export default new Router({
               meta: {
                 preTitle: "사용자정보",
                 breadcrumb: ':userName'
-              },
-              // children: [
-              //   {
-              //     path: 'detail',
-              //     name: 'userDetail',
-              //     component: UserDetail,
-              //   },
-              // ]
+              }
             }
           ]
         },

@@ -167,8 +167,8 @@ echo "DEPLOY RESULT is $JOB_WAIT"
 
 echo "Start stage app deployment complete....."
 
-# 5분동안 기다리기. 60 * 5s = 300s = 5min
-MAX_COUNT=60
+# 10분동안 기다리기. 120 * 5s = 600s = 10min
+MAX_COUNT=120
 CURRENT_COUNT=0
 
 while true
