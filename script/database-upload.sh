@@ -32,3 +32,11 @@ git add .
 git commit -m "Initial commit"
 git push -u origin master
 rm -rf .git
+
+cd $CURRENT_DIR/template-iam
+git init
+git remote add origin http://gitlab.pas-mini.io/root/template-iam.git
+git add .
+git commit -m "Initial commit"
+git push -u origin master
+rm -rf .git

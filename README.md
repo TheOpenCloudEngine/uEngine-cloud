@@ -945,6 +945,13 @@ git remote add origin http://gitlab.pas-mini.io/root/template-zuul.git
 git add .
 git commit -m "Initial commit"
 git push -u origin master
+
+cd template-iam
+git init
+git remote add origin http://gitlab.pas-mini.io/root/template-iam.git
+git add .
+git commit -m "Initial commit"
+git push -u origin master
 ```
 
 ### 어플리케이션 실행
@@ -1111,9 +1118,14 @@ dcos marathon app add ../uengine-cloud-config/deploy.json
 dcos marathon app add ../uengine-eureka-server/deploy.json
 
 
+-- 데이터베이스를 구동시킨다.
 
--- 위의 두가지가 모두 구동완료되었을 때 나머지를 실행시킨다.
+dcos marathon app add ../db/deploy.json
 
+
+-- 위의 항목들이 모두 구동완료되었을 때 나머지를 실행시킨다.
+
+dcos marathon app add ../uengine-cloud-iam/deploy.json
 dcos marathon app add ../uengine-cloud-server/deploy.json
 dcos marathon app add ../uengine-cloud-ui/deploy.json
 ```

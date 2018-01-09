@@ -17,7 +17,7 @@ cache:
 
 npm-build:
   image: node:latest
-  stage: build
+  stage: npm-build
   only:
     - triggers
   script:
