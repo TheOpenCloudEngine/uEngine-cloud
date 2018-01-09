@@ -30,7 +30,8 @@ mvn-build:
   stage: mvn-build
   only:
     - triggers
-  script: "mvn package -B"
+  script:
+   - "mvn clean package -B"
   artifacts:
     paths:
       - target/*.jar
