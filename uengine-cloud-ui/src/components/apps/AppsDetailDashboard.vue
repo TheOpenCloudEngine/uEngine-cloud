@@ -7,7 +7,22 @@
       :catalogItem="catalogItem"
     ></app-runtime-card>
     <div style="margin-top: 5%;">
-      <apps-logs-list></apps-logs-list>
+      <md-layout md-gutter="16">
+        <md-layout md-flex="50">
+          <div>
+            <div class="md-subheading">활동 피드</div>
+            <apps-logs-list></apps-logs-list>
+          </div>
+        </md-layout>
+        <md-layout md-flex="50">
+          <div>
+            <div class="md-subheading">인스턴스</div>
+            <task-list
+              simple
+              :appIds="stage == 'prod' ? ['/'+ appName + '-blue', '/'+ appName + '-green'] : [devApp[stage]['marathonAppId']]"></task-list>
+          </div>
+        </md-layout>
+      </md-layout>
     </div>
   </div>
 </template>
@@ -27,9 +42,7 @@
     mounted() {
 
     },
-    watch: {
-
-    },
+    watch: {},
     methods: {}
   }
 </script>

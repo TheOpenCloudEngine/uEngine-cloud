@@ -1,6 +1,6 @@
 <template xmlns:v-on="http://www.w3.org/1999/xhtml">
   <div>
-    <md-layout>
+    <md-layout v-if="!simple">
       <md-input-container>
         <md-icon>search</md-icon>
         <label>항목 검색</label>
@@ -19,13 +19,13 @@
           <md-table-header>
             <md-table-row>
               <md-table-head md-sort-by="id">ID</md-table-head>
-              <md-table-head md-sort-by="name">Name</md-table-head>
-              <md-table-head md-sort-by="host">HOST</md-table-head>
+              <md-table-head v-if="!simple" md-sort-by="name">Name</md-table-head>
+              <md-table-head v-if="!simple" md-sort-by="host">HOST</md-table-head>
               <md-table-head md-sort-by="status">STATUS</md-table-head>
               <md-table-head md-sort-by="health">HEALTH</md-table-head>
               <md-table-head md-sort-by="log">LOG</md-table-head>
-              <md-table-head md-sort-by="cpu">CPU</md-table-head>
-              <md-table-head md-sort-by="mem">MEM</md-table-head>
+              <md-table-head v-if="!simple" md-sort-by="cpu">CPU</md-table-head>
+              <md-table-head v-if="!simple" md-sort-by="mem">MEM</md-table-head>
             </md-table-row>
           </md-table-header>
 
@@ -34,8 +34,8 @@
               <md-table-cell>
                 <a v-on:click="moveDetail(task)" style="cursor: pointer">{{task.id}} {{task.rollback}}</a>
               </md-table-cell>
-              <md-table-cell>{{task.name}}</md-table-cell>
-              <md-table-cell>{{task.host}}</md-table-cell>
+              <md-table-cell v-if="!simple">{{task.name}}</md-table-cell>
+              <md-table-cell v-if="!simple">{{task.host}}</md-table-cell>
               <md-table-cell>{{task.state}}</md-table-cell>
               <md-table-cell>
                 <span class="healthCheck running" v-if="task.healthCheckResults===true"></span>
@@ -45,8 +45,8 @@
               <md-table-cell>
                 <a v-on:click="moveLog(task)" style="cursor: pointer">로그보기</a>
               </md-table-cell>
-              <md-table-cell>{{task.resources.cpus}}</md-table-cell>
-              <md-table-cell>{{task.resources.mem}}</md-table-cell>
+              <md-table-cell v-if="!simple">{{task.resources.cpus}}</md-table-cell>
+              <md-table-cell v-if="!simple">{{task.resources.mem}}</md-table-cell>
             </md-table-row>
           </md-table-body>
         </md-table>
@@ -70,7 +70,11 @@
   export default {
     mixins: [DcosDataProvider, PathProvider],
     props: {
-      appIds: Array
+      appIds: Array,
+      simple: {
+        type: Boolean,
+        default: false
+      }
     },
     data() {
       return {
@@ -174,9 +178,10 @@
 
         //필터
         $.each(list, function (taskIndex, taskValue) {
+          console.log('taskValue.state', taskValue.state);
           if (me.filter == "ALL") {
             filtered.push(taskValue);
-          } else if (me.filter == "RUNNING" && taskValue.state == 'TASK_RUNNING') {
+          } else if (me.filter == "RUNNING" && (taskValue.state == 'TASK_RUNNING' || taskValue.state == 'TASK_STAGING')) {
             filtered.push(taskValue);
           } else if (me.filter == "COMPLETED" &&
             (taskValue.state == 'TASK_FINISHED' || taskValue.state == 'TASK_KILLED' || taskValue.state == 'TASK_FAILED')) {

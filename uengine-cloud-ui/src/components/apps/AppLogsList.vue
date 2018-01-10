@@ -1,7 +1,6 @@
 <template>
   <div style="width: 100%;">
     <div v-if="appLogs.length">
-      <div class="md-subheading">활동 피드</div>
       <div class="header-top-line"></div>
       <!--<md-card md-with-hover style="width: 100%;">-->
         <!--<md-card-area>-->
