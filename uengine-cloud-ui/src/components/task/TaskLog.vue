@@ -1,20 +1,42 @@
 <template xmlns:v-on="http://www.w3.org/1999/xhtml">
   <md-layout>
-    <div v-if="task">
-      <span class="md-subheading">StdErr</span>
-      <md-input-container>
-        <md-textarea style="width: 1000px" v-model="errLog" row="100">
+    <div v-if="task" style="width: 100%">
+      <md-layout md-align="center">
+        <md-radio v-model="menu" :mdValue="'stdout'">
+          <span class="md-caption">일반 로그</span>
+        </md-radio>
+        <md-radio v-model="menu" :mdValue="'stderr'">
+          <span class="md-caption">에러 로그</span>
+        </md-radio>
+      </md-layout>
 
-        </md-textarea>
-      </md-input-container>
+      <div v-show="menu == 'stdout'">
+        <codemirror
+          ref="stdout"
+          :options="{
+              theme: 'dracula',
+              mode: 'log',
+              extraKeys: {'Ctrl-Space': 'autocomplete'},
+              lineNumbers: true,
+              lineWrapping: true,
+              readOnly: true
+            }"
+          :value="stdLog"></codemirror>
+      </div>
 
-      <br>
-      <span class="md-subheading">StdOut</span>
-      <md-input-container>
-        <md-textarea style="width: 1000px" v-model="stdLog" row="150">
-
-        </md-textarea>
-      </md-input-container>
+      <div v-show="menu == 'stderr'">
+        <codemirror
+          ref="stderr"
+          :options="{
+              theme: 'dracula',
+              mode: 'log',
+              extraKeys: {'Ctrl-Space': 'autocomplete'},
+              lineNumbers: true,
+              lineWrapping: true,
+              readOnly: true
+            }"
+          :value="errLog"></codemirror>
+      </div>
     </div>
   </md-layout>
 </template>
@@ -26,15 +48,21 @@
     props: {},
     data() {
       return {
-        errLog: null,
-        stdLog: null,
-        task: null
+        menu: 'stdout',
+        errLog: '',
+        stdLog: '',
+        task: null,
+        isFocus: false
       }
     },
     mounted() {
 
     },
     watch: {
+      menu: function (val) {
+        this.isFocus = false;
+        this.focusLog();
+      },
       'dcosData': {
         handler: function (newVal, oldVal) {
           this.task = this.getTaskById(this.taskId);
@@ -59,6 +87,7 @@
               me.$root.dcos(fileUrl + 'stderr&offset=' + offset + '&length=50000').get()
                 .then(function (logData) {
                   me.errLog = logData.data.data;
+                  me.focusLog();
                 })
             });
 
@@ -73,13 +102,24 @@
               me.$root.dcos(fileUrl + 'stdout&offset=' + offset + '&length=50000').get()
                 .then(function (logData) {
                   me.stdLog = logData.data.data;
+                  me.focusLog();
                 })
             });
         },
         deep: true
       }
     },
-    methods: {}
+    methods: {
+      focusLog: function () {
+        var me = this;
+        $(me.$el).find('.CodeMirror').height(600).css('font-size', '11px');
+//        if (!me.isFocus) {
+//          me.isFocus = true;
+//          me.$refs[me.menu].editor.focus();
+//          me.$refs[me.menu].editor.setCursor(me.$refs[me.menu].editor.lineCount(), 0);
+//        }
+      }
+    }
   }
 </script>
 
