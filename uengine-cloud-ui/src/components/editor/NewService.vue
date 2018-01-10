@@ -234,16 +234,20 @@
                       .then(function (response) {
                           // deploy 성공 메시지 변경
                         console.log('me.deployment', me.deployment, response);
+                          me.reviewFlag = false;
                           me.$root.$children[0].success("수정하였습니다.");
                           me.close();
                         },
                         function (response) {
                           // deploy 실패 메시지 변경
+                          me.reviewFlag = false;
                           me.$root.$children[0].error("수정에 실패하였습니다.");
                         });
+
                   },
                   function (response) {
                     //실패 메시지 변경
+                    me.reviewFlag = false;
                     me.$root.$children[0].error("서버에 접속할 수 없습니다.");
                   }
                 );
