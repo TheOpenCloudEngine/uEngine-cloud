@@ -188,7 +188,7 @@
             //스테이지 디플로이
             //commit
             me.runDeployedApp(me.appName, me.stage, me.selectedRefCommit, function (response) {
-
+              me.close();
             });
           });
         }
@@ -197,7 +197,7 @@
           me.updateDevApp(me.appName, appData, function (response) {
             var ref = me.selectedRefBranch ? me.selectedRefBranch : me.selectedRefTag;
             me.excutePipelineTrigger(me.appName, ref, me.stage, function (response) {
-
+              me.close();
             })
           });
         }
