@@ -5,7 +5,9 @@
   "mem": 512,
   "disk": 0,
   "instances": 1,
-  "acceptedResourceRoles":["slave_public"],
+  "acceptedResourceRoles": [
+    "*"
+  ],
   "container": {
     "type": "DOCKER",
     "docker": {

@@ -7,25 +7,24 @@ security:
     enabled: false
   ignored: /**
 
-#spring:
-#  data:
-#    rest:
-#      basePath: /api/v1
 ---
 spring:
   security:
     enabled: false
   profiles: local
-#  jpa:
-#      hibernate:
-#        ddl-auto: update
-#      properties:
-#        hibernate:
-#          dialect: org.hibernate.dialect.MySQLDialect
-#    datasource:
-#      url: jdbc:mysql://localhost:3306/msa
-#      username: root
-#      password:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        show_sql: true
+  datasource:
+    url: jdbc:mysql://${vcap.services.db.external}/uengine
+    username: root
+    password: my-secret-pw
+
+
 server:
   port: 8080
   servletPath: /
@@ -48,6 +47,17 @@ spring:
   security:
     enabled: false
   profiles: docker
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        show_sql: true
+  datasource:
+    url: jdbc:mysql://${vcap.services.db.internal}/uengine
+    username: root
+    password: my-secret-pw
 
 server:
   port: 8080

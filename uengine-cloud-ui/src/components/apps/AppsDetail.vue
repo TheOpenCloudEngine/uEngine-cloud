@@ -183,7 +183,7 @@
           } else {
             me.status = null;
           }
-          if (me.interval) {
+          if (me.interval && me.status != 'repository-create-success') {
             setTimeout(function () {
               intervalStatus();
             }, 2000);

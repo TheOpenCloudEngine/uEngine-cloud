@@ -71,7 +71,7 @@ public class CronTable implements InitializingBean {
         //last
         try {
             HttpResponse response = new HttpUtils().makeRequest("GET",
-                    host + "/dcos-history-service/history/last",
+                    host + "dcos-history-service/history/last",
                     null,
                     this.addHeaders()
             );
@@ -85,7 +85,7 @@ public class CronTable implements InitializingBean {
         //jobs
         try {
             HttpResponse response = new HttpUtils().makeRequest("GET",
-                    host + "/service/metronome/v1/jobs?embed=activeRuns&embed=schedules&embed=historySummary",
+                    host + "service/metronome/v1/jobs?embed=activeRuns&embed=schedules&embed=historySummary",
                     null,
                     this.addHeaders()
             );
@@ -99,7 +99,7 @@ public class CronTable implements InitializingBean {
         //groups
         try {
             HttpResponse response = new HttpUtils().makeRequest("GET",
-                    host + "/service/marathon/v2/groups?embed=group.groups&embed=group.apps&embed=group.pods&embed=group.apps.deployments&embed=group.apps.counts&embed=group.apps.tasks&embed=group.apps.taskStats&embed=group.apps.lastTaskFailur",
+                    host + "service/marathon/v2/groups?embed=group.groups&embed=group.apps&embed=group.pods&embed=group.apps.deployments&embed=group.apps.counts&embed=group.apps.tasks&embed=group.apps.taskStats&embed=group.apps.lastTaskFailur",
                     null,
                     this.addHeaders()
             );
@@ -113,7 +113,7 @@ public class CronTable implements InitializingBean {
         //queue
         try {
             HttpResponse response = new HttpUtils().makeRequest("GET",
-                    host + "/service/marathon/v2/queue",
+                    host + "service/marathon/v2/queue",
                     null,
                     this.addHeaders()
             );
@@ -127,7 +127,7 @@ public class CronTable implements InitializingBean {
         //deployments
         try {
             HttpResponse response = new HttpUtils().makeRequest("GET",
-                    host + "/service/marathon/v2/deployments",
+                    host + "service/marathon/v2/deployments",
                     null,
                     this.addHeaders()
             );
@@ -141,7 +141,7 @@ public class CronTable implements InitializingBean {
         //units
         try {
             HttpResponse response = new HttpUtils().makeRequest("GET",
-                    host + "/system/health/v1/units",
+                    host + "system/health/v1/units",
                     null,
                     this.addHeaders()
             );
@@ -155,7 +155,7 @@ public class CronTable implements InitializingBean {
         //state
         try {
             HttpResponse response = new HttpUtils().makeRequest("GET",
-                    host + "/mesos/master/state",
+                    host + "mesos/master/state",
                     null,
                     this.addHeaders()
             );

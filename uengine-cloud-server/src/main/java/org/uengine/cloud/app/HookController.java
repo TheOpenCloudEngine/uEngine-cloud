@@ -5,6 +5,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.uengine.cloud.log.AppLogAction;
+import org.uengine.cloud.log.AppLogService;
+import org.uengine.cloud.log.AppLogStatus;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -23,6 +26,9 @@ public class HookController {
 
     @Autowired
     private GitlabExtentApi gitlabExtentApi;
+
+    @Autowired
+    private AppLogService logService;
 
     private Map<String, String> reservedStages = new HashMap<>();
 
@@ -45,10 +51,17 @@ public class HookController {
         //일단, 오는 것들을 보자.
         try {
             if (payloads.get("object_kind").toString().equals("pipeline")) {
+
+                //running, pending 은 진행중
+                //success, failed, canceled, skipped 인 경우는 이력에 저장.
                 String appName = ((Map) payloads.get("project")).get("name").toString();
                 String pipelineId = ((Map) payloads.get("object_attributes")).get("id").toString();
-
+                String status = ((Map) payloads.get("object_attributes")).get("status").toString();
                 Map app = appService.getAppByName(appName);
+
+                //이력 저장
+                logService.addHistory(appName, AppLogAction.PIPELINE, AppLogStatus.valueOf(status.toUpperCase()), null);
+
                 int projectId = (int) ((Map) app.get("gitlab")).get("projectId");
                 Map pipeLineJson = appService.getPipeLineJson(appName);
                 List<String> autoDeploys = (List<String>) pipeLineJson.get("auto-deploy");
@@ -76,6 +89,10 @@ public class HookController {
                 String appName = ((Map) payloads.get("project")).get("name").toString();
                 Map app = appService.getAppByName(appName);
                 int projectId = (int) ((Map) app.get("gitlab")).get("projectId");
+
+                //푸시 이력 남기기
+                logService.addHistory(appName, AppLogAction.PUSH, AppLogStatus.SUCCESS, null);
+
                 Map pipeLineJson = appService.getPipeLineJson(appName);
                 List<String> refs = (List<String>) pipeLineJson.get("refs");
                 String commitRef = payloads.get("ref").toString();

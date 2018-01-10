@@ -24,6 +24,9 @@ import org.gitlab4j.api.models.ProjectHook;
 import org.gitlab4j.api.models.User;
 import org.gitlab4j.api.models.Visibility;
 
+import org.uengine.cloud.log.AppLogAction;
+import org.uengine.cloud.log.AppLogService;
+import org.uengine.cloud.log.AppLogStatus;
 import org.uengine.iam.client.IamClient;
 import org.uengine.iam.client.model.OauthUser;
 import org.uengine.iam.util.ApplicationContextRegistry;
@@ -38,6 +41,7 @@ import org.uengine.cloud.app.AppService;
 import org.uengine.cloud.app.GitlabExtentApi;
 import org.uengine.cloud.templates.MustacheTemplateEngine;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,11 +58,18 @@ public class CreateAppJob implements Job {
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         AppCreate appCreate = new ObjectMapper().convertValue(map, AppCreate.class);
 
+        Map<String, Object> log = null;
+        try {
+            log = JsonUtils.convertClassToMap(appCreate);
+        } catch (IOException ex) {
+            log = new HashMap<>();
+        }
 
         Environment environment = ApplicationContextRegistry.getApplicationContext().getBean(Environment.class);
         AppService appService = ApplicationContextRegistry.getApplicationContext().getBean(AppService.class);
         GitLabApi gitLabApi = ApplicationContextRegistry.getApplicationContext().getBean(GitLabApi.class);
         GitlabExtentApi gitlabExtentApi = ApplicationContextRegistry.getApplicationContext().getBean(GitlabExtentApi.class);
+        AppLogService logService = ApplicationContextRegistry.getApplicationContext().getBean(AppLogService.class);
 
         try {
             //DCOS 앱 찾기
@@ -226,6 +237,9 @@ public class CreateAppJob implements Job {
 
 
             System.out.println("end");
+
+            logService.addHistory(appCreate.getAppName(), AppLogAction.CREATE_APP, AppLogStatus.SUCCESS, log);
+
         } catch (Exception ex) {
             ex.printStackTrace();
             try {
@@ -263,8 +277,14 @@ public class CreateAppJob implements Job {
                         "master", "deployment/" + appCreate.getAppName() + "/create.json", JsonUtils.marshal(createMap)
                 );
 
+                //삭제 시도에 대한 이력
+                logService.addHistory(appCreate.getAppName(), AppLogAction.CREATE_APP, AppLogStatus.FAILED, log);
+
             } catch (Exception e) {
                 e.printStackTrace();
+
+                //삭제 시도를 실패했을 경우도 실패 이력
+                logService.addHistory(appCreate.getAppName(), AppLogAction.CREATE_APP, AppLogStatus.FAILED, log);
             }
         }
     }

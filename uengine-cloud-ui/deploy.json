@@ -1,7 +1,7 @@
 {
   "id": "/uengine-cloud-ui",
   "acceptedResourceRoles": [
-    "slave_public"
+    "*"
   ],
   "backoffFactor": 1.15,
   "backoffSeconds": 1,

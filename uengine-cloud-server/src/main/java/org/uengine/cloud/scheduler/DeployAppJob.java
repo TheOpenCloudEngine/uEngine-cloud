@@ -17,6 +17,9 @@
 package org.uengine.cloud.scheduler;
 
 import org.gitlab4j.api.GitLabApi;
+import org.uengine.cloud.log.AppLogAction;
+import org.uengine.cloud.log.AppLogService;
+import org.uengine.cloud.log.AppLogStatus;
 import org.uengine.iam.util.ApplicationContextRegistry;
 import org.uengine.iam.util.JsonUtils;
 import org.uengine.iam.util.StringUtils;
@@ -46,13 +49,16 @@ public class DeployAppJob implements Job {
         if (map.get("commit") != null) {
             commit = map.get("commit").toString();
         }
+        Map log = new HashMap();
+        log.put("stage", stage);
+        log.put("commit", commit);
 
         Environment environment = ApplicationContextRegistry.getApplicationContext().getBean(Environment.class);
         AppService appService = ApplicationContextRegistry.getApplicationContext().getBean(AppService.class);
         DcosApi dcosApi = ApplicationContextRegistry.getApplicationContext().getBean(DcosApi.class);
         GitLabApi gitLabApi = ApplicationContextRegistry.getApplicationContext().getBean(GitLabApi.class);
         GitlabExtentApi gitlabExtentApi = ApplicationContextRegistry.getApplicationContext().getBean(GitlabExtentApi.class);
-
+        AppLogService logService = ApplicationContextRegistry.getApplicationContext().getBean(AppLogService.class);
         try {
 
             //deployApp 는 마라톤 어플리케이션이 존재하는 경우만 사용가능하다. 단, 커밋을 전달받을 경우는 존재하지 않아도 가능.
@@ -235,8 +241,12 @@ public class DeployAppJob implements Job {
                         dcosApi.deleteApp(oldMarathonAppId);
                     }
 
+                    logService.addHistory(appName, AppLogAction.RUN_DEPLOYED_APP, AppLogStatus.SUCCESS, log);
+
                 } else {
                     System.out.println("Deployment failed by cancel.");
+
+                    logService.addHistory(appName, AppLogAction.RUN_DEPLOYED_APP, AppLogStatus.FAILED, log);
                 }
             }
             //일반 배포인 경우
@@ -269,10 +279,13 @@ public class DeployAppJob implements Job {
                 }
                 //라우터 리프레쉬
                 dcosApi.refreshRoute();
+
+                logService.addHistory(appName, AppLogAction.RUN_DEPLOYED_APP, AppLogStatus.SUCCESS, log);
             }
 
         } catch (Exception ex) {
             ex.printStackTrace();
+            logService.addHistory(appName, AppLogAction.RUN_DEPLOYED_APP, AppLogStatus.FAILED, log);
         }
     }
 
@@ -296,6 +309,7 @@ public class DeployAppJob implements Job {
 
     /**
      * 마라톤 디플로이 json 을 치환하여 반환한다.
+     *
      * @param appName
      * @param stage
      * @param marathonAppId
