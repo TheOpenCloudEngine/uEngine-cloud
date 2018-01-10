@@ -6,6 +6,9 @@
       :devApp="devApp"
       :catalogItem="catalogItem"
     ></app-runtime-card>
+    <div style="margin-top: 5%;">
+      <apps-logs-list></apps-logs-list>
+    </div>
   </div>
 </template>
 <script>
