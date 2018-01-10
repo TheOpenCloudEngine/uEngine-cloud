@@ -3,7 +3,7 @@
 
     <gitlab-deploy
       ref="gitlab-deploy"
-      :stage="startStage"
+      :stage="selectedStage"
       :devApp="devApp"
       :catalogItem="catalogItem"
       :appName="appName"
@@ -107,7 +107,7 @@
         autoDeploy: ['dev'],
         when: 'commit',
         menu: 'pipeline',
-        startStage: 'stg'
+        selectedStage: null
       }
     },
     mounted() {
@@ -122,8 +122,10 @@
     },
     methods: {
       openGitlabDeploy: function (stage) {
-        this.startStage = stage;
-        this.$refs['gitlab-deploy'].open();
+        this.selectedStage = stage;
+        this.$nextTick(function () {
+          this.$refs['gitlab-deploy'].open();
+        })
       },
       loadPipeLine: function () {
         var me = this;
