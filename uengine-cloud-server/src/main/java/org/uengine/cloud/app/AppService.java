@@ -7,6 +7,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
 import org.gitlab4j.api.GitLabApi;
 import org.gitlab4j.api.models.Project;
+import org.gitlab4j.api.models.User;
 import org.uengine.iam.util.HttpUtils;
 import org.uengine.iam.util.JsonUtils;
 import org.uengine.iam.util.StringUtils;
@@ -18,6 +19,7 @@ import org.uengine.cloud.scheduler.JobScheduler;
 import org.uengine.cloud.tenant.TenantContext;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -492,7 +494,26 @@ public class AppService {
 
         //깃랩 사용자 정의
         String userId = TenantContext.getThreadLocalInstance().getUserId();
+
+        //userId == 이메일 주소.
+        //깃랩에 해당 이메일을 사용하는 유저가 있는지 체크.
+        User gitlabUser = null;
+        try {
+            List<User> users = gitLabApi.getUserApi().findUsers(userId);
+            if (!users.isEmpty()) {
+                for (User user : users) {
+                    if (userId.equals(user.getEmail()) || userId.equals(user.getUsername())) {
+                        gitlabUser = user;
+                    }
+                }
+            }
+        } catch (Exception ex) {
+
+        }
         String gitlabUsername = userId.split("@")[0];
+        if (gitlabUser != null) {
+            gitlabUsername = gitlabUser.getUsername();
+        }
 
         //신규 app 맵
         Map app = new HashMap();
