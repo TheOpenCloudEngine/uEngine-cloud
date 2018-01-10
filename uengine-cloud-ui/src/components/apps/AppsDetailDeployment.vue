@@ -1,6 +1,16 @@
 <template>
   <div v-if="devApp">
-    <md-layout>
+
+    <gitlab-deploy
+      ref="gitlab-deploy"
+      :stage="startStage"
+      :devApp="devApp"
+      :catalogItem="catalogItem"
+      :appName="appName"
+      :role="'deploy'"
+    ></gitlab-deploy>
+
+    <md-layout style="z-index: 1">
       <md-layout md-flex-offset="20" md-flex="60" class="bar-wrapper">
         <md-layout>
           <md-button class="md-raised" v-bind:class="{ 'md-primary': menu == 'pipeline' }"
@@ -13,15 +23,25 @@
           </md-button>
         </md-layout>
       </md-layout>
-      <md-layout md-flex-offset="10" md-flex="10">
-        <md-button class="md-raised md-primary">
-          <md-icon>play_circle_outline</md-icon>
-          시작
-        </md-button>
+      <md-layout md-flex-offset="5" md-flex="10">
+
+        <md-menu md-align-trigger>
+          <md-button md-menu-trigger class="md-raised md-primary">
+            <md-icon>play_circle_outline</md-icon>
+            시작
+          </md-button>
+
+          <md-menu-content>
+            <md-menu-item v-on:click="openGitlabDeploy('dev')">개발</md-menu-item>
+            <md-menu-item v-on:click="openGitlabDeploy('stg')">스테이징</md-menu-item>
+            <md-menu-item v-on:click="openGitlabDeploy('prod')">프로덕션</md-menu-item>
+          </md-menu-content>
+        </md-menu>
       </md-layout>
     </md-layout>
 
     <br><br>
+
     <div v-if="menu == 'pipeline'">
       <app-pipeline
         :stage="stage"
@@ -86,7 +106,8 @@
         refs: ['master'],
         autoDeploy: ['dev'],
         when: 'commit',
-        menu: 'pipeline'
+        menu: 'pipeline',
+        startStage: 'stg'
       }
     },
     mounted() {
@@ -100,6 +121,10 @@
       }
     },
     methods: {
+      openGitlabDeploy: function (stage) {
+        this.startStage = stage;
+        this.$refs['gitlab-deploy'].open();
+      },
       loadPipeLine: function () {
         var me = this;
         me.getAppPipeLineJson(me.appName, function (response) {

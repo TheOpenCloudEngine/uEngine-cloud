@@ -178,7 +178,6 @@
 
         //필터
         $.each(list, function (taskIndex, taskValue) {
-          console.log('taskValue.state', taskValue.state);
           if (me.filter == "ALL") {
             filtered.push(taskValue);
           } else if (me.filter == "RUNNING" && (taskValue.state == 'TASK_RUNNING' || taskValue.state == 'TASK_STAGING')) {

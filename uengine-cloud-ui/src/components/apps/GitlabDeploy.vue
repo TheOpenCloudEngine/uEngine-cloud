@@ -6,7 +6,7 @@
     <!--버튼을 다시 누르면 새 구성을 강제로 변경하고 배포합니다.-->
     <!--</md-dialog-title>-->
     <div v-if="role == 'deploy'">
-      <md-dialog-title>앱 배포</md-dialog-title>
+      <md-dialog-title>{{stageName}} 환경 앱 배포</md-dialog-title>
       <md-dialog-content>
         <md-stepper style="min-width: 800px"
                     :md-elevation="elevation"
@@ -94,6 +94,19 @@
       catalogItem: Object,
       appName: String,
       role: String
+    },
+    computed: {
+      stageName: function () {
+        if (this.stage == 'dev') {
+          return '개발'
+        }
+        else if (this.stage == 'stg') {
+          return '스테이징'
+        }
+        else if (this.stage == 'prod') {
+          return '프로덕션'
+        }
+      }
     },
     data() {
       return {

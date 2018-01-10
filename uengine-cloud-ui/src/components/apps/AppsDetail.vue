@@ -14,11 +14,22 @@
       <md-layout md-flex="15" style="border-right: 1px solid #DFE3E6;padding: 16px">
         <div>
           <div v-for="item in items">
-            <a class="md-body-1" v-bind:class="{ 'active': item.isActive }"
-               v-on:click="move(item.routerName)">
-              {{item.title}}
-            </a>
-            <br><br>
+            <div>
+              <a class="md-body-1" v-bind:class="{ 'active': item.isActive }"
+                 v-on:click="move(item.routerName)">
+                {{item.title}}
+              </a>
+              <span v-if="pipeline && item.routerName == 'appsDetailDeployment'">
+                <md-tooltip md-direction="right">Last CI is {{pipeline.status}}</md-tooltip>
+                <md-spinner v-if="pipeline.status == 'running'" :md-size="20" md-indeterminate
+                            class="md-accent"></md-spinner>
+                <md-icon v-else-if="pipeline.status == 'success'" class="md-primary">check_circle</md-icon>
+                <md-icon v-else-if="pipeline.status == 'pending'" class="md-warn">info</md-icon>
+                <md-icon v-else-if="pipeline.status == 'failed'" class="md-accent">cancel</md-icon>
+                <md-icon v-else class="md-warn">info</md-icon>
+              </span>
+            </div>
+            <br>
           </div>
         </div>
       </md-layout>
@@ -142,6 +153,7 @@
     props: {},
     data() {
       return {
+        pipeline: null,
         hasRollback: false,
         tagList: [],
         commitInfo: null,
@@ -235,11 +247,22 @@
         handler: function (newVal, oldVal) {
           this.updateCommitInfo();
           this.updateRollbackInfo();
+          this.updateCIInfo();
         },
         deep: true
       }
     },
     methods: {
+      updateCIInfo: function () {
+        var me = this;
+        var projectId = me.devApp.gitlab.projectId;
+        me.$root.gitlab('api/v4/projects/' + projectId + '/pipelines?page=1&per_page=1').get()
+          .then(function (response) {
+            if (response.data && response.data.length) {
+              me.pipeline = response.data[0];
+            }
+          })
+      },
       rollbackApp: function () {
         this.rollbackDevApp(this.appName, function (response) {
 
