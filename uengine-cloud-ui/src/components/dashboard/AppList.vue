@@ -116,7 +116,7 @@
         focusedList: [],
         list: [],
         total: 10,
-        size: 5,
+        size: 10,
         page: 1
       }
     },

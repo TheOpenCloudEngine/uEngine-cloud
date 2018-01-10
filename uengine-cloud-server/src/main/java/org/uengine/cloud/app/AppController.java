@@ -222,11 +222,6 @@ public class AppController {
         log.put("stage", stage);
         try {
             appService.runDeployedApp(appName, stage, commit);
-            Map app = appService.getAppByName(appName);
-            Map stageMap = (Map) app.get(stage);
-            stageMap.remove("config-changed");
-            app.put(stage, stageMap);
-            appService.updateAppExcludDeployJson(appName, app);
             response.setStatus(200);
 
             logService.addHistory(appName, AppLogAction.RUN_DEPLOYED_APP_REQUEST, AppLogStatus.SUCCESS, log);
@@ -367,7 +362,7 @@ public class AppController {
     public String getAppConfigYml(HttpServletRequest request,
                                   HttpServletResponse response,
                                   @PathVariable("appName") String appName,
-                                  @RequestParam(value = "stage") String stage
+                                  @RequestParam(required = false, value = "stage") String stage
     ) throws Exception {
 
         return appService.getAppConfigYml(appName, stage);
@@ -388,19 +383,15 @@ public class AppController {
     public String updateAppConfigYml(HttpServletRequest request,
                                      HttpServletResponse response,
                                      @PathVariable("appName") String appName,
-                                     @RequestParam(value = "stage") String stage,
+                                     @RequestParam(required = false, value = "stage") String stage,
                                      @RequestBody String content) throws Exception {
         Map log = new HashMap();
         log.put("stage", stage);
         try {
-            Map app = appService.getAppByName(appName);
-            Map stageMap = (Map) app.get(stage);
-            stageMap.put("config-changed", true);
-            app.put(stage, stageMap);
-            appService.updateAppExcludDeployJson(appName, app);
             String yml = appService.updateAppConfigYml(appName, content, stage);
 
             logService.addHistory(appName, AppLogAction.UPDATE_APP_CONFIGYML, AppLogStatus.SUCCESS, log);
+
             return yml;
         } catch (Exception ex) {
             logService.addHistory(appName, AppLogAction.UPDATE_APP_CONFIGYML, AppLogStatus.FAILED, log);

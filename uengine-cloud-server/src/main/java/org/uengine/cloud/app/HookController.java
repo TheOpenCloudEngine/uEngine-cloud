@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.uengine.cloud.log.AppLogAction;
 import org.uengine.cloud.log.AppLogService;
 import org.uengine.cloud.log.AppLogStatus;
+import org.uengine.iam.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -77,12 +78,18 @@ public class HookController {
 
                             //예약된 스테이지 배포 삭제
                             this.removeReservedStage(pipelineId);
+
+                            //후처리 작업
+                            this.afterDeployedByCI(appName, build.get("name").toString());
                         }
                     }
                     //매뉴얼 단계이면서 auto 빌드에 속한 경우
                     else if (autoDeploys.indexOf(build.get("name").toString()) != -1 && build.get("status").equals("manual")) {
                         int jobId = (int) build.get("id");
                         gitlabExtentApi.playJob(projectId, jobId);
+
+                        //후처리 작업
+                        this.afterDeployedByCI(appName, build.get("name").toString());
                     }
                 }
             } else if (payloads.get("object_kind").toString().equals("push")) {
@@ -117,5 +124,33 @@ public class HookController {
         } catch (Exception ex) {
             response.setStatus(200);
         }
+    }
+
+    //앱 변경 적용
+    private void afterDeployedByCI(String appName, String buildName) throws Exception {
+
+        if (StringUtils.isEmpty(buildName)) {
+            return;
+        }
+        String stage = "";
+        switch (buildName) {
+            case "dev":
+                stage = "dev";
+                break;
+            case "staging":
+                stage = "stg";
+                break;
+            case "production":
+                stage = "prod";
+                break;
+        }
+
+        //로그 추가
+        Map map = new HashMap();
+        map.put("stage", stage);
+        logService.addHistory(appName, AppLogAction.START_DEPLOYED_BY_CI, AppLogStatus.SUCCESS, map);
+
+        //콘피드 변경 해제
+        appService.updateAppConfigChanged(appName, stage, false);
     }
 }

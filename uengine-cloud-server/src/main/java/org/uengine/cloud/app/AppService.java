@@ -73,6 +73,9 @@ public class AppService {
 
         //디플로이 백그라운드 작업 시작.
         jobScheduler.startJobImmediatly(UUID.randomUUID().toString(), "deployedApp", data);
+
+        //앱 변경 적용됨
+        this.updateAppConfigChanged(appName, stage, false);
     }
 
     /**
@@ -412,32 +415,53 @@ public class AppService {
     }
 
     public void createAppConfigYml(String appName, String content) throws Exception {
+        String defaultString = "---\n" +
+                "# =================================================\n" +
+                "# The common configuration file will be overwritten\n" +
+                "# =================================================";
+
         int repoId = Integer.parseInt(environment.getProperty("gitlab.config-repo.projectId"));
         gitlabExtentApi.updateOrCraeteRepositoryFile(repoId,
-                "master", appName + "-dev.yml", content);
+                "master", appName + ".yml", content);
 
         gitlabExtentApi.updateOrCraeteRepositoryFile(repoId,
-                "master", appName + "-stg.yml", content);
+                "master", appName + "-dev.yml", defaultString);
 
         gitlabExtentApi.updateOrCraeteRepositoryFile(repoId,
-                "master", appName + "-prod.yml", content);
+                "master", appName + "-stg.yml", defaultString);
+
+        gitlabExtentApi.updateOrCraeteRepositoryFile(repoId,
+                "master", appName + "-prod.yml", defaultString);
     }
 
     public String updateAppConfigYml(String appName, String content, String stage) throws Exception {
         int repoId = Integer.parseInt(environment.getProperty("gitlab.config-repo.projectId"));
-        gitlabExtentApi.updateOrCraeteRepositoryFile(repoId,
-                "master", appName + "-" + stage + ".yml", content);
+        if (StringUtils.isEmpty(stage)) {
+            gitlabExtentApi.updateOrCraeteRepositoryFile(repoId,
+                    "master", appName + ".yml", content);
+        } else {
+            gitlabExtentApi.updateOrCraeteRepositoryFile(repoId,
+                    "master", appName + "-" + stage + ".yml", content);
+        }
+        this.updateAppConfigChanged(appName, stage, true);
         return content;
     }
 
     public String getAppConfigYml(String appName, String stage) throws Exception {
         int repoId = Integer.parseInt(environment.getProperty("gitlab.config-repo.projectId"));
-        return gitlabExtentApi.getRepositoryFile(repoId,
-                "master", appName + "-" + stage + ".yml");
+        if (StringUtils.isEmpty(stage)) {
+            return gitlabExtentApi.getRepositoryFile(repoId,
+                    "master", appName + ".yml");
+        } else {
+            return gitlabExtentApi.getRepositoryFile(repoId,
+                    "master", appName + "-" + stage + ".yml");
+        }
     }
 
     public void removeAppConfigYml(String appName) throws Exception {
         int repoId = Integer.parseInt(environment.getProperty("gitlab.config-repo.projectId"));
+        gitlabExtentApi.removeRepositoryFile(repoId,
+                "master", appName + ".yml");
         gitlabExtentApi.removeRepositoryFile(repoId,
                 "master", appName + "-dev.yml");
         gitlabExtentApi.removeRepositoryFile(repoId,
@@ -471,8 +495,6 @@ public class AppService {
                 }
             }
         }
-
-        //TODO 깃랩 프로젝트 appname 체크
 
         //깃랩 프로젝트 체크
         gitLabApi.unsudo();
@@ -722,5 +744,22 @@ public class AppService {
         gitlabExtentApi.updateOrCraeteRepositoryFile(
                 Integer.parseInt(environment.getProperty("gitlab.config-repo.projectId")),
                 "master", "dcos-apps.yml", dcosYaml);
+    }
+
+    public void updateAppConfigChanged(String appName, String stage, boolean isChanged) throws Exception {
+        //TODO 스테이지가 없으면 모든 스테이지가 변화된 것.
+        if(StringUtils.isEmpty(stage)){
+            return;
+        }
+
+        Map app = this.getAppByName(appName);
+        Map stageMap = (Map) app.get(stage);
+        if (isChanged) {
+            stageMap.put("config-changed", true);
+        } else {
+            stageMap.remove("config-changed");
+        }
+        app.put(stage, stageMap);
+        this.updateAppExcludDeployJson(appName, app);
     }
 }

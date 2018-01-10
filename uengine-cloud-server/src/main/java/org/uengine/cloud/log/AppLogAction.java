@@ -16,5 +16,6 @@ public enum AppLogAction {
     CREATE_APP,
     UPDATE_APP_CONFIGYML,
     PUSH,
-    PIPELINE
+    PIPELINE,
+    START_DEPLOYED_BY_CI
 }
