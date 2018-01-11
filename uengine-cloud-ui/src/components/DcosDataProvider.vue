@@ -598,6 +598,21 @@
           }, function (response) {
             cb(null, response);
           })
+      },
+      getCadvisorUrlBySlaveId: function (slaveId) {
+        var url = null;
+        var hostName = this.getHostBySlaveId(slaveId);
+        var cadvisorList = config['cadvisor'];
+        if (cadvisorList && cadvisorList.length) {
+          $.each(cadvisorList, function (i, cadvisorSet) {
+            var agentHost = cadvisorSet.split(',')[0];
+            var cadvisorUrl = cadvisorSet.split(',')[1];
+            if (agentHost == hostName) {
+              url = cadvisorUrl;
+            }
+          })
+        }
+        return url;
       }
     }
   }

@@ -23,6 +23,7 @@
               <md-table-head v-if="!simple" md-sort-by="host">HOST</md-table-head>
               <md-table-head md-sort-by="status">STATUS</md-table-head>
               <md-table-head md-sort-by="health">HEALTH</md-table-head>
+              <md-table-head md-sort-by="metrics">METRICS</md-table-head>
               <md-table-head md-sort-by="log">LOG</md-table-head>
               <md-table-head v-if="!simple" md-sort-by="cpu">CPU</md-table-head>
               <md-table-head v-if="!simple" md-sort-by="mem">MEM</md-table-head>
@@ -41,6 +42,12 @@
                 <span class="healthCheck running" v-if="task.healthCheckResults===true"></span>
                 <span class="healthCheck dead" v-else-if="task.healthCheckResults===false"></span>
                 <span class="healthCheck" v-else></span>
+              </md-table-cell>
+              <md-table-cell>
+                <a v-on:click="moveCadvisor(task)" style="cursor: pointer">
+                  <span><md-icon>trending_up</md-icon></span>
+                  <span>metrics</span>
+                </a>
               </md-table-cell>
               <md-table-cell>
                 <a v-on:click="moveLog(task)" style="cursor: pointer">로그보기</a>
@@ -233,6 +240,17 @@
           count++;
         }
         this.total = count;
+      },
+      moveCadvisor: function (task) {
+        if (task['statuses'][0]) {
+          var dockerName = 'mesos-' + task['statuses'][0]['container_status']['container_id'].value;
+          var url = this.getCadvisorUrlBySlaveId(task['slave_id']);
+          if (url) {
+            window.open(url + '/docker/' + dockerName);
+          } else {
+            this.$root.$children[0].warning('등록된 메트릭스 서비스가 없습니다.');
+          }
+        }
       },
       moveLog: function (task) {
         var me = this;

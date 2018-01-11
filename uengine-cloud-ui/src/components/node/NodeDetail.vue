@@ -1,10 +1,19 @@
 <template xmlns:v-on="http://www.w3.org/1999/xhtml">
   <div>
     <div v-if="!taskId">
-      <span class="md-subheading">노드 : {{getHostBySlaveId(nodeId)}}</span>
-      <br>
-      <span class="md-subheading">시스템 사용량</span>
-      <metrics :nodeId="nodeId"></metrics>
+      <md-layout>
+        <md-layout>
+          <span class="md-subheading">노드 : {{getHostBySlaveId(nodeId)}}</span>
+        </md-layout>
+        <md-layout md-align="end">
+          <md-button class="md-raised md-primary" v-on:click="openCadvisor">더 자세히
+            <md-icon>search</md-icon>
+          </md-button>
+        </md-layout>
+      </md-layout>
+      <div>
+        <metrics :nodeId="nodeId"></metrics>
+      </div>
       <br><br>
     </div>
 
@@ -39,7 +48,16 @@
         }
       }
     },
-    methods: {}
+    methods: {
+      openCadvisor: function () {
+        var url = this.getCadvisorUrlBySlaveId(this.nodeId);
+        if (url) {
+          window.open(url);
+        } else {
+          this.$root.$children[0].warn('등록된 메트릭스 서비스가 없습니다.');
+        }
+      }
+    }
   }
 </script>
 

@@ -8,14 +8,14 @@
     ></app-runtime-card>
     <div style="margin-top: 5%;">
       <md-layout md-gutter="16">
-        <md-layout md-flex="50">
-          <div>
+        <md-layout md-flex="40">
+          <div style="width: 100%">
             <div class="md-subheading">활동 피드</div>
             <apps-logs-list></apps-logs-list>
           </div>
         </md-layout>
-        <md-layout md-flex="50">
-          <div>
+        <md-layout md-flex="60">
+          <div style="width: 100%">
             <div class="md-subheading">인스턴스</div>
             <task-list
               simple
