@@ -88,8 +88,10 @@
     },
     methods: {
       movePipeLine: function (pipelineId) {
-        var url = config.gitlab.host + '/' + this.devApp.owner + '/' + this.appName + '/pipelines/' + pipelineId;
-        window.open(url);
+        this.getProject(this.devApp.gitlab.projectId, function (response, err) {
+          var url = response.data.web_url + '/pipelines/' + pipelineId;
+          window.open(url);
+        });
       },
       onPagination: function (val) {
         this.size = val.size;

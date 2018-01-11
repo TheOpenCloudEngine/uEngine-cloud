@@ -549,6 +549,14 @@
               }
             })
       },
+      getProject: function (projectId, cb) {
+        this.$root.gitlab('api/v4/projects/' + projectId).get()
+          .then(function (response) {
+            cb(response);
+          }, function (response) {
+            cb(null, response);
+          })
+      }
     }
   }
 </script>

@@ -386,16 +386,18 @@
         window.open(url);
       },
       moveGitlab: function (type, objectId) {
-        if (type == 'project') {
-          var url = config.gitlab.host + '/' + this.devApp.owner + '/' + this.appName;
-          window.open(url);
-        } else if (type == 'commit') {
-          var url = config.gitlab.host + '/' + this.devApp.owner + '/' + this.appName + '/commit/' + objectId;
-          window.open(url);
-        } else if (type == 'tag') {
-          var url = config.gitlab.host + '/' + this.devApp.owner + '/' + this.appName + '/tags/' + objectId;
-          window.open(url);
-        }
+        this.getProject(this.devApp.gitlab.projectId, function (response, err) {
+          var url = response.data.web_url;
+          if (type == 'project') {
+            window.open(url);
+          } else if (type == 'commit') {
+            url = url + '/commit/' + objectId;
+            window.open(url);
+          } else if (type == 'tag') {
+            url = url + '/tags/' + objectId;
+            window.open(url);
+          }
+        });
       }
     }
   }
