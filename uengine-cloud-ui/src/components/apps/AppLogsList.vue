@@ -38,7 +38,7 @@
                       <span style="font-weight: 600;" v-else-if="appLog.action == 'CREATE_APP'">앱이 생성됨</span>
                       <span style="font-weight: 600;" v-else-if="appLog.action == 'UPDATE_APP_CONFIGYML'">앱 환경설정을 업데이트함</span>
                       <span style="font-weight: 600;" v-else-if="appLog.action == 'PUSH'">푸쉬됨</span>
-                      <span style="font-weight: 600;" v-else-if="appLog.action == 'PIPELINE'">CI 작업이 {{appLog.action}} 됨</span>
+                      <span style="font-weight: 600;" v-else-if="appLog.action == 'PIPELINE'">CI 작업이 {{appLog.status}} 됨</span>
                       <span style="font-weight: 600;" v-else-if="appLog.action == 'START_DEPLOYED_BY_CI'">CI 에서 <span v-if="appLog.log">{{appLog.log.stage}} 환경에</span> 앱 배포시작됨</span>
                       <span style="color:#8B8B8C;font-size: 12px;">  - {{appLog.timecompare}}</span>
                     </div>
