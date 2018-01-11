@@ -66,8 +66,12 @@
         <md-card-area>
           <md-card-content style="text-align: center">
             <!--여기 스피너와 문구 구분하는 조건값 확인-->
-            <div v-if="marathonApp">현재 영역에 배포중인 어플리케이션이 없습니다. <a v-on:click="openGitlabDeploy">태그 또는 브랜치에서</a> 에서 어플리케이션을 배포하세요.</div>
-            <div v-else><md-spinner :md-size="60" md-indeterminate></md-spinner></div>
+            <div v-if="isLoaded">현재 영역에 배포중인 어플리케이션이 없습니다. <a v-on:click="openGitlabDeploy">태그 또는 브랜치에서</a> 에서
+              어플리케이션을 배포하세요.
+            </div>
+            <div v-else>
+              <md-spinner :md-size="60" md-indeterminate></md-spinner>
+            </div>
           </md-card-content>
         </md-card-area>
       </md-card>
@@ -92,6 +96,7 @@
     },
     data() {
       return {
+        isLoaded: false,
         stageApp: null,
         marathonApp: null,
         rollbackMarathonApp: null,
@@ -114,6 +119,7 @@
       devApp: {
         handler: function (newVal, oldVal) {
           this.makeItems();
+          this.isLoaded = true;
         },
         deep: true
       }
