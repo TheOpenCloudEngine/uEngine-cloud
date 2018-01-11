@@ -23,6 +23,7 @@ public class AppCreate {
     private int stgPort;
     private int devPort;
     private Map user;
+    private String namespace;
 
     public String getCategoryItemId() {
         return categoryItemId;
@@ -158,5 +159,13 @@ public class AppCreate {
 
     public void setUser(Map user) {
         this.user = user;
+    }
+
+    public String getNamespace() {
+        return namespace;
+    }
+
+    public void setNamespace(String namespace) {
+        this.namespace = namespace;
     }
 }

@@ -8,6 +8,8 @@ import org.apache.http.util.EntityUtils;
 import org.gitlab4j.api.GitLabApi;
 import org.gitlab4j.api.models.Project;
 import org.gitlab4j.api.models.User;
+import org.uengine.iam.client.IamClient;
+import org.uengine.iam.client.model.OauthUser;
 import org.uengine.iam.util.HttpUtils;
 import org.uengine.iam.util.JsonUtils;
 import org.uengine.iam.util.StringUtils;
@@ -515,35 +517,26 @@ public class AppService {
         Map dcosMap = this.getDcosMap();
 
         //깃랩 사용자 정의
-        String userId = TenantContext.getThreadLocalInstance().getUserId();
+        String userName = TenantContext.getThreadLocalInstance().getUserId();
+        IamClient iamClient = new IamClient(environment.getProperty("iam.host"),
+                Integer.parseInt(environment.getProperty("iam.port")),
+                environment.getProperty("iam.clientId"),
+                environment.getProperty("iam.clientSecret"));
 
-        //userId == 이메일 주소.
-        //깃랩에 해당 이메일을 사용하는 유저가 있는지 체크.
-        User gitlabUser = null;
-        try {
-            List<User> users = gitLabApi.getUserApi().findUsers(userId);
-            if (!users.isEmpty()) {
-                for (User user : users) {
-                    if (userId.equals(user.getEmail()) || userId.equals(user.getUsername())) {
-                        gitlabUser = user;
-                    }
-                }
-            }
-        } catch (Exception ex) {
+        OauthUser oauthUser = iamClient.getUser(userName);
+        int gitlabId = (int) oauthUser.getMetaData().get("gitlab-id");
 
-        }
-        String gitlabUsername = userId.split("@")[0];
-        if (gitlabUser != null) {
-            gitlabUsername = gitlabUser.getUsername();
+        //깃랩에 유저가 있는지 체크
+        User existGitlabUser = gitLabApi.getUserApi().getUser(gitlabId);
+        if (existGitlabUser == null) {
+            throw new Exception("Not found gitlab user id: " + gitlabId);
         }
 
         //신규 app 맵
         Map app = new HashMap();
         app.put("number", appCreate.getAppNumber());
         app.put("appType", appCreate.getCategoryItemId());
-        app.put("iam", userId);
-        app.put("owner", gitlabUsername);
-
+        app.put("iam", userName);
 
         app.put("gitlab", new HashMap<>());
         Map gitMap = (Map) app.get("gitlab");
@@ -748,7 +741,7 @@ public class AppService {
 
     public void updateAppConfigChanged(String appName, String stage, boolean isChanged) throws Exception {
         //TODO 스테이지가 없으면 모든 스테이지가 변화된 것.
-        if(StringUtils.isEmpty(stage)){
+        if (StringUtils.isEmpty(stage)) {
             return;
         }
 

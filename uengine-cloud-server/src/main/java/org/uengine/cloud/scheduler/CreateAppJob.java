@@ -40,6 +40,7 @@ import org.uengine.cloud.app.AppCreate;
 import org.uengine.cloud.app.AppService;
 import org.uengine.cloud.app.GitlabExtentApi;
 import org.uengine.cloud.templates.MustacheTemplateEngine;
+import org.uengine.iam.util.StringUtils;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -75,14 +76,8 @@ public class CreateAppJob implements Job {
             //DCOS 앱 찾기
             Map app = appService.getAppByName(appCreate.getAppName());
 
-            //gitlabUsername 는 이메일에서 @ 앞부분(깃랩에서 허용하지 않기 때문에)
-            String gitlabUsername = app.get("owner").toString();
-
             //iamUserName 은 IAM 유저네임
             String iamUserName = app.get("iam").toString();
-
-            //name 은 사람 이름(Iam 에 name 필드가 있다고 가정)
-            String gitlabName = ((Map) appCreate.getUser().get("metaData")).get("name").toString();
 
 
             //IAM 유저정보(패스워드 포함)
@@ -92,23 +87,14 @@ public class CreateAppJob implements Job {
                     environment.getProperty("iam.clientSecret"));
             OauthUser oauthUser = iamClient.getUser(iamUserName);
 
-            //깃랩 사용자 등록
-            User user = null;
-            try {
-                user = gitLabApi.getUserApi().getUser(gitlabUsername);
-            } catch (Exception ex) {
+            //깃랩 유저
+            int gitlabId = (int) oauthUser.getMetaData().get("gitlab-id");
+            User gitlabUser = gitLabApi.getUserApi().getUser(gitlabId);
 
-            }
-
-            //깃랩 사용자가 없다면 생성.
-            if (user == null) {
-                Map userMap = new HashMap();
-                userMap.put("name", gitlabName);
-                userMap.put("username", gitlabUsername);
-                userMap.put("email", iamUserName);
-                userMap.put("password", oauthUser.getUserPassword());
-                userMap.put("skip_confirmation", true);
-                Map created = gitlabExtentApi.createUser(userMap);
+            //네임스페이스 구하기
+            String namespace = gitlabUser.getUsername();
+            if (!StringUtils.isEmpty(appCreate.getNamespace())) {
+                namespace = appCreate.getNamespace();
             }
 
             //프로젝트 포크
@@ -121,15 +107,11 @@ public class CreateAppJob implements Job {
             List<Map> mappings = (List) definition.get("mappings");
 
             //포크하기
-            Map forkProject = gitlabExtentApi.forkProject(tempProjectId, gitlabUsername);
-
-            //TODO 만약, 그룹개념이 들어간다면, 다음과 같이 코드를 추가할것
-            //Map forkProject = gitlabExtentApi.forkProject(tempProjectId, "msa"); //msa 는 그룹네임스페이스
+            Map forkProject = gitlabExtentApi.forkProject(tempProjectId, namespace);
 
 
             projectId = (int) forkProject.get("id");
             Project project = gitLabApi.getProjectApi().getProject(projectId);
-
 
             //포크릴레이션 삭제
             gitlabExtentApi.deleteForkRelation(project.getId());
@@ -168,7 +150,7 @@ public class CreateAppJob implements Job {
             gitLabApi.getProjectApi().addHook(projectId, data.get("UENGINE_CLOUD_URL").toString() + "/hook", hook, false, null);
 
             //트리거 등록
-            gitlabExtentApi.createTrigger(projectId, gitlabUsername, "dcosTrigger");
+            gitlabExtentApi.createTrigger(projectId, gitlabUser.getUsername(), "dcosTrigger");
 
             //마라톤 디플로이 명세 파일 복사
             String[] deployFiles = null;
