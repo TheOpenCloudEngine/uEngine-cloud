@@ -91,12 +91,12 @@
           </md-layout>
         </md-layout>
         <md-layout md-flex="50" :md-gutter="16">
-          <div class="bold">깃랩 프로젝트:</div>
+          <div class="bold">깃랩 그룹: (생성 후에도 변경가능합니다.)</div>
           <md-layout md-flex="100">
             <md-input-container>
-              <md-select v-model="projectId">
-                <md-option value="">신규 생성</md-option>
-                <md-option v-for="project in projects" :value="project.id">{{project.name}}</md-option>
+              <md-select v-model="namespace">
+                <md-option value="">내 아이디로 생성</md-option>
+                <md-option v-for="group in groups" :value="group.path">{{group.name}}</md-option>
               </md-select>
             </md-input-container>
           </md-layout>
@@ -121,6 +121,8 @@
         mem: 512,
         instances: 1,
         appNumber: 1,
+        namespace: "",
+        groups: [],
         projectId: "",
         projects: [],
         existRepository: false,
@@ -138,11 +140,11 @@
     },
     mounted(){
       var me = this;
-      this.$root.gitlab('api/v4/projects').get()
-        .then(function (response) {
-          console.log('response', response);
-          me.projects = response.data;
-        });
+      me.getGroupsIncludMe(localStorage['gitlab-id'], function (groups) {
+        if (groups) {
+          me.groups = groups;
+        }
+      });
       $.get('/static/catalog.json', function (catalog) {
         me.setCategoryItem(catalog);
       })
@@ -232,7 +234,8 @@
           internalDevDomain: me.internalDevDomain,
           prodPort: me.prodPort,
           stgPort: me.stgPort,
-          devPort: me.devPort
+          devPort: me.devPort,
+          namespace: me.namespace
         })
           .then(
             function (response) {

@@ -556,6 +556,48 @@
           }, function (response) {
             cb(null, response);
           })
+      },
+      getGroupsIncludMe: function (gitlabUserId, cb) {
+        var me = this;
+        var myGroups = [];
+        var isDuplicated = function (groupId) {
+          var flag = false;
+          $.each(myGroups, function (g, group) {
+            if (group.id == groupId) {
+              flag = true;
+            }
+          });
+          return flag;
+        };
+
+        this.$root.gitlab('api/v4/groups').get()
+          .then(function (response) {
+            var groups = response.data;
+            var promises = [];
+            if (groups.length) {
+              $.each(groups, function (i, group) {
+                promises.push(
+                  me.$root.gitlab('api/v4/groups/' + group.id + '/members').get()
+                )
+              });
+              Promise.all(promises)
+                .then(function (results) {
+                  $.each(results, function (r, members) {
+                    $.each(members.data, function (m, member) {
+                      //30 은 마스터, 40은 오너
+                      if (member.id == gitlabUserId && member['access_level'] >= 30) {
+                        if (!isDuplicated(groups[r].id)) {
+                          myGroups.push(groups[r]);
+                        }
+                      }
+                    })
+                  });
+                  cb(myGroups);
+                })
+            }
+          }, function (response) {
+            cb(null, response);
+          })
       }
     }
   }

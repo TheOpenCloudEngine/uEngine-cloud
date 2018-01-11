@@ -35,7 +35,7 @@ module.exports = function (iam) {
         localStorage['user'] = info.context.user;
         localStorage['userName'] = info.context['userName'];
         localStorage['acl'] = info.context.user['metaData'].acl;
-        console.log('acl', localStorage['acl']);
+        localStorage['gitlab-id'] = info.context.user['metaData']['gitlab-id'];
         callback(true);
       })
       .fail(function () {
