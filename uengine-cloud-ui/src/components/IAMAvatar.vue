@@ -66,9 +66,7 @@
         iam: window.iam,
         iamHost: 'http://' + window.config.vcap.services.iam.external,
         user: {
-//          username : "",
-//          email : "",
-//          name:"",
+          metaData:{}
         }
       }
     },

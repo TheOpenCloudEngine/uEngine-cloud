@@ -24,7 +24,23 @@
                         </div>
 
                       </div>
-                      <span style="font-weight: 600;">{{appLog.appName}} 앱이 <span v-if="appLog.log">{{appLog.log.stage}}에</span> {{appLog.action}}됨</span>
+
+                      <span style="font-weight: 600;">{{appLog.appName}} 앱이 </span>
+                      <span style="font-weight: 600;" v-if="appLog.action == 'EXCUTE_PIPELINE_TRIGGER'"><span v-if="appLog.log">{{appLog.log.stage}} 환경에</span> 빌드가 시작됨</span>
+                      <span style="font-weight: 600;" v-else-if="appLog.action == 'UPDATE_APP_PIPELINE_JSON'">자동 배포 설정이 변경됨</span>
+                      <span style="font-weight: 600;" v-else-if="appLog.action == 'REMOVE_DEPLOYED_APP'"><span v-if="appLog.log">{{appLog.log.stage}} 의</span> 앱이 삭제됨</span>
+                      <span style="font-weight: 600;" v-else-if="appLog.action == 'ROLLBACK_DEPLOYED_APP'"><span v-if="appLog.log">{{appLog.log.stage}} 의</span> 앱이 롤백됨</span>
+                      <span style="font-weight: 600;" v-else-if="appLog.action == 'RUN_DEPLOYED_APP_REQUEST'"><span v-if="appLog.log">{{appLog.log.stage}} 환경에</span> 앱 배포 요청됨</span>
+                      <span style="font-weight: 600;" v-else-if="appLog.action == 'RUN_DEPLOYED_APP'"><span v-if="appLog.log">{{appLog.log.stage}} 환경에</span> 앱 배포됨</span>
+                      <span style="font-weight: 600;" v-else-if="appLog.action == 'UPDATE_APP'">앱 정보를 업데이트됨</span>
+                      <span style="font-weight: 600;" v-else-if="appLog.action == 'DELETE_APP'">앱이 삭제됨</span>
+                      <span style="font-weight: 600;" v-else-if="appLog.action == 'CREATE_APP_REQUEST'">앱이 생성 요청됨</span>
+                      <span style="font-weight: 600;" v-else-if="appLog.action == 'CREATE_APP'">앱이 생성됨</span>
+                      <span style="font-weight: 600;" v-else-if="appLog.action == 'UPDATE_APP_CONFIGYML'">앱 환경설정을 업데이트함</span>
+                      <span style="font-weight: 600;" v-else-if="appLog.action == 'PUSH'">푸쉬됨</span>
+                      <span style="font-weight: 600;" v-else-if="appLog.action == 'PIPELINE'">CI 작업이 {{appLog.action}} 됨</span>
+                      <span style="font-weight: 600;" v-else-if="appLog.action == 'START_DEPLOYED_BY_CI'">CI 에서 <span v-if="appLog.log">{{appLog.log.stage}} 환경에</span> 앱 배포시작됨</span>
+                      <span style="color:#8B8B8C;font-size: 12px;">  - {{appLog.timecompare}}</span>
                     </div>
                     <div style="margin-left:9px;border-left:1px solid #B0B0B1;margin-top:5px;">
                       <!--<div>{{appLog.log}}</div>-->
@@ -62,6 +78,7 @@
     data() {
       return {
         appLogs: [],
+        appLogsData: [],
         size: 5,
         page: 0,
         total: 0,
@@ -73,13 +90,34 @@
       this.$root.backend('appLogs/search/findByAppName?appName=' + this.appName+'&sort=regDate,desc'+'&size='+this.size).get()
         .then(function (response) {
           console.log(response);
-          me.appLogs = response.data['_embedded'].appLogs;
+          me.appLogsData = response.data['_embedded'].appLogs;
           me.total = response.data.page.totalElements;
         });
     },
     watch: {
-      appLogs: {
+      appLogsData: {
         handler: function (newVal, oldVal) {
+          var me = this;
+          var copy = JSON.parse(JSON.stringify(newVal));
+
+          for (var i in copy){
+            var diffTime = (new Date().getTime() - copy[i].regDate)/1000;
+            if (diffTime < 60) {
+              copy[i].timecompare = "방금 전";
+            } else if ((diffTime /= 60) < 60) {
+              copy[i].timecompare = Math.floor(diffTime) + "분 전";
+            } else if ((diffTime /= 60) < 24) {
+              copy[i].timecompare = Math.floor(diffTime) + "시간 전";
+            } else if ((diffTime /= 24) < 30) {
+              copy[i].timecompare = Math.floor(diffTime) + "일 전";
+            } else if ((diffTime /= 30) < 12) {
+              copy[i].timecompare = Math.floor(diffTime) + "달 전";
+            } else {
+              copy[i].timecompare = Math.floor(diffTime) + "년 전";
+            }
+          }
+          console.log(copy);
+          me.appLogs = copy;
         },
         deep: true
       }
@@ -91,7 +129,7 @@
         this.$root.backend('appLogs/search/findByAppName?appName=' + this.appName+'&sort=regDate,desc'+'&page='+(value.page-1)+'&size='+value.size).get()
           .then(function (response) {
             console.log(response);
-            me.appLogs = response.data['_embedded'].appLogs;
+            me.appLogsData = response.data['_embedded'].appLogs;
           });
       }
     }
