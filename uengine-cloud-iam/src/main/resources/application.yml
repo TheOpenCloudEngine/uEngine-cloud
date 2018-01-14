@@ -29,8 +29,8 @@ server:
 iam:
 # 어드민 정보
   admin:
-    username: admin
-    password: admin
+    username: @iam.admin.username@
+    password: @iam.admin.password@
 # jwt 발급 정보 및 키
   jwt:
     key: fcf5afd7-be51-4dfc-949f-d4ab768b985d
@@ -39,14 +39,14 @@ iam:
 
 # 시스템 이메일 정보 (옵셔널)
   mail:
-    host: smtp.gmail.com
-    username: "sppark@uengine.org"
-    password: "!gosu23546"
-    port: 587
-    smtp-auth: true
-    smtp-starttls-enable: true
-    from-address: sppark@uengine.org
-    from-name: uengine
+    host: @iam.mail.host@
+    username: "@iam.mail.username@"
+    password: "@iam.mail.password@"
+    port: @iam.mail.port@
+    smtp-auth: @iam.mail.smtp-auth@
+    smtp-starttls-enable: @iam.mail.smtp-starttls-enable@
+    from-address: @iam.mail.from-address@
+    from-name: @iam.mail.from-name@
 
 # =============================================
 #  스코프 - 주로 백엔드 서비스에 해당됩니다.
@@ -61,8 +61,8 @@ scopes:
 clients:
   - name: uEngine-cloud
     description: uEngine cloud Application
-    clientKey: my-client-key
-    clientSecret: my-client-secret
+    clientKey: @iam.client-key@
+    clientSecret: @iam.client-secret@
 
     # 토큰 발급시 요청할 수 있는 스코프 목록.
     enable-scopes: cloud-server
@@ -100,7 +100,7 @@ clients:
     refreshTokenLifetime: 2592000
 
     # 어세스 토큰 유효시간
-    accessTokenLifetime: 3600
+    accessTokenLifetime: @iam.access-token-lifetime@
 
     # 사용자 알림 메일 발송 SIGN_UP,SIGNED_UP,FORGOT_PASSWORD,PASSWORD_CHANGED | ALL
     notification: ALL
@@ -152,9 +152,9 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
         show_sql: true
   datasource:
-    url: jdbc:mysql://${vcap.services.db.internal}/uengine
+    url: jdbc:mysql://${vcap.services.db.internal}/@db.database@
     username: root
-    password: my-secret-pw
+    password: @db.password@
 
 # ======================
 #  Eureka Configuration

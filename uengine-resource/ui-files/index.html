@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Open Cloud Engine</title>
+
+  <script type="text/javascript" src="/static/iam-client/jquery.js"></script>
+  <script type="text/javascript" src="/static/iam-client/iam-api.js"></script>
+  <script type="text/javascript" src="/static/slimscroll/jquery.slimscroll.min.js"></script>
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"
+        integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+  <link href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons' rel="stylesheet"
+        type="text/css">
+  <!--<link rel="stylesheet" href="//unpkg.com/vue-material@0.7.4/dist/vue-material.css">-->
+
+  <!-- Flot -->
+  <script src="/static/js/plugins/flot/jquery.flot.js"></script>
+  <script src="/static/js/plugins/flot/jquery.flot.tooltip.min.js"></script>
+  <script src="/static/js/plugins/flot/jquery.flot.resize.js"></script>
+  <script src="/static/js/plugins/flot/jquery.flot.pie.js"></script>
+  <script src="/static/js/plugins/flot/jquery.flot.time.js"></script>
+
+  <script>
+    var configServerUrl = 'http://@host.config@';
+    var eurekaServerUrl = 'http://@host.eureka-server@';
+    var baseUrl = location.protocol + '//' + location.hostname + (location.port ? ':' + location.port : '');
+  </script>
+  <style>
+    body {
+      overflow: auto;
+    }
+  </style>
+</head>
+<body>
+<div id="app"></div>
+<!-- built files will be auto injected -->
+</body>
+<link rel="stylesheet" type="text/css" href="/static/css/custom.css">
+</html>

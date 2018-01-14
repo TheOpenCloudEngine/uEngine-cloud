@@ -1,63 +1,50 @@
 {
-  "id": "/uengine-db",
+  "id": "/uengine-cloud-ui",
+  "acceptedResourceRoles": [
+    "*"
+  ],
   "backoffFactor": 1.15,
   "backoffSeconds": 1,
-  "constraints": [
-    [
-      "hostname",
-      "LIKE",
-      "192.168.0.13"
-    ]
-  ],
   "container": {
     "portMappings": [
       {
-        "containerPort": 3306,
+        "containerPort": 8080,
         "hostPort": 0,
         "protocol": "tcp",
-        "servicePort": 10002
+        "servicePort": 10006
       }
     ],
     "type": "DOCKER",
-    "volumes": [
-      {
-        "containerPath": "/var/lib/mysql",
-        "hostPath": "/mysql/datadir",
-        "mode": "RW"
-      }
-    ],
+    "volumes": [],
     "docker": {
-      "image": "mysql:5.7",
-      "forcePullImage": false,
+      "image": "@host.package.registry@/uengine-cloud-ui:v1",
+      "forcePullImage": true,
       "privileged": false,
-      "parameters": [
-        { "key": "rm", "value": "true" }
-      ]
+      "parameters": []
     }
   },
-  "cpus": 0.3,
+  "cpus": 0.5,
   "disk": 0,
   "env": {
-    "MYSQL_DATABASE": "uengine",
-    "MYSQL_ROOT_PASSWORD": "my-secret-pw"
+    "DEPLOYMENT": "blue"
   },
   "healthChecks": [
     {
       "gracePeriodSeconds": 300,
+      "ignoreHttp1xx": false,
       "intervalSeconds": 60,
       "maxConsecutiveFailures": 3,
+      "portIndex": 0,
       "timeoutSeconds": 20,
       "delaySeconds": 15,
-      "protocol": "COMMAND",
-      "command": {
-        "value": "pwd"
-      }
+      "protocol": "HTTP",
+      "path": "/"
     }
   ],
   "instances": 1,
   "labels": {
-    "HAPROXY_GROUP": "external,internal",
-    "HAPROXY_0_MODE": "tcp"
+    "HAPROXY_0_VHOST": "@host.cloud-ui@",
+    "HAPROXY_GROUP": "external,internal"
   },
   "maxLaunchDelaySeconds": 3600,
   "mem": 512,
@@ -78,10 +65,5 @@
     "expungeAfterSeconds": 0
   },
   "fetch": [],
-  "args": [
-    "--character-set-server",
-    "utf8",
-    "--collation-server",
-    "utf8_unicode_ci"
-  ]
+  "constraints": []
 }

@@ -1,5 +1,5 @@
 {
-  "id": "/uengine-iam",
+  "id": "/uengine-cloud-iam",
   "cmd": null,
   "cpus": 0.5,
   "mem": 512,
@@ -12,7 +12,7 @@
     "type": "DOCKER",
     "docker": {
       "forcePullImage": true,
-      "image": "sppark/uengine-iam:v1",
+      "image": "@host.package.registry@/uengine-cloud-iam:v1",
       "parameters": [],
       "privileged": false
     },
@@ -45,7 +45,7 @@
   ],
   "labels": {
     "HAPROXY_GROUP": "external,internal",
-    "HAPROXY_0_VHOST": "iam.pas-mini.io"
+    "HAPROXY_0_VHOST": "@host.iam@"
   },
   "networks": [
     {

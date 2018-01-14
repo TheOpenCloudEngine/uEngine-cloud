@@ -12,7 +12,7 @@
     "type": "DOCKER",
     "docker": {
       "forcePullImage": true,
-      "image": "sppark/uengine-cloud-server:v1",
+      "image": "@host.package.registry@/uengine-cloud-server:v1",
       "parameters": [],
       "privileged": false
     },
@@ -45,7 +45,7 @@
   ],
   "labels": {
     "HAPROXY_GROUP": "external,internal",
-    "HAPROXY_0_VHOST": "cloud-server.pas-mini.io"
+    "HAPROXY_0_VHOST": "@host.cloud-server@"
   },
   "networks": [
     {

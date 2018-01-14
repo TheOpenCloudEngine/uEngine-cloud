@@ -1,7 +1,7 @@
 {
-  "id": "/uengine-cloud-iam",
+  "id": "/uengine-cloud-config",
   "cmd": null,
-  "cpus": 0.5,
+  "cpus": 0.4,
   "mem": 512,
   "disk": 0,
   "instances": 1,
@@ -12,7 +12,7 @@
     "type": "DOCKER",
     "docker": {
       "forcePullImage": true,
-      "image": "sppark/uengine-cloud-iam:v1",
+      "image": "@host.package.registry@/uengine-cloud-config:v1",
       "parameters": [],
       "privileged": false
     },
@@ -23,12 +23,9 @@
         "hostPort": 0,
         "labels": {},
         "protocol": "tcp",
-        "servicePort": 10003
+        "servicePort": 10000
       }
     ]
-  },
-  "env": {
-    "DEPLOYMENT": "blue"
   },
   "healthChecks": [
     {
@@ -45,7 +42,13 @@
   ],
   "labels": {
     "HAPROXY_GROUP": "external,internal",
-    "HAPROXY_0_VHOST": "iam.pas-mini.io"
+    "HAPROXY_0_VHOST": "@host.config@",
+    "HAPROXY_0_BACKEND_HEAD": "backend {backend}\n balance roundrobin\n mode {mode}\n rspadd Access-Control-Allow-Origin:\\ *\n rspadd Access-Control-Allow-Methods:\\ GET,\\ POST,\\ PUT,\\ OPTIONS,\\ DELETE\n rspadd Access-Control-Allow-Headers:\\ management-key,\\ management-secret,\\ client-key,\\ client-secret,\\ Origin,\\ X-Requested-With,\\ Content-Type,\\ Accept,\\ Authorization\n"
+  },
+  "env": {
+    "SPRING_CLOUD_CONFIG_SERVER_GIT_URI": "http://@host.gitlab@/root/cloud-config-repository.git",
+    "SPRING_CLOUD_CONFIG_SERVER_GIT_USERNAME": "@gitlab.root.username@",
+    "SPRING_CLOUD_CONFIG_SERVER_GIT_PASSWORD": "@gitlab.root.password@"
   },
   "networks": [
     {

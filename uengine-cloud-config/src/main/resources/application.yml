@@ -3,6 +3,6 @@ spring:
     config:
       server:
         git:
-          uri: http://gitlab.pas-mini.io/root/cloud-config-repository.git
+          uri: http://@host.gitlab@/root/cloud-config-repository.git
           username: root
           password: adminadmin

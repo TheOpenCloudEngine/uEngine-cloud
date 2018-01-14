@@ -83,31 +83,31 @@
 - hosts: all
   remote_user: "{{ansible_user}}"
   tasks:
-    - name: Docker service file
-      become: true
-      become_method: sudo
-      copy:
-        src: ./docker.service
-        dest: /usr/lib/systemd/system/docker.service
-        owner: root
-        group: root
-        mode: 0644
-    - name: Docker conf file
-      become: true
-      become_method: sudo
-      copy:
-        content: |
-          ARG1=-H unix:///var/run/docker.sock --insecure-registry {{registry_host}}
-        dest: /etc/docker.conf
-        owner: root
-        group: root
-        mode: 0644
+#    - name: Docker service file
+#      become: true
+#      become_method: sudo
+#      copy:
+#        src: ./docker.service
+#        dest: /usr/lib/systemd/system/docker.service
+#        owner: root
+#        group: root
+#        mode: 0644
+#    - name: Docker conf file
+#      become: true
+#      become_method: sudo
+#      copy:
+#        content: |
+#          ARG1=-H unix:///var/run/docker.sock --insecure-registry {{registry_host}}
+#        dest: /etc/docker.conf
+#        owner: root
+#        group: root
+#        mode: 0644
     - name: Docker devicemapper
       become: true
       become_method: sudo
       copy:
         content: |
-          {"storage-driver": "vfs"}
+          {"storage-driver": "vfs","insecure-registries" : ["{{registry_host}}"]}
         dest: /etc/docker/daemon.json
         owner: root
         group: root

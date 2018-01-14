@@ -20,9 +20,9 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
         show_sql: true
   datasource:
-    url: jdbc:mysql://${vcap.services.db.external}/uengine
+    url: jdbc:mysql://${vcap.services.db.external}/@db.database@
     username: root
-    password: my-secret-pw
+    password: @db.password@
 
 
 server:
@@ -55,9 +55,9 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
         show_sql: true
   datasource:
-    url: jdbc:mysql://${vcap.services.db.internal}/uengine
+    url: jdbc:mysql://${vcap.services.db.internal}/@db.database@
     username: root
-    password: my-secret-pw
+    password: @db.password@
 
 server:
   port: 8080

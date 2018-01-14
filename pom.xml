@@ -10,6 +10,7 @@
     <version>1.0-SNAPSHOT</version>
 
     <modules>
+        <module>uengine-resource</module>
         <module>uengine-eureka-server</module>
         <module>uengine-cloud-config</module>
         <module>uengine-cloud-server</module>

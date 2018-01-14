@@ -1,7 +1,7 @@
 {
-  "id": "/uengine-cloud-config",
+  "id": "/eureka-server",
   "cmd": null,
-  "cpus": 0.4,
+  "cpus": 0.5,
   "mem": 512,
   "disk": 0,
   "instances": 1,
@@ -12,20 +12,23 @@
     "type": "DOCKER",
     "docker": {
       "forcePullImage": true,
-      "image": "sppark/uengine-cloud-config:v1",
+      "image": "@host.package.registry@/uengine-eureka-server:v1",
       "parameters": [],
       "privileged": false
     },
     "volumes": [],
     "portMappings": [
       {
-        "containerPort": 8080,
+        "containerPort": 8761,
         "hostPort": 0,
         "labels": {},
         "protocol": "tcp",
-        "servicePort": 10000
+        "servicePort": 10001
       }
     ]
+  },
+  "env": {
+    "DEPLOYMENT": "BLUE"
   },
   "healthChecks": [
     {
@@ -33,7 +36,7 @@
       "ignoreHttp1xx": false,
       "intervalSeconds": 60,
       "maxConsecutiveFailures": 3,
-      "path": "/health",
+      "path": "/",
       "portIndex": 0,
       "protocol": "HTTP",
       "timeoutSeconds": 20,
@@ -42,13 +45,8 @@
   ],
   "labels": {
     "HAPROXY_GROUP": "external,internal",
-    "HAPROXY_0_VHOST": "config.pas-mini.io",
+    "HAPROXY_0_VHOST": "@host.eureka-server@",
     "HAPROXY_0_BACKEND_HEAD": "backend {backend}\n balance roundrobin\n mode {mode}\n rspadd Access-Control-Allow-Origin:\\ *\n rspadd Access-Control-Allow-Methods:\\ GET,\\ POST,\\ PUT,\\ OPTIONS,\\ DELETE\n rspadd Access-Control-Allow-Headers:\\ management-key,\\ management-secret,\\ client-key,\\ client-secret,\\ Origin,\\ X-Requested-With,\\ Content-Type,\\ Accept,\\ Authorization\n"
-  },
-  "env": {
-    "SPRING_CLOUD_CONFIG_SERVER_GIT_URI": "http://gitlab.pas-mini.io/root/cloud-config-repository.git",
-    "SPRING_CLOUD_CONFIG_SERVER_GIT_USERNAME": "root",
-    "SPRING_CLOUD_CONFIG_SERVER_GIT_PASSWORD": "adminadmin"
   },
   "networks": [
     {
