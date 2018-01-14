@@ -46,10 +46,15 @@
       with_items:
         - sudo yum install -y ntp tar xz unzip curl ipset bind-utils
         - sudo sed -i s/SELINUX=enforcing/SELINUX=permissive/g /etc/selinux/config
-        - sudo systemctl stop firewalld
-        - sudo systemctl disable firewalld
         - sudo yum install haveged -y
         - sudo chkconfig haveged on
+
+    - name: Firewalld off
+      command: "{{ item }}"
+      with_items:
+        - sudo systemctl stop firewalld
+        - sudo systemctl disable firewalld
+      ignore_errors: True
 
     - name: Ntp
       command: "{{ item }}"
@@ -64,7 +69,10 @@
         - sudo groupadd docker
       ignore_errors: True
 
-- hosts: master:public:agent
+# If you want auto-scale gitlab ci runner
+#- hosts: master:public:agent:gitlab:ci
+
+- hosts: master:public:agent:gitlab
   remote_user: "{{ansible_user}}"
   tasks:
     - name: Restart machine
@@ -83,25 +91,26 @@
 - hosts: all
   remote_user: "{{ansible_user}}"
   tasks:
-#    - name: Docker service file
-#      become: true
-#      become_method: sudo
-#      copy:
-#        src: ./docker.service
-#        dest: /usr/lib/systemd/system/docker.service
-#        owner: root
-#        group: root
-#        mode: 0644
-#    - name: Docker conf file
-#      become: true
-#      become_method: sudo
-#      copy:
-#        content: |
-#          ARG1=-H unix:///var/run/docker.sock --insecure-registry {{registry_host}}
-#        dest: /etc/docker.conf
-#        owner: root
-#        group: root
-#        mode: 0644
+    - block:
+      - name: Checking Docker folders
+        stat:
+         path: "{{item}}"
+        register: folder_stats
+        with_items:
+        - ["/etc/docker/"]
+      - name: Creating Docker folders
+        become: true
+        become_method: sudo
+        file:
+         path: "{{item.item}}"
+         state: directory
+         mode: 0644
+         group: root
+         owner: root
+        when: item.stat.exists == false
+        with_items:
+        - "{{folder_stats.results}}"
+
     - name: Docker devicemapper
       become: true
       become_method: sudo

@@ -1,6 +1,6 @@
 dcos:
   host: http://58.140.91.67:8081/
-  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJkYXJrZ29kYXJrZ29AZ21haWwuY29tIiwiZXhwIjozMTI1NTM1ODE4NDYuNzY5NX0.dNXCp1fXFEh4FGFDE4ujJSdIDxmwSr0nQtNhWfw--f4
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJkYXJrZ29kYXJrZ29AZ21haWwuY29tIiwiZXhwIjozMTI1NTU5MDY0MzkuODk0MX0.aHgH_M-g-n-WlnPg_CorMGYEprULPSeUTIGu3GyZQ-U
 
 gitlab:
   host: http://gitlab.pas-mini.io
@@ -17,6 +17,7 @@ iam:
   clientSecret: 109cf590-ac67-4b8c-912a-913373ada046
     
 registry:
-  host: gitlab.pas-mini.io:5000
+  host: 172.31.15.249:5000
+  public-host: gitlab.pas-mini.io:5000
   
 public-agent-ip: 192.168.0.14

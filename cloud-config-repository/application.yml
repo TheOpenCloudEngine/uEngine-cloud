@@ -1,9 +1,12 @@
 ---
 vcap:
   services:
+    db:
+      external: "db.pas-mini.io:10002"
+      internal: "marathon-lb-internal.marathon.mesos:10002"
     iam:
-      external: "iam.uengine.io:8080"
-      internal: "iam.uengine.io:8080"
+      external: "iam.pas-mini.io"
+      internal: "iam.pas-mini.io:10003"
     uengine-cloud-config:
       external: "config.pas-mini.io"
       internal: "marathon-lb-internal.marathon.mesos:10000"

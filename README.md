@@ -18,26 +18,30 @@
 
 - 다음의 서버들을 준비해야 합니다. (사양은 추천사항입니다.)
 - 마스터 노드는 홀수개의 서버로 준비하도록 합니다. (1,3,5)
+- 프라이빗 에이전트 노드는 최소 한개를 구성해야 합니다.
 - 퍼블릭 에이전트 노드는 최소 한개를 구성해야 합니다.
 - 퍼블릭 에이전트 노드의 80 포트와 443 포트, 그리고 9090 포트는 외부에서 접속이 가능해야 합니다.
 - 마스터 노드중 한개의 80 포트는 외부에서 접속이 가능해야 합니다.
+- 깃랩 서버의 80 포트와 5000 포트는 외부에서 접속이 가능해야 합니다.
+
+#### 서버 예시
 
 
-| 역할 / 호스트네임 | 사양                     | IP 주소      |
-|-------------------|--------------------------|--------------|
-| bootstrap         | 2 CPU /2 GB/10 GB Disk   | 192.168.0.25 |
-| master1           | 2 CPU /4 GB/20 GB Disk   | 192.168.0.39 |
-| master2           | 2 CPU /4 GB/20 GB Disk   | 192.168.0.23 |
-| master3           | 2 CPU /4 GB/20 GB Disk   | 192.168.0.8  |
-| public-agent      | 4 CPU /8 GB/20 GB Disk   | 192.168.0.37 |
-| agent1            | 4 CPU /8 GB/20 GB Disk   | 192.168.0.27 |
-| agent2            | 4 CPU /8 GB/20 GB Disk   | 192.168.0.28 |
-| agent3            | 4 CPU /8 GB/20 GB Disk   | 192.168.0.24 |
-| agent4            | 4 CPU /8 GB/20 GB Disk   | 192.168.0.25 |
-| agent5            | 4 CPU /8 GB/20 GB Disk   | 192.168.0.31 |
-| agent6            | 4 CPU /8 GB/20 GB Disk   | 192.168.0.26 |
-| agent7            | 4 CPU /8 GB/20 GB Disk   | 192.168.0.33 |
-| gitlab            | 4 CPU /32 GB/200 GB Disk | 192.168.0.35 |
+| 역할 / 호스트네임 | 사양                     | IP 주소      | 외부 포트바인딩 |
+|-------------------|--------------------------|--------------|-----------------|
+| bootstrap         | 2 CPU /2 GB/100 GB Disk  | 192.168.0.25 |                 |
+| master1           | 2 CPU /4 GB/100 GB Disk  | 192.168.0.39 | 80              |
+| master2           | 2 CPU /4 GB/100 GB Disk  | 192.168.0.23 |                 |
+| master3           | 2 CPU /4 GB/100 GB Disk  | 192.168.0.8  |                 |
+| public-agent      | 4 CPU /8 GB/100 GB Disk  | 192.168.0.37 | 80,443,9090     |
+| agent1            | 4 CPU /8 GB/100 GB Disk  | 192.168.0.27 |                 |
+| agent2            | 4 CPU /8 GB/100 GB Disk  | 192.168.0.28 |                 |
+| agent3            | 4 CPU /8 GB/100 GB Disk  | 192.168.0.24 |                 |
+| agent4            | 4 CPU /8 GB/100 GB Disk  | 192.168.0.25 |                 |
+| agent5            | 4 CPU /8 GB/100 GB Disk  | 192.168.0.31 |                 |
+| agent6            | 4 CPU /8 GB/100 GB Disk  | 192.168.0.26 |                 |
+| agent7            | 4 CPU /8 GB/100 GB Disk  | 192.168.0.33 |                 |
+| gitlab            | 4 CPU /32 GB/300 GB Disk | 192.168.0.35 | 80,5000         |
 
 ### 호스트 준비
 
@@ -50,11 +54,18 @@
 | gitlab        | pas-mini.io | 깃랩 / 도커 레지스트리 | 192.168.0.35(gitlab)       |
 | config        | pas-mini.io | 클라우드 콘피그 서버   | 192.168.0.37(public-agent) |
 | eureka-server | pas-mini.io | 유레카 서버            | 192.168.0.37(public-agent) |
-| api-dev       | pas-mini.io | 개발 Api-gateway       | 192.168.0.37(public-agent) |
-| api-stg       | pas-mini.io | 스테이지 Api-gateway   | 192.168.0.37(public-agent) |
-| api           | pas-mini.io | 프로덕션 Api-gateway   | 192.168.0.37(public-agent) |
+| iam       | pas-mini.io | 사용자 인증 서버       | 192.168.0.37(public-agent) |
+| db       | pas-mini.io | 데이터베이스   | 192.168.0.37(public-agent) |
 | cloud-server  | pas-mini.io | 클라우드 플랫폼 서버   | 192.168.0.37(public-agent) |
 | cloud         | pas-mini.io | 클라우드 플랫폼 UI     | 192.168.0.37(public-agent) |
+
+와일드카드(*) A_Mask 를 활용하실 경우, 다음과 같이 간략히 설정이 가능합니다.
+
+| A_MASK        | 도메인      | 역할                   | 아이피/호스트              |
+|---------------|-------------|------------------------|----------------------------|
+| gitlab        | pas-mini.io | 깃랩 / 도커 레지스트리 | 192.168.0.35(gitlab)       |
+| *        | pas-mini.io | 클라우드 콘피그 서버   | 192.168.0.37(public-agent) |
+
 
 #### 호스트네임 변경
 
@@ -74,19 +85,25 @@ sudo reboot
 
 ```
 sudo vi /etc/hostname
+
 bootstrap
+
 sudo hostname bootstrap
 ```
 
 #### ssh root 접속 허용
 
-모든 서버의 /etc/ssh/ssh_config 의 PermitRootLogin 를 주석처리합니다.
+모든 서버의 /etc/ssh/ssh_config 또는 /etc/ssh/sshd_config 의 PermitRootLogin 이 no 로 설정되어있을 경우, 주석처리합니다.
 
 — ssh config
 
 ```
 sudo vi /etc/ssh/ssh_config
+.
+.
 # PermitRootLogin no
+.
+.
 sudo service sshd restart
 ```
 
@@ -303,7 +320,7 @@ git clone https://github.com/TheOpenCloudEngine/uEngine-cloud
 #### 설치 파일 복사 및 추가 다운로드
 
 ```
-sudo yum install wget
+sudo yum install wget -y
 
 cd uEngine-cloud
 cp -R ./script ./install
@@ -314,7 +331,11 @@ wget https://s3.ap-northeast-2.amazonaws.com/uengine-cloud/dcos_generate_config.
 #### 호스트 파일 수정
 
 ```
-vi ./install/etc-hosts
+cd ./install
+vi ./etc-hosts
+
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
 
 192.168.0.25  bootstrap
 192.168.0.39 master1
@@ -333,8 +354,8 @@ vi ./install/etc-hosts
 #### ansible 설치
 
 ```
-sudo yum install epel-release
-sudo yum install ansible
+sudo yum install epel-release -y
+sudo yum install ansible -y
 ```
 
 #### /etc/ansible/hosts 생성
@@ -349,18 +370,21 @@ sudo vi /etc/ansible/hosts
 [all:vars]
 ansible_user=centos
 ansible_ssh_private_key_file=/home/centos/dcos-key.pem
-registry_host=gitlab.pas-mini.io:5000 
+registry_host=gitlab.pas-mini.io:5000
 
 [bootstrap]
-192.168.0.25
+192.168.0.7
+
+[gitlab]
+192.168.0.35
 
 [master]
-192.168.0.39
+192.168.0.14
 192.168.0.23
 192.168.0.8
 
 [public]
-192.168.0.37
+192.168.0.30
 
 [agent]
 192.168.0.27
@@ -428,10 +452,15 @@ ansible-playbook.yml 을 살펴보면, 다음의 내용으로 이루어져있습
       with_items:
         - sudo yum install -y ntp tar xz unzip curl ipset bind-utils
         - sudo sed -i s/SELINUX=enforcing/SELINUX=permissive/g /etc/selinux/config
-        - sudo systemctl stop firewalld
-        - sudo systemctl disable firewalld
         - sudo yum install haveged -y
         - sudo chkconfig haveged on
+
+    - name: Firewalld off
+      command: "{{ item }}"
+      with_items:
+        - sudo systemctl stop firewalld
+        - sudo systemctl disable firewalld
+      ignore_errors: True
 
     - name: Ntp
       command: "{{ item }}"
@@ -446,7 +475,7 @@ ansible-playbook.yml 을 살펴보면, 다음의 내용으로 이루어져있습
         - sudo groupadd docker
       ignore_errors: True
 
-- hosts: master:public:agent
+- hosts: master:public:agent:gitlab
   remote_user: "{{ansible_user}}"
   tasks:
     - name: Restart machine
@@ -465,22 +494,33 @@ ansible-playbook.yml 을 살펴보면, 다음의 내용으로 이루어져있습
 - hosts: all
   remote_user: "{{ansible_user}}"
   tasks:
-    - name: Docker service file
-      become: true
-      become_method: sudo
-      copy:
-        src: ./docker.service
-        dest: /usr/lib/systemd/system/docker.service
-        owner: root
-        group: root
-        mode: 0644
-    - name: Docker conf file
+    - block:
+      - name: Checking Docker folders
+        stat:
+         path: "{{item}}"
+        register: folder_stats
+        with_items:
+        - ["/etc/docker/"]
+      - name: Creating Docker folders
+        become: true
+        become_method: sudo
+        file:
+         path: "{{item.item}}"
+         state: directory
+         mode: 0644
+         group: root
+         owner: root
+        when: item.stat.exists == false
+        with_items:
+        - "{{folder_stats.results}}"
+
+    - name: Docker devicemapper
       become: true
       become_method: sudo
       copy:
         content: |
-          ARG1=-H unix:///var/run/docker.sock --insecure-registry {{registry_host}}
-        dest: /etc/docker.conf
+          {"storage-driver": "vfs","insecure-registries" : ["{{registry_host}}"]}
+        dest: /etc/docker/daemon.json
         owner: root
         group: root
         mode: 0644
@@ -496,7 +536,10 @@ ansible-playbook.yml 을 살펴보면, 다음의 내용으로 이루어져있습
 # ansible-playbook ansible-playbook.yml
 
 # play at task
-# ansible-playbook ansible-playbook.yml --start-at-task="genconf"
+# ansible-playbook ansible-playbook.yml --start-at-task="Docker devicemapper"
+
+# play at task and step
+# ansible-playbook ansible-playbook.yml --step --start-at-task="genconf"
 ```
 
 #### playbook.yml 실행
@@ -554,7 +597,7 @@ echo $(ip addr show eth0 | grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1
 
 #### ssh_key
 
-genconf/ssh_key 에 접속가능한 private key pem 파일의 내용을 넣습니다. 
+genconf/ssh_key 에 접속가능한 private key pem 파일의 내용을 넣고, 퍼미션을 400 으로 조정하세요.
 
 ```
 vi genconf/ssh_key
@@ -572,6 +615,7 @@ config.yaml 은 DC/OS 프로비져닝에 필요한 스택구성 파일입니다.
 
 ```
 vi genconf/config.yaml
+
 ---
 agent_list:
 - 192.168.0.27
@@ -704,12 +748,16 @@ curl --header "Authorization: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQ
 
 #### CLI 설치
 
+부트스트랩 노드에서, 다음을 실행합니다.
+
 ```
 curl -O https://downloads.dcos.io/binaries/cli/linux/x86-64/dcos-1.10/dcos
 sudo mv dcos /usr/local/bin
 chmod +x /usr/local/bin/dcos
 
 # 마스터 중 하나로 지정합니다.
+# CLI 클라이언트는 사용자 등록을 위해 웹브라우저 주소를 리다이렉트 합니다. 그러므로, 마스터 노드의 퍼블릭 아이피를 넣어주도록 합니다.
+# 네트워크 환경이 프라이빗 아이피로도 마스터 노드로의 브라우저 접속이 가능하다면, 프라이빗 아이피 그대로 사용하셔도 무방합니다.
 dcos cluster setup http://192.168.0.14
 
 If your browser didn't open, please go to the following link:
@@ -723,23 +771,17 @@ Enter OpenID Connect ID Token:
 
 ### Gitlab
 
+다음은 깃랩 서버 인스톨입니다.
+
+#### 도커 레지스트리 서버 준비
+
+```
+sudo docker run -d -p 5000:5000 --restart=always --name registry registry:2
+```
+
+#### 깃랩 인스톨
+
 <Gitlab>
-
-- Ubuntu
-
-```
-sudo apt-get update
-sudo apt-get install -y curl openssh-server ca-certificates
-
-curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh | sudo bash
-
-
-sudo EXTERNAL_URL="http://gitlab.pas-mini.io" apt-get install gitlab-ce
-
-sudo dockerd -H unix:///var/run/docker.sock --insecure-registry gitlab.pas-mini.io:5000 &
-```
-
-- CentOS7
 
 ```
 sudo yum install -y curl policycoreutils-python openssh-server
@@ -748,41 +790,19 @@ sudo systemctl start sshd
 sudo firewall-cmd --permanent --add-service=http
 sudo systemctl reload firewalld
 
-curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.rpm.sh | sudo bash
+curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.rpm.sh | sudo bash
 
-sudo EXTERNAL_URL="http://gitlab.example.com" yum install -y gitlab-ee
+sudo EXTERNAL_URL="http://gitlab.example.com" yum install -y gitlab-ce-10.2.4-ce.0.el7.x86_64
 
-sudo dockerd -H unix:///var/run/docker.sock --insecure-registry gitlab.pas-mini.io:5000 &
 ```
 
 <Gitlab CI Runner>
 
-- Ubuntu
-
-```
-curl -L https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.deb.sh | sudo bash
-
-sudo su
-
-cat > /etc/apt/preferences.d/pin-gitlab-runner.pref <<EOF
-Explanation: Prefer GitLab provided packages over the Debian native ones
-Package: gitlab-runner
-Pin: origin packages.gitlab.com
-Pin-Priority: 1001
-EOF
-
-exit
-
-sudo apt-get install gitlab-runner
-
-```
-
-- CentOS7
 
 ```
 curl -L https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.rpm.sh | sudo bash
 
-sudo yum install gitlab-runner
+sudo yum install gitlab-runner -y
 
 ```
 
@@ -793,7 +813,7 @@ sudo vi /etc/gitlab/gitlab.rb
 
 .
 .
-external_url 'http://gitlab.pas-mini.io'
+external_url 'http://gitlab.pasmini.io'
 
 gitlab_rails['smtp_enable'] = true
 gitlab_rails['smtp_address'] = "smtp.gmail.com"
@@ -812,6 +832,7 @@ sudo gitlab-ctl reconfigure
 
 TODO - <Gitlab private 토큰 발급받기>
 
+스샷 있음.
 
 <Gitlab CI Runner 등록>
 

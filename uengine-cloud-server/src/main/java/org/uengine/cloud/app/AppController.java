@@ -11,6 +11,7 @@ import org.uengine.iam.util.JsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.*;
+import org.uengine.iam.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -47,8 +48,12 @@ public class AppController {
                                   HttpServletResponse response,
                                   @PathVariable("appName") String appName
     ) throws Exception {
+        String registryHost = environment.getProperty("registry.public-host");
+        if (StringUtils.isEmpty(registryHost)) {
+            registryHost = environment.getProperty("registry.host");
+        }
         HttpResponse res = new HttpUtils().makeRequest("GET",
-                "http://" + environment.getProperty("registry.host") + "/v2/" + appName + "/tags/list",
+                "http://" + registryHost + "/v2/" + appName + "/tags/list",
                 null,
                 new HashMap<>()
         );

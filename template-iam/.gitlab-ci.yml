@@ -2,6 +2,7 @@ image: docker:latest
 
 variables:
   IMAGE_NAME: "${REGISTRY_URL}/${APP_NAME}:${CI_COMMIT_SHA}"
+  MAVEN_OPTS: -Dmaven.repo.local=${CI_PROJECT_DIR}/.m2
 
 stages:
   - npm-build
@@ -12,6 +13,7 @@ stages:
 
 cache:
   paths:
+    - .m2/
     - front-end/node_modules/
     - src/main/resources/static/
 

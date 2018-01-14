@@ -1,9 +1,10 @@
-db.node.host: 192.168.0.13
+db.node.host: 172.31.6.35
 db.database: uengine
 db.password: my-secret-pw
 
 host.package.registry: sppark
-host.registry: gitlab.pas-mini.io:5000
+host.registry: 172.31.15.249:5000
+host.registry-public: gitlab.pas-mini.io:5000
 host.gitlab: gitlab.pas-mini.io
 host.iam: iam.pas-mini.io
 host.config: config.pas-mini.io
