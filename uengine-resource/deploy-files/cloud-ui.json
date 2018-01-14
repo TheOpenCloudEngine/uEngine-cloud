@@ -23,7 +23,7 @@
       "parameters": []
     }
   },
-  "cpus": 0.5,
+  "cpus": 0.4,
   "disk": 0,
   "env": {
     "DEPLOYMENT": "blue"

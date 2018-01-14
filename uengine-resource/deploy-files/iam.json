@@ -1,7 +1,7 @@
 {
   "id": "/uengine-cloud-iam",
   "cmd": null,
-  "cpus": 0.5,
+  "cpus": 0.4,
   "mem": 512,
   "disk": 0,
   "instances": 1,
