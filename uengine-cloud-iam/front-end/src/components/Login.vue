@@ -177,6 +177,12 @@
         </md-card-area>
       </md-card>
     </form>
+
+
+    <img src="http://iam.pas-mini.io/static/logo/logo_bright.png" height="50" style="
+    height: 20px;
+    margin-left: 50px;
+    margin-right: auto;">
   </div>
 </template>
 
@@ -376,7 +382,7 @@
     overflow-y: hidden;
     overflow-x: hidden;
     width: 100%;
-    background: #242A37;
+    background: #2a3e52;
     font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
   }
 
@@ -386,7 +392,7 @@
     max-width: 350px;
     margin-left: auto;
     margin-right: auto;
-    margin-top: 200px;
+    margin-top: 90px;
     text-align: center;
     overflow: visible;
 
