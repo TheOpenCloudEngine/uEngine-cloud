@@ -85,6 +85,10 @@ public class MyUserRepositoryImpl implements OauthUserRepository {
                 userMap.put("password", oauthUser.getUserPassword());
                 userMap.put("skip_confirmation", true);
                 Map created = gitlabExtentApi.createUser(userMap);
+                //gitlabUser의 iam정보 보관을 위해 customAttributes로 지정하는 정보 iam Username을 저장함
+                // key:"iam" value:"iam.username"
+                created.put("userName",oauthUser.getUserName());
+                gitlabExtentApi.createUserCustomAttributes(created);
                 int gitlabId = (int) created.get("id");
                 oauthUser.getMetaData().put("gitlab-id", gitlabId);
 
