@@ -392,7 +392,7 @@
     max-width: 350px;
     margin-left: auto;
     margin-right: auto;
-    margin-top: 90px;
+    margin-top: 150px;
     text-align: center;
     overflow: visible;
 
