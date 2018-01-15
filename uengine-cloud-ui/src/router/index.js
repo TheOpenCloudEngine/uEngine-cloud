@@ -229,6 +229,10 @@ Vue.component('user-detail', UserDetail);
 import UserCreate from '../components/organization/UserCreate'
 
 Vue.component('user-create', UserCreate);
+
+import GroupDetail from '../components/organization/GroupDetail'
+
+Vue.component('group-detail', GroupDetail);
 /**
  * 아바타
  */
@@ -583,6 +587,12 @@ export default new Router({
                 preTitle: "사용자정보",
                 breadcrumb: ':userName'
               }
+            },
+            {
+              path: 'groupdetail/:groupId',
+              name: 'groupDetail',
+              props: true,
+              component: GroupDetail,
             }
           ]
         },

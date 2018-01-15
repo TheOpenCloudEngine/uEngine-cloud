@@ -74,4 +74,23 @@ public class GitlabExtentApi implements InitializingBean {
         }
         return JsonUtils.unmarshal(json);
     }
+
+    public Map createUserCustomAttributes(Map user) throws Exception {
+
+        Map iamUserCustomAttribute = new HashMap();
+        iamUserCustomAttribute.put("value",user.get("userName").toString());
+
+        HttpResponse response = new HttpUtils().makeRequest("PUT",
+                host + "/api/v4/users/"+user.get("id")+"/custom_attributes/iam",
+                JsonUtils.marshal(iamUserCustomAttribute),
+                this.addHeaders()
+        );
+        HttpEntity entity = response.getEntity();
+        String json = EntityUtils.toString(entity);
+        int statusCode = response.getStatusLine().getStatusCode();
+        if (statusCode != 200) {
+            throw new Exception(json);
+        }
+        return JsonUtils.unmarshal(json);
+    }
 }
