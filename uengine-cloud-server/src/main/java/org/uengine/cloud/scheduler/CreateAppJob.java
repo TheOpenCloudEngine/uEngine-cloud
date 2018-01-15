@@ -24,6 +24,9 @@ import org.gitlab4j.api.models.ProjectHook;
 import org.gitlab4j.api.models.User;
 import org.gitlab4j.api.models.Visibility;
 
+import org.uengine.cloud.catalog.CatalogService;
+import org.uengine.cloud.catalog.CategoryItem;
+import org.uengine.cloud.catalog.FileMapping;
 import org.uengine.cloud.log.AppLogAction;
 import org.uengine.cloud.log.AppLogService;
 import org.uengine.cloud.log.AppLogStatus;
@@ -71,6 +74,7 @@ public class CreateAppJob implements Job {
         GitLabApi gitLabApi = ApplicationContextRegistry.getApplicationContext().getBean(GitLabApi.class);
         GitlabExtentApi gitlabExtentApi = ApplicationContextRegistry.getApplicationContext().getBean(GitlabExtentApi.class);
         AppLogService logService = ApplicationContextRegistry.getApplicationContext().getBean(AppLogService.class);
+        CatalogService catalogService = ApplicationContextRegistry.getApplicationContext().getBean(CatalogService.class);
 
         try {
             //DCOS 앱 찾기
@@ -100,14 +104,17 @@ public class CreateAppJob implements Job {
             //프로젝트 포크
 
             //템플릿 프로젝트 정보얻기.
-            int repoId = Integer.parseInt(environment.getProperty("gitlab.config-repo.projectId"));
-            String definitionFile = gitlabExtentApi.getRepositoryFile(repoId, "master", "template/" + appCreate.getCategoryItemId() + "/definition.json");
-            Map definition = JsonUtils.unmarshal(definitionFile);
-            int tempProjectId = (int) definition.get("projectId");
-            List<Map> mappings = (List) definition.get("mappings");
+            CategoryItem categoryItem = catalogService.getCategoryItemWithFiles(appCreate.getCategoryItemId());
+
+
+//            int repoId = Integer.parseInt(environment.getProperty("gitlab.config-repo.projectId"));
+//            String definitionFile = gitlabExtentApi.getRepositoryFile(repoId, "master", "template/" + appCreate.getCategoryItemId() + "/definition.json");
+//            Map definition = JsonUtils.unmarshal(definitionFile);
+//            int tempProjectId = (int) definition.get("projectId");
+//            List<Map> mappings = (List) definition.get("mappings");
 
             //포크하기
-            Map forkProject = gitlabExtentApi.forkProject(tempProjectId, namespace);
+            Map forkProject = gitlabExtentApi.forkProject(categoryItem.getProjectId(), namespace);
 
 
             projectId = (int) forkProject.get("id");
@@ -126,13 +133,13 @@ public class CreateAppJob implements Job {
             Map<String, Object> data = appService.getTriggerVariables(appCreate.getAppName());
 
             //mapping 파일들의 콘텐트를 교체한다.
+            List<FileMapping> mappings = categoryItem.getMappings();
             MustacheTemplateEngine templateEngine = new MustacheTemplateEngine();
-            for (Map mapping : mappings) {
-                String path = mapping.get("path").toString();
-                String file = mapping.get("file").toString();
+            for (FileMapping mapping : mappings) {
+                String path = mapping.getPath();
+                String file = mapping.getFile();
 
-                String templateText = gitlabExtentApi.getRepositoryFile(repoId, "master", "template/" + appCreate.getCategoryItemId() + "/" + file);
-                final String body = templateEngine.executeTemplateText(templateText, data);
+                final String body = templateEngine.executeTemplateText(file, data);
                 gitlabExtentApi.updateOrCraeteRepositoryFile(projectId, "master", path, body);
             }
 
@@ -153,23 +160,30 @@ public class CreateAppJob implements Job {
             gitlabExtentApi.createTrigger(projectId, gitlabUser.getUsername(), "dcosTrigger");
 
             //마라톤 디플로이 명세 파일 복사
-            String[] deployFiles = null;
-            deployFiles = new String[]{
-                    "template/" + appCreate.getCategoryItemId() + "/file/ci-deploy-production.json",
-                    "template/" + appCreate.getCategoryItemId() + "/file/ci-deploy-staging.json",
-                    "template/" + appCreate.getCategoryItemId() + "/file/ci-deploy-dev.json"
-            };
+            int repoId = Integer.parseInt(environment.getProperty("gitlab.config-repo.projectId"));
+            String[] stages = new String[]{"dev", "stg", "prod"};
 
             //생성시 결정한 시스템 자원을 반영한다.
-            for (String deployFile : deployFiles) {
-                String deployText = gitlabExtentApi.getRepositoryFile(repoId, "master", deployFile);
-                Map deployJson = JsonUtils.unmarshal(deployText);
+            for (String stage : stages) {
+                Map deployJson = null;
+                String fileName = null;
+                switch (stage) {
+                    case "prod":
+                        deployJson = JsonUtils.unmarshal(categoryItem.getDeployProd());
+                        fileName = "ci-deploy-production.json";
+                        break;
+                    case "dev":
+                        deployJson = JsonUtils.unmarshal(categoryItem.getDeployDev());
+                        fileName = "ci-deploy-dev.json";
+                        break;
+                    case "stg":
+                        deployJson = JsonUtils.unmarshal(categoryItem.getDeployStg());
+                        fileName = "ci-deploy-staging.json";
+                        break;
+                }
                 deployJson.put("cpus", appCreate.getCpu());
                 deployJson.put("mem", appCreate.getMem());
                 deployJson.put("instances", appCreate.getInstances());
-
-                String[] split = deployFile.split("/");
-                String fileName = split[split.length - 1];
                 gitlabExtentApi.updateOrCraeteRepositoryFile(
                         repoId, "master",
                         "deployment/" + data.get("APP_NAME").toString() + "/" + fileName, JsonUtils.marshal(deployJson));
@@ -192,10 +206,15 @@ public class CreateAppJob implements Job {
                         repoId, "master", "deployment/" + data.get("APP_NAME").toString() + "/" + fileName, scriptText);
             }
 
-            //클라우드 콘피그 파일 복사
-            String configText = gitlabExtentApi.getRepositoryFile(repoId, "master", "template/" + appCreate.getCategoryItemId() + "/file/config.yml");
-            appService.createAppConfigYml(appCreate.getAppName(), configText);
 
+            //클라우드 콘피그 파일 복사
+            appService.createAppConfigYml(
+                    appCreate.getAppName(),
+                    categoryItem.getConfig(),
+                    categoryItem.getConfigDev(),
+                    categoryItem.getConfigStg(),
+                    categoryItem.getConfigProd()
+            );
 
             //dcos projectId 업데이트
             Map dcosMap = appService.getDcosMap();

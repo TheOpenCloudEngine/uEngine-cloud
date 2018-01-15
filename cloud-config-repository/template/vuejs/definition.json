@@ -1,9 +1,0 @@
-{
-    "projectId": 3,
-    "mappings": [
-        {
-            "path": "index.html",
-            "file": "file/index.html"
-        }
-    ]
-}

@@ -1,11 +1,11 @@
 <template xmlns:v-on="http://www.w3.org/1999/xhtml" xmlns:v-bind="http://www.w3.org/1999/xhtml">
   <div v-if="appName">
     <gitlab-deploy
-      v-if="devApp"
+      v-if="devApp && categoryItem"
       ref="gitlab-deploy"
       :stage="stage"
       :devApp="devApp"
-      :catalogItem="catalogItem"
+      :categoryItem="categoryItem"
       :appName="appName"
       :role="'deploy'"
     ></gitlab-deploy>
@@ -35,13 +35,13 @@
       </md-layout>
       <md-layout md-flex="85">
         <div style="width: 100%">
-          <div style="width: 100%;padding: 16px" v-if="catalogItem">
+          <div style="width: 100%;padding: 16px" v-if="categoryItem">
             <div>
               <md-layout>
                 <md-layout md-flex="40">
                   <div>
                     <md-avatar>
-                      <img :src="catalogItem.image" alt="catalogItem.title">
+                      <img :src="categoryItem.logoSrc" alt="categoryItem.title">
                     </md-avatar>
                     <span class="md-subheading">{{appName}}</span>
                   </div>
@@ -130,7 +130,7 @@
             <router-view
               :stage="stage"
               :devApp="devApp"
-              :catalogItem="catalogItem"
+              :categoryItem="categoryItem"
               style="width: 100%"></router-view>
           </div>
         </div>
@@ -161,7 +161,7 @@
         interval: true,
         appRoutes: [],
         stage: 'dev',
-        catalogItem: null,
+        categoryItem: null,
         devApp: null,
         status: null,
         items: [
@@ -179,6 +179,7 @@
     },
     mounted() {
       var me = this;
+      me.categoryItem = null;
 
       window.busVue.$on('openGitlabDeploy', function (val) {
         me.openGitlabDeploy();
@@ -208,9 +209,11 @@
         me.getDevAppByName(me.appName, function (response, error) {
           if (response) {
             me.devApp = response.data;
-            me.getCategoryItemById(me.devApp.appType, function (catalogItem) {
-              me.catalogItem = catalogItem;
-            });
+            if (!me.categoryItem) {
+              me.getCategoryItem(me.devApp.appType, function (item) {
+                me.categoryItem = item;
+              });
+            }
           } else {
             me.devApp = null;
           }
@@ -235,9 +238,6 @@
         me.getDevAppByName(me.appName, function (response, error) {
           if (response) {
             me.devApp = response.data;
-            me.getCategoryItemById(me.devApp.appType, function (catalogItem) {
-              me.catalogItem = catalogItem;
-            });
           } else {
             me.devApp = null;
           }

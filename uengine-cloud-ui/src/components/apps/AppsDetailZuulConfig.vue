@@ -135,7 +135,7 @@
     props: {
       stage: String,
       devApp: Object,
-      catalogItem: Object,
+      categoryItem: Object,
     },
     data() {
       var me = this;

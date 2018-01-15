@@ -4,8 +4,8 @@
       <div>
         <span class="md-subheading">모든 카테고리</span>
         <br><br><br>
-        <div v-for="(category, key) in catalog.category">
-          <a class="md-subheading" v-on:click="setFocusCategory(key)">{{category.type}}</a>
+        <div v-for="(category, index) in catalog">
+          <a class="md-subheading" v-on:click="setFocusCategory(index)">{{category.type}}</a>
         </div>
       </div>
     </md-layout>
@@ -20,19 +20,19 @@
       </md-layout>
       <md-layout md-flex="100">
         <md-layout md-flex="100">
-          <span class="md-body-1">{{catalog.category[focusCategory].description}}</span>
+          <span class="md-body-1">{{catalog[focusCategoryIndex].description}}</span>
         </md-layout>
         <br><br>
 
         <md-layout class="category-item" md-flex="33"
-                   v-for="item in catalog.category[focusCategory].items"
+                   v-for="item in catalog[focusCategoryIndex].items"
         >
           <div v-on:click="moveCreate(item.id)">
             <md-layout>
               <md-layout md-flex="20">
                 <div>
                   <md-avatar>
-                    <img :src="item.image" alt="item.title">
+                    <img :src="item.logoSrc" alt="item.title">
                   </md-avatar>
                 </div>
               </md-layout>
@@ -56,20 +56,21 @@
     data() {
       return {
         catalog: null,
-        focusCategory: 'app'
+        focusCategoryIndex: 0
       }
     },
     mounted(){
       var me = this;
-      $.get('/static/catalog.json', function (catalog) {
-        me.catalog = catalog;
-      })
+      me.$root.backend('catalog').get()
+        .then(function (response) {
+          me.catalog = response.data;
+        });
     },
     watch: {}
     ,
     methods: {
-      setFocusCategory: function (key) {
-        this.focusCategory = key;
+      setFocusCategory: function (index) {
+        this.focusCategoryIndex = index;
       },
       moveCreate: function (categoryItemId) {
         console.log('categoryItemId', categoryItemId);

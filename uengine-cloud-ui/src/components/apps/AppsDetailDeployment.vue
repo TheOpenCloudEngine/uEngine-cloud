@@ -5,7 +5,7 @@
       ref="gitlab-deploy"
       :stage="selectedStage"
       :devApp="devApp"
-      :catalogItem="catalogItem"
+      :categoryItem="categoryItem"
       :appName="appName"
       :role="'deploy'"
     ></gitlab-deploy>
@@ -46,7 +46,7 @@
       <app-pipeline
         :stage="stage"
         :devApp="devApp"
-        :catalogItem="catalogItem"
+        :categoryItem="categoryItem"
       ></app-pipeline>
     </div>
     <div v-if="menu == 'config'">
@@ -99,7 +99,7 @@
     props: {
       stage: String,
       devApp: Object,
-      catalogItem: Object
+      categoryItem: Object
     },
     data() {
       return {

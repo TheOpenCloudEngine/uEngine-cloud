@@ -1,0 +1,18 @@
+{
+  "id": "springboot",
+  "category": "app",
+  "header": "Spring boot (Netfflix OSS) 앱 작성",
+  "title": "Spring boot (Netfflix OSS)",
+  "description": "Spring Cloud Netflix는 Spring Boot 애플리케이션을위한 Netflix OSS 통합 환경을 제공합니다. 몇 가지 간단한 주석을 사용하여 애플리케이션 내부의 공통 패턴을 신속하게 활성화 및 구성하고 배틀 테스트를 거친 Netflix 구성 요소로 대규모 분산 시스템을 구축 할 수 있습니다. 제공되는 패턴에는 서비스 디스커버리 (Eureka), Api 차단기 (Hystrix), 라우팅 (Zuul) 및 클라이언트 로드발란서 (리본)이 포함됩니다.",
+  "version": "1.0",
+  "mappings": [
+    {
+      "path": "pom.xml",
+      "file": "pom.xml"
+    },
+    {
+      "path": "src/main/resources/bootstrap.yml",
+      "file": "bootstrap.yml"
+    }
+  ]
+}

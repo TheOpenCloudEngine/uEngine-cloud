@@ -416,7 +416,7 @@ public class AppService {
         return gitlabExtentApi.getRepositoryFile(repoId, "master", filePath);
     }
 
-    public void createAppConfigYml(String appName, String content) throws Exception {
+    public void createAppConfigYml(String appName, String common, String dev, String stg, String prod) throws Exception {
         String defaultString = "---\n" +
                 "# =================================================\n" +
                 "# The common configuration file will be overwritten\n" +
@@ -424,16 +424,16 @@ public class AppService {
 
         int repoId = Integer.parseInt(environment.getProperty("gitlab.config-repo.projectId"));
         gitlabExtentApi.updateOrCraeteRepositoryFile(repoId,
-                "master", appName + ".yml", content);
+                "master", appName + ".yml", common);
 
         gitlabExtentApi.updateOrCraeteRepositoryFile(repoId,
-                "master", appName + "-dev.yml", defaultString);
+                "master", appName + "-dev.yml", dev);
 
         gitlabExtentApi.updateOrCraeteRepositoryFile(repoId,
-                "master", appName + "-stg.yml", defaultString);
+                "master", appName + "-stg.yml", stg);
 
         gitlabExtentApi.updateOrCraeteRepositoryFile(repoId,
-                "master", appName + "-prod.yml", defaultString);
+                "master", appName + "-prod.yml", prod);
     }
 
     public String updateAppConfigYml(String appName, String content, String stage) throws Exception {

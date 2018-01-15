@@ -145,9 +145,9 @@
           me.groups = groups;
         }
       });
-      $.get('/static/catalog.json', function (catalog) {
-        me.setCategoryItem(catalog);
-      })
+      this.getCategoryItem(me.categoryItemId, function (item) {
+        me.categoryItem = item;
+      });
     },
     watch: {
       'dcosData.devopsApps': {
@@ -205,17 +205,6 @@
     }
     ,
     methods: {
-      setCategoryItem: function (catalog) {
-        var me = this;
-        for (var key in catalog['category']) {
-          var category = catalog['category'][key];
-          $.each(category.items, function (i, item) {
-            if (item.id == me.categoryItemId) {
-              me.categoryItem = item;
-            }
-          })
-        }
-      },
       create: function () {
         var me = this;
         this.$root.backend('app').save(null, {

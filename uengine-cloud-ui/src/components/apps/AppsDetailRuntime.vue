@@ -50,14 +50,14 @@
         :appType="appType"
         :stage="stage"
         :devApp="devApp"
-        :catalogItem="catalogItem"
+        :categoryItem="categoryItem"
       ></extension-menu>
     </div>
     <div v-if="menu == 'runtime'">
       <app-runtime-card
         :stage="stage"
         :devApp="devApp"
-        :catalogItem="catalogItem"
+        :categoryItem="categoryItem"
       ></app-runtime-card>
 
       <br><br>
@@ -69,7 +69,7 @@
       <app-cloud-config
         :stage="stage"
         :devApp="devApp"
-        :catalogItem="catalogItem"
+        :categoryItem="categoryItem"
       >
       </app-cloud-config>
     </div>
@@ -77,7 +77,7 @@
       <app-ssh
         :stage="stage"
         :devApp="devApp"
-        :catalogItem="catalogItem"
+        :categoryItem="categoryItem"
       >
       </app-ssh>
     </div>
@@ -94,7 +94,7 @@
     props: {
       stage: String,
       devApp: Object,
-      catalogItem: Object
+      categoryItem: Object
     },
     data() {
       return {

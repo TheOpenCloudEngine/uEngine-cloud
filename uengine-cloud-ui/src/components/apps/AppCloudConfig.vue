@@ -105,7 +105,7 @@
     props: {
       stage: String,
       devApp: Object,
-      catalogItem: Object
+      categoryItem: Object
     },
     data() {
       return {

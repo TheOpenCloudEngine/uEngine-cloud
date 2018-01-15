@@ -1,5 +1,5 @@
 <template xmlns:v-on="http://www.w3.org/1999/xhtml">
-  <md-layout v-if="catalogItem && devApp" class="bg-white">
+  <md-layout v-if="categoryItem && devApp" class="bg-white">
     <div class="header-top-line"></div>
     <div v-if="isActive || gitlabDeploy" style="width: 100%">
       <md-layout>
@@ -11,7 +11,7 @@
                 <!--원 부분-->
                 <md-layout md-align="center">
                   <md-avatar v-if="item.type == 'profile'">
-                    <img :src="item.image" alt="item.title">
+                    <img :src="item.logoSrc" alt="item.title">
                   </md-avatar>
                   <md-avatar v-else v-bind:class="{ 'diff': item.diff }" style="overflow: visible;">
                     <div style="position: relative;width: 100%;height: 100%;">
@@ -86,7 +86,7 @@
     props: {
       stage: String,
       devApp: Object,
-      catalogItem: Object,
+      categoryItem: Object,
       gitlabDeploy: {
         type: Boolean,
         default: function () {
@@ -196,7 +196,7 @@
       },
       makeItems: function () {
         var me = this;
-        if (!me.catalogItem || !me.devApp) {
+        if (!me.categoryItem || !me.devApp) {
           return;
         }
         //isActive
@@ -234,14 +234,14 @@
 
         me.items = [
           {
-            image: me.catalogItem.image,
-            title: me.catalogItem.type,
-            subTitle: me.catalogItem.title,
+            image: me.categoryItem.logoSrc,
+            title: me.categoryItem.type,
+            subTitle: me.categoryItem.title,
             type: 'profile',
             size: 0,
           },
           {
-            image: me.catalogItem.image,
+            image: me.categoryItem.logoSrc,
             title: '인스턴스',
             subTitle: '',
             type: 'instances',
@@ -249,7 +249,7 @@
             diff: me.stageApp['deploy-json'].instances != me.instances
           },
           {
-            image: me.catalogItem.image,
+            image: me.categoryItem.logoSrc,
             title: '인스턴스당 메모리(MB)',
             subTitle: '',
             type: 'mem',
@@ -257,7 +257,7 @@
             diff: me.stageApp['deploy-json'].mem != me.mem
           },
           {
-            image: me.catalogItem.image,
+            image: me.categoryItem.logoSrc,
             title: '인스턴스당 CPU',
             subTitle: '',
             type: 'cpus',

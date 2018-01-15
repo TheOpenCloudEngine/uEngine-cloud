@@ -3,7 +3,7 @@
     <component v-if="tagExists" :is="'apps-' + appType + '-config'"
                :stage="stage"
                :devApp="devApp"
-               :catalogItem="catalogItem"
+               :categoryItem="catalogItem"
     ></component>
   </div>
 </template>
@@ -14,7 +14,7 @@
       appType: String,
       stage: String,
       devApp: Object,
-      catalogItem: Object
+      categoryItem: Object
     },
     data() {
       return {}

@@ -500,21 +500,6 @@
             cb(null, response);
           })
       },
-      getCategoryItemById: function (categoryItemId, cb) {
-        var me = this;
-        var selectedItem;
-        $.get('/static/catalog.json', function (catalog) {
-          for (var key in catalog['category']) {
-            var category = catalog['category'][key];
-            $.each(category.items, function (i, item) {
-              if (item.id == categoryItemId) {
-                selectedItem = item;
-              }
-            })
-          }
-          cb(selectedItem);
-        })
-      },
       getDevAppVcapYml: function (appName, cb) {
         this.$root.backend('app/' + appName + '/vcap').get()
           .then(function (response) {
@@ -613,6 +598,27 @@
           })
         }
         return url;
+      },
+      getCategoryItem: function (itemId, cb) {
+        var selected = null;
+        this.$root.backend('catalog').get()
+          .then(function (response) {
+            var catalog = response.data;
+            if (catalog && catalog.length) {
+              $.each(catalog, function (i, category) {
+                if (category.items.length) {
+                  $.each(category.items, function (t, item) {
+                    if (item.id == itemId) {
+                      selected = item;
+                    }
+                  })
+                }
+              })
+            }
+            cb(selected, null);
+          }, function (response) {
+            cb(null, response);
+          });
       }
     }
   }

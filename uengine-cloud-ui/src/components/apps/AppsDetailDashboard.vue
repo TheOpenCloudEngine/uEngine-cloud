@@ -4,7 +4,7 @@
     <app-runtime-card
       :stage="stage"
       :devApp="devApp"
-      :catalogItem="catalogItem"
+      :categoryItem="categoryItem"
     ></app-runtime-card>
     <div style="margin-top: 5%;">
       <md-layout md-gutter="16">
@@ -34,7 +34,7 @@
     props: {
       stage: String,
       devApp: Object,
-      catalogItem: Object
+      categoryItem: Object
     },
     data() {
       return {}

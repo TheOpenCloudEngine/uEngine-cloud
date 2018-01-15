@@ -74,7 +74,7 @@
               <app-runtime-card v-if="copyDevApp"
                                 :stage="stage"
                                 :devApp.sync="copyDevApp"
-                                :catalogItem="catalogItem"
+                                :categoryItem="categoryItem"
                                 :gitlabDeploy="true"
               ></app-runtime-card>
             </div>
@@ -91,7 +91,7 @@
     props: {
       stage: String,
       devApp: Object,
-      catalogItem: Object,
+      categoryItem: Object,
       appName: String,
       role: String
     },

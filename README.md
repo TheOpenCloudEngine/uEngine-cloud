@@ -813,7 +813,7 @@ sudo vi /etc/gitlab/gitlab.rb
 
 .
 .
-external_url 'http://gitlab.pasmini.io'
+external_url 'http://gitlab.pas-mini.io'
 
 gitlab_rails['smtp_enable'] = true
 gitlab_rails['smtp_address'] = "smtp.gmail.com"
