@@ -16,5 +16,6 @@ hs_err_pid*
 target
 *.project
 *.classpath
+src/main/resources/static
 
 
