@@ -41,7 +41,7 @@ public class MyUserRepositoryImpl implements OauthUserRepository {
     public OauthUser insert(OauthUser oauthUser) {
         //메타데이터에 acl 이 있는지 확인
         if (!oauthUser.getMetaData().containsKey("acl")) {
-            throw new RuntimeException("acl is required.");
+            oauthUser.getMetaData().put("acl", "user");
         }
 
         //깃랩은 패스워드가 8자 이하면 불가.

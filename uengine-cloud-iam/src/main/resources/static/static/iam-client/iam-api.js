@@ -111,7 +111,7 @@ IAM.prototype = {
   getUser: function (userName) {
     var options = {
       type: "GET",
-      url: '/rest/v1//user/search/findByUserName?userName=' + userName,
+      url: '/rest/v1/user/search/findByUserName?userName=' + userName,
       dataType: "json"
     };
     return this.send(options);
