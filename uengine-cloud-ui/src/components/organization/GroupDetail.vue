@@ -92,8 +92,9 @@
           </md-table-card>
         </div>
       </md-layout>
+
       <md-layout md-column md-gutter="16" md-flex="50">
-        <md-layout md-flex="25" style="min-height:250px;">
+        <md-layout md-flex="30" style="min-height:320px;">
           <md-table-card style="width: 100%;margin-top: 20px;">
             <div class="header-top-line" style="width: 100%;"></div>
             <md-table>
@@ -104,22 +105,31 @@
                 <md-table-row>
                   <md-table-cell>
                     <div style="width: 100%;">
-                      <md-input-container v-if="items">
-                        <!--<label>Search for User</label>-->
-                        <md-autocomplete v-model="searchKeyword"
-                                         :list="items"
-                                         print-attribute="username"
-                                         :filter-list="getUserSearch"
-                                         :min-chars="0"
-                                         :max-height="5"
-                                         @selected="selectCallback"
-                                         :debounce="1500" style="margin-top: 15px;">
-                        </md-autocomplete>
-                        <!--<md-input v-model="searchKeyword" placeholder="Search for User" :fetch="getAllUsers"></md-input>-->
+                      <md-layout style="height: 60px;">
+                        <md-layout md-flex="90">
+                          <md-input-container v-if="items">
+                            <md-input v-model="searchKeyword" placeholder="Search for User" v-on:keyup.enter="getUserSearch"></md-input>
+                          </md-input-container>
+                        </md-layout>
+                        <md-layout md-flex="10">
+                          <md-button class="md-icon-button" style="width: 50px;height:50px;" v-on:click="getUserSearch">
+                            <md-icon style="font-size: 25px;">search</md-icon>
+                          </md-button>
+                        </md-layout>
+                      </md-layout>
+                      <md-input-container>
+                        <md-select ref="searched-user" v-on:change="changeValue" v-model="selectedIndex">
+                          <md-option value="" class="md-body-1">Select User</md-option>
+                          <md-option v-for="(item,index) in items" :value="index">
+                            <md-avatar>
+                              <img v-if="item['avatar_url']" :src="item['avatar_url']">
+                            </md-avatar>
+                            {{item.name}} | {{item.email}}
+                          </md-option>
+                        </md-select>
                       </md-input-container>
-
-                      <md-button class="md-raised md-primary" style="width: 200px;" v-on:click="addUsersToGroup">Add
-                        users to group
+                      <md-button class="md-raised md-primary" style="width: 200px;" v-on:click="addUsersToGroup">
+                        Add users to group
                       </md-button>
                     </div>
                   </md-table-cell>
@@ -153,7 +163,9 @@
                         <span v-else-if="member['access_level']==30">Developer</span>
                         <span v-else-if="member['access_level']==20">Reporter</span>
                         <span v-else-if="member['access_level']==10">Guest</span>
+
                         <md-button class="md-icon-button" v-on:click="deleteUsersToGroup(member.id)">
+                          <md-tooltip md-direction="left">Remove this member from group</md-tooltip>
                           <md-icon md-iconset="fa fa-trash"></md-icon>
                         </md-button>
                       </md-layout>
@@ -180,6 +192,7 @@
         selectedUser: {},
         items: [{}],
         searchKeyword: "",
+        selectedIndex: ""
       }
     },
     mounted() {
@@ -212,11 +225,11 @@
             me.members = response.data;
           })
       },
-      getUserSearch: function (list, param) {
+      getUserSearch: function () {
         var me = this;
         var url = 'api/v4/users';
-        if (param) {
-          url = url + '?search=' + param;
+        if (me.searchKeyword) {
+          url = url + '?search=' + me.searchKeyword;
         }
         var searchUsers = [];
         me.$root.gitlab(url).get()
@@ -224,12 +237,12 @@
             searchUsers = response.data;
             me.callbackUsers(response.data);
           })
-        return me.callbackUsers(me.items);
+        me.callbackUsers(me.items);
+
       },
       callbackUsers: function (users) {
         var me = this;
         me.items = users;
-        return users;
       },
       selectCallback: function (item) {
         var me = this;
@@ -240,17 +253,31 @@
         var me = this;
         var addUser = {user_id: me.selectedUser.id, access_level: 30};
         me.$root.gitlab('api/v4/groups/' + me.groupId + '/members').save(null, addUser)
-          .then(function (response) {
-            me.getGroupMembers();
-          })
+          .then(
+            function (response) {
+              me.getGroupMembers();
+              me.$root.$children[0].success("회원을 " + me.group.name + "그룹에 추가하였습니다.");
+            },
+            function (response) {
+              if (response.status == 409){
+                me.$root.$children[0].error("이미 그룹에 등록된 회원입니다.");
+              } else {
+                me.$root.$children[0].error("회원을 " + me.group.name + "그룹에 추가할 수 없습니다.");
+              }
+            })
       },
       deleteUsersToGroup: function (id) {
         var me = this;
         me.$root.gitlab('api/v4/groups/' + me.groupId + '/members/' + id).delete()
           .then(function (response) {
+            me.$root.$children[0].success("회원을 그룹에서 제거하였습니다.");
             me.getGroupMembers();
           })
       },
+      changeValue: function () {
+        this.searchKeyword = this.items[this.selectedIndex].email;
+        this.selectedUser = this.items[this.selectedIndex];
+      }
     }
   }
 </script>
