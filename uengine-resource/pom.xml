@@ -65,6 +65,26 @@
                             </filters>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>copy-config-repository</id>
+                        <!-- here the phase you need -->
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/../cloud-config-repository</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>config-repository</directory>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                            <filters>
+                                <filter>config.yml</filter>
+                            </filters>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
         </plugins>

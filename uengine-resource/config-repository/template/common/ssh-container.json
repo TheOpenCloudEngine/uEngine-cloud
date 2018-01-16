@@ -1,0 +1,79 @@
+{
+  "id": "/{{APP_ID}}",
+  "backoffFactor": 1.15,
+  "backoffSeconds": 1,
+  "constraints": [
+    [
+      "hostname",
+      "LIKE",
+      "{{HOST_NAME}}"
+    ]
+  ],
+  "container": {
+    "portMappings": [
+      {
+        "containerPort": 8022,
+        "hostPort": 0,
+        "protocol": "tcp"
+      }
+    ],
+    "type": "DOCKER",
+    "volumes": [
+      {
+        "containerPath": "/var/run/docker.sock",
+        "hostPath": "/var/run/docker.sock",
+        "mode": "RW"
+      }
+    ],
+    "docker": {
+      "image": "jeroenpeeters/docker-ssh",
+      "forcePullImage": false,
+      "privileged": false,
+      "parameters": []
+    }
+  },
+  "cpus": {{CPUS}},
+  "disk": 0,
+  "env": {
+    "FILTERS": "{\"name\":[\"^/{{CONTAINER_NAME}}$\"]}",
+    "AUTH_MECHANISM": "noAuth",
+    "CONTAINER_SHELL": "{{CONTAINER_SHELL}}"
+  },
+  "instances": 1,
+  "labels": {
+    "HAPROXY_GROUP": "external,internal",
+    "HAPROXY_0_BACKEND_HEAD": "backend {backend}\n balance roundrobin\n mode {mode}\n rspadd Access-Control-Allow-Credentials:\\ true\n rspadd Access-Control-Expose-Headers:\\ *\n rspadd Access-Control-Allow-Origin:\\ *\n rspadd Access-Control-Allow-Methods:\\ GET,\\ POST,\\ PUT,\\ OPTIONS,\\ DELETE\n rspadd Access-Control-Allow-Headers:\\ management-key,\\ management-secret,\\ client-key,\\ client-secret,\\ Origin,\\ X-Requested-With,\\ Content-Type,\\ Accept,\\ Authorization\n"
+  },
+  "maxLaunchDelaySeconds": 3600,
+  "mem": {{MEM}},
+  "gpus": 0,
+  "networks": [
+    {
+      "mode": "container/bridge"
+    }
+  ],
+  "requirePorts": false,
+  "upgradeStrategy": {
+    "maximumOverCapacity": 1,
+    "minimumHealthCapacity": 1
+  },
+  "killSelection": "YOUNGEST_FIRST",
+  "unreachableStrategy": {
+    "inactiveAfterSeconds": 0,
+    "expungeAfterSeconds": 0
+  },
+  "healthChecks": [
+    {
+      "gracePeriodSeconds": 300,
+      "ignoreHttp1xx": false,
+      "intervalSeconds": 3,
+      "maxConsecutiveFailures": 3,
+      "portIndex": 0,
+      "timeoutSeconds": 10,
+      "delaySeconds": 1,
+      "protocol": "HTTP",
+      "path": "/"
+    }
+  ],
+  "fetch": []
+}

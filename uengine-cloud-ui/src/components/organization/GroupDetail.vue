@@ -17,54 +17,54 @@
 
     <md-layout :md-gutter="40">
       <md-layout md-flex="50">
-        <md-table-card style="width: 100%;margin-top: 20px;">
-          <div class="header-top-line" style="width: 100%;"></div>
-          <md-table>
-            <md-table-header>
-              <md-table-head>Group Info</md-table-head>
-            </md-table-header>
-            <md-table-body>
-              <md-table-row>
-                <md-table-cell><span class="md-subheader">Group ID :</span></md-table-cell>
-                <md-table-cell>
-                  <span>{{group.id}}</span>
-                </md-table-cell>
-              </md-table-row>
-              <md-table-row>
-                <md-table-cell><span class="md-subheader">Group Name :</span></md-table-cell>
-                <md-table-cell>
-                  {{group.name}}
-                </md-table-cell>
-              </md-table-row>
-              <md-table-row>
-                <md-table-cell><span class="md-subheader">Path :</span></md-table-cell>
-                <md-table-cell>
-                  <span>{{group.path}}</span>
-                </md-table-cell>
-              </md-table-row>
-              <md-table-row>
-                <md-table-cell><span class="md-subheader">Description :</span></md-table-cell>
-                <md-table-cell>
-                  <span>{{group.description}}</span>
-                </md-table-cell>
-              </md-table-row>
-              <md-table-row>
-                <md-table-cell><span class="md-subheader">Visibility level:</span></md-table-cell>
-                <md-table-cell>
-                  <span>{{group.visibility}}</span>
-                </md-table-cell>
-              </md-table-row>
-              <md-table-row>
-                <md-table-cell><span class="md-subheader">Web URL :</span></md-table-cell>
-                <md-table-cell>
-                  <span>{{group['web_url']}}</span>
-                </md-table-cell>
-              </md-table-row>
-            </md-table-body>
-          </md-table>
-        </md-table-card>
-        <div style="margin-top: 20px; width: 100%;">
-          <div class="header-top-line" style="margin-top: 10px;"></div>
+        <div style="width:100%">
+          <md-table-card style="width: 100%;margin-top: 20px;">
+            <div class="header-top-line" style="width: 100%;"></div>
+            <md-table class="info-table">
+              <md-table-header>
+                <md-table-head>Group Info</md-table-head>
+              </md-table-header>
+              <md-table-body>
+                <md-table-row>
+                  <md-table-cell><span>Group ID :</span></md-table-cell>
+                  <md-table-cell>
+                    <span>{{group.id}}</span>
+                  </md-table-cell>
+                </md-table-row>
+                <md-table-row>
+                  <md-table-cell><span>Group Name :</span></md-table-cell>
+                  <md-table-cell>
+                    {{group.name}}
+                  </md-table-cell>
+                </md-table-row>
+                <md-table-row>
+                  <md-table-cell><span>Path :</span></md-table-cell>
+                  <md-table-cell>
+                    <span>{{group.path}}</span>
+                  </md-table-cell>
+                </md-table-row>
+                <md-table-row>
+                  <md-table-cell><span>Description :</span></md-table-cell>
+                  <md-table-cell>
+                    <span>{{group.description}}</span>
+                  </md-table-cell>
+                </md-table-row>
+                <md-table-row>
+                  <md-table-cell><span>Visibility level:</span></md-table-cell>
+                  <md-table-cell>
+                    <span>{{group.visibility}}</span>
+                  </md-table-cell>
+                </md-table-row>
+                <md-table-row>
+                  <md-table-cell><span>Web URL :</span></md-table-cell>
+                  <md-table-cell>
+                    <span>{{group['web_url']}}</span>
+                  </md-table-cell>
+                </md-table-row>
+              </md-table-body>
+            </md-table>
+          </md-table-card>
+          <div class="header-top-line" style="margin-top: 30px;"></div>
           <md-table-card>
             <md-table>
               <md-table-header>
@@ -118,7 +118,9 @@
                         <!--<md-input v-model="searchKeyword" placeholder="Search for User" :fetch="getAllUsers"></md-input>-->
                       </md-input-container>
 
-                      <md-button class="md-raised md-primary" style="width: 200px;" v-on:click="addUsersToGroup">Add users to group</md-button>
+                      <md-button class="md-raised md-primary" style="width: 200px;" v-on:click="addUsersToGroup">Add
+                        users to group
+                      </md-button>
                     </div>
                   </md-table-cell>
                 </md-table-row>
@@ -236,15 +238,15 @@
       },
       addUsersToGroup: function () {
         var me = this;
-        var addUser = {user_id:me.selectedUser.id, access_level:30};
-        me.$root.gitlab('api/v4/groups/' + me.groupId + '/members').save(null,addUser)
+        var addUser = {user_id: me.selectedUser.id, access_level: 30};
+        me.$root.gitlab('api/v4/groups/' + me.groupId + '/members').save(null, addUser)
           .then(function (response) {
             me.getGroupMembers();
           })
       },
-      deleteUsersToGroup: function(id) {
+      deleteUsersToGroup: function (id) {
         var me = this;
-        me.$root.gitlab('api/v4/groups/' + me.groupId + '/members/'+id).delete()
+        me.$root.gitlab('api/v4/groups/' + me.groupId + '/members/' + id).delete()
           .then(function (response) {
             me.getGroupMembers();
           })
@@ -254,4 +256,14 @@
 </script>
 
 <style scoped lang="scss" rel="stylesheet/scss">
+  .info-table {
+    .md-table-row {
+      border-top: none;
+    }
+
+    .md-table-cell {
+      height: 28px;
+      font-size: 11px;
+    }
+  }
 </style>

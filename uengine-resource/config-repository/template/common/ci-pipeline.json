@@ -1,0 +1,7 @@
+{
+  "when": "commit",
+  "refs": ["master"],
+  "auto-deploy": [
+    "dev"
+  ]
+}

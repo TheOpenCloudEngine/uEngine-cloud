@@ -11,7 +11,7 @@
                 <!--원 부분-->
                 <md-layout md-align="center">
                   <md-avatar v-if="item.type == 'profile'">
-                    <img :src="item.logoSrc" alt="item.title">
+                    <img :src="item.image" alt="item.title">
                   </md-avatar>
                   <md-avatar v-else v-bind:class="{ 'diff': item.diff }" style="overflow: visible;">
                     <div style="position: relative;width: 100%;height: 100%;">

@@ -1,0 +1,23 @@
+dcos:
+  host: http://@host.dcos@/
+  token: @dcos.token@
+
+gitlab:
+  host: http://@host.gitlab@
+  token: @gitlab.root.token@
+  config-repo:
+    projectId: @gitlab.config-repo.projectId@
+    deployment-path: @gitlab.config-repo.deployment-path@
+    template-path: @gitlab.config-repo.template-path@
+    
+iam:
+  host: @host.iam@
+  port: @iam.port@
+  clientId: @iam.client-key@
+  clientSecret: @iam.client-secret@
+    
+registry:
+  host: @host.registry@
+  public-host: @host.registry-public@
+  
+public-agent-ip: @public.node.host@

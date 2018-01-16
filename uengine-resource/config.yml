@@ -1,10 +1,13 @@
+public.node.host: 52.79.51.79
 db.node.host: 172.31.6.35
 db.database: uengine
 db.password: my-secret-pw
 
+host.dcos: dcos.pas-mini.io
 host.package.registry: sppark
 host.registry: gitlab.pas-mini.io:5000
 host.registry-public: gitlab.pas-mini.io:5000
+host.db: db.pas-mini.io
 host.gitlab: gitlab.pas-mini.io
 host.iam: iam.pas-mini.io
 host.config: config.pas-mini.io
@@ -12,6 +15,7 @@ host.eureka-server: eureka-server.pas-mini.io
 host.cloud-server: cloud-server.pas-mini.io
 host.cloud-ui: cloud.pas-mini.io
 
+iam.port: 80
 iam.client-key: my-client-key
 iam.client-secret: my-client-secret
 iam.admin.username: admin
@@ -25,6 +29,8 @@ iam.mail.smtp-auth: true
 iam.mail.smtp-starttls-enable: true
 iam.mail.from-address: sppark@uengine.org
 iam.mail.from-name: uengine
+
+dcos.token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJkYXJrZ29kYXJrZ29AZ21haWwuY29tIiwiZXhwIjozMTI1NTU5MDY0MzkuODk0MX0.aHgH_M-g-n-WlnPg_CorMGYEprULPSeUTIGu3GyZQ-U
 
 gitlab.root.username: root
 gitlab.root.password: adminadmin
