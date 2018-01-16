@@ -74,16 +74,16 @@ public class CatalogService {
                 case "ci-deploy-staging.json":
                     categoryItem.setDeployStg(content);
                     break;
-                case "config.json":
+                case "config.yml":
                     categoryItem.setConfig(content);
                     break;
-                case "config-dev.json":
+                case "config-dev.yml":
                     categoryItem.setConfigDev(content);
                     break;
-                case "config-prod.json":
+                case "config-prod.yml":
                     categoryItem.setConfigProd(content);
                     break;
-                case "config-stg.json":
+                case "config-stg.yml":
                     categoryItem.setConfigStg(content);
                     break;
             }

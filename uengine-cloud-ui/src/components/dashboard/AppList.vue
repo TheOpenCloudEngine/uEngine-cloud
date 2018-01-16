@@ -214,7 +214,7 @@
                 }
               }
             }
-            if (me.dcosData.devopsApps.dcos.apps[appId].iam == window.localStorage['username'] || window.localStorage['acl']=='admin') {
+            if (me.dcosData.devopsApps.dcos.apps[appId].iam == window.localStorage['userName'] || window.localStorage['acl']=='admin') {
               app.id = appId;
               app.type = 'app';
               list.push(app);
