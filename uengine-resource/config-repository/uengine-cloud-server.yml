@@ -1,5 +1,5 @@
 dcos:
-  host: http://@host.dcos@/
+  host: http://@master.node.ip@/
   token: @dcos.token@
 
 gitlab:
@@ -20,4 +20,6 @@ registry:
   host: @host.registry@
   public-host: @host.registry-public@
   
-public-agent-ip: @public.node.host@
+public-agent-ip: @public.node.ip@
+
+cadvisor:

@@ -1,19 +1,20 @@
-public.node.host: 52.79.51.79
-db.node.host: 172.31.6.35
+domain: pas-mini.io
+master.node.ip: 52.79.125.242
+public.node.ip: 52.79.51.79
+db.node.ip: 172.31.6.35
 db.database: uengine
 db.password: my-secret-pw
 
-host.dcos: dcos.pas-mini.io
 host.package.registry: sppark
-host.registry: gitlab.pas-mini.io:5000
-host.registry-public: gitlab.pas-mini.io:5000
-host.db: db.pas-mini.io
-host.gitlab: gitlab.pas-mini.io
-host.iam: iam.pas-mini.io
-host.config: config.pas-mini.io
-host.eureka-server: eureka-server.pas-mini.io
-host.cloud-server: cloud-server.pas-mini.io
-host.cloud-ui: cloud.pas-mini.io
+host.registry: gitlab.@domain@:5000
+host.registry-public: gitlab.@domain@:5000
+host.db: db.@domain@
+host.gitlab: gitlab.@domain@
+host.iam: iam.@domain@
+host.config: config.@domain@
+host.eureka-server: eureka-server.@domain@
+host.cloud-server: cloud-server.@domain@
+host.cloud-ui: cloud.@domain@
 
 iam.port: 80
 iam.client-key: my-client-key
@@ -38,6 +39,8 @@ gitlab.root.token: -arWnfRY7S4h6oyRthNy
 gitlab.config-repo.projectId: 47
 gitlab.config-repo.deployment-path: /deployment
 gitlab.config-repo.template-path: /template
+
+
 
 
 
