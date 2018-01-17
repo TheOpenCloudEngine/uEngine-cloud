@@ -19,7 +19,7 @@
   - [노드 삭제](document/op-remove-node.md)
   - [설치 완전 삭제](document/op-uninstall.md)
   
-- 트러블 슈팅
+- [트러블 슈팅](document/trouble.md)
   - [컴포넌트 헬스 체크](document/trouble-component.md)
   - [네트워크](document/trouble-network.md)  
 

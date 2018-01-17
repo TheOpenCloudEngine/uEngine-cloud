@@ -391,13 +391,160 @@ $ cd install
 $ sudo sh -c "cat ansible-hosts.yml > /etc/ansible/hosts"
 
 $ ansible-playbook ansible-install.yml
+
+PLAY [all] *********************************************************************************************************************************************
+
+TASK [Gathering Facts] *********************************************************************************************************************************
+ok: [172.31.3.61]
+ok: [172.31.8.143]
+ok: [172.31.1.235]
+ok: [172.31.6.35]
+.
+.
 ```
 
-### 
+* 팁: 단계별로 실행을 원할 경우 --step 옵션을 추가하도록 합니다.
 
 ```
+$ ansible-playbook --step ansible-install.yml
+```
+
+
+### DC/OS 클러스터 인스톨
+
+배포 패키지 생성
+
+```
+# copy your ssh key file to genconf folder
+$ cp <your-private-key-file-path> ./genconf/ssh_key
+
 $ mv ~/dcos_generate_config.sh ./
 $ sudo bash dcos_generate_config.sh --genconf
+
+====> EXECUTING CONFIGURATION GENERATION
+Generating configuration files...
+Package filename: packages/dcos-config/dcos-config--setup_5a900644a2b78900d7420b5d904c19a7e24d539b.tar.xz
+Package filename: packages/dcos-metadata/dcos-metadata--setup_5a900644a2b78900d7420b5d904c19a7e24d539b.tar.xz
+Generating Bash configuration files for DC/OS
 ```
+
+preflight 는 사전 체크 단계입니다. 이 단계에서 모든 사항에 대해 pass 가 나오지 않는다면, [트러블 슈팅](document/trouble.md) 을 통해 해결하세요.
+
+```
+sudo bash dcos_generate_config.sh --preflight
+
+====> EXECUTING_PREFLIGHT
+====> START run_preflight
+====> STAGE preflight
+====> STAGE preflight
+====> STAGE preflight
+====> STAGE preflight
+====> STAGE preflight
+====> STAGE preflight
+====> STAGE preflight
+====> STAGE preflight
+====> STAGE preflight
+====> STAGE preflight
+====> STAGE preflight
+====> STAGE preflight_cleanup
+====> STAGE preflight_cleanup
+====> STAGE preflight_cleanup
+====> STAGE preflight_cleanup
+====> STAGE preflight_cleanup
+====> STAGE preflight_cleanup
+====> STAGE preflight_cleanup
+====> STAGE preflight_cleanup
+====> STAGE preflight_cleanup
+====> STAGE preflight_cleanup
+====> STAGE preflight_cleanup
+====> OUTPUT FOR run_preflight
+.
+.
+```
+
+deploy 는 설치 단계입니다. 수분 이상 소요될 수 있습니다.
+
+```
+sudo bash dcos_generate_config.sh --deploy
+```
+
+postflight 는 설치 후 확인 단계입니다. 이 단계에서 모든 DC/OS 컴포넌트의 헬스체크를 하게 되며, 만약 이 단계에서 수분간 동작을 멈추거나 Fail 이 떨어지게 된다면, 트러블 슈팅을 통해 이슈를 해결하셔야 합니다.
+
+```
+sudo bash dcos_generate_config.sh --postflight
+```
+
+### 클러스터 상태 점검
+
+설치 수분 후, 정상적으로 설치가 되었다면 마스터 노드 중 한 곳에 접속하였을 때, 아래의 포트 리스트와 동일한 포트가 존재해야 합니다.
+
+```
+ssh -i <your-key-file> master1
+
+(No info could be read for "-p": geteuid()=1000 but you should be root.)
+Active Internet connections (only servers)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name    
+tcp        0      0 0.0.0.0:61420           0.0.0.0:*               LISTEN      -                   
+tcp        0      0 198.51.100.3:63053      0.0.0.0:*               LISTEN      -                   
+tcp        0      0 198.51.100.2:63053      0.0.0.0:*               LISTEN      -                   
+tcp        0      0 198.51.100.1:63053      0.0.0.0:*               LISTEN      -                   
+tcp        0      0 172.31.12.143:63053     0.0.0.0:*               LISTEN      -                   
+tcp        0      0 172.17.0.1:63053        0.0.0.0:*               LISTEN      -                   
+tcp        0      0 127.0.0.1:63053         0.0.0.0:*               LISTEN      -                   
+tcp        0      0 127.0.0.1:15055         0.0.0.0:*               LISTEN      -                   
+tcp        0      0 0.0.0.0:111             0.0.0.0:*               LISTEN      -                   
+tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN      -                   
+tcp        0      0 198.51.100.3:53         0.0.0.0:*               LISTEN      -                   
+tcp        0      0 198.51.100.2:53         0.0.0.0:*               LISTEN      -                   
+tcp        0      0 198.51.100.1:53         0.0.0.0:*               LISTEN      -                   
+tcp        0      0 172.31.12.143:53        0.0.0.0:*               LISTEN      -                   
+tcp        0      0 172.17.0.1:53           0.0.0.0:*               LISTEN      -                   
+tcp        0      0 127.0.0.1:53            0.0.0.0:*               LISTEN      -                   
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      -                   
+tcp        0      0 127.0.0.1:25            0.0.0.0:*               LISTEN      -                   
+tcp        0      0 172.31.12.143:5050      0.0.0.0:*               LISTEN      -                   
+tcp        0      0 0.0.0.0:443             0.0.0.0:*               LISTEN      -                   
+tcp        0      0 127.0.0.1:62080         0.0.0.0:*               LISTEN      -                   
+tcp        0      0 172.31.12.143:15201     0.0.0.0:*               LISTEN      -                   
+tcp        0      0 127.0.0.1:62053         0.0.0.0:*               LISTEN      -                   
+tcp        0      0 0.0.0.0:62501           0.0.0.0:*               LISTEN      -                   
+tcp        0      0 127.0.0.1:8101          0.0.0.0:*               LISTEN      -                   
+tcp        0      0 0.0.0.0:62502           0.0.0.0:*               LISTEN      -                   
+tcp        0      0 0.0.0.0:8008            0.0.0.0:*               LISTEN      -                   
+tcp6       0      0 :::61420                :::*                    LISTEN      -                   
+tcp6       0      0 :::111                  :::*                    LISTEN      -                   
+tcp6       0      0 :::8080                 :::*                    LISTEN      -                   
+tcp6       0      0 :::3888                 :::*                    LISTEN      -                   
+tcp6       0      0 :::8181                 :::*                    LISTEN      -                   
+tcp6       0      0 :::9942                 :::*                    LISTEN      -                   
+tcp6       0      0 :::22                   :::*                    LISTEN      -                   
+tcp6       0      0 :::41303                :::*                    LISTEN      -                   
+tcp6       0      0 ::1:25                  :::*                    LISTEN      -                   
+tcp6       0      0 :::1050                 :::*                    LISTEN      -                   
+tcp6       0      0 :::8123                 :::*                    LISTEN      -                   
+tcp6       0      0 :::61053                :::*                    LISTEN      -                   
+tcp6       0      0 127.0.0.1:7070          :::*                    LISTEN      -                   
+tcp6       0      0 :::2181                 :::*                    LISTEN      -                   
+tcp6       0      0 127.0.0.1:9990          :::*                    LISTEN      -                   
+tcp6       0      0 :::9000                 :::*                    LISTEN      - 
+```
+
+DC/OS 의 웹 UI 를 통해 모든 컴포넌트들이 동작하고 있는지 확인합니다.
+
+마스터 서버중 한 곳을 웹 브라우저를 통해 접속해봅니다. [http://52.79.125.242](http://52.79.125.242)
+
+DC/OS 웹 UI 에 로그인하기 위해서는 구글 계정이 필요합니다.
+
+![login](image/install-login.png)
+
+그림과 같이 모든 컴포넌트와 노드들이 health 상태에 있는지 확인합니다.
+
+![health](image/install-health.png)
+
+
+문제가 있는 컴포넌트가 있다면 원인분석을 위해 [컴포넌트 헬스 체크](document/trouble-component.md) 를 참조하기 바랍니다.
+
+
+
 
 
