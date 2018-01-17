@@ -83,6 +83,14 @@ body.md-theme-default {
   border-radius: 0;
 }
 
+.bigscreen .md-dialog {
+  max-width: 70%;
+  max-height: 70%;
+  width: 70%;
+  height: 70%;
+  border-radius: 0;
+}
+
 .bgblack {
   background-color: #282a36 !important;
 }

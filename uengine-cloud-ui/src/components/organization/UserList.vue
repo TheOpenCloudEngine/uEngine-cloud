@@ -5,19 +5,23 @@
     </div>
     <md-layout>
       <md-layout md-align="end">
-        <md-input-container style="width: 30%;float: right;">
+        <md-input-container style="width: 30%;">
           <md-icon>search</md-icon>
           <md-input placeholder="사용자명검색" v-on:input="searchUser" v-model="searchKeyword"></md-input>
         </md-input-container>
-        <md-button class="md-raised md-primary" style="height: 40px;" v-on:click="move(null,'create')">사용자 추가
+        <md-button class="md-raised md-primary" style="height: 40px;"
+                   v-on:click="$refs['user-create'].open()">
+          <!--v-on:click="move(null,'create')">-->
+          사용자 추가
           <md-icon>control_point</md-icon>
         </md-button>
+        <user-create v-if="user" :_user="user" ref="user-create"></user-create>
       </md-layout>
     </md-layout>
     <div class="md-title">Gitlab Groups</div>
     <div class="header-top-line" style="margin-top: 10px;"></div>
     <md-list>
-      <md-list-item v-if="groups" v-for="(group,index) in groups">
+      <md-list-item v-if="groups" v-for="(group,groupIndex) in groups">
         <md-avatar>
           <img v-if="group['avatar_url']" :src="group['avatar_url']">
         </md-avatar>
@@ -32,7 +36,8 @@
                 <span>{{group.members.length}}</span>
                 <md-icon>flag</md-icon>
                 <span v-if="group.projects">{{group.projects.length}}</span>
-                <md-button class="md-icon-button" v-on:click="move(group.id,'group')">
+                <md-button class="md-icon-button" v-on:click="move(group.id,'group')"
+                           style="background-color:#D2D2D2; ">
                   <md-icon md-iconset="fa fa-cogs" style="margin-top:-5px;color:#757575"></md-icon>
                 </md-button>
               </div>
@@ -41,13 +46,17 @@
 
         </div>
         <md-list-expand>
-          <md-list v-if="group.members" v-for="member in group.members">
+          <md-list v-if="group.members" v-for="(member,memberIndex) in group.members">
             <md-list-item class="md-inset">
               <md-avatar>
                 <img :src="member.avatar_url">
               </md-avatar>
               <!--<a v-on:click="move(member.iam,'user')">{{member.name}}</a>-->
-              <a v-on:click="move(member.iam,'user')">{{member.name}}</a>
+              <a
+                v-on:click="getIamInfomation(groupIndex,memberIndex,member.id)">
+                <!--v-on:click="move(member.iam,'user')">-->
+                {{member.name}}
+              </a>
             </md-list-item>
           </md-list>
         </md-list-expand>
@@ -72,41 +81,7 @@
         </md-list-expand>
       </md-list-item>
     </md-list>
-
-    <!----------------------------------------Table Data---------------------------------------->
-    <!--<div class="md-title" style="margin-top: 10px;">Users</div>-->
-    <!--<div class="header-top-line" style="margin-top: 10px;"></div>-->
-    <!--<md-table-card style="width: 100%">-->
-    <!--<md-table md-sort="email" md-sort-type="desc">-->
-    <!--<md-table-header>-->
-    <!--<md-table-row>-->
-    <!--<md-table-head md-sort-by="userName" v-for="value in tablehead">{{value}}</md-table-head>-->
-    <!--</md-table-row>-->
-    <!--</md-table-header>-->
-    <!--<md-table-body>-->
-    <!--<md-table-row v-for="user in users">-->
-    <!--<md-table-cell>-->
-    <!--<a v-on:click="move(user.userName,'user')">-->
-    <!--{{user.userName}}-->
-    <!--</a>-->
-    <!--</md-table-cell>-->
-    <!--<md-table-cell>{{user.metaData.name}}</md-table-cell>-->
-    <!--<md-table-cell v-if="user.metaData.acl=='admin'">관리자</md-table-cell>-->
-    <!--<md-table-cell v-else>사용자</md-table-cell>-->
-    <!--<md-table-cell>{{new Date(user.regDate).toString()}}</md-table-cell>-->
-    <!--</md-table-row>-->
-    <!--</md-table-body>-->
-    <!--</md-table>-->
-    <!--<md-table-pagination-->
-    <!--:md-size="size"-->
-    <!--:md-total="total"-->
-    <!--:md-page="page"-->
-    <!--md-label="Rows"-->
-    <!--md-separator="of"-->
-    <!--:md-page-options="[5, 10, 25, 50]"-->
-    <!--@pagination="onPagination"></md-table-pagination>-->
-    <!--</md-table-card>-->
-    <!----------------------------------------Table Data---------------------------------------->
+    <user-detail v-model="userName" :userName="userName" ref="user-detail"></user-detail>
     <router-view></router-view>
   </div>
 </template>
@@ -121,7 +96,8 @@
         iam: window.iam,
         groups: [],
         users: [],
-        tablehead: ["ID", "Name", "Manager", "RegDate"],
+        user: {},
+        userName: "",
         total: 0,
         page: 1,
         size: 10,
@@ -236,9 +212,9 @@
         me.$root.gitlab('api/v4/groups/' + id + '/members').get()
           .then(function (response) {
             me.$set(me.groups[index], 'members', response.data);
-            for (var i in response.data) {
-              me.getIamInfomation(index, i, response.data[i].id);
-            }
+//            for (var i in response.data) {
+//              me.getIamInfomation(index, i, response.data[i].id);
+//            }
 
           })
       },
@@ -252,14 +228,25 @@
       },
       getIamInfomation: function (groupIndex, memberIndex, gitlabUserId) {
         var me = this;
+        me.userName = "";
         me.$root.gitlab('api/v4/users/' + gitlabUserId + '/custom_attributes').get()
           .then(function (response) {
             for (var i in response.data) {
               if (response.data[i].key == 'iam') {
-                me.$set(me.groups[groupIndex].members[memberIndex], 'iam', response.data[i].value);
+                me.userName = response.data[i].value;
               }
             }
+          })
+          .then(function (response) {
+            me.$refs['user-detail'].loadUserInfo(me.userName);
+            if (me.userName) {
+              me.$refs['user-detail'].open();
+            } else {
 
+              me.user = me.groups[groupIndex].members[memberIndex];
+              me.$refs['user-create'].loadUserInfo(me.user);
+              me.$refs['user-create'].open();
+            }
           })
       },
     }
