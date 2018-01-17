@@ -6,7 +6,7 @@
   - [네트워크 고정 아이피(옵셔널)](document/pre-static-ips.md)
   - [디스크 마운트(옵셔널)](document/pre-disk.md)
 
-
+  - [설치파일 다운로드 && 유틸리티 준비](document/install-download.md)
 
 ### 클러스터 준비
 
@@ -573,62 +573,6 @@ sudo gitlab-ci-multi-runner restart
 
 ## 데이터베이스 설치
 
-### Node 설치
-
-```
-sudo su
-curl --silent --location https://rpm.nodesource.com/setup_7.x | bash -
-yum install nodejs -y
-
-npm install npm@latest -g
-node -v
-npm -v
-```
-
-### Java && Maven 설치
-
-#### Java
-
-```
-sudo su
-cd /opt/
-wget --no-cookies --no-check-certificate --header "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie" "http://download.oracle.com/otn-pub/java/jdk/8u151-b12/e758a0de34e24606bca991d704f6dcbf/jdk-8u151-linux-x64.tar.gz"
-tar xzf jdk-8u151-linux-x64.tar.gz
-
-cd /opt/jdk1.8.0_151/
-alternatives --install /usr/bin/java java /opt/jdk1.8.0_151/bin/java 2
-alternatives --config java
-
-alternatives --install /usr/bin/jar jar /opt/jdk1.8.0_151/bin/jar 2
-alternatives --install /usr/bin/javac javac /opt/jdk1.8.0_151/bin/javac 2
-alternatives --set jar /opt/jdk1.8.0_151/bin/jar
-alternatives --set javac /opt/jdk1.8.0_151/bin/javac
-
-vi /etc/profile
-
-export JAVA_HOME=/opt/jdk1.8.0_151
-export JRE_HOME=/opt/jdk1.8.0_151/jre
-export PATH=$PATH:/opt/jdk1.8.0_151/bin:/opt/jdk1.8.0_151/jre/bin
-
-source /etc/profile
-```
-
-#### Maven
-
-```
-wget http://apache.mirror.cdnetworks.com/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz
-tar xvf apache-maven-3.3.9-bin.tar.gz
-mv apache-maven-3.3.9  /usr/local/apache-maven
-
-vi /etc/profile
-
-export M2_HOME=/usr/local/apache-maven
-export M2=$M2_HOME/bin
-export PATH=$M2:$PATH
-
-source /etc/profile
-mvn -version
-```
 
 ### 깃랩 데이터베이스 생성 - 추가 자동화 대상 TODO
 
