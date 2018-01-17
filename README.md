@@ -8,6 +8,7 @@
 
   - [유틸리티 설치](document/install-util.md)
   - [클러스터 설치](document/install-cluster.md)
+  - [클러스터 계정 및 CLI](document/install-cluster-user.md)
   - [깃랩 && 도커 레지스트리 설치](document/install-gitlab.md)
   - [CI 서버 설치](document/install-ci.md)
   - [클라우드 패키지 빌드](document/install-package.md)

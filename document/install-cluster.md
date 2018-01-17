@@ -541,7 +541,6 @@ DC/OS 웹 UI 에 로그인하기 위해서는 구글 계정이 필요합니다.
 
 ![health](image/install-health.png)
 
-
 문제가 있는 컴포넌트가 있다면 원인분석을 위해 [컴포넌트 헬스 체크](document/trouble-component.md) 를 참조하기 바랍니다.
 
 
