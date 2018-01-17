@@ -69,10 +69,8 @@
         - sudo groupadd docker
       ignore_errors: True
 
-# If you want auto-scale gitlab ci runner
-#- hosts: master:public:agent:gitlab:ci
 
-- hosts: master:public:agent:gitlab
+- hosts: master:public:agent:gitlab:ci
   remote_user: "{{ansible_user}}"
   tasks:
     - name: Restart machine

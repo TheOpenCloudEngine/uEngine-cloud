@@ -1,0 +1,1705 @@
+{
+  "id": "/marathon-lb",
+  "acceptedResourceRoles": [
+    "slave_public"
+  ],
+  "args": [
+    "sse",
+    "-m",
+    "http://marathon.mesos:8080",
+    "--health-check",
+    "--haproxy-map",
+    "--max-reload-retries",
+    "10",
+    "--reload-interval",
+    "10",
+    "--group",
+    "external"
+  ],
+  "backoffFactor": 1.15,
+  "backoffSeconds": 1,
+  "container": {
+    "type": "DOCKER",
+    "volumes": [],
+    "docker": {
+      "image": "mesosphere/marathon-lb:v1.11.2",
+      "forcePullImage": false,
+      "privileged": true,
+      "parameters": [
+        {
+          "key": "label",
+          "value": "created_by=marathon"
+        },
+        {
+          "key": "label",
+          "value": "dcos_pkg_name=marathon-lb"
+        }
+      ]
+    }
+  },
+  "cpus": 0.5,
+  "disk": 0,
+  "env": {
+    "HAPROXY_GLOBAL_DEFAULT_OPTIONS": "redispatch,http-server-close,dontlognull",
+    "HAPROXY_SYSCTL_PARAMS": "net.ipv4.tcp_tw_reuse=1 net.ipv4.tcp_fin_timeout=30 net.ipv4.tcp_max_syn_backlog=10240 net.ipv4.tcp_max_tw_buckets=400000 net.ipv4.tcp_max_orphans=60000 net.core.somaxconn=10000"
+  },
+  "healthChecks": [
+    {
+      "gracePeriodSeconds": 60,
+      "intervalSeconds": 5,
+      "maxConsecutiveFailures": 2,
+      "portIndex": 2,
+      "timeoutSeconds": 2,
+      "delaySeconds": 15,
+      "protocol": "MESOS_HTTP",
+      "path": "/_haproxy_health_check"
+    }
+  ],
+  "instances": 1,
+  "labels": {
+    "DCOS_PACKAGE_OPTIONS": "e30=",
+    "DCOS_PACKAGE_SOURCE": "https://universe.mesosphere.com/repo",
+    "DCOS_PACKAGE_METADATA": "eyJwYWNrYWdpbmdWZXJzaW9uIjoiNC4wIiwibmFtZSI6Im1hcmF0aG9uLWxiIiwidmVyc2lvbiI6IjEuMTEuMiIsIm1haW50YWluZXIiOiJzdXBwb3J0QG1lc29zcGhlcmUuaW8iLCJkZXNjcmlwdGlvbiI6IkhBUHJveHkgY29uZmlndXJlZCB1c2luZyBNYXJhdGhvbiBzdGF0ZSIsInRhZ3MiOlsibG9hZGJhbGFuY2VyIiwic2VydmljZS1kaXNjb3ZlcnkiLCJyZXZlcnNlLXByb3h5IiwicHJveHkiLCJoYXByb3h5Il0sInNlbGVjdGVkIjpmYWxzZSwic2NtIjoiaHR0cHM6Ly9naXRodWIuY29tL21lc29zcGhlcmUvbWFyYXRob24tbGIiLCJmcmFtZXdvcmsiOmZhbHNlLCJwcmVJbnN0YWxsTm90ZXMiOiJXZSByZWNvbW1lbmQgYXQgbGVhc3QgMiBDUFVzIGFuZCAxR2lCIG9mIFJBTSBmb3IgZWFjaCBNYXJhdGhvbi1MQiBpbnN0YW5jZS4gXG5cbipOT1RFKjogRm9yIGFkZGl0aW9uYWwgYGBgRW50ZXJwcmlzZSBFZGl0aW9uYGBgIERDL09TIGluc3RydWN0aW9ucywgc2VlIGh0dHBzOi8vZG9jcy5tZXNvc3BoZXJlLmNvbS9hZG1pbmlzdHJhdGlvbi9pZC1hbmQtYWNjZXNzLW1ndC9zZXJ2aWNlLWF1dGgvbWxiLWF1dGgvIiwicG9zdEluc3RhbGxOb3RlcyI6Ik1hcmF0aG9uLWxiIERDL09TIFNlcnZpY2UgaGFzIGJlZW4gc3VjY2Vzc2Z1bGx5IGluc3RhbGxlZCFcblNlZSBodHRwczovL2dpdGh1Yi5jb20vbWVzb3NwaGVyZS9tYXJhdGhvbi1sYiBmb3IgZG9jdW1lbnRhdGlvbi4iLCJwb3N0VW5pbnN0YWxsTm90ZXMiOiJNYXJhdGhvbi1sYiBEQy9PUyBTZXJ2aWNlIGhhcyBiZWVuIHVuaW5zdGFsbGVkIGFuZCB3aWxsIG5vIGxvbmdlciBydW4uIiwibGljZW5zZXMiOlt7Im5hbWUiOiJBcGFjaGUgTGljZW5zZSBWZXJzaW9uIDIuMCIsInVybCI6Imh0dHBzOi8vZ2l0aHViLmNvbS9tZXNvc3BoZXJlL21hcmF0aG9uL2Jsb2IvbWFzdGVyL0xJQ0VOU0UifSx7Im5hbWUiOiJHTlUgR2VuZXJhbCBQdWJsaWMgTGljZW5zZSB2ZXJzaW9uIDIiLCJ1cmwiOiJodHRwOi8vd3d3LmhhcHJveHkub3JnL2Rvd25sb2FkLzEuNi9kb2MvTElDRU5TRSJ9XSwiaW1hZ2VzIjp7Imljb24tc21hbGwiOiJodHRwczovL2Rvd25sb2Fkcy5tZXNvc3BoZXJlLmNvbS91bml2ZXJzZS9hc3NldHMvaWNvbi1zZXJ2aWNlLW1hcmF0aG9ubGItc21hbGwucG5nIiwiaWNvbi1tZWRpdW0iOiJodHRwczovL2Rvd25sb2Fkcy5tZXNvc3BoZXJlLmNvbS91bml2ZXJzZS9hc3NldHMvaWNvbi1zZXJ2aWNlLW1hcmF0aG9ubGItbWVkaXVtLnBuZyIsImljb24tbGFyZ2UiOiJodHRwczovL2Rvd25sb2Fkcy5tZXNvc3BoZXJlLmNvbS91bml2ZXJzZS9hc3NldHMvaWNvbi1zZXJ2aWNlLW1hcmF0aG9ubGItbGFyZ2UucG5nIn19",
+    "DCOS_PACKAGE_DEFINITION": "eyJtZXRhZGF0YSI6eyJDb250ZW50LVR5cGUiOiJhcHBsaWNhdGlvbi92bmQuZGNvcy51bml2ZXJzZS5wYWNrYWdlK2pzb247Y2hhcnNldD11dGYtODt2ZXJzaW9uPXY0IiwiQ29udGVudC1FbmNvZGluZyI6Imd6aXAifSwiZGF0YSI6Ikg0c0lBQUFBQUFBQUFLMWFlVy9xeUpiL0toN2UvREh6RklodGt1NG0wcFVtN05CQXdyNTB0M0s5Rk5paHZEeTdESmlyKzkzblZOa21QaXgzYVhXa0pGQStkYmJmMmF5cUx3VmZNN2JheG5ZM014S0V0dWNXbmdvUEpibHdWM0ExaDhBWFJ3czBabmx1a2Vxd3VEc1JLU1ZGS2Ftd0ZCQkt0SkNjdHBjZjdtQ1Q3VEw0SlFGUWhwSHZld0g3UDRlRVh1aGJKQ0FsMjRPTkpnbU53UFpad3EvOS9CcDRoMWd5UEhkdGI2S0FtRklVZ2xwU1AxVkFDcG5HQ094ajJpWXNQUDFSb0o1bTZoclZYQVBFM0JWQ0V1eHNneFJOT3pRODBETVd1bkdGU2RIbnJPRjc5dC9Ta2s5LzhXMlVHSXlZaFNjM29oUytHdzVvWXpIbWgwLzM5eHViV1pGZU1qem4va1A5ZSt5VFBkRkRHelJMR2F3RGNOemVDN2JaZ2grUWpndktVenJ3R0FIVkMzTWlCUVI0T3NRMUpZMUozSUZNVXFYYTZ6U1VORmhUV25aVjh0YlM2TGt2cmIxQUlwcGhuUnhSN0ZVbG16TUV3MHZTbis2ZjdyOEhMNVBHdjUra0pwQnFwbWx6bDJwVSt2ejVjOE5sSlBBRE95UlNJMW1IUmFsZXUzOFpDeDVCWlBERjhFNEtDWkV5cTAzUENFczV1TGo1bXVuWXJnMDdOTDdoM2phTG9HaFJNd3dTaGtWbncrNHovMnNScys0ZHFpY2Z1Tk85a0owNW9QL2h3RlNaY2JKYnNyUlEwZ2tCdENQQmVnMHVqQk56S1NYbWYvM3Bqbk9LZmhjZTRUMHdKd0pYTTZGNUtkVm82dG8vclZQa25oUVJNTzF0U2lYWGs2am5ia2dnQlpIZ1RtR1BHM0tlZjN6SnN1Z1owc3dpVWk5NUpLWEpJcWtpMDZLQS9uREkzZXZVMCtGYkNMamU5enExeG1EY0tIeTlPd2xxRGFaU2kwRGlBZjZ2a1E2Nm5JVHVNcUZJSkVqYzcvZWxOQ05LWHJBQitQY3VUNjU3cGZRTGo0VVBPWkF2RUFWMXd3dEhaMWtQOWFCU3VEdFZpOExUbDhKT2ZmYjlmZ1FPQTlNbnhQRXB6OStuQWlUSHBsUHIrcXRhNXhmNC95dFJGY3R3bXJMV3FrUzkrY0h1T1krV1BwOVYxdU5PV0xPZk54MkhSa1o1Wk9uT2dCb3g3R216WC9WNU0xNHVScDZ1UGpDOTFZbTArZVBSYkRXanBUbzdyaGR5dW0rd054ZDkrOFd1WHBIQm53MUF4djczVHUzWkJubXM4KzV0U0pteDVhSnJtUzFycDl0S3VMUWYyV3F1NU9pYXZ1Nk9MSkJIRFZ2b2Z6UVgxYjFlN3NyRGxrSU50WEkwV2hZMW5Dbm85SnZkZXhhMnZ1dnFvN3ljMDJpMTZBaDloSDdBejJ6VC9Xb3MrRFFtOHFBM21uWFNQVnovMFc2cHNrUk9PL3hkcklsMXlwWnprM0o5T3k3NzFYQm1SNzA4aTVmcU5Gb3VCc2ZWWW5RRSszWWZlajV1ZFhVUWdPem96RzlzMWFxOGErb3NCcDk5eU9WMk9qUFpWQ3V4Rmd2ZE9oTmxNTzNZK3c4ZDNHcXNMVmErM3BxNXEvbVEyeVFiN296bWVSZ3RrRFZYcU5tYXhRSzM1b2NOcEJ5K24yT0k2TXRLSmZWUlFyOC84VTE5d0NnWlovRURueGRLQmVrbmZydnFjbjVRVmhsZGVXWHA3Um5sdHVaNXA5aG1ldTMrSWIzQzVieEw5Vm9hd3g4MHR1azBRM00rQlo4OTI4dHlsNElzdW1wV2JESlJjckhYeWRsU3JlVDh1a0d4a05nSjJHNEZQNzNWdEZmenZZM29CVjZKN1NKbW5ORzdYaDZzalJaekZ5clB0V25sekdic24ySEdxMm9tNjFYaGc4UnZrRnZ4NER4bllsMDljRCtMbkZuT0IrK3JSVlZlelVmajFXS3dNeGZkOTlXc3U0UFlPWEo5NXBrUDNjdThOcHhLdU9MWWJvQ21tZVQxVll4U3VpVHZMUXE0eTFwajRLM21nd0RGWHQ1M2JoVjAzZ2kvOVpTS3QxeFVZNzFzUFM3VWRIOFRjcU0xZTRjY3lPUmV4T3dTYXRPcXBuaG1lN1R2elMzWmJGZVBxZDJaakozaGpycTZNNktFMTd0NjU2WU50M21CajVYSGN4L2JrTnZiaE82WmFlMlJiTFNobmczeitWZUp6UWJ3Yk0wZXVKLzd0UXl2eXMvemFuZDNKdFFLWGQwTGYwMm1zd25VaFBXNE9acE9VWXgzWGFpemdHOFZhaURkclpvRHVsUXIwYXJONi9Dem11aHdxbU1SenltZUQxTjF4bXZrVm1CVm4rYjV5UnJrSHRRM0dkTWdtV0NQVllkblI4QmJNVnRVWFUxWFVQc09DcStOd25ZYnlYVjFweEt2cHNMZUEybnpHS2c2Z1BseGxkb3NiRS9qcmVQTzlxdHkxd0kvVHN3Mjk5dk1GVGwraXFVdUEvLzUrbUxHeHEwWjVObklHNnJOUGNTOWI3YTNOL3FQNHV0UXg4MjUwbG5Ob1I2MHJEckVuN1ZVcWN4cjJVY1BVQ3pTRW5TdnBqT0xmNER2RFhxYTRObk9lbU16WHBVQkUzcXk0V2lvMDQrNllTc002dW5Wbk14L2gxejJVZSt3WmFhbFB1ak5rL3hMNnZMZmlHSGdCZjBwTW12S0ZicCtJaE5tZ2Q2RkQ3cmcyMkZDbCtaVFZyZXY1YkRXYXU2aGZqeVFNYSsvVlNRZlAzditoa3pMNGpsQzJsc0cvUGVudkwyc2paYTVHTzE2OHliNEcrTFFWcUJmZDFWdFBxQzloYWdWdWZyUlliMDV4RWxLa3p3SHV4YlB6SUM4NlMxR2xxR0dkZy95c3o5NVB2VHJEWVFENlBIUVc4RE01QzZacUFVMXhRZC83R0VPWURBckhYbGRBeGw4bjlLdmZhTXVMV2F5SG9POTVZRy9nalZENVRsTDMxZGpSY3c5My9JdHpHMHgyQ2FESFR2SUgrUmIvR3g2MjdmdVFJWmE4Zzc2TTEwZDBUUC9XS1NteEt2NVliZWNEeG5rTzZmbGMySjRmYmE4UVYvT3p3L0Fkd0c5dTFXeG9CN3plUTk4Q1AyemRvT25lNFcyZmNadmJrSnZtZTF2NVZRdXpxQitWaFNqalh0ZUIyUVlpNWtQK2c2Rno2RUdRaTJDMmVabUQ0WitDL2kwbWpMZ0JIWHdrUHErQzU5cDBuZmpaL3ZLdkh1NWI5elpMTVkzZThjdE9WUjNsN2xaOTZxT3ZGN0hNSyt1ZGFmSlR2MGI0bm5VR0x4T2xjcGtOT3ZPeDlOQmN5RTM2ME81TXB2UTBYcW9kSnVqeHV4bDFxRFZTVTNVWWZBUDlCbVlwY3prbmVLVVUwTllnN2lEUGtNNWZoK3ozdlU0UzNnMEt4R2Y5MDV4QnJTZG0vbE8xeXNWWWdsNjJBSmljK1UwRmFoOWE3MWNoYjVWaVhMem9qMXVOSWZUYldVSnJ6YnRTYU5TRzA0UGE3Q2pOWnpOK3JObTVYWGFISFVuOHVNa20rdHZ4c2lzNGtLOHdWeDFXSU50RHVSbkNEcnZqUGJJNXowd1g0K3Y1Zk5QOE1sNlEyYzRxNDRuaWdVUURTYVRacVVPdUV4djZRbDFJb1RhRDNrdytuaUh1NDUvL3IwSTZnRTlnajd1cW4zVlo1UDViTkNmeUdiamxsdytaMEJkZzlyUGErUGcwUUJjVnVxNURoZngrN002MUdlTnczcmFhSTZIVStVbVZwelBzandLb1dienVHR2l2bXcrK3UvVldnbnpEYTlIeVV5ZTFjcHVsaU1pWjAvdkd5NzM3OHFIOTkwNjdObXU1bzhRYjgwUTBmQzVUWVZhQXUvTk4vVThsemxPM3p2YW9uOVZ2bEdUcitWS01uT0tXYStxLzYyWnViN1paN0U3cUErUGY2Zkh3OTdIZm4xNzR2TXlnZTlaM3RjYiszNzkrZlFNK2laOGIyU3o1SUUvTzgyS0NlMFIwdzRSN1FEelZUR3RnV2hmYW9qMkVkRk9udk8wQjZ4dkk4YTBmVVE3UUh3YkNxWmRZdG9ZMFQ1ZzJtMmVOdTRqdnAwRG9uM3ZZRnJFdHlOajJpbWlIU0QvZHNxWWRvTm9YNUFmK2hpM0k4THRpSEhyWTl5T0NMY2p4cTJQY1RzaTNJNFl0ejdDYlZCSHVNa1l0MkdNYVJGdU1zWnRxR0RhSmFaRi9oMCtZRnFFbTRKeG15TGNCcE1PcGtWOHB6S21SYmdwR0xkcEdkTWkzQlNNMnhMaE5uaEh1S2tZdCtVUjB5TGNWSXpiVXNXMENEY1Y0N2JFdUIwUmJtV01tNEZ4T3lMY3loZzNBK04yWEdKYTVGOEQ0M1pFdUQxZzNEWUl0NWQ2QjlNaXZoc1oweUxjSGpCdW16S21SYmc5WU55MkNMZVhDY0x0RWVPMlBXSmFoTnNqeG0ycllscUUyeVBHYlp2SGpULy9COTZyY3Z5QkorYWY5ek04anhHdGpHbW5pQmI1ZWZKY3hyUWJSSXY4UEduc0VTM3ljK09BL0R4cEhESHRFTkVPTUY4VjB4cUlGdmw1MHNCK2ZzL25SeU5HK1RIcHhKaTJqMmhSZmt3NkNxWmRZbHJrMzg0RHBzM25SK09JOG1QU3g3Z2RPNWdXOGUxajNJNEl0eVBHclk5eE95TGNqaGkzSWNKdGdPYUlob3h4R3g0eExjSk54cmdOVlV5TGNKTXhia09FMjJDUzVjZkZuUHVEK1ZFMWE2NzhlK0VyUHp3TnZTZ3dDRC9MMGNLUXNKQi9pZ0k3ekU0MkRlOTB5dnVsWUhyR052bVVPMzhyWnF1RjYrZHpUN3YwSFBuclY1Qm9POXFHQ0NrMnNDNkdqa2J6SjJQWnVkVEYyV1RrMnVLYzl6NVI4ejdablo1SFp0SkFHY0d3NUx1YndsMGl3U0dtSFRuL3BJaUVZMTRHMVlJTitTZEZDSWFwaE5BSUNIRkR5Mk1wS09CRmc5b2ZuOFZwT3Zmb2Y0ZUdSUnp0NDlUdlBlVHN4YUk0OVVzKy9pczVKZmRKd093RWl2eGhOM3pGRDdXSWVVWFExOTU4cU1vUCs4VkRrNnkxaUxMQzAxcWpJVGsvOEgrR3JWS3lWVXEzU21Lck9MTmxXcmdOcGIxbEc1WVVoVVRxdkJaQmJKRXZsNlNmT2dMK2wxZ3U3b0d1YVBzbkxzWDBXa0p5UWt3Z2ptbklUMjlaN0hPMGRNK2pSSE41SHVpMmF4YTVPUEVIVzhhQzZNS3dFZUhtWk1iOEpvdWo0b2VIY21JWFB3V3VscVFwMk1Rc081VHN0UlI3a1dTN2pGOEdBSmR3YTNkMndDS05TcFlYc2h0YUdYNkVWVkhQOWFpOVRxWFEwaUNOT1Z1SWZNL1FHT0dmeFhXQy9DbjU2VHBCUVJ6dzJnNVBDdVVrMW8wY0haTDQ2K25peE51R2VycEczMUxoYjU2UW1lcVQxNkdlRUVnSnZaVFNDVStrRno1eTFvVXNzRVZVbjJ5Q0dtVGFvYTh4dzdvVENBalBCa1dEZWhCUUpwUWY2bTE0cU9kMEsyNENML0tSYXdya3dFamdhdlRtclJPeFIvSTFmbmNEU0V0U244c0V6L0d3NGFxT1hoYkx0OWJvWmZvS3poSW9hcjR2VVUwbktHeFNFM0xhT0pyLzNZaHB1SnBPU2VZUmFkWUcyQUVmUDNIVW1sOE9TZFpBU3diOHIwZEVCaUlPQytWYzJFQ0F5VytYbkRid21FZ3ZMMXhCbjRmbUpvSGZJUTVtTHFzUEpmbGNRcDg0WGhCTC85T3YvdTkzSTA4a2RGNnUrdmdMNTNnUmVTbEJtMmlVV1RYTjF3eWJ4VWdadWZSNG9VbXlTYkxFTHNsSXR5R0JWNFZwQi83d0JXTHRocWlMYk9zbld5Uis5ZWpIQlNXM052S2hpdThXblVFSDFHa1ZnY3FSdXdaMExRQlB3WHd0TFVWWGxuSWtKd1phRUdqOGlwVE5pQ04ycHV1ZS9rNE1kdEVkdGlUT0VYMUkzMmswSWxlZWlMbmlQNUVkOEJ0WGY0anRHZkZmWDNPWi93Zi9Ga0JzWSsrRVZOdVJOMTljYkxsd1Q1MzQxSXRSZUVIRGpPR1A1SHBtbHN6Q2Q1enoxYlFOUTFvMHdMeExuMDE2WTZrR1QwUTU5d043eDBNYTlFK0syV1R5T3I3T0VENFpyT2lBQXQvdmlXa2hTUFpJZkU5Sm1naDlFNTlCcGxvYUV3MkRISHp3Z2MzQVBwTHNFcm1sYTRDc3VKb0VwbjdPQ3RjWDkrdGJZL0JjN1RYcW4zZ0Irbnk5Z29SeGFEQmFGR0dCcTBqQkpheGsrN3VIRWpQOE43Wi9Dd2owcVUrS2hOYlh0dnZHYklkQWxmcFVsdkV6U0ttM01IYmZ1SUpRdEQveDBuR0ZCRmpyRVpqQXdrOFBNdis1SlBFQzM5TGM4Tk12cDhlR0J5TlU2TUZEbUhkY1lBMC9GOUdSR0pmRXZLaDRNR1R4eTNlUVFkQnMvVy8zcEsrNVliY0luTUFDODRmaGhJcWdRNytTMG4wUy9PRVhMcmtPSjZhZ2hnbHVTK0VXRjh1QW84Y3JDWXNDd292b3FUL3dUc2gzdWtSYzNoTUI2VUZMQ2pqbkcrTUMrS1lZRUQ1M3dqK3c2YnhMWEJaeDdTQWxHNlIwZzZRVDhCRVVJQmlWUUtXU05CS1BRd2xhblU5Y2lkKzFqS1ZpSm9hM2pRQXlHL3dNdXNLNEMyTWI0emJML0ErMGRlRWJjSHBSRWI2M1lWSjFvZXBrNG5KMjVEclFHZlB2R0RHM1FDL09MMDYxU25QRnZKUDJtczJTV3NCdjcyVzJhUXpLbnM5N0xIZzE4V215OGJvMkxMM1ZWaFQzNmZMNWNoRiswMUdQMnczQnBuTXNVK0NGSUhCR0FGRHlucGt4RE85RmRFUWg4eHo3eUs4ZytybmJzVmZqODFUMjRBME42NUlPL0JsQjh0N3g5SnY4MjJXU1RFY2RQaG1jN3R4K3E4RUFydURhdDQ4V2R0R3FnQk9mbE1hQ1VCb3o3bUg0YUJLWDJSRGQyYlRMMFU5dVhHYnZBZnpxS0NjeWtpdWJTVkxBVzA1RVRVQktvbVROSkk1VExFVXVKV0Y0WTZNRXUxd0M4c3h2VDVrWGJVa00xOG00Y3o1WDV1ZXN0SC8vZFhmV0pEbTdzNVc3UXVSdkFnMmMxQXc4SjN1QjV1K0N5ZXJFUzkvWi9oOFZ3QjUxa2kwQUFBPT0ifQ==",
+    "DCOS_PACKAGE_VERSION": "1.11.2",
+    "DCOS_PACKAGE_NAME": "marathon-lb"
+  },
+  "maxLaunchDelaySeconds": 3600,
+  "mem": 512,
+  "gpus": 0,
+  "networks": [
+    {
+      "mode": "host"
+    }
+  ],
+  "portDefinitions": [
+    {
+      "protocol": "tcp",
+      "port": 80
+    },
+    {
+      "protocol": "tcp",
+      "port": 443
+    },
+    {
+      "protocol": "tcp",
+      "port": 9090
+    },
+    {
+      "protocol": "tcp",
+      "port": 9091
+    },
+    {
+      "protocol": "tcp",
+      "port": 10000
+    },
+    {
+      "protocol": "tcp",
+      "port": 10001
+    },
+    {
+      "protocol": "tcp",
+      "port": 10002
+    },
+    {
+      "protocol": "tcp",
+      "port": 10003
+    },
+    {
+      "protocol": "tcp",
+      "port": 10004
+    },
+    {
+      "protocol": "tcp",
+      "port": 10005
+    },
+    {
+      "protocol": "tcp",
+      "port": 10006
+    },
+    {
+      "protocol": "tcp",
+      "port": 10007
+    },
+    {
+      "protocol": "tcp",
+      "port": 10008
+    },
+    {
+      "protocol": "tcp",
+      "port": 10009
+    },
+    {
+      "protocol": "tcp",
+      "port": 10010
+    },
+    {
+      "protocol": "tcp",
+      "port": 10011
+    },
+    {
+      "protocol": "tcp",
+      "port": 10012
+    },
+    {
+      "protocol": "tcp",
+      "port": 10013
+    },
+    {
+      "protocol": "tcp",
+      "port": 10014
+    },
+    {
+      "protocol": "tcp",
+      "port": 10015
+    },
+    {
+      "protocol": "tcp",
+      "port": 10016
+    },
+    {
+      "protocol": "tcp",
+      "port": 10017
+    },
+    {
+      "protocol": "tcp",
+      "port": 10018
+    },
+    {
+      "protocol": "tcp",
+      "port": 10019
+    },
+    {
+      "protocol": "tcp",
+      "port": 10020
+    },
+    {
+      "protocol": "tcp",
+      "port": 10021
+    },
+    {
+      "protocol": "tcp",
+      "port": 10022
+    },
+    {
+      "protocol": "tcp",
+      "port": 10023
+    },
+    {
+      "protocol": "tcp",
+      "port": 10024
+    },
+    {
+      "protocol": "tcp",
+      "port": 10025
+    },
+    {
+      "protocol": "tcp",
+      "port": 10026
+    },
+    {
+      "protocol": "tcp",
+      "port": 10027
+    },
+    {
+      "protocol": "tcp",
+      "port": 10028
+    },
+    {
+      "protocol": "tcp",
+      "port": 10029
+    },
+    {
+      "protocol": "tcp",
+      "port": 10030
+    },
+    {
+      "protocol": "tcp",
+      "port": 10031
+    },
+    {
+      "protocol": "tcp",
+      "port": 10032
+    },
+    {
+      "protocol": "tcp",
+      "port": 10033
+    },
+    {
+      "protocol": "tcp",
+      "port": 10034
+    },
+    {
+      "protocol": "tcp",
+      "port": 10035
+    },
+    {
+      "protocol": "tcp",
+      "port": 10036
+    },
+    {
+      "protocol": "tcp",
+      "port": 10037
+    },
+    {
+      "protocol": "tcp",
+      "port": 10038
+    },
+    {
+      "protocol": "tcp",
+      "port": 10039
+    },
+    {
+      "protocol": "tcp",
+      "port": 10040
+    },
+    {
+      "protocol": "tcp",
+      "port": 10041
+    },
+    {
+      "protocol": "tcp",
+      "port": 10042
+    },
+    {
+      "protocol": "tcp",
+      "port": 10043
+    },
+    {
+      "protocol": "tcp",
+      "port": 10044
+    },
+    {
+      "protocol": "tcp",
+      "port": 10045
+    },
+    {
+      "protocol": "tcp",
+      "port": 10046
+    },
+    {
+      "protocol": "tcp",
+      "port": 10047
+    },
+    {
+      "protocol": "tcp",
+      "port": 10048
+    },
+    {
+      "protocol": "tcp",
+      "port": 10049
+    },
+    {
+      "protocol": "tcp",
+      "port": 10050
+    },
+    {
+      "protocol": "tcp",
+      "port": 10051
+    },
+    {
+      "protocol": "tcp",
+      "port": 10052
+    },
+    {
+      "protocol": "tcp",
+      "port": 10053
+    },
+    {
+      "protocol": "tcp",
+      "port": 10054
+    },
+    {
+      "protocol": "tcp",
+      "port": 10055
+    },
+    {
+      "protocol": "tcp",
+      "port": 10056
+    },
+    {
+      "protocol": "tcp",
+      "port": 10057
+    },
+    {
+      "protocol": "tcp",
+      "port": 10058
+    },
+    {
+      "protocol": "tcp",
+      "port": 10059
+    },
+    {
+      "protocol": "tcp",
+      "port": 10060
+    },
+    {
+      "protocol": "tcp",
+      "port": 10061
+    },
+    {
+      "protocol": "tcp",
+      "port": 10062
+    },
+    {
+      "protocol": "tcp",
+      "port": 10063
+    },
+    {
+      "protocol": "tcp",
+      "port": 10064
+    },
+    {
+      "protocol": "tcp",
+      "port": 10065
+    },
+    {
+      "protocol": "tcp",
+      "port": 10066
+    },
+    {
+      "protocol": "tcp",
+      "port": 10067
+    },
+    {
+      "protocol": "tcp",
+      "port": 10068
+    },
+    {
+      "protocol": "tcp",
+      "port": 10069
+    },
+    {
+      "protocol": "tcp",
+      "port": 10070
+    },
+    {
+      "protocol": "tcp",
+      "port": 10071
+    },
+    {
+      "protocol": "tcp",
+      "port": 10072
+    },
+    {
+      "protocol": "tcp",
+      "port": 10073
+    },
+    {
+      "protocol": "tcp",
+      "port": 10074
+    },
+    {
+      "protocol": "tcp",
+      "port": 10075
+    },
+    {
+      "protocol": "tcp",
+      "port": 10076
+    },
+    {
+      "protocol": "tcp",
+      "port": 10077
+    },
+    {
+      "protocol": "tcp",
+      "port": 10078
+    },
+    {
+      "protocol": "tcp",
+      "port": 10079
+    },
+    {
+      "protocol": "tcp",
+      "port": 10080
+    },
+    {
+      "protocol": "tcp",
+      "port": 10081
+    },
+    {
+      "protocol": "tcp",
+      "port": 10082
+    },
+    {
+      "protocol": "tcp",
+      "port": 10083
+    },
+    {
+      "protocol": "tcp",
+      "port": 10084
+    },
+    {
+      "protocol": "tcp",
+      "port": 10085
+    },
+    {
+      "protocol": "tcp",
+      "port": 10086
+    },
+    {
+      "protocol": "tcp",
+      "port": 10087
+    },
+    {
+      "protocol": "tcp",
+      "port": 10088
+    },
+    {
+      "protocol": "tcp",
+      "port": 10089
+    },
+    {
+      "protocol": "tcp",
+      "port": 10090
+    },
+    {
+      "protocol": "tcp",
+      "port": 10091
+    },
+    {
+      "protocol": "tcp",
+      "port": 10092
+    },
+    {
+      "protocol": "tcp",
+      "port": 10093
+    },
+    {
+      "protocol": "tcp",
+      "port": 10094
+    },
+    {
+      "protocol": "tcp",
+      "port": 10095
+    },
+    {
+      "protocol": "tcp",
+      "port": 10096
+    },
+    {
+      "protocol": "tcp",
+      "port": 10097
+    },
+    {
+      "protocol": "tcp",
+      "port": 10098
+    },
+    {
+      "protocol": "tcp",
+      "port": 10099
+    },
+    {
+      "protocol": "tcp",
+      "port": 10100
+    },
+    {
+      "protocol": "tcp",
+      "port": 10101
+    },
+    {
+      "protocol": "tcp",
+      "port": 10102
+    },
+    {
+      "protocol": "tcp",
+      "port": 10103
+    },
+    {
+      "protocol": "tcp",
+      "port": 10104
+    },
+    {
+      "protocol": "tcp",
+      "port": 10105
+    },
+    {
+      "protocol": "tcp",
+      "port": 10106
+    },
+    {
+      "protocol": "tcp",
+      "port": 10107
+    },
+    {
+      "protocol": "tcp",
+      "port": 10108
+    },
+    {
+      "protocol": "tcp",
+      "port": 10109
+    },
+    {
+      "protocol": "tcp",
+      "port": 10110
+    },
+    {
+      "protocol": "tcp",
+      "port": 10111
+    },
+    {
+      "protocol": "tcp",
+      "port": 10112
+    },
+    {
+      "protocol": "tcp",
+      "port": 10113
+    },
+    {
+      "protocol": "tcp",
+      "port": 10114
+    },
+    {
+      "protocol": "tcp",
+      "port": 10115
+    },
+    {
+      "protocol": "tcp",
+      "port": 10116
+    },
+    {
+      "protocol": "tcp",
+      "port": 10117
+    },
+    {
+      "protocol": "tcp",
+      "port": 10118
+    },
+    {
+      "protocol": "tcp",
+      "port": 10119
+    },
+    {
+      "protocol": "tcp",
+      "port": 10120
+    },
+    {
+      "protocol": "tcp",
+      "port": 10121
+    },
+    {
+      "protocol": "tcp",
+      "port": 10122
+    },
+    {
+      "protocol": "tcp",
+      "port": 10123
+    },
+    {
+      "protocol": "tcp",
+      "port": 10124
+    },
+    {
+      "protocol": "tcp",
+      "port": 10125
+    },
+    {
+      "protocol": "tcp",
+      "port": 10126
+    },
+    {
+      "protocol": "tcp",
+      "port": 10127
+    },
+    {
+      "protocol": "tcp",
+      "port": 10128
+    },
+    {
+      "protocol": "tcp",
+      "port": 10129
+    },
+    {
+      "protocol": "tcp",
+      "port": 10130
+    },
+    {
+      "protocol": "tcp",
+      "port": 10131
+    },
+    {
+      "protocol": "tcp",
+      "port": 10132
+    },
+    {
+      "protocol": "tcp",
+      "port": 10133
+    },
+    {
+      "protocol": "tcp",
+      "port": 10134
+    },
+    {
+      "protocol": "tcp",
+      "port": 10135
+    },
+    {
+      "protocol": "tcp",
+      "port": 10136
+    },
+    {
+      "protocol": "tcp",
+      "port": 10137
+    },
+    {
+      "protocol": "tcp",
+      "port": 10138
+    },
+    {
+      "protocol": "tcp",
+      "port": 10139
+    },
+    {
+      "protocol": "tcp",
+      "port": 10140
+    },
+    {
+      "protocol": "tcp",
+      "port": 10141
+    },
+    {
+      "protocol": "tcp",
+      "port": 10142
+    },
+    {
+      "protocol": "tcp",
+      "port": 10143
+    },
+    {
+      "protocol": "tcp",
+      "port": 10144
+    },
+    {
+      "protocol": "tcp",
+      "port": 10145
+    },
+    {
+      "protocol": "tcp",
+      "port": 10146
+    },
+    {
+      "protocol": "tcp",
+      "port": 10147
+    },
+    {
+      "protocol": "tcp",
+      "port": 10148
+    },
+    {
+      "protocol": "tcp",
+      "port": 10149
+    },
+    {
+      "protocol": "tcp",
+      "port": 10150
+    },
+    {
+      "protocol": "tcp",
+      "port": 10151
+    },
+    {
+      "protocol": "tcp",
+      "port": 10152
+    },
+    {
+      "protocol": "tcp",
+      "port": 10153
+    },
+    {
+      "protocol": "tcp",
+      "port": 10154
+    },
+    {
+      "protocol": "tcp",
+      "port": 10155
+    },
+    {
+      "protocol": "tcp",
+      "port": 10156
+    },
+    {
+      "protocol": "tcp",
+      "port": 10157
+    },
+    {
+      "protocol": "tcp",
+      "port": 10158
+    },
+    {
+      "protocol": "tcp",
+      "port": 10159
+    },
+    {
+      "protocol": "tcp",
+      "port": 10160
+    },
+    {
+      "protocol": "tcp",
+      "port": 10161
+    },
+    {
+      "protocol": "tcp",
+      "port": 10162
+    },
+    {
+      "protocol": "tcp",
+      "port": 10163
+    },
+    {
+      "protocol": "tcp",
+      "port": 10164
+    },
+    {
+      "protocol": "tcp",
+      "port": 10165
+    },
+    {
+      "protocol": "tcp",
+      "port": 10166
+    },
+    {
+      "protocol": "tcp",
+      "port": 10167
+    },
+    {
+      "protocol": "tcp",
+      "port": 10168
+    },
+    {
+      "protocol": "tcp",
+      "port": 10169
+    },
+    {
+      "protocol": "tcp",
+      "port": 10170
+    },
+    {
+      "protocol": "tcp",
+      "port": 10171
+    },
+    {
+      "protocol": "tcp",
+      "port": 10172
+    },
+    {
+      "protocol": "tcp",
+      "port": 10173
+    },
+    {
+      "protocol": "tcp",
+      "port": 10174
+    },
+    {
+      "protocol": "tcp",
+      "port": 10175
+    },
+    {
+      "protocol": "tcp",
+      "port": 10176
+    },
+    {
+      "protocol": "tcp",
+      "port": 10177
+    },
+    {
+      "protocol": "tcp",
+      "port": 10178
+    },
+    {
+      "protocol": "tcp",
+      "port": 10179
+    },
+    {
+      "protocol": "tcp",
+      "port": 10180
+    },
+    {
+      "protocol": "tcp",
+      "port": 10181
+    },
+    {
+      "protocol": "tcp",
+      "port": 10182
+    },
+    {
+      "protocol": "tcp",
+      "port": 10183
+    },
+    {
+      "protocol": "tcp",
+      "port": 10184
+    },
+    {
+      "protocol": "tcp",
+      "port": 10185
+    },
+    {
+      "protocol": "tcp",
+      "port": 10186
+    },
+    {
+      "protocol": "tcp",
+      "port": 10187
+    },
+    {
+      "protocol": "tcp",
+      "port": 10188
+    },
+    {
+      "protocol": "tcp",
+      "port": 10189
+    },
+    {
+      "protocol": "tcp",
+      "port": 10190
+    },
+    {
+      "protocol": "tcp",
+      "port": 10191
+    },
+    {
+      "protocol": "tcp",
+      "port": 10192
+    },
+    {
+      "protocol": "tcp",
+      "port": 10193
+    },
+    {
+      "protocol": "tcp",
+      "port": 10194
+    },
+    {
+      "protocol": "tcp",
+      "port": 10195
+    },
+    {
+      "protocol": "tcp",
+      "port": 10196
+    },
+    {
+      "protocol": "tcp",
+      "port": 10197
+    },
+    {
+      "protocol": "tcp",
+      "port": 10198
+    },
+    {
+      "protocol": "tcp",
+      "port": 10199
+    },
+    {
+      "protocol": "tcp",
+      "port": 10200
+    },
+    {
+      "protocol": "tcp",
+      "port": 10201
+    },
+    {
+      "protocol": "tcp",
+      "port": 10202
+    },
+    {
+      "protocol": "tcp",
+      "port": 10203
+    },
+    {
+      "protocol": "tcp",
+      "port": 10204
+    },
+    {
+      "protocol": "tcp",
+      "port": 10205
+    },
+    {
+      "protocol": "tcp",
+      "port": 10206
+    },
+    {
+      "protocol": "tcp",
+      "port": 10207
+    },
+    {
+      "protocol": "tcp",
+      "port": 10208
+    },
+    {
+      "protocol": "tcp",
+      "port": 10209
+    },
+    {
+      "protocol": "tcp",
+      "port": 10210
+    },
+    {
+      "protocol": "tcp",
+      "port": 10211
+    },
+    {
+      "protocol": "tcp",
+      "port": 10212
+    },
+    {
+      "protocol": "tcp",
+      "port": 10213
+    },
+    {
+      "protocol": "tcp",
+      "port": 10214
+    },
+    {
+      "protocol": "tcp",
+      "port": 10215
+    },
+    {
+      "protocol": "tcp",
+      "port": 10216
+    },
+    {
+      "protocol": "tcp",
+      "port": 10217
+    },
+    {
+      "protocol": "tcp",
+      "port": 10218
+    },
+    {
+      "protocol": "tcp",
+      "port": 10219
+    },
+    {
+      "protocol": "tcp",
+      "port": 10220
+    },
+    {
+      "protocol": "tcp",
+      "port": 10221
+    },
+    {
+      "protocol": "tcp",
+      "port": 10222
+    },
+    {
+      "protocol": "tcp",
+      "port": 10223
+    },
+    {
+      "protocol": "tcp",
+      "port": 10224
+    },
+    {
+      "protocol": "tcp",
+      "port": 10225
+    },
+    {
+      "protocol": "tcp",
+      "port": 10226
+    },
+    {
+      "protocol": "tcp",
+      "port": 10227
+    },
+    {
+      "protocol": "tcp",
+      "port": 10228
+    },
+    {
+      "protocol": "tcp",
+      "port": 10229
+    },
+    {
+      "protocol": "tcp",
+      "port": 10230
+    },
+    {
+      "protocol": "tcp",
+      "port": 10231
+    },
+    {
+      "protocol": "tcp",
+      "port": 10232
+    },
+    {
+      "protocol": "tcp",
+      "port": 10233
+    },
+    {
+      "protocol": "tcp",
+      "port": 10234
+    },
+    {
+      "protocol": "tcp",
+      "port": 10235
+    },
+    {
+      "protocol": "tcp",
+      "port": 10236
+    },
+    {
+      "protocol": "tcp",
+      "port": 10237
+    },
+    {
+      "protocol": "tcp",
+      "port": 10238
+    },
+    {
+      "protocol": "tcp",
+      "port": 10239
+    },
+    {
+      "protocol": "tcp",
+      "port": 10240
+    },
+    {
+      "protocol": "tcp",
+      "port": 10241
+    },
+    {
+      "protocol": "tcp",
+      "port": 10242
+    },
+    {
+      "protocol": "tcp",
+      "port": 10243
+    },
+    {
+      "protocol": "tcp",
+      "port": 10244
+    },
+    {
+      "protocol": "tcp",
+      "port": 10245
+    },
+    {
+      "protocol": "tcp",
+      "port": 10246
+    },
+    {
+      "protocol": "tcp",
+      "port": 10247
+    },
+    {
+      "protocol": "tcp",
+      "port": 10248
+    },
+    {
+      "protocol": "tcp",
+      "port": 10249
+    },
+    {
+      "protocol": "tcp",
+      "port": 10250
+    },
+    {
+      "protocol": "tcp",
+      "port": 10251
+    },
+    {
+      "protocol": "tcp",
+      "port": 10252
+    },
+    {
+      "protocol": "tcp",
+      "port": 10253
+    },
+    {
+      "protocol": "tcp",
+      "port": 10254
+    },
+    {
+      "protocol": "tcp",
+      "port": 10255
+    },
+    {
+      "protocol": "tcp",
+      "port": 10256
+    },
+    {
+      "protocol": "tcp",
+      "port": 10257
+    },
+    {
+      "protocol": "tcp",
+      "port": 10258
+    },
+    {
+      "protocol": "tcp",
+      "port": 10259
+    },
+    {
+      "protocol": "tcp",
+      "port": 10260
+    },
+    {
+      "protocol": "tcp",
+      "port": 10261
+    },
+    {
+      "protocol": "tcp",
+      "port": 10262
+    },
+    {
+      "protocol": "tcp",
+      "port": 10263
+    },
+    {
+      "protocol": "tcp",
+      "port": 10264
+    },
+    {
+      "protocol": "tcp",
+      "port": 10265
+    },
+    {
+      "protocol": "tcp",
+      "port": 10266
+    },
+    {
+      "protocol": "tcp",
+      "port": 10267
+    },
+    {
+      "protocol": "tcp",
+      "port": 10268
+    },
+    {
+      "protocol": "tcp",
+      "port": 10269
+    },
+    {
+      "protocol": "tcp",
+      "port": 10270
+    },
+    {
+      "protocol": "tcp",
+      "port": 10271
+    },
+    {
+      "protocol": "tcp",
+      "port": 10272
+    },
+    {
+      "protocol": "tcp",
+      "port": 10273
+    },
+    {
+      "protocol": "tcp",
+      "port": 10274
+    },
+    {
+      "protocol": "tcp",
+      "port": 10275
+    },
+    {
+      "protocol": "tcp",
+      "port": 10276
+    },
+    {
+      "protocol": "tcp",
+      "port": 10277
+    },
+    {
+      "protocol": "tcp",
+      "port": 10278
+    },
+    {
+      "protocol": "tcp",
+      "port": 10279
+    },
+    {
+      "protocol": "tcp",
+      "port": 10280
+    },
+    {
+      "protocol": "tcp",
+      "port": 10281
+    },
+    {
+      "protocol": "tcp",
+      "port": 10282
+    },
+    {
+      "protocol": "tcp",
+      "port": 10283
+    },
+    {
+      "protocol": "tcp",
+      "port": 10284
+    },
+    {
+      "protocol": "tcp",
+      "port": 10285
+    },
+    {
+      "protocol": "tcp",
+      "port": 10286
+    },
+    {
+      "protocol": "tcp",
+      "port": 10287
+    },
+    {
+      "protocol": "tcp",
+      "port": 10288
+    },
+    {
+      "protocol": "tcp",
+      "port": 10289
+    },
+    {
+      "protocol": "tcp",
+      "port": 10290
+    },
+    {
+      "protocol": "tcp",
+      "port": 10291
+    },
+    {
+      "protocol": "tcp",
+      "port": 10292
+    },
+    {
+      "protocol": "tcp",
+      "port": 10293
+    },
+    {
+      "protocol": "tcp",
+      "port": 10294
+    },
+    {
+      "protocol": "tcp",
+      "port": 10295
+    },
+    {
+      "protocol": "tcp",
+      "port": 10296
+    },
+    {
+      "protocol": "tcp",
+      "port": 10297
+    },
+    {
+      "protocol": "tcp",
+      "port": 10298
+    },
+    {
+      "protocol": "tcp",
+      "port": 10299
+    },
+    {
+      "protocol": "tcp",
+      "port": 10300
+    },
+    {
+      "protocol": "tcp",
+      "port": 10301
+    },
+    {
+      "protocol": "tcp",
+      "port": 10302
+    },
+    {
+      "protocol": "tcp",
+      "port": 10303
+    },
+    {
+      "protocol": "tcp",
+      "port": 10304
+    },
+    {
+      "protocol": "tcp",
+      "port": 10305
+    },
+    {
+      "protocol": "tcp",
+      "port": 10306
+    },
+    {
+      "protocol": "tcp",
+      "port": 10307
+    },
+    {
+      "protocol": "tcp",
+      "port": 10308
+    },
+    {
+      "protocol": "tcp",
+      "port": 10309
+    },
+    {
+      "protocol": "tcp",
+      "port": 10310
+    },
+    {
+      "protocol": "tcp",
+      "port": 10311
+    },
+    {
+      "protocol": "tcp",
+      "port": 10312
+    },
+    {
+      "protocol": "tcp",
+      "port": 10313
+    },
+    {
+      "protocol": "tcp",
+      "port": 10314
+    },
+    {
+      "protocol": "tcp",
+      "port": 10315
+    },
+    {
+      "protocol": "tcp",
+      "port": 10316
+    },
+    {
+      "protocol": "tcp",
+      "port": 10317
+    },
+    {
+      "protocol": "tcp",
+      "port": 10318
+    },
+    {
+      "protocol": "tcp",
+      "port": 10319
+    },
+    {
+      "protocol": "tcp",
+      "port": 10320
+    },
+    {
+      "protocol": "tcp",
+      "port": 10321
+    },
+    {
+      "protocol": "tcp",
+      "port": 10322
+    },
+    {
+      "protocol": "tcp",
+      "port": 10323
+    },
+    {
+      "protocol": "tcp",
+      "port": 10324
+    },
+    {
+      "protocol": "tcp",
+      "port": 10325
+    },
+    {
+      "protocol": "tcp",
+      "port": 10326
+    },
+    {
+      "protocol": "tcp",
+      "port": 10327
+    },
+    {
+      "protocol": "tcp",
+      "port": 10328
+    },
+    {
+      "protocol": "tcp",
+      "port": 10329
+    },
+    {
+      "protocol": "tcp",
+      "port": 10330
+    },
+    {
+      "protocol": "tcp",
+      "port": 10331
+    },
+    {
+      "protocol": "tcp",
+      "port": 10332
+    },
+    {
+      "protocol": "tcp",
+      "port": 10333
+    },
+    {
+      "protocol": "tcp",
+      "port": 10334
+    },
+    {
+      "protocol": "tcp",
+      "port": 10335
+    },
+    {
+      "protocol": "tcp",
+      "port": 10336
+    },
+    {
+      "protocol": "tcp",
+      "port": 10337
+    },
+    {
+      "protocol": "tcp",
+      "port": 10338
+    },
+    {
+      "protocol": "tcp",
+      "port": 10339
+    },
+    {
+      "protocol": "tcp",
+      "port": 10340
+    },
+    {
+      "protocol": "tcp",
+      "port": 10341
+    },
+    {
+      "protocol": "tcp",
+      "port": 10342
+    },
+    {
+      "protocol": "tcp",
+      "port": 10343
+    },
+    {
+      "protocol": "tcp",
+      "port": 10344
+    },
+    {
+      "protocol": "tcp",
+      "port": 10345
+    },
+    {
+      "protocol": "tcp",
+      "port": 10346
+    },
+    {
+      "protocol": "tcp",
+      "port": 10347
+    },
+    {
+      "protocol": "tcp",
+      "port": 10348
+    },
+    {
+      "protocol": "tcp",
+      "port": 10349
+    },
+    {
+      "protocol": "tcp",
+      "port": 10350
+    },
+    {
+      "protocol": "tcp",
+      "port": 10351
+    },
+    {
+      "protocol": "tcp",
+      "port": 10352
+    },
+    {
+      "protocol": "tcp",
+      "port": 10353
+    },
+    {
+      "protocol": "tcp",
+      "port": 10354
+    },
+    {
+      "protocol": "tcp",
+      "port": 10355
+    },
+    {
+      "protocol": "tcp",
+      "port": 10356
+    },
+    {
+      "protocol": "tcp",
+      "port": 10357
+    },
+    {
+      "protocol": "tcp",
+      "port": 10358
+    },
+    {
+      "protocol": "tcp",
+      "port": 10359
+    },
+    {
+      "protocol": "tcp",
+      "port": 10360
+    },
+    {
+      "protocol": "tcp",
+      "port": 10361
+    },
+    {
+      "protocol": "tcp",
+      "port": 10362
+    },
+    {
+      "protocol": "tcp",
+      "port": 10363
+    },
+    {
+      "protocol": "tcp",
+      "port": 10364
+    },
+    {
+      "protocol": "tcp",
+      "port": 10365
+    },
+    {
+      "protocol": "tcp",
+      "port": 10366
+    },
+    {
+      "protocol": "tcp",
+      "port": 10367
+    },
+    {
+      "protocol": "tcp",
+      "port": 10368
+    },
+    {
+      "protocol": "tcp",
+      "port": 10369
+    },
+    {
+      "protocol": "tcp",
+      "port": 10370
+    },
+    {
+      "protocol": "tcp",
+      "port": 10371
+    },
+    {
+      "protocol": "tcp",
+      "port": 10372
+    },
+    {
+      "protocol": "tcp",
+      "port": 10373
+    },
+    {
+      "protocol": "tcp",
+      "port": 10374
+    },
+    {
+      "protocol": "tcp",
+      "port": 10375
+    },
+    {
+      "protocol": "tcp",
+      "port": 10376
+    },
+    {
+      "protocol": "tcp",
+      "port": 10377
+    },
+    {
+      "protocol": "tcp",
+      "port": 10378
+    },
+    {
+      "protocol": "tcp",
+      "port": 10379
+    },
+    {
+      "protocol": "tcp",
+      "port": 10380
+    },
+    {
+      "protocol": "tcp",
+      "port": 10381
+    },
+    {
+      "protocol": "tcp",
+      "port": 10382
+    },
+    {
+      "protocol": "tcp",
+      "port": 10383
+    },
+    {
+      "protocol": "tcp",
+      "port": 10384
+    },
+    {
+      "protocol": "tcp",
+      "port": 10385
+    },
+    {
+      "protocol": "tcp",
+      "port": 10386
+    },
+    {
+      "protocol": "tcp",
+      "port": 10387
+    },
+    {
+      "protocol": "tcp",
+      "port": 10388
+    },
+    {
+      "protocol": "tcp",
+      "port": 10389
+    },
+    {
+      "protocol": "tcp",
+      "port": 10390
+    },
+    {
+      "protocol": "tcp",
+      "port": 10391
+    },
+    {
+      "protocol": "tcp",
+      "port": 10392
+    },
+    {
+      "protocol": "tcp",
+      "port": 10393
+    },
+    {
+      "protocol": "tcp",
+      "port": 10394
+    },
+    {
+      "protocol": "tcp",
+      "port": 10395
+    },
+    {
+      "protocol": "tcp",
+      "port": 10396
+    },
+    {
+      "protocol": "tcp",
+      "port": 10397
+    },
+    {
+      "protocol": "tcp",
+      "port": 10398
+    },
+    {
+      "protocol": "tcp",
+      "port": 10399
+    }
+  ],
+  "requirePorts": true,
+  "upgradeStrategy": {
+    "maximumOverCapacity": 0.2,
+    "minimumHealthCapacity": 0.5
+  },
+  "killSelection": "YOUNGEST_FIRST",
+  "unreachableStrategy": {
+    "inactiveAfterSeconds": 0,
+    "expungeAfterSeconds": 0
+  },
+  "fetch": [],
+  "constraints": []
+}

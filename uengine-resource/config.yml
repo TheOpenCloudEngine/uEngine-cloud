@@ -5,8 +5,6 @@ server:
   private:
     bootstrap: 172.31.8.143
     gitlab: 172.31.15.249
-
-    # If you want auto-scale gitlab ci runner
     ci: 172.31.3.61
     public: 172.31.5.136
 

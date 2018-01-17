@@ -1,7 +1,7 @@
 # vi playbook.yml
 
 ---
-- hosts: master:public:agent
+- hosts: master:public:agent:ci
   remote_user: "{{ansible_user}}"
   tasks:
     - name: Remove all
