@@ -8,6 +8,7 @@ import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.uengine.iam.util.FileUtils;
 import org.uengine.iam.util.JsonUtils;
+import org.uengine.iam.util.StringUtils;
 import org.uengine.resource.templates.MustacheTemplateEngine;
 
 import java.io.File;
@@ -84,7 +85,7 @@ public class RunResource {
         );
 
         //앤시블 호스트 파일을 생성한다.
-        String[] ansibleHosts = new String[]{"master", "agent", "add-agent", "gracefully-remove-agent"};
+        String[] ansibleHosts = new String[]{"master", "agent", "add-agent", "gracefully-remove-agent", "uninstall"};
         for (String ansibleHost : ansibleHosts) {
             try {
                 Map nodes = (Map) serverPrivate.get(ansibleHost);
@@ -102,6 +103,51 @@ public class RunResource {
                 "UTF-8"
         );
 
+
+        //dcos 클러스터 yml 을 작성한다.
+        Map cluseterMap = new HashMap();
+        cluseterMap.put("agent_list", getCluseterIpList((Map) serverPrivate.get("agent")));
+
+        cluseterMap.put("bootstrap_url", "file:///opt/dcos_install_tmp");
+        cluseterMap.put("cluster_name", configMap.get("cluster_name").toString());
+        cluseterMap.put("exhibitor_storage_backend", "static");
+        cluseterMap.put("master_discovery", "static");
+        cluseterMap.put("ip_detect_public_filename", "genconf/ip-detect");
+        cluseterMap.put("ip_detect_path", "genconf/ip-detect");
+        cluseterMap.put("master_list", getCluseterIpList((Map) serverPrivate.get("master")));
+        cluseterMap.put("process_timeout", 10000);
+
+        ArrayList<String> list = new ArrayList<>();
+        list.add(serverPrivate.get("public").toString());
+        cluseterMap.put("public_agent_list", list);
+
+        cluseterMap.put("resolvers", configMap.get("resolvers"));
+
+        if (configMap.containsKey("dns_search") && !StringUtils.isEmpty(configMap.get("dns_search").toString())) {
+            cluseterMap.put("dns_search", configMap.get("dns_search"));
+        }
+        cluseterMap.put("ssh_key_path", configMap.get("ansible_ssh_private_key_file"));
+        cluseterMap.put("ssh_port", configMap.get("ssh_port"));
+        cluseterMap.put("ssh_user", configMap.get("ansible_user"));
+        cluseterMap.put("telemetry_enabled", true);
+        cluseterMap.put("oauth_enabled", true);
+
+        String cluseteryml = yamlReader.writeValueAsString(cluseterMap);
+        org.apache.commons.io.FileUtils.writeStringToFile(
+                new File(baseDir + "/install-files/genconf/config.yml"),
+                cluseteryml,
+                "UTF-8"
+        );
+    }
+
+    private static List<String> getCluseterIpList(Map source) {
+        List<String> ips = new ArrayList<>();
+        Iterator iterator = source.keySet().iterator();
+        while (iterator.hasNext()) {
+            String nodeName = (String) iterator.next();
+            ips.add(source.get(nodeName).toString());
+        }
+        return ips;
     }
 
     private static void addAnsibleIps(Map configMap, Map source, String ansibleHost) {

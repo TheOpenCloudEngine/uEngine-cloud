@@ -34,3 +34,6 @@ registry_host={{host.registry.public}}
 
 [gracefully-remove-agent]
 {{gracefully-remove-agent}}
+
+[uninstall]
+{{uninstall}}

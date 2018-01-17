@@ -1,7 +1,5 @@
-# vi playbook.yml
-
 ---
-- hosts: master:public:agent:ci
+- hosts: uninstall
   remote_user: "{{ansible_user}}"
   tasks:
     - name: Remove all
@@ -17,9 +15,3 @@
         - sudo rm -rf /etc/mesosphere /opt/mesosphere /var/lib/mesos /var/lib/dcos
         - sudo rm -rf /etc/systemd/system/dcos*
         - sudo sleep 2 && sudo reboot
-
-# play book
-# ansible-playbook playbook.yml
-
-# play at task
-# ansible-playbook playbook.yml --start-at-task="genconf"

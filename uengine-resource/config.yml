@@ -1,6 +1,14 @@
 ansible_user: centos
 ansible_ssh_private_key_file: /home/centos/dcos-key.pem
 
+cluster_name: uEngine
+ssh_port: 22
+resolvers:
+- 121.88.255.50
+- 121.88.255.49
+
+dns_search: ap-northeast-2.compute.internal
+
 server:
   private:
     bootstrap: 172.31.8.143
@@ -38,6 +46,21 @@ server:
       agent20: 172.31.6.120
 
     gracefully-remove-agent:
+      agent8: 172.31.6.108
+      agent9: 172.31.6.109
+      agent10: 172.31.6.110
+      agent11: 172.31.6.111
+      agent12: 172.31.6.112
+      agent13: 172.31.6.113
+      agent14: 172.31.6.114
+      agent15: 172.31.6.115
+      agent16: 172.31.6.116
+      agent17: 172.31.6.117
+      agent18: 172.31.6.118
+      agent19: 172.31.6.119
+      agent20: 172.31.6.120
+
+    uninstall:
       agent8: 172.31.6.108
       agent9: 172.31.6.109
       agent10: 172.31.6.110

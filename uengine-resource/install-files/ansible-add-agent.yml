@@ -1,5 +1,5 @@
 ---
-- hosts: all
+- hosts: add-agent
   remote_user: "{{ansible_user}}"
   tasks:
     - name: Host file copy
@@ -68,7 +68,7 @@
       ignore_errors: True
 
 
-- hosts: master:public:agent:gitlab:ci
+- hosts: add-agent
   remote_user: "{{ansible_user}}"
   tasks:
     - name: Restart machine
@@ -84,7 +84,7 @@
         delay: 10
         timeout: 600
 
-- hosts: all
+- hosts: add-agent
   remote_user: "{{ansible_user}}"
   tasks:
     - block:
@@ -125,17 +125,26 @@
         - sudo systemctl enable docker
         - sudo systemctl restart docker
       ignore_errors: True
-
     - name: Docker cadvisor
+      ignore_errors: true
       command: "{{ item }}"
       with_items:
+        - sudo docker rm -f cadvisor
         - sudo docker run -d --restart always --privileged=true --volume=/:/rootfs:ro --volume=/var/run:/var/run:rw --volume=/sys:/sys:ro --volume=/var/lib/docker/:/var/lib/docker:ro --volume=/dev/disk/:/dev/disk:ro --publish=8080:8080 --detach=true --name=cadvisor google/cadvisor:latest
 
-# play book
-# ansible-playbook ansible-install.yml
+    - name: Copy dcos-install
+      become: true
+      become_method: sudo
+      copy:
+        src: genconf/serve/dcos-install.tar
+        dest: /home/{{ansible_user}}/dcos-install.tar
+        owner: {{ansible_user}}
+        group: {{ansible_user}}
+        mode: 0644
 
-# play at task
-# ansible-playbook ansible-install.yml --start-at-task="Docker devicemapper"
-
-# play at task and step
-# ansible-playbook ansible-install.yml --step --start-at-task="Docker devicemapper"
+    - name: Install dcos agent
+      command: "{{ item }}"
+      with_items:
+        - sudo mkdir -p /opt/dcos_install_tmp
+        - sudo tar xf dcos-install.tar -C /opt/dcos_install_tmp
+        - sudo bash /opt/dcos_install_tmp/dcos_install.sh slave
