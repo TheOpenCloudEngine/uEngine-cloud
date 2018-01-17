@@ -24,18 +24,18 @@
 
 | 역할 / 호스트네임 | 사양                     | IP 주소      | 퍼블릭 IP 주소 | 외부 포트바인딩     |
 |-------------------|--------------------------|--------------|----------------|---------------------|
-| bootstrap         | 2 CPU /2 GB/100 GB Disk  | 192.168.0.25 |                |                     |
-| master1           | 2 CPU /4 GB/100 GB Disk  | 192.168.0.39 | 52.79.125.242  | 80                  |
-| master2           | 2 CPU /4 GB/100 GB Disk  | 192.168.0.23 |                |                     |
-| master3           | 2 CPU /4 GB/100 GB Disk  | 192.168.0.8  |                |                     |
-| public-agent      | 4 CPU /8 GB/100 GB Disk  | 192.168.0.37 | 52.79.51.79    | 80,443,9000 - 60000 |
-| agent1            | 4 CPU /8 GB/100 GB Disk  | 192.168.0.27 |                |                     |
-| agent2            | 4 CPU /8 GB/100 GB Disk  | 192.168.0.28 |                |                     |
-| agent3            | 4 CPU /8 GB/100 GB Disk  | 192.168.0.24 |                |                     |
-| agent4            | 4 CPU /8 GB/100 GB Disk  | 192.168.0.25 |                |                     |
-| agent5            | 4 CPU /8 GB/100 GB Disk  | 192.168.0.31 |                |                     |
-| agent6            | 4 CPU /8 GB/100 GB Disk  | 192.168.0.26 |                |                     |
-| agent7            | 4 CPU /8 GB/100 GB Disk  | 192.168.0.33 |                |                     |
-| gitlab            | 4 CPU /32 GB/300 GB Disk | 192.168.0.35 | 52.78.60.43    | 80,5000             |
-| ci                | 1 CPU /1 GB/100 GB Disk  | 192.168.0.49 |                |                     |
+| bootstrap         | 2 CPU /2 GB/100 GB Disk  | 172.31.8.143 |                |                     |
+| master1           | 2 CPU /4 GB/100 GB Disk  | 172.31.12.143 | 52.79.125.242  | 80                  |
+| master2           | 2 CPU /4 GB/100 GB Disk  | 172.31.4.125 |                |                     |
+| master3           | 2 CPU /4 GB/100 GB Disk  | 172.31.1.198  |                |                     |
+| public-agent      | 4 CPU /8 GB/100 GB Disk  | 172.31.5.136 | 52.79.51.79    | 80,443,9000 - 60000 |
+| agent1            | 4 CPU /8 GB/100 GB Disk  | 172.31.6.35 |                |                     |
+| agent2            | 4 CPU /8 GB/100 GB Disk  | 172.31.1.235 |                |                     |
+| agent3            | 4 CPU /8 GB/100 GB Disk  | 172.31.5.245 |                |                     |
+| agent4            | 4 CPU /8 GB/100 GB Disk  | 172.31.14.247 |                |                     |
+| agent5            | 4 CPU /8 GB/100 GB Disk  | 172.31.7.160 |                |                     |
+| agent6            | 4 CPU /8 GB/100 GB Disk  | 172.31.11.70 |                |                     |
+| agent7            | 4 CPU /8 GB/100 GB Disk  | 172.31.0.164 |                |                     |
+| gitlab            | 4 CPU /32 GB/300 GB Disk | 172.31.15.249 | 52.78.60.43    | 80,5000             |
+| ci                | 1 CPU /1 GB/100 GB Disk  | 172.31.3.61 |                |                     |
 

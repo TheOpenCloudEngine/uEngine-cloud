@@ -90,21 +90,11 @@ export PATH=$M2:$PATH
 # npm -v
 ```
 
-
-## 설치파일 다운로드
-
-하기 진행순서부터는 root 계정이 아닌, 리눅스 사용자 계정으로 진행하시길 바랍니다 (ex. centos)
-
-설치에 필요한 파일을 다운로드 받습니다.
+## ansible 설치
 
 ```
-$ cd
-
-# 유엔진 클라우드 다운로드
-$ git clone https://github.com/TheOpenCloudEngine/uEngine-cloud
-
-# DCOS 인스톨 파일 다운로드
-$ wget https://s3.ap-northeast-2.amazonaws.com/uengine-cloud/dcos_generate_config.sh
+sudo yum install epel-release -y
+sudo yum install ansible -y
 ```
 
 

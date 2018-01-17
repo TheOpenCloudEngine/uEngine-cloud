@@ -6,7 +6,23 @@
   - [네트워크 고정 아이피(옵셔널)](document/pre-static-ips.md)
   - [디스크 마운트(옵셔널)](document/pre-disk.md)
 
-  - [설치파일 다운로드 && 유틸리티 준비](document/install-download.md)
+  - [유틸리티 설치](document/install-util.md)
+  - [클러스터 설치](document/install-cluster.md)
+  - [깃랩 && 도커 레지스트리 설치](document/install-gitlab.md)
+  - [CI 서버 설치](document/install-ci.md)
+  - [클라우드 패키지 빌드](document/install-package.md)
+  - [클라우드 앱 실행](document/install-package-run.md)
+  - [테스트](document/install-test.md)
+
+- 운영
+  - [노드 추가](document/op-add-node.md)
+  - [노드 삭제](document/op-remove-node.md)
+  - [설치 완전 삭제](document/op-uninstall.md)
+  
+- 트러블 슈팅
+  - [컴포넌트 헬스 체크](document/trouble-component.md)
+  - [네트워크](document/trouble-network.md)  
+
 
 ### 클러스터 준비
 
@@ -54,12 +70,7 @@ vi ./etc-hosts
 192.168.0.33 agent7
 ```
 
-#### ansible 설치
 
-```
-sudo yum install epel-release -y
-sudo yum install ansible -y
-```
 
 #### /etc/ansible/hosts 생성
 

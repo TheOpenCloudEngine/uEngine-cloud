@@ -138,8 +138,8 @@
       copy:
         src: genconf/serve/dcos-install.tar
         dest: /home/{{ansible_user}}/dcos-install.tar
-        owner: {{ansible_user}}
-        group: {{ansible_user}}
+        owner: "{{ansible_user}}"
+        group: "{{ansible_user}}"
         mode: 0644
 
     - name: Install dcos agent

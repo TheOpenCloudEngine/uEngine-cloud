@@ -1,13 +1,13 @@
+# SSH and Resolve.conf part
+cluster_name: uEngine
 ansible_user: centos
 ansible_ssh_private_key_file: /home/centos/belugarKey.pem
-
-cluster_name: uEngine
 ssh_port: 22
 resolvers:
 - 172.31.0.2
-
 dns_search: ap-northeast-2.compute.internal
 
+# Server list part
 server:
   private:
     bootstrap: 172.31.8.143
@@ -30,49 +30,8 @@ server:
       agent7: 172.31.0.164
 
     add-agent:
-#      agent8: 172.31.6.108
-#      agent9: 172.31.6.109
-#      agent10: 172.31.6.110
-#      agent11: 172.31.6.111
-#      agent12: 172.31.6.112
-#      agent13: 172.31.6.113
-#      agent14: 172.31.6.114
-#      agent15: 172.31.6.115
-#      agent16: 172.31.6.116
-#      agent17: 172.31.6.117
-#      agent18: 172.31.6.118
-#      agent19: 172.31.6.119
-#      agent20: 172.31.6.120
-
     gracefully-remove-agent:
-#      agent8: 172.31.6.108
-#      agent9: 172.31.6.109
-#      agent10: 172.31.6.110
-#      agent11: 172.31.6.111
-#      agent12: 172.31.6.112
-#      agent13: 172.31.6.113
-#      agent14: 172.31.6.114
-#      agent15: 172.31.6.115
-#      agent16: 172.31.6.116
-#      agent17: 172.31.6.117
-#      agent18: 172.31.6.118
-#      agent19: 172.31.6.119
-#      agent20: 172.31.6.120
-
     uninstall:
-#      agent8: 172.31.6.108
-#      agent9: 172.31.6.109
-#      agent10: 172.31.6.110
-#      agent11: 172.31.6.111
-#      agent12: 172.31.6.112
-#      agent13: 172.31.6.113
-#      agent14: 172.31.6.114
-#      agent15: 172.31.6.115
-#      agent16: 172.31.6.116
-#      agent17: 172.31.6.117
-#      agent18: 172.31.6.118
-#      agent19: 172.31.6.119
-#      agent20: 172.31.6.120
 
   public:
     # Choice one of your master's public ip
@@ -80,11 +39,13 @@ server:
     # Your public node's public ip
     public: 52.79.51.79
 
+# DB part
 db:
   ip: 172.31.6.35
   database: uengine
   password: my-secret-pw
 
+# Domain part
 host:
   registry:
     package: sppark
@@ -98,6 +59,7 @@ host:
   cloud-server: cloud-server.pas-mini.io
   cloud-ui: cloud.pas-mini.io
 
+# Security(IAM) part
 iam:
   port: 80
   client-key: my-client-key
@@ -116,24 +78,18 @@ iam:
     from-address: sppark@uengine.org
     from-name: uengine
 
+# Cloud package part
+# Fill out those properties after install DC/OS cluster && Gitlab
+# Then, you should re-command "mvn clean install exec:java package"
 dcos:
-  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJkYXJrZ29kYXJrZ29AZ21haWwuY29tIiwiZXhwIjozMTI1NTU5MDY0MzkuODk0MX0.aHgH_M-g-n-WlnPg_CorMGYEprULPSeUTIGu3GyZQ-U
+  token:
 
 gitlab:
   root:
-    username: root
-    password: adminadmin
-    token: -arWnfRY7S4h6oyRthNy
+    username:
+    password:
+    token:
   config-repo:
-    projectId: 47
+    projectId:
     deployment-path: /deployment
     template-path: /template
-
-
-
-
-
-
-
-
-
