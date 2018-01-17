@@ -18,11 +18,14 @@ $ wget https://s3.ap-northeast-2.amazonaws.com/uengine-cloud/dcos_generate_confi
 
 ## 설정 파일 편집
 
-유엔진 클라우드는 앤서블 유틸리티를 사용해 설치자동화를 지원하고, 클라우드 패키지 플랫폼 구성요소들을 빌드합니다.
+유엔진 클라우드는 앤서블 유틸리티를 사용해 설치자동화를 지원합니다. 
 
-모든 설정이 하나의 파일에서 이루어지는데, 다음의 경로에 위치해 있습니다.
+모든 설정이 uEngine-cloud/uengine-resource/config.yml 파일에서 이루어지는데, 이 설정들은 다음과 같은 작업을 자동화하는데 사용되어집니다. 
 
-- uEngine-cloud/uengine-resource/config.yml
+- 네트워크 환경 및 유틸리티 배포
+- DC/OS 클러스터 설치
+- 클라우드 플랫폼 빌드 및 배포
+
 
 아래는, 설정 파일의 각 파트별 설명입니다.
  
@@ -48,6 +51,9 @@ resolvers:
 - 172.31.0.2
 dns_search: ap-northeast-2.compute.internal
 ```
+
+* 주의: ansible_ssh_private_key_file 에 명시된 키파일은 모든 서버에 ssh 접속이 가능한 키여야 합니다.
+* 주의: 키파일의 퍼미션이 400 인지 확인하십시오.
 
 여기서 resolvers 와 dns_search 는 다소 생소할 수 있지만, /etc/resolv.conf 조회를 통해 간단히 알아낼 수 있습니다.
 
@@ -191,7 +197,7 @@ host.registry.package 는 유엔진 클라우드 패키지를 도커 파일을 �
 
 ### Security(IAM) part
 
-사용자 인증정보에 관한 설정입니다.
+사용자 인증정보 서버에 관한 설정입니다.
 
 ```
 iam:
@@ -205,19 +211,193 @@ iam:
   mail:
     host: smtp.gmail.com
     username: sppark@uengine.org
-    password: !gosu23546
+    password: ********
     port: 587
     smtp-auth: true
     smtp-starttls-enable: true
     from-address: sppark@uengine.org
     from-name: uengine
 ```
- 
+
+- access-token-lifetime : 클라우드 플랫폼 로그인 유지시간입니다.
+- admin.username : 인증서버 포탈 접속아이디
+- admin.password : 인증서버 포탈 접속패스워드
+- mail.**** : 이메일 서버 설정으로, 예제에서는 gmail 을 기준으로 작성되었습니다.
+
+### Cloud package part
+
+클라우드 패키지 파트는 [클러스터 설치](document/install-cluster.md) 와 [깃랩 && 도커 레지스트리 설치](document/install-gitlab.md) 
+설치가 종료된 후, 클러스터 정보 및 깃랩 정보를 기입하는 곳입니다.
+
+이 곳의 설정에 관해서는 [클라우드 패키지 빌드](document/install-package.md) 에서 진행하게 됩니다.
+
+```
+# Cloud package part
+# Fill out those properties after install DC/OS cluster && Gitlab
+# Then, you should re-command "mvn clean install exec:java package"
+dcos:
+  token:
+
+gitlab:
+  root:
+    username:
+    password:
+    token:
+  config-repo:
+    projectId:
+    deployment-path: /deployment
+    template-path: /template
+```
+
+### Summary
+
+전체 설정 파일의 리뷰입니다.
+
+```
+# SSH and Resolve.conf part
+cluster_name: uEngine
+ansible_user: centos
+ansible_ssh_private_key_file: /home/centos/belugarKey.pem
+ssh_port: 22
+resolvers:
+- 172.31.0.2
+dns_search: ap-northeast-2.compute.internal
+
+# Server list part
+server:
+  private:
+    bootstrap: 172.31.8.143
+    gitlab: 172.31.15.249
+    ci: 172.31.3.61
+    public: 172.31.5.136
+
+    master:
+      master1: 172.31.12.143
+      master2: 172.31.4.125
+      master3: 172.31.1.198
+
+    agent:
+      agent1: 172.31.6.35
+      agent2: 172.31.1.235
+      agent3: 172.31.5.245
+      agent4: 172.31.14.247
+      agent5: 172.31.7.160
+      agent6: 172.31.11.70
+      agent7: 172.31.0.164
+
+    add-agent:
+    gracefully-remove-agent:
+    uninstall:
+
+  public:
+    # Choice one of your master's public ip
+    master: 52.79.125.242
+    # Your public node's public ip
+    public: 52.79.51.79
+
+# DB part
+db:
+  ip: 172.31.6.35
+  database: uengine
+  password: my-secret-pw
+
+# Domain part
+host:
+  registry:
+    package: sppark
+    private: gitlab.pas-mini.io:5000
+    public: gitlab.pas-mini.io:5000
+  db: db.pas-mini.io
+  gitlab: gitlab.pas-mini.io
+  iam: iam.pas-mini.io
+  config: config.pas-mini.io
+  eureka-server: eureka-server.pas-mini.io
+  cloud-server: cloud-server.pas-mini.io
+  cloud-ui: cloud.pas-mini.io
+
+# Security(IAM) part
+iam:
+  port: 80
+  client-key: my-client-key
+  client-secret: my-client-secret
+  admin:
+    username: admin
+    password: admin
+  access-token-lifetime: 7200
+  mail:
+    host: smtp.gmail.com
+    username: sppark@uengine.org
+    password: ********
+    port: 587
+    smtp-auth: true
+    smtp-starttls-enable: true
+    from-address: sppark@uengine.org
+    from-name: uengine
+
+# Cloud package part
+# Fill out those properties after install DC/OS cluster && Gitlab
+# Then, you should re-command "mvn clean install exec:java package"
+dcos:
+  token:
+
+gitlab:
+  root:
+    username:
+    password:
+    token:
+  config-repo:
+    projectId:
+    deployment-path: /deployment
+    template-path: /template
+```
 
 ## 설정 파일 빌드
+
+uEngine-cloud/uengine-resource/config.yml 을 모두 작성 후, 빌드를 실행합니다.
 
 ```
 $ cd uengine-resource
 $ mvn clean install exec:java package
 ```
+
+빌드가 성공적으로 진행되면, uEngine-cloud 폴더에 디렉토리들이 추가로 생성되어, 아래와 같은 모습이 됩니다.
+
+```
+-rw-rw-r--. 1 centos centos  1074  1월 17 16:53 LICENSE
+-rw-rw-r--. 1 centos centos 22962  1월 17 16:53 README.md
+drwxrwxr-x. 5 centos centos   132  1월 17 17:01 cloud-config-repository
+drwxrwxr-x. 2 centos centos   185  1월 17 17:01 deploys
+drwxrwxr-x. 2 centos centos   145  1월 17 16:53 document
+drwxrwxr-x. 3 centos centos  4096  1월 17 17:09 install
+-rwxrwxr-x. 1 centos centos  2463  1월 17 16:53 pom.xml
+drwxrwxr-x. 5 centos centos   140  1월 17 16:53 template-iam
+drwxrwxr-x. 4 centos centos   123  1월 17 16:53 template-springboot
+drwxrwxr-x. 8 centos centos  4096  1월 17 16:53 template-vuejs
+drwxrwxr-x. 4 centos centos   123  1월 17 16:53 template-zuul
+drwxrwxr-x. 3 centos centos    50  1월 17 16:53 uengine-cloud-config
+drwxrwxr-x. 5 centos centos   118  1월 17 16:53 uengine-cloud-iam
+drwxrwxr-x. 3 centos centos    50  1월 17 16:53 uengine-cloud-server
+drwxrwxr-x. 7 centos centos   259  1월 17 16:53 uengine-cloud-ui
+drwxrwxr-x. 3 centos centos    50  1월 17 16:53 uengine-eureka-server
+drwxrwxr-x. 8 centos centos   230  1월 17 17:01 uengine-resource
+```
+
+## DC/OS 클러스터 설치
+
+### 유틸리티 및 도커 프로비져닝
+
+```
+$ cd install
+$ sudo sh -c "cat ansible-hosts.yml > /etc/ansible/hosts"
+
+$ ansible-playbook ansible-install.yml
+```
+
+### 
+
+```
+$ mv ~/dcos_generate_config.sh ./
+$ sudo bash dcos_generate_config.sh --genconf
+```
+
 

@@ -134,7 +134,7 @@ public class RunResource {
 
         String cluseteryml = yamlReader.writeValueAsString(cluseterMap);
         org.apache.commons.io.FileUtils.writeStringToFile(
-                new File(baseDir + "/install-files/genconf/config.yml"),
+                new File(baseDir + "/install-files/genconf/config.yaml"),
                 cluseteryml,
                 "UTF-8"
         );
