@@ -12,7 +12,7 @@
     "type": "DOCKER",
     "docker": {
       "forcePullImage": true,
-      "image": "@host.package.registry@/uengine-cloud-config:v1",
+      "image": "@host.registry.package@/uengine-cloud-config:v1",
       "parameters": [],
       "privileged": false
     },

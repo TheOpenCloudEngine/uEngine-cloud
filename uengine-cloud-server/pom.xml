@@ -181,7 +181,7 @@
             </resource>
         </resources>
         <filters>
-            <filter>${basedir}/../uengine-resource/config.yml</filter>
+            <filter>${basedir}/../uengine-resource/config.properties.yml</filter>
         </filters>
     </build>
 

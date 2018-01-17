@@ -1,5 +1,5 @@
 dcos:
-  host: http://@master.node.ip@/
+  host: http://@server.public.master@/
   token: @dcos.token@
 
 gitlab:
@@ -17,9 +17,9 @@ iam:
   clientSecret: @iam.client-secret@
     
 registry:
-  host: @host.registry@
-  public-host: @host.registry-public@
+  host: @host.registry.private@
+  public-host: @host.registry.public@
   
-public-agent-ip: @public.node.ip@
+public-agent-ip: @server.public.public@
 
 cadvisor:

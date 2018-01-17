@@ -1,0 +1,42 @@
+# Ansible install
+# sudo yum install epel-release
+# sudo yum install ansible
+
+# Create host file
+# sudo vi /etc/ansible/hosts
+
+[all:vars]
+ansible_user=centos
+ansible_ssh_private_key_file=/home/centos/dcos-key.pem
+registry_host=gitlab.pas-mini.io:5000
+
+[bootstrap]
+192.168.0.7
+
+[gitlab]
+192.168.0.35
+
+# If you want auto-scale gitlab ci runner
+#[ci]
+#192.168.0.36
+
+[master]
+192.168.0.14
+192.168.0.23
+192.168.0.8
+
+[public]
+192.168.0.30
+
+[agent]
+192.168.0.27
+192.168.0.28
+192.168.0.24
+192.168.0.25
+192.168.0.31
+192.168.0.26
+192.168.0.33
+
+[add-agent]
+
+[gracefully-remove-agent]

@@ -4,18 +4,18 @@ package org.uengine.zuul.model;
  * Created by uengine on 2017. 10. 30..
  */
 public class App {
-    private AppType appType;
+    private String appType;
     private String owner;
     private Gitlab gitlab;
     private DcosState prod;
     private DcosState stg;
     private DcosState dev;
 
-    public AppType getAppType() {
+    public String getAppType() {
         return appType;
     }
 
-    public void setAppType(AppType appType) {
+    public void setAppType(String appType) {
         this.appType = appType;
     }
 

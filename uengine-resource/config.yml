@@ -1,44 +1,113 @@
-domain: pas-mini.io
-master.node.ip: 52.79.125.242
-public.node.ip: 52.79.51.79
-db.node.ip: 172.31.6.35
-db.database: uengine
-db.password: my-secret-pw
+ansible_user: centos
+ansible_ssh_private_key_file: /home/centos/dcos-key.pem
 
-host.package.registry: sppark
-host.registry: gitlab.@domain@:5000
-host.registry-public: gitlab.@domain@:5000
-host.db: db.@domain@
-host.gitlab: gitlab.@domain@
-host.iam: iam.@domain@
-host.config: config.@domain@
-host.eureka-server: eureka-server.@domain@
-host.cloud-server: cloud-server.@domain@
-host.cloud-ui: cloud.@domain@
+server:
+  private:
+    bootstrap: 172.31.8.143
+    gitlab: 172.31.15.249
 
-iam.port: 80
-iam.client-key: my-client-key
-iam.client-secret: my-client-secret
-iam.admin.username: admin
-iam.admin.password: admin
-iam.access-token-lifetime: 7200
-iam.mail.host: smtp.gmail.com
-iam.mail.username: sppark@uengine.org
-iam.mail.password: !gosu23546
-iam.mail.port: 587
-iam.mail.smtp-auth: true
-iam.mail.smtp-starttls-enable: true
-iam.mail.from-address: sppark@uengine.org
-iam.mail.from-name: uengine
+    # If you want auto-scale gitlab ci runner
+    ci: 172.31.3.61
+    public: 172.31.5.136
 
-dcos.token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJkYXJrZ29kYXJrZ29AZ21haWwuY29tIiwiZXhwIjozMTI1NTU5MDY0MzkuODk0MX0.aHgH_M-g-n-WlnPg_CorMGYEprULPSeUTIGu3GyZQ-U
+    master:
+      master1: 172.31.12.143
+      master2: 172.31.4.125
+      master3: 172.31.1.198
 
-gitlab.root.username: root
-gitlab.root.password: adminadmin
-gitlab.root.token: -arWnfRY7S4h6oyRthNy
-gitlab.config-repo.projectId: 47
-gitlab.config-repo.deployment-path: /deployment
-gitlab.config-repo.template-path: /template
+    agent:
+      agent1: 172.31.6.35
+      agent2: 172.31.1.235
+      agent3: 172.31.5.245
+      agent4: 172.31.14.247
+      agent5: 172.31.7.160
+      agent6: 172.31.11.70
+      agent7: 172.31.0.164
+
+    add-agent:
+      agent8: 172.31.6.108
+      agent9: 172.31.6.109
+      agent10: 172.31.6.110
+      agent11: 172.31.6.111
+      agent12: 172.31.6.112
+      agent13: 172.31.6.113
+      agent14: 172.31.6.114
+      agent15: 172.31.6.115
+      agent16: 172.31.6.116
+      agent17: 172.31.6.117
+      agent18: 172.31.6.118
+      agent19: 172.31.6.119
+      agent20: 172.31.6.120
+
+    gracefully-remove-agent:
+      agent8: 172.31.6.108
+      agent9: 172.31.6.109
+      agent10: 172.31.6.110
+      agent11: 172.31.6.111
+      agent12: 172.31.6.112
+      agent13: 172.31.6.113
+      agent14: 172.31.6.114
+      agent15: 172.31.6.115
+      agent16: 172.31.6.116
+      agent17: 172.31.6.117
+      agent18: 172.31.6.118
+      agent19: 172.31.6.119
+      agent20: 172.31.6.120
+
+  public:
+    # Choice one of your master's public ip
+    master: 52.79.125.242
+    # Your public node's public ip
+    public: 52.79.51.79
+
+db:
+  ip: 172.31.6.35
+  database: uengine
+  password: my-secret-pw
+
+host:
+  registry:
+    package: sppark
+    private: gitlab.pas-mini.io:5000
+    public: gitlab.pas-mini.io:5000
+  db: db.pas-mini.io
+  gitlab: gitlab.pas-mini.io
+  iam: iam.pas-mini.io
+  config: config.pas-mini.io
+  eureka-server: eureka-server.pas-mini.io
+  cloud-server: cloud-server.pas-mini.io
+  cloud-ui: cloud.pas-mini.io
+
+iam:
+  port: 80
+  client-key: my-client-key
+  client-secret: my-client-secret
+  admin:
+    username: admin
+    password: admin
+  access-token-lifetime: 7200
+  mail:
+    host: smtp.gmail.com
+    username: sppark@uengine.org
+    password: !gosu23546
+    port: 587
+    smtp-auth: true
+    smtp-starttls-enable: true
+    from-address: sppark@uengine.org
+    from-name: uengine
+
+dcos:
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJkYXJrZ29kYXJrZ29AZ21haWwuY29tIiwiZXhwIjozMTI1NTU5MDY0MzkuODk0MX0.aHgH_M-g-n-WlnPg_CorMGYEprULPSeUTIGu3GyZQ-U
+
+gitlab:
+  root:
+    username: root
+    password: adminadmin
+    token: -arWnfRY7S4h6oyRthNy
+  config-repo:
+    projectId: 47
+    deployment-path: /deployment
+    template-path: /template
 
 
 

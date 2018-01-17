@@ -1,0 +1,50 @@
+server.public.master: {{server.public.master}}
+server.public.public: {{server.public.public}}
+
+db.ip: {{db.ip}}
+db.database: {{db.database}}
+db.password: {{db.password}}
+
+host.registry.package: {{host.registry.package}}
+host.registry.private: {{host.registry.private}}
+host.registry.public: {{host.registry.public}}
+host.db: {{host.db}}
+host.gitlab: {{host.gitlab}}
+host.iam: {{host.iam}}
+host.config: {{host.config}}
+host.eureka-server: {{host.eureka-server}}
+host.cloud-server: {{host.cloud-server}}
+host.cloud-ui: {{host.cloud-ui}}
+
+iam.port: {{iam.port}}
+iam.client-key: {{iam.client-key}}
+iam.client-secret: {{iam.client-secret}}
+iam.admin.username: {{iam.admin.username}}
+iam.admin.password: {{iam.admin.password}}
+iam.access-token-lifetime: {{iam.access-token-lifetime}}
+iam.mail.host: {{iam.mail.host}}
+iam.mail.username: {{iam.mail.username}}
+iam.mail.password: {{iam.mail.password}}
+iam.mail.port: {{iam.mail.port}}
+iam.mail.smtp-auth: {{iam.mail.smtp-auth}}
+iam.mail.smtp-starttls-enable: {{iam.mail.smtp-starttls-enable}}
+iam.mail.from-address: {{iam.mail.from-address}}
+iam.mail.from-name: {{iam.mail.from-name}}
+
+dcos.token: {{dcos.token}}
+
+gitlab.root.username: {{gitlab.root.username}}
+gitlab.root.password: {{gitlab.root.password}}
+gitlab.root.token: {{gitlab.root.token}}
+gitlab.config-repo.projectId: {{gitlab.config-repo.projectId}}
+gitlab.config-repo.deployment-path: {{gitlab.config-repo.deployment-path}}
+gitlab.config-repo.template-path: {{gitlab.config-repo.template-path}}
+
+
+
+
+
+
+
+
+

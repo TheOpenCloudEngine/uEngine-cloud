@@ -14,3 +14,4 @@ buildNumber.properties
 *.iml
 deploys
 cloud-config-repository
+install

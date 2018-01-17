@@ -17,7 +17,7 @@
     "type": "DOCKER",
     "volumes": [],
     "docker": {
-      "image": "@host.package.registry@/uengine-cloud-ui:v1",
+      "image": "@host.registry.package@/uengine-cloud-ui:v1",
       "forcePullImage": true,
       "privileged": false,
       "parameters": []

@@ -22,7 +22,7 @@ import java.util.Map;
 public class RouteService implements InitializingBean {
 
     @Autowired
-    Environment environment;
+    private Environment environment;
 
     private Map apps = null;
 

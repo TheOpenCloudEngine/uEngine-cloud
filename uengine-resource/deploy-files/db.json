@@ -6,7 +6,7 @@
     [
       "hostname",
       "LIKE",
-      "@db.node.ip@"
+      "@db.ip@"
     ]
   ],
   "container": {

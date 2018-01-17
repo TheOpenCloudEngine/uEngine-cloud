@@ -1,0 +1,25 @@
+# vi playbook.yml
+
+---
+- hosts: master:public:agent
+  remote_user: "{{ansible_user}}"
+  tasks:
+    - name: Remove all
+      command: "{{ item }}"
+      with_items:
+        - sudo -i /opt/mesosphere/bin/pkgpanda uninstall
+        - sudo systemctl stop dcos-mesos-slave
+        - sudo systemctl disable dcos-mesos-slave
+        - sudo systemctl stop dcos-mesos-slave-public
+        - sudo systemctl disable dcos-mesos-slave-public
+        - sudo systemctl stop dcos-mesos-master
+        - sudo systemctl disable dcos-mesos-slave-master
+        - sudo rm -rf /etc/mesosphere /opt/mesosphere /var/lib/mesos /var/lib/dcos
+        - sudo rm -rf /etc/systemd/system/dcos*
+        - sudo sleep 2 && sudo reboot
+
+# play book
+# ansible-playbook playbook.yml
+
+# play at task
+# ansible-playbook playbook.yml --start-at-task="genconf"

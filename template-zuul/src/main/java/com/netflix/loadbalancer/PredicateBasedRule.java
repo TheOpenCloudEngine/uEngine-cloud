@@ -8,10 +8,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Optional;
 import com.netflix.appinfo.InstanceInfo;
-import com.netflix.loadbalancer.AbstractServerPredicate;
-import com.netflix.loadbalancer.ClientConfigEnabledRoundRobinRule;
-import com.netflix.loadbalancer.ILoadBalancer;
-import com.netflix.loadbalancer.Server;
 import com.netflix.niws.loadbalancer.DiscoveryEnabledServer;
 import com.netflix.zuul.context.RequestContext;
 import org.uengine.iam.util.ApplicationContextRegistry;
@@ -20,7 +16,6 @@ import org.springframework.core.env.Environment;
 import org.uengine.zuul.BlueGreen;
 import org.uengine.zuul.RouteService;
 import org.uengine.zuul.model.App;
-import org.uengine.zuul.model.AppType;
 import org.uengine.zuul.model.DcosState;
 
 import javax.servlet.http.HttpServletRequest;
@@ -83,9 +78,8 @@ public abstract class PredicateBasedRule extends ClientConfigEnabledRoundRobinRu
                     for (Map.Entry<String, Map> entry : _apps.entrySet()) {
                         App app = objectMapper.convertValue(entry.getValue(), App.class);
 
-                        //스프링 부트이고, appname 이 동일할 경우
-                        if (AppType.springboot.toString().equals(app.getAppType().toString())
-                                && appname.equals(entry.getKey())) {
+                        //appname 이 동일할 경우
+                        if (appname.equals(entry.getKey())) {
                             if (role.equals("prod")) {
                                 dcosState = app.getProd();
                             } else if (role.equals("stg")) {
