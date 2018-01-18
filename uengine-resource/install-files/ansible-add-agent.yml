@@ -6,7 +6,7 @@
       become: true
       become_method: sudo
       copy:
-        src: ./etc-hosts
+        src: ./hosts
         dest: /etc/hosts
         owner: root
         group: root
