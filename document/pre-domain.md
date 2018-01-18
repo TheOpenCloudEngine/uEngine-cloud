@@ -2,13 +2,14 @@
 
 다음의 도메인들을 준비하도록 합니다. 다음의 보기에서는 pas-mini.io 도메인을 소유했다고 가정하고, 다음의 A_Mask 들을 준비하도록 합니다.
 
- - gitlab 을 제외한 모든 도메인은 public-agent 서버로 연결토록 합니다.
- - gitlab 도메인은 gitlab 서버로 연결토록 합니다.
+ - gitlab, dcos 을 제외한 모든 도메인은 public-agent 서버로 연결토록 합니다.
+ - gitlab 도메인은 gitlab 서버로, dcos 도메인은 마스터 노드 중 하나로 연결토록 합니다.
  - 외부 인터넷 환경에서 접속이 가능해야 하므로, 퍼블릭 아이피로 연결하도록 합니다.
 
 | A_MASK        | 도메인      | 역할                   | 퍼블릭 아이피              |
 |---------------|-------------|------------------------|----------------------------|
 | gitlab        | pas-mini.io | 깃랩 / 도커 레지스트리 | 52.78.60.43(깃랩)       |
+| dcos        | pas-mini.io | DC/OS 마스터 | 52.79.125.242(마스터)       |
 | config        | pas-mini.io | 클라우드 콘피그 서버   | 52.79.51.79(public-agent) |
 | eureka-server | pas-mini.io | 유레카 서버            | 52.79.51.79(public-agent) |
 | iam       | pas-mini.io | 사용자 인증 서버       | 52.79.51.79(public-agent) |

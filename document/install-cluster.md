@@ -20,7 +20,7 @@ $ wget https://s3.ap-northeast-2.amazonaws.com/uengine-cloud/dcos_generate_confi
 
 유엔진 클라우드는 앤서블 유틸리티를 사용해 설치자동화를 지원합니다. 
 
-모든 설정이 uEngine-cloud/uengine-resource/config.yml 파일에서 이루어지는데, 이 설정들은 다음과 같은 작업을 자동화하는데 사용되어집니다. 
+모든 설정이 `uEngine-cloud/uengine-resource/config.yml` 파일에서 이루어지는데, 이 설정들은 다음과 같은 작업을 자동화하는데 사용되어집니다. 
 
 - 네트워크 환경 및 유틸리티 배포
 - DC/OS 클러스터 설치
