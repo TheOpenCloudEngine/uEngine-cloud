@@ -226,10 +226,10 @@ iam:
 
 ### Cloud package part
 
-클라우드 패키지 파트는 [클러스터 설치](document/install-cluster.md) 와 [깃랩 && 도커 레지스트리 설치](document/install-gitlab.md) 
+클라우드 패키지 파트는 [클러스터 설치](install-cluster.md) 와 [깃랩 && 도커 레지스트리 설치](install-gitlab.md) 
 설치가 종료된 후, 클러스터 정보 및 깃랩 정보를 기입하는 곳입니다.
 
-이 곳의 설정에 관해서는 [클라우드 패키지 빌드](document/install-package.md) 에서 진행하게 됩니다.
+이 곳의 설정에 관해서는 [클라우드 패키지 빌드](install-package.md) 에서 진행하게 됩니다.
 
 ```
 # Cloud package part
@@ -428,7 +428,7 @@ Package filename: packages/dcos-metadata/dcos-metadata--setup_5a900644a2b78900d7
 Generating Bash configuration files for DC/OS
 ```
 
-preflight 는 사전 체크 단계입니다. 이 단계에서 모든 사항에 대해 pass 가 나오지 않는다면, [트러블 슈팅](document/trouble.md) 을 통해 해결하세요.
+preflight 는 사전 체크 단계입니다. 이 단계에서 모든 사항에 대해 pass 가 나오지 않는다면, [트러블 슈팅](trouble.md) 을 통해 해결하세요.
 
 ```
 sudo bash dcos_generate_config.sh --preflight
@@ -541,10 +541,10 @@ DC/OS 웹 UI 에 로그인하기 위해서는 구글 계정이 필요합니다.
 
 ![health](image/install-health.png)
 
-문제가 있는 컴포넌트가 있다면 원인분석을 위해 [컴포넌트 헬스 체크](document/trouble-component.md) 를 참조하기 바랍니다.
+문제가 있는 컴포넌트가 있다면 원인분석을 위해 [컴포넌트 헬스 체크](trouble-component.md) 를 참조하기 바랍니다.
 
 잘못된 설정값으로 초기 설치를 진행하여, 다시 설치 시도시에 원할히 동작되지 않는 경우 초기 설치요소를 완전히 제거하고 재설치 할 필요가 있습니다. 
-[설치 완전 삭제](document/op-uninstall.md) 를 참조하여 진행하도록 하십시오.
+[설치 완전 삭제](op-uninstall.md) 를 참조하여 진행하도록 하십시오.
 
 
 
