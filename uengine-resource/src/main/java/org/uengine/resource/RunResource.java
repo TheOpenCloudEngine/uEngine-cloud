@@ -126,7 +126,7 @@ public class RunResource {
         if (configMap.containsKey("dns_search") && !StringUtils.isEmpty(configMap.get("dns_search").toString())) {
             cluseterMap.put("dns_search", configMap.get("dns_search"));
         }
-        cluseterMap.put("ssh_key_path", configMap.get("genconf/ssh_key"));
+        cluseterMap.put("ssh_key_path", "genconf/ssh_key");
         cluseterMap.put("ssh_port", configMap.get("ssh_port"));
         cluseterMap.put("ssh_user", configMap.get("ansible_user"));
         cluseterMap.put("telemetry_enabled", true);
