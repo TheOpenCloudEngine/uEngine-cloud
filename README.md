@@ -14,6 +14,7 @@
   - [클라우드 패키지 빌드](document/install-package.md)
   - [클라우드 앱 실행](document/install-package-run.md)
   - [테스트](document/install-test.md)
+  - [cadvisor proxy](document/cadvisor.md)
 
 - 운영
   - [노드 추가](document/op-add-node.md)
