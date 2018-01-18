@@ -55,7 +55,7 @@ iam:
     password: admin
 # jwt 발급 정보 및 키
   jwt:
-    key: my-jwt-encrypt-key
+    key: my-jwt-encrypt-key-my-jwt-encrypt-key
     issuer: ${spring.application.name}
     oldRefreshTokenTimeout: 60
 
