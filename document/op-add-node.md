@@ -47,3 +47,54 @@ $ cd install
 $ ansible-playbook ansible-add-agent.yml
 ```
 
+## cadvisor 프록시 추가
+
+Google cadvisor 서비스를 사용하기 위해 public node 의 `rinted` 프록시 서버를 설정합니다.
+
+추가하는 순서는 agent 번호 순번대로, 91** 으로 만들어주면 됩니다. 예를들어 agent12 번일 경우, 9112 포트가 됩니다.
+
+```
+$ ssh -i <your-private-key> public
+
+$ sudo vi /etc/rinetd.conf
+
+.
+.
+0.0.0.0 9108 172.31.10.202 8080
+0.0.0.0 9109 172.31.14.197 8080
+0.0.0.0 9110 172.31.13.131 8080
+0.0.0.0 9111 172.31.1.166 8080
+0.0.0.0 9112 172.31.8.5 8080
+```
+
+`rinted` 프록시 서버를 재시작합니다.
+
+```
+$ sudo service rinetd restart
+Restarting rinetd (via systemctl):                         [  OK  ]
+```
+
+이후, 깃랩 UI 의 `cloud-config-repository` 프로젝트의 `uengine-cloud-server.yml` 
+파일에 추가된 노드만큼 `<추가아이피>,http://<퍼블릭노드아이피>:91**` 형식으로 더해줍니다. 
+
+![token](image/add-agent1.png)
+
+```
+cadvisor:
+  .
+  .
+  .
+  - 172.31.10.202,http://52.79.51.79:9108
+  - 172.31.14.197,http://52.79.51.79:9109
+  - 172.31.13.131,http://52.79.51.79:9110
+  - 172.31.1.166,http://52.79.51.79:9111
+  - 172.31.8.5,http://52.79.51.79:9112
+```
+
+
+
+
+
+
+
+
