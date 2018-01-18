@@ -28,8 +28,14 @@ $ mvn clean install exec:java package
 이후, `uEngine-cloud/install` 폴더에서 변경 적용된 DC/OS 클러스터 배포파일을 생성 후, 압축합니다.
 
 ```
+# 앤시블 호스트 파일 재적용
 $ cd install
+$ sudo sh -c "cat ansible-hosts.yml > /etc/ansible/hosts"
+
+# DC/OS 생성파일 생성
 $ sudo bash dcos_generate_config.sh --genconf
+
+# DC/OS 배포파일 압축
 $ cd genconf/serve 
 sudo tar cf dcos-install.tar *
 ```
