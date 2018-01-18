@@ -176,7 +176,7 @@ hostname --ip-address
 
 #### Configure Local cache runner
 
-로컬 캐쉬 서버를 구축 한 후에는, 러너환경에 이 서버를 사용하도록 설정합니다.
+로컬 캐쉬 서버를 구축 한 후에는, `/etc/gitlab-runner/config.toml` 러너환경에 이 서버를 사용하도록 설정합니다.
 
 ```
 [[runners]]
@@ -194,5 +194,82 @@ hostname --ip-address
 AccessKey 와 SecretKey 는 `sudo cat /.minio/config.json` 에 위치해 있습니다.
 
 
-### 오토 스케일 러너 설정
+### 러너 오토 스케일 설정
+
+참조문서 [Runners autoscale configuration](https://docs.gitlab.com/runner/configuration/autoscale.html#distributed-runners-caching)
+
+본 예제에서는 EC2 환경의 `스팟 인스턴스` 를 CI 풀로 사용하도록 `/etc/gitlab-runner/config.toml` 에 설정한 예입니다.
+
+```
+concurrent = 12
+check_interval = 0
+[[runners]]
+  name = "uengine docker runner:shared-socket"
+  url = "http://172.31.15.249"
+  token = "9197e25967da8c39bc0a826f148464"
+  executor = "docker+machine"
+  limit = 20
+  [runners.docker]
+    tls_verify = false
+    image = "docker:latest"
+    privileged = false
+    disable_cache = false
+    volumes = ["/var/run/docker.sock:/var/run/docker.sock", "/cache"]
+    shm_size = 0
+  [runners.machine]
+    IdleCount = 1
+    MachineDriver = "amazonec2"
+    MachineName = "runner-%s"
+    MachineOptions = [
+    "amazonec2-access-key=AKIAI5U*******",
+    "amazonec2-secret-key=uVHmnvl0Kz3sOR1*******",
+    "amazonec2-region=ap-northeast-2",
+    "amazonec2-instance-type=t2.medium",
+    "amazonec2-vpc-id=vpc-e8f91b81",
+    "amazonec2-subnet-id=subnet-856487ec",
+    "engine-insecure-registry=gitlab.pas-mini.io:5000"
+    ]
+    IdleTime = 1800
+  [runners.cache]
+    Type = "s3"
+    ServerAddress = "s3.amazonaws.com"
+    AccessKey = "AKIAI5U*******"
+    SecretKey = "uVHmnvl0Kz3sOR1*******"
+    BucketName = "uengine-gitlab-runner"
+    BucketLocation = "ap-northeast-2"
+```
+
+먼저, `executor` 항목이 `"docker+machine"` 으로 설정한 것을 볼 수 있습니다. 이는 CI 서버에 설치된 도커 머신이 다른 기기에 설치된 도커로 명령을 대리 전달하고,
+대리 전달받은 기기의 도커가 부팅되면서 깃랩 소스코드, 캐쉬 데이터를 받아와 작업을 수행하게 됩니다.
+
+![login](image/ci4.png)
+
+`runners.machine` 항목에는 이 도커 머신을 어떻게 띄울 것인가에 대한 기술인데, 도커 머신은 깃랩에 포함된 패키지가 아닌 도커 오피셜 클라이언트입니다.
+따라서, 이 항목에는 [공식 도커 머신](https://docs.docker.com/machine/) 을 참조하며 기술하면 됩니다. 지원되는 도커 머신 드라이버 리스트는 다음이 있습니다.
+
+[Amazon Web Services](https://docs.docker.com/machine/drivers/aws/)
+[Microsoft Azure](https://docs.docker.com/machine/drivers/azure/)
+[Digital Ocean](https://docs.docker.com/machine/drivers/digital-ocean/)
+[Exoscale](https://docs.docker.com/machine/drivers/exoscale/)
+[Google Compute Engine](https://docs.docker.com/machine/drivers/gce/)
+[Generic](https://docs.docker.com/machine/drivers/generic/)
+[Microsoft Hyper-V](https://docs.docker.com/machine/drivers/hyper-v/)
+[OpenStack](https://docs.docker.com/machine/drivers/openstack/)
+[Rackspace](https://docs.docker.com/machine/drivers/rackspace/)
+[IBM Softlayer](https://docs.docker.com/machine/drivers/soft-layer/)
+[Oracle VirtualBox](https://docs.docker.com/machine/drivers/virtualbox/)
+[VMware vCloud Air](https://docs.docker.com/machine/drivers/vm-cloud/)
+[VMware Fusion](https://docs.docker.com/machine/drivers/vm-fusion/)
+[VMware vSphere](https://docs.docker.com/machine/drivers/vsphere/)
+[VMware Workstation](https://github.com/pecigonzalo/docker-machine-vmwareworkstation) (unofficial plugin, not supported by Docker)
+[Grid 5000](https://github.com/Spirals-Team/docker-machine-driver-g5k) (unofficial plugin, not supported by Docker)
+
+
+설정이 종료된 후에는 다음 명령어로 러너를 재시작합니다.
+
+```
+$ sudo gitlab-ci-multi-runner restart
+```
+
+
 
