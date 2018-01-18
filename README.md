@@ -19,6 +19,7 @@
   - [노드 추가](document/op-add-node.md)
   - [노드 삭제](document/op-remove-node.md)
   - [설치 완전 삭제](document/op-uninstall.md)
+  - [깃랩 백업](document/op-gitlab-backup.md)
   
 - [트러블 슈팅](document/trouble.md)
   - [컴포넌트 헬스 체크](document/trouble-component.md)
