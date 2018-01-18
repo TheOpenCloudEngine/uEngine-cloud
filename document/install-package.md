@@ -27,13 +27,13 @@ DC/OS 클러스터의 어드민 토큰 발급은 앞선 [사용자 생성](insta
 - template-vuejs
 - template-zuul
 
-![token](image/package2.png)
+![package2](image/package2.png)
 
 `cloud-config-repository` 프로젝트는 데이터베이스의 역할을 수행하므로, [Fill out Cloud package part](#fill-out-cloud-package-part) 
 에서 이 프로젝트의 아이디가 필요합니다. UI 에서 `cloud-config-repository` 프로젝트 화면의 `Settings => General project settings` 
  메뉴로 들어가면 프로젝트 아이디를 볼 수 있습니다.
 
-![token](image/package3.png)
+![package3](image/package3.png)
 
 ## Fill out Cloud package part
 
@@ -66,6 +66,88 @@ gitlab:
 $ cd uEngine-cloud/uengine-resource
 $ mvn clean install exec:java package
 ```
+
+## 데이터 베이스 업로드
+
+설정을 생성하고 나면, 다음과 같은 디렉토리 리스트를 볼수 있습니다.
+
+```
+$ cd uEngine-cloud
+$ ll
+
+-rw-rw-r--. 1 centos centos  1074  1월 17 16:53 LICENSE
+-rw-rw-r--. 1 centos centos 23620  1월 18 06:29 README.md
+drwxrwxr-x. 5 centos centos   132  1월 17 17:01 cloud-config-repository
+drwxrwxr-x. 2 centos centos   185  1월 17 17:01 deploys
+drwxrwxr-x. 3 centos centos  4096  1월 18 06:29 document
+drwxrwxr-x. 3 centos centos  4096  1월 17 18:59 install
+-rwxrwxr-x. 1 centos centos  2463  1월 17 16:53 pom.xml
+drwxrwxr-x. 5 centos centos   140  1월 17 16:53 template-iam
+drwxrwxr-x. 4 centos centos   123  1월 17 16:53 template-springboot
+drwxrwxr-x. 8 centos centos  4096  1월 17 16:53 template-vuejs
+drwxrwxr-x. 4 centos centos   123  1월 17 16:53 template-zuul
+drwxrwxr-x. 3 centos centos    50  1월 17 16:53 uengine-cloud-config
+drwxrwxr-x. 5 centos centos   118  1월 17 16:53 uengine-cloud-iam
+drwxrwxr-x. 3 centos centos    50  1월 17 16:53 uengine-cloud-server
+drwxrwxr-x. 7 centos centos   259  1월 17 16:53 uengine-cloud-ui
+drwxrwxr-x. 3 centos centos    50  1월 17 16:53 uengine-eureka-server
+drwxrwxr-x. 8 centos centos   230  1월 18 06:31 uengine-resource
+```
+
+이 중 `cloud-config-repository` 과 `template-*` 로 시작되는 프로젝트들을 [Create Gitlab Projects](#create-gitlab-projects) 
+ 단계에서 만들어 두었던 프로젝트로 업로드 해야 합니다.
+ 
+업로드 중 유저이름, 패스워드를 묻는 프롬프트가 뜰 경우 깃랩 루트 유저네임과 패스워드를 입력하시면 됩니다.
+ 
+``` 
+$ cd cloud-config-repository
+$ git init
+$ git remote add origin http://gitlab.pas-mini.io/root/cloud-config-repository.git
+$ git add .
+$ git commit -m "Initial commit"
+$ git push -u origin master
+
+$ cd ../template-springboot
+$ git init
+$ git remote add origin http://gitlab.pas-mini.io/root/template-springboot.git
+$ git add .
+$ git commit -m "Initial commit"
+$ git push -u origin master
+
+
+$ cd ../template-iam
+$ git init
+$ git remote add origin http://gitlab.pas-mini.io/root/template-iam.git
+$ git add .
+$ git commit -m "Initial commit"
+$ git push -u origin master
+
+$ cd ../template-zuul
+$ git init
+$ git remote add origin http://gitlab.pas-mini.io/root/template-zuul.git
+$ git add .
+$ git commit -m "Initial commit"
+$ git push -u origin master
+
+$ cd ../template-vuejs
+$ git init
+$ git remote add origin http://gitlab.pas-mini.io/root/template-vuejs.git
+$ git add .
+$ git commit -m "Initial commit"
+$ git push -u origin master
+```
+
+## 클라우드 패키지 빌드
+
+`uEngine-cloud/install` 폴더에서, `sh docker-build.sh` 를 수행하도록 합니다.
+
+이 스크립트는 `config.yml` 의 환경설정에 따라 커스터마이징 된 소스코드를 빌드하고, 도커 이미지 생성 후, 지정된 도커 레파지토리로 업로드합니다.
+
+```
+$ cd uEngine-cloud/install
+$ sh docker-build.sh
+```
+
 
 
 

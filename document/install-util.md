@@ -88,6 +88,9 @@ export PATH=$M2:$PATH
 # npm install npm@latest -g
 # node -v
 # npm -v
+
+# (For phantomJs install)
+# yum install bzip2 -y
 ```
 
 ## ansible 설치

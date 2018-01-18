@@ -195,7 +195,7 @@ host.registry.package 는 유엔진 클라우드 패키지를 도커 파일을 �
 
 만일 깃랩 서버에 설치된 registry 서버를 똑같이 사용하고가 하실 경우 마찬가지로 깃랩 도메인:5000 을 기입하도록 합니다.
 
-### Security(IAM) part
+### Security part
 
 사용자 인증정보 서버에 관한 설정입니다.
 
