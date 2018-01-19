@@ -12,6 +12,11 @@
           <md-icon v-if="view == 'list'">view_module</md-icon>
           <md-icon v-if="view == 'card'">view_list</md-icon>
         </md-button>
+        <md-button class="md-raised md-primary"
+                   v-if="dcosData.deployments"
+                   @click="openDeployments">
+          배포중 {{dcosData.deployments.length}}
+        </md-button>
       </md-input-container>
     </md-layout>
 
@@ -36,18 +41,13 @@
         <md-button class="md-raised md-primary" @click="openNewService">작성
           <md-icon>control_point</md-icon>
         </md-button>
-        <md-button class="md-raised md-primary"
-                   v-if="dcosData.deployments"
-                   @click="openDeployments">
-          배포중 {{dcosData.deployments.length}}
-        </md-button>
       </md-layout>
     </md-layout>
     <div v-if="isAdmin">
-    <service-deployments ref="service-deployments"></service-deployments>
-    <new-service ref="new-service"></new-service>
-    <app-list :mode="'service'"></app-list>
-    <br><br><br>
+      <service-deployments ref="service-deployments"></service-deployments>
+      <new-service ref="new-service"></new-service>
+      <app-list :mode="'service'"></app-list>
+      <br><br><br>
     </div>
 
     <md-layout>
@@ -80,15 +80,13 @@
     data() {
       return {
         view: 'list',
-        isAdmin : false,
+        isAdmin: false,
       }
     },
     mounted() {
-      this.isAdmin = window.localStorage['acl']=='admin'?true:false;
+      this.isAdmin = window.localStorage['acl'] == 'admin' ? true : false;
     },
-    watch: {
-
-    },
+    watch: {},
     methods: {
       openDeployments: function () {
         this.$refs['service-deployments'].open();

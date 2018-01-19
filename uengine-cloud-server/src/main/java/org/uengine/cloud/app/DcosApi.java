@@ -53,6 +53,16 @@ public class DcosApi implements InitializingBean {
         headers.put("Authorization", "token=" + token);
         return headers;
     }
+    //service/marathon/v2/deployments/
+
+
+    public void deleteDeployment(String deploymentId) throws Exception {
+        HttpResponse response = new HttpUtils().makeRequest("DELETE",
+                host + "/service/marathon/v2/deployments/" + deploymentId,
+                null,
+                this.addHeaders()
+        );
+    }
 
     public void deleteApp(String appId) throws Exception {
         HttpResponse response = new HttpUtils().makeRequest("DELETE",

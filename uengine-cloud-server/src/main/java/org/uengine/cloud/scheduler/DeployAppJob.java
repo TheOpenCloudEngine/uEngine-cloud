@@ -183,6 +183,7 @@ public class DeployAppJob implements Job {
                         int TASKS_RUNNING = (int) appMap.get("tasksRunning");
                         int TASKS_HEALTHY = (int) appMap.get("tasksHealthy");
                         int DEPLOYMENTS_LENGTH = ((List) appMap.get("deployments")).size();
+
                         if (TASKS_RUNNING == TASKS_HEALTHY && DEPLOYMENTS_LENGTH == 0) {
                             System.out.println("Deploy completed!!");
                             deploySuccess = true;
@@ -193,6 +194,7 @@ public class DeployAppJob implements Job {
                         if (CURRENT_COUNT > MAX_COUNT) {
                             System.out.println("Time out. deployment will cancel.");
                             try {
+                                //블루 그린에서는 삭제하는 것이 맞다.
                                 dcosApi.deleteApp(newMarathonAppId);
                             } catch (Exception e) {
 
@@ -207,6 +209,7 @@ public class DeployAppJob implements Job {
                         if (CURRENT_COUNT > MAX_COUNT) {
                             System.out.println("Time out. deployment will cancel.");
                             try {
+                                //블루 그린에서는 삭제하는 것이 맞다.
                                 dcosApi.deleteApp(newMarathonAppId);
                             } catch (Exception e) {
 

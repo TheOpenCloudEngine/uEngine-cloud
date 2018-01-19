@@ -167,7 +167,7 @@ elif [ $NEW_PROD_EXIST -eq 404 ];then
                -d @$DEPLOY_FILE_NAME \
                ${UENGINE_CLOUD_URL}/dcos/service/marathon/v2/apps)"
 
-elif [ $STG_EXIST -eq 000 ];then
+elif [ $NEW_PROD_EXIST -eq 000 ];then
    echo "connection refused"
    exit 1
 else
@@ -228,10 +228,27 @@ do
      if [ "$CURRENT_COUNT" -gt "$MAX_COUNT" ];then
         echo "Time out. deployment will cancel.";
 
+        # 디플로이먼트 원복
+        DEPLOYMENTS=$( echo $NEW_PROD_APP | jq -r '.app.deployments') &&
+        for row in $(echo "${DEPLOYMENTS}" | jq -r '.[] | @base64'); do
+            _jq() {
+             echo ${row} | base64 --decode | jq -r ${1}
+            }
+
+           DEPLOYMENT_ID=$(_jq '.id')
+
+           echo "CANCEL DEPLOYMENT_ID: $DEPLOYMENT_ID"
+
+           curl --request DELETE \
+                -H 'content-type: application/json' \
+                ${UENGINE_CLOUD_URL}/dcos/service/marathon/v2/deployments/$DEPLOYMENT_ID
+
+        done
+
         # 신규 프로덕션 앱 삭제
-        curl --request DELETE \
-        -H 'content-type: application/json' \
-        ${UENGINE_CLOUD_URL}/dcos/service/marathon/v2/apps/$NEW_MARATHON_APP_ID?force=true
+        # curl --request DELETE \
+        # -H 'content-type: application/json' \
+        # ${UENGINE_CLOUD_URL}/dcos/service/marathon/v2/apps/$NEW_MARATHON_APP_ID?force=true
 
         exit 1
      fi
@@ -358,10 +375,4 @@ if [ "$APP_TYPE" != "springboot" ];then
     ${UENGINE_CLOUD_URL}/dcos/service/marathon/v2/apps/$OLD_MARATHON_APP_ID?force=true
 
 fi
-
-
-
-
-
-
 
