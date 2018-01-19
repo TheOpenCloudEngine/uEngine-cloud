@@ -71,7 +71,7 @@ public class IAMFilter extends ZuulFilter {
             tenantId = userName.split("@")[1];
             user = (Map) contexts.get("user");
             List<String> scopes = (List<String>) contexts.get("scopes");
-//            List<String> userScopes = (List<String>) contexts.get("metadata");
+            List<String> userScopes = (List<String>) contexts.get("metadata");
 
             myScopes.addAll(scopes);
 
@@ -105,10 +105,10 @@ public class IAMFilter extends ZuulFilter {
 
                         for (String iamScope : iamScopes.values()) {
                             String[] scopeAndMethod = iamScope.split("/");
-                            String scope = scopeAndMethod[0];
+                            String scope = scopeAndMethod[0].trim();
                             String methods = scopeAndMethod.length > 1 ? scopeAndMethod[1] : null;
 
-                            if (myScopes.contains(scope)) {
+                            if (myScopes.contains(scope) || "*".equals(scope)) {
 
                                 hasScope = true;
 
