@@ -177,6 +177,8 @@ do
               -H 'content-type: application/json' \
               ${UENGINE_CLOUD_URL}/dcos/service/marathon/v2/apps/$MARATHON_APP_ID)"
 
+  echo $DEV_APP
+
   DEV_APP_STATUS="$(curl --request GET \
                 -s -o /dev/null -w "%{http_code}" \
                 -H 'content-type: application/json' \
@@ -209,10 +211,26 @@ do
      if [ "$CURRENT_COUNT" -gt "$MAX_COUNT" ];then
         echo "Time out. deployment will cancel.";
 
+        # 디플로이먼트 원복
+        DEPLOYMENTS=$( echo $DEV_APP | jq -r '.app.deployments') &&
+        for row in $(echo "${DEPLOYMENTS}" | jq -r '.[] | @base64'); do
+            _jq() {
+             echo ${row} | base64 --decode | jq -r ${1}
+            }
+
+           DEPLOYMENT_ID=$(_jq '.id')
+
+           echo "CANCEL DEPLOYMENT_ID: $DEPLOYMENT_ID"
+
+           curl --request DELETE \
+                -H 'content-type: application/json' \
+                ${UENGINE_CLOUD_URL}/dcos/service/marathon/v2/deployments/$DEPLOYMENT_ID
+
+        done
         # 개발 앱 삭제
-        curl --request DELETE \
-        -H 'content-type: application/json' \
-        ${UENGINE_CLOUD_URL}/dcos/service/marathon/v2/apps/$MARATHON_APP_ID?force=true
+        # curl --request DELETE \
+        # -H 'content-type: application/json' \
+        # ${UENGINE_CLOUD_URL}/dcos/service/marathon/v2/apps/$MARATHON_APP_ID?force=true
 
         exit 1
      fi
