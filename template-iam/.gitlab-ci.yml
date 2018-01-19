@@ -63,7 +63,7 @@ dev:
     - triggers
   when: manual
   script:
-    - curl ${UENGINE_CLOUD_URL}/gitlab/api/v4/projects/${CONFIG_REPO_ID}/repository/files/deployment%2F${APP_NAME}%2Fci-deploy-dev.sh/raw?ref=master | sh
+    - curl ${UENGINE_CLOUD_URL}/gitlab/api/v4/projects/${CONFIG_REPO_ID}/repository/files/template%2Fcommon%2Fci-deploy-dev.sh/raw?ref=master | sh
 
 staging:
   image: sppark/curl-jq:v1
@@ -72,7 +72,7 @@ staging:
     - triggers
   when: manual
   script:
-    - curl ${UENGINE_CLOUD_URL}/gitlab/api/v4/projects/${CONFIG_REPO_ID}/repository/files/deployment%2F${APP_NAME}%2Fci-deploy-staging.sh/raw?ref=master | sh
+    - curl ${UENGINE_CLOUD_URL}/gitlab/api/v4/projects/${CONFIG_REPO_ID}/repository/files/template%2Fcommon%2Fci-deploy-staging.sh/raw?ref=master | sh
 
 production:
   image: sppark/curl-jq:v1
@@ -81,4 +81,4 @@ production:
     - triggers
   when: manual
   script:
-    - curl ${UENGINE_CLOUD_URL}/gitlab/api/v4/projects/${CONFIG_REPO_ID}/repository/files/deployment%2F${APP_NAME}%2Fci-deploy-production.sh/raw?ref=master | sh
+    - curl ${UENGINE_CLOUD_URL}/gitlab/api/v4/projects/${CONFIG_REPO_ID}/repository/files/template%2Fcommon%2Fci-deploy-production.sh/raw?ref=master | sh
