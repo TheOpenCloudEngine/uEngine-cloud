@@ -53,7 +53,11 @@ public class RunResource {
         String[] baseHosts = new String[]{"bootstrap", "gitlab", "ci", "public"};
         for (String baseHost : baseHosts) {
             if (serverPrivate.containsKey(baseHost)) {
-                hosts.put(serverPrivate.get(baseHost).toString(), baseHost);
+                try {
+                    hosts.put(serverPrivate.get(baseHost).toString(), baseHost);
+                } catch (Exception ex) {
+
+                }
             }
         }
 
@@ -123,8 +127,12 @@ public class RunResource {
 
         cluseterMap.put("resolvers", configMap.get("resolvers"));
 
-        if (configMap.containsKey("dns_search") && !StringUtils.isEmpty(configMap.get("dns_search").toString())) {
-            cluseterMap.put("dns_search", configMap.get("dns_search"));
+        try {
+            if (configMap.containsKey("dns_search") && !StringUtils.isEmpty(configMap.get("dns_search").toString())) {
+                cluseterMap.put("dns_search", configMap.get("dns_search"));
+            }
+        } catch (Exception ex) {
+
         }
         cluseterMap.put("ssh_key_path", "genconf/ssh_key");
         cluseterMap.put("ssh_port", configMap.get("ssh_port"));

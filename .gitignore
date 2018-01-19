@@ -16,3 +16,6 @@ deploys
 cloud-config-repository
 install
 pdf
+config.properties.yml
+config.pas-mini.yml
+config.pasmini.yml
