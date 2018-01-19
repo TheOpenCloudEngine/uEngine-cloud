@@ -1,16 +1,13 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Login from '@/components/Login'
 import ServiceLocator from '@/components/ServiceLocator'
 import Home from '@/components/Home'
-import AvatarUploader from '@/components/AvatarUploader'
-Vue.component('avatar-uploader', AvatarUploader);
-
-import IAMAvatar from '@/components/IAMAvatar'
-Vue.component('iam-avatar', IAMAvatar);
-
 import Dashboard from '@/components/Dashboard'
 Vue.component('dashboard', Dashboard);
+
+import Login from '../../node_modules/metaworks4/src/components/Login.vue'
+import Metaworks4 from '../../node_modules/metaworks4'
+Vue.use(Metaworks4);
 
 /**
  * Iam && Vue Router
@@ -18,8 +15,8 @@ Vue.component('dashboard', Dashboard);
  */
 //let iam = new IAM(location.protocol + '//' + location.hostname + ':8080/iam');
 var iam = new IAM('http://' + config.vcap.services.iam.external);
-iam.setDefaultClient('e74a9505-a811-407f-b4f6-129b7af1c703', '109cf590-ac67-4b8c-912a-913373ada046');
-
+iam.setDefaultClient('my-client-key', 'my-client-secret');
+window.iam = iam;
 
 let RouterGuard = require("./RouterGuard.js")(iam);
 Vue.use(Router);
@@ -50,7 +47,7 @@ Vue.http.interceptors.push(function (request, next) {
 });
 
 export default new Router({
-  mode: 'history',
+  //mode: 'history',
   routes: [
     {
       path: '/',
@@ -77,7 +74,10 @@ export default new Router({
       path: '/auth/:command',
       name: 'login',
       component: Login,
-      props: {iam: iam},
+      props: {
+        iamServer: "http://iam.pas-mini.io/",
+        scopes: "cloud-server"
+      },
       beforeEnter: RouterGuard.requireGuest
     }
   ]
