@@ -214,6 +214,8 @@
                 }
               }
             }
+
+            //iam 아이디에 따라 필터링한다.
             if (me.dcosData.devopsApps.dcos.apps[appId].iam == window.localStorage['userName'] || window.localStorage['acl']=='admin') {
               app.id = appId;
               app.type = 'app';

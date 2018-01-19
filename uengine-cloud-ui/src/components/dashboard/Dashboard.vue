@@ -1,5 +1,7 @@
 <template>
   <div>
+    <service-deployments ref="service-deployments"></service-deployments>
+
     <md-layout>
       <md-input-container>
         <md-icon>search</md-icon>
@@ -43,8 +45,8 @@
         </md-button>
       </md-layout>
     </md-layout>
+
     <div v-if="isAdmin">
-      <service-deployments ref="service-deployments"></service-deployments>
       <new-service ref="new-service"></new-service>
       <app-list :mode="'service'"></app-list>
       <br><br><br>

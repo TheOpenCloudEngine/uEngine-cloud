@@ -44,7 +44,7 @@
 
                 <md-menu-content>
                   <md-menu-item v-on:click="action(row.id)">
-                    <span>Rollback</span>
+                    <span>배포 중단</span>
                   </md-menu-item>
                 </md-menu-content>
               </md-menu>
@@ -62,15 +62,25 @@
   import DcosDataProvider from '../DcosDataProvider'
   export default {
     mixins: [DcosDataProvider],
-    props: {},
+    props: {
+      //:appIds="stage == 'prod' ? ['/'+ appName + '-blue', '/'+ appName + '-green'] : [devApp[stage]['marathonAppId']]"
+      appIds: Array
+    },
     data() {
       return {
         deploymentsRows: [],
         deployments: [],
-        focusedList: []
+        focusedList: [],
+        isAdmin: false
       }
     },
     mounted(){
+      //TODO 사용자 별로 디플로이먼트 보기
+      //TODO 앱아이디 별로 디플로이먼트 보기
+      //이펙티브 서비스 앞에 앱 아이디 를 넣는다.
+      //포커스 이벤트는 없앤다.
+      //앱 아이디, 앱 액션 필드를 따로 뺀다.
+      this.isAdmin = window.localStorage['acl'] == 'admin' ? true : false;
 
     },
     watch: {
@@ -87,8 +97,8 @@
       createDeploymentsRows: function () {
         var me = this;
         me.deploymentsRows = [];
-        if(!me.deployments){
-            return;
+        if (!me.deployments) {
+          return;
         }
         $.each(me.deployments, function (i, deployment) {
           var row = {
@@ -109,6 +119,14 @@
           }
           me.deploymentsRows.push(row);
         });
+
+        //iam 아이디에 따라 필터링한다.
+//        if (me.dcosData.devopsApps.dcos.apps[appId].iam == window.localStorage['userName'] || window.localStorage['acl']=='admin') {
+//          app.id = appId;
+//          app.type = 'app';
+//          list.push(app);
+//          list = list.concat(additionalList);
+//        }
       },
       focusDeploymentId: function (deploymentId) {
         if (this.focusedList.indexOf(deploymentId) != -1) {
