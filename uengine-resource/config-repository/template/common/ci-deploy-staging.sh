@@ -25,6 +25,9 @@ JSON1="$(curl --request GET \
               -H 'content-type: application/json' \
               ${CONFIG_SERVER_URL}/uengine-cloud-server.json)"
 
+echo $CONFIG_SERVER_URL
+echo $JSON1
+
 REGISTRY_URL=$( echo $JSON1 | jq -r '.registry.host' )
 CONFIG_REPO_ID=$( echo $JSON1 | jq -r '.gitlab["config-repo"].projectId' )
 DCOS_URL=$( echo $JSON1 | jq -r '.dcos.host' )
