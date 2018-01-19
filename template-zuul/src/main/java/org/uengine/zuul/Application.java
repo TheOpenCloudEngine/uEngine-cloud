@@ -19,6 +19,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import org.uengine.zuul.pre.IAMFilter;
 
 /**
  * Created by uengine on 2017. 10. 5..
@@ -67,6 +68,11 @@ public class Application {
         ApplicationContextRegistry contextRegistry = new ApplicationContextRegistry();
         contextRegistry.setApplicationContext(applicationContext);
         return contextRegistry;
+    }
+
+    @Bean
+    public IAMFilter iamFilter() {
+        return new IAMFilter();
     }
 
 }

@@ -35,12 +35,23 @@ eureka:
         profile: local
         appType: zuul
 
-zuul:
-  ignored-services: "*"
-  routes:
-    template-springboot:
-      path: /template-springboot/**
-      serviceId: template-springboot
+#zuul:
+#  ignored-headers: Access-Control-Allow-Credentials, Access-Control-Allow-Origin
+#  addProxyHeaders: true
+#  routes:
+#    order:
+#      path: /orders/**
+#      serviceId: order-service
+#      stripPrefix: false
+#      iam-scopes:
+#        - catalog-access/GET
+#        - catalog-manage/POST-PATCH-DELETE
+
+#    order-manage:
+#      path: /orders/**
+#      serviceId: order-service
+#      iam-scopes: manage-catalog
+#      methods: POST, DELETE, PATCH
 
 ribbon:
   # Max number of retries on the same server (excluding the first try)
