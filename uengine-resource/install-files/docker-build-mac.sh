@@ -1,7 +1,7 @@
 # Untag this, if you use docker hub to store your generated cloud package apps.
 # docker login
 
-REGISTRY_URL=darkgodarkgo
+REGISTRY_URL=@host.registry.package@
 CURRENT_DIR="$(dirname $(pwd))"
 
 cd $CURRENT_DIR/uengine-cloud-config
