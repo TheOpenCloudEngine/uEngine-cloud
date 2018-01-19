@@ -20,10 +20,7 @@ import org.uengine.cloud.scheduler.CronTable;
 import org.uengine.cloud.scheduler.JobScheduler;
 import org.uengine.cloud.tenant.TenantContext;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Created by uengine on 2017. 11. 16..
@@ -498,6 +495,42 @@ public class AppService {
             }
         }
 
+        //포트 설정
+        int min = 1;
+        int max = 100;
+        int appNumber = 1;
+        for (int i = min; i <= max; i++) {
+            boolean canUse = true;
+            if (!apps.isEmpty()) {
+                List<Map> appValues = new ArrayList<>(apps.values());
+                for (Map appValue : appValues) {
+                    try {
+                        if (i == (int) appValue.get("number")) {
+                            canUse = false;
+                        }
+                    } catch (Exception ex) {
+                    }
+                }
+            }
+            if (canUse) {
+                appNumber = i;
+                break;
+            }
+        }
+        int prodPort = 10010 + ((appNumber - 1) * 3) + 1;
+        int stgPort = 10010 + ((appNumber - 1) * 3) + 2;
+        int devPort = 10010 + ((appNumber - 1) * 3) + 3;
+        String internalProdDomain = "marathon-lb-internal.marathon.mesos:" + prodPort;
+        String internalStgDomain = "marathon-lb-internal.marathon.mesos:" + stgPort;
+        String internalDevDomain = "marathon-lb-internal.marathon.mesos:" + devPort;
+        appCreate.setAppNumber(appNumber);
+        appCreate.setDevPort(devPort);
+        appCreate.setStgPort(stgPort);
+        appCreate.setProdPort(prodPort);
+        appCreate.setInternalDevDomain(internalDevDomain);
+        appCreate.setInternalStgDomain(internalStgDomain);
+        appCreate.setInternalProdDomain(internalProdDomain);
+
         //깃랩 프로젝트 체크
         gitLabApi.unsudo();
         if (appCreate.getProjectId() > 0) {
@@ -510,8 +543,6 @@ public class AppService {
 
         //러너체크
         int runnerId = gitlabExtentApi.getDockerRunnerId();
-
-        //app 생성
 
         //doos app 파일 받기
         Map dcosMap = this.getDcosMap();

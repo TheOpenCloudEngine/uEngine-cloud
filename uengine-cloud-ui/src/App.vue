@@ -3,35 +3,35 @@
     <router-view></router-view>
 
     <!--서비스 로케이터 리스트-->
-    <!--<service-locator v-if="config" :host="'http://' + config.vcap.services['uengine-cloud-server'].external" path="/"-->
-    <!--resource-name="backend"></service-locator>-->
-
-    <!--<service-locator v-if="config" :host="'http://' + config.vcap.services['uengine-cloud-server'].external"-->
-    <!--path="/dcos/"-->
-    <!--resource-name="dcos"></service-locator>-->
-
-    <!--<service-locator v-if="config" :host="'http://' + config.vcap.services['uengine-cloud-server'].external"-->
-    <!--path="/gitlab/"-->
-    <!--resource-name="gitlab"></service-locator>-->
-
-    <!--<service-locator v-if="config" :host="'http://' + config.vcap.services['eureka-server'].external"-->
-                     <!--path="/eureka/"-->
-                     <!--resource-name="eureka"></service-locator>-->
-
-    <service-locator v-if="config" :host="'http://localhost:8080'" path="/"
+    <service-locator v-if="config" :host="'http://' + config.vcap.services['uengine-cloud-server'].external" path="/"
                      resource-name="backend"></service-locator>
 
-    <service-locator v-if="config" :host="'http://localhost:8080'"
+    <service-locator v-if="config" :host="'http://' + config.vcap.services['uengine-cloud-server'].external"
                      path="/dcos/"
                      resource-name="dcos"></service-locator>
 
-    <service-locator v-if="config" :host="'http://localhost:8080'"
+    <service-locator v-if="config" :host="'http://' + config.vcap.services['uengine-cloud-server'].external"
                      path="/gitlab/"
                      resource-name="gitlab"></service-locator>
 
-    <service-locator v-if="config" :host="'http://localhost:8761'"
+    <service-locator v-if="config" :host="'http://' + config.vcap.services['eureka-server'].external"
                      path="/eureka/"
                      resource-name="eureka"></service-locator>
+
+    <!--<service-locator v-if="config" :host="'http://localhost:8080'" path="/"-->
+    <!--resource-name="backend"></service-locator>-->
+
+    <!--<service-locator v-if="config" :host="'http://localhost:8080'"-->
+    <!--path="/dcos/"-->
+    <!--resource-name="dcos"></service-locator>-->
+
+    <!--<service-locator v-if="config" :host="'http://localhost:8080'"-->
+    <!--path="/gitlab/"-->
+    <!--resource-name="gitlab"></service-locator>-->
+
+    <!--<service-locator v-if="config" :host="'http://localhost:8761'"-->
+    <!--path="/eureka/"-->
+    <!--resource-name="eureka"></service-locator>-->
 
     <service-locator v-if="config" :host="configServerUrl"
                      path="/"
@@ -65,7 +65,7 @@
       }
     },
     mounted() {
-      console.log("config",this.config);
+      console.log("config", this.config);
       this.fetchData();
     },
     methods: {

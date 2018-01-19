@@ -120,7 +120,7 @@
         cpu: 0.4,
         mem: 512,
         instances: 1,
-        appNumber: 1,
+        //appNumber: 1,
         namespace: "",
         groups: [],
         projectId: "",
@@ -218,12 +218,12 @@
           externalProdDomain: me.externalProdDomain,
           externalStgDomain: me.externalStgDomain,
           externalDevDomain: me.externalDevDomain,
-          internalProdDomain: me.internalProdDomain,
-          internalStgDomain: me.internalStgDomain,
-          internalDevDomain: me.internalDevDomain,
-          prodPort: me.prodPort,
-          stgPort: me.stgPort,
-          devPort: me.devPort,
+//          internalProdDomain: me.internalProdDomain,
+//          internalStgDomain: me.internalStgDomain,
+//          internalDevDomain: me.internalDevDomain,
+//          prodPort: me.prodPort,
+//          stgPort: me.stgPort,
+//          devPort: me.devPort,
           namespace: me.namespace
         })
           .then(

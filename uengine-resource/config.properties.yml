@@ -1,20 +1,20 @@
-server.public.master: 52.79.125.242
-server.public.public: 52.79.51.79
+server.public.master: 58.140.91.67:8081
+server.public.public: 58.140.91.70
 
-db.ip: 172.31.6.35
+db.ip: 192.168.0.13
 db.database: uengine
 db.password: my-secret-pw
 
-host.registry.package: sppark
-host.registry.private: gitlab.pas-mini.io:5000
-host.registry.public: gitlab.pas-mini.io:5000
-host.db: db.pas-mini.io
-host.gitlab: gitlab.pas-mini.io
-host.iam: iam.pas-mini.io
-host.config: config.pas-mini.io
-host.eureka-server: eureka-server.pas-mini.io
-host.cloud-server: cloud-server.pas-mini.io
-host.cloud-ui: cloud.pas-mini.io
+host.registry.package: darkgodarkgo
+host.registry.private: gitlab.pasmini.io:5000
+host.registry.public: gitlab.pasmini.io:5000
+host.db: db.pasmini.io
+host.gitlab: gitlab.pasmini.io
+host.iam: iam.pasmini.io
+host.config: config.pasmini.io
+host.eureka-server: eureka-server.pasmini.io
+host.cloud-server: cloud-server.pasmini.io
+host.cloud-ui: cloud.pasmini.io
 
 iam.port: 80
 iam.client-key: my-client-key
@@ -31,7 +31,7 @@ iam.mail.smtp-starttls-enable: true
 iam.mail.from-address: sppark@uengine.org
 iam.mail.from-name: uengine
 
-dcos.token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJkYXJrZ29kYXJrZ29AZ21haWwuY29tIiwiZXhwIjozMTI1NTU5MDY0MzkuODk0MX0.aHgH_M-g-n-WlnPg_CorMGYEprULPSeUTIGu3GyZQ-U
+dcos.token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJkYXJrZ29kYXJrZ29AZ21haWwuY29tIiwiZXhwIjozMTI1NTQ4ODM3MTEuNzkzOX0.NCDPD4HuR8SLMw8T_6lr2QTQ75_E7ppvYIqgaPeWX4s
 
 gitlab.root.username: root
 gitlab.root.password: adminadmin
