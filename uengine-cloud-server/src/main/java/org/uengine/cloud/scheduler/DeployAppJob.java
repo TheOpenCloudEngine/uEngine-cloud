@@ -153,8 +153,8 @@ public class DeployAppJob implements Job {
                 }
 
                 //신규 앱 디플로이 종료 대기
-                //5분동안 기다리기. 60 * 5s = 300s = 5min
-                int MAX_COUNT = 60;
+                //10분동안 기다리기. 120 * 5s = 300s = 10min
+                int MAX_COUNT = 120;
                 int CURRENT_COUNT = 0;
                 boolean deploySuccess = false;
                 while (true) {

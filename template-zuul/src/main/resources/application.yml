@@ -36,11 +36,11 @@ eureka:
         appType: zuul
 
 zuul:
-#  ignored-services: "*"
-#  routes:
-#    template-springboot:
-#      path: /template-springboot/**
-#      serviceId: template-springboot
+  ignored-services: "*"
+  routes:
+    template-springboot:
+      path: /template-springboot/**
+      serviceId: template-springboot
 
 ribbon:
   # Max number of retries on the same server (excluding the first try)
