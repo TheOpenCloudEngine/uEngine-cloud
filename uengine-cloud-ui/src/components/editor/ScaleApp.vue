@@ -68,7 +68,6 @@
 
     }
     ,
-    //TODO newservice 도 다이어로그창 빼기
     methods: {
       action: function () {
         //409
@@ -79,6 +78,7 @@
               me.force = true;
             } else {
               me.force = false;
+              me.close();
             }
           });
         }
@@ -88,6 +88,7 @@
               me.force = true;
             } else {
               me.force = false;
+              me.close();
             }
           });
         }
@@ -97,6 +98,7 @@
               me.force = true;
             } else {
               me.force = false;
+              me.close();
             }
           });
         }
@@ -106,6 +108,7 @@
               me.force = true;
             } else {
               me.force = false;
+              me.close();
             }
           });
         }

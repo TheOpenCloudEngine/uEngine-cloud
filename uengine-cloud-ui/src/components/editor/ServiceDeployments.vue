@@ -1,6 +1,7 @@
 <template xmlns:v-on="http://www.w3.org/1999/xhtml">
   <md-dialog v-if="deploymentsRows"
-             md-open-from="#open" md-close-to="#open" ref="open">
+             md-open-from="#open" md-close-to="#open" ref="open"
+  >
 
     <md-dialog-title>{{deploymentsRows.length}} Active Deployments</md-dialog-title>
     <md-dialog-content>
@@ -8,6 +9,7 @@
         <md-table-header>
           <md-table-row>
             <md-table-head>AFFECTED SERVICES</md-table-head>
+            <md-table-head>Action</md-table-head>
             <md-table-head>Started</md-table-head>
             <md-table-head>Status</md-table-head>
             <md-table-head></md-table-head>
@@ -17,22 +19,20 @@
         <md-table-body>
           <md-table-row v-for="row in deploymentsRows">
             <md-table-cell>
-              <a v-on:click="focusDeploymentId(row.id)" style="cursor: pointer">{{row.id}}</a>
               <div v-if="row.appId">
-                <br><span v-for="appId in row.appId">{{appId}}</span>
+                <span v-for="appId in row.appId">{{appId}}</span>
+              </div>
+            </md-table-cell>
+            <md-table-cell>
+              <div v-if="row.appStatus">
+                <span v-for="appStatus in row.appStatus">{{appStatus}}</span>
               </div>
             </md-table-cell>
             <md-table-cell>{{row.started}}
-              <div v-if="row.appStarted">
-                <br><span v-for="appStarted in row.appStarted">{{appStarted}}</span>
-              </div>
             </md-table-cell>
             <md-table-cell>
               <div>
                 <md-progress style="width: 100px;" class="md-accent" md-indeterminate></md-progress>
-              </div>
-              <div v-if="row.appStatus">
-                <br><span v-for="appStatus in row.appStatus">{{appStatus}}</span>
               </div>
             </md-table-cell>
 
@@ -56,6 +56,14 @@
     <md-dialog-actions>
       <md-button class="md-primary" @click="close">Close</md-button>
     </md-dialog-actions>
+
+    <confirm
+      title="Are you sure?"
+      content-html="현재 배포가 중단되고 새 배포가 시작되어 영향을받는 서비스를 이전 버전으로 되돌릴 것입니다."
+      ok-text="배포 중단 하기"
+      cancel-text="취소"
+      ref="confirm"
+    ></confirm>
   </md-dialog>
 </template>
 <script>
@@ -70,18 +78,11 @@
       return {
         deploymentsRows: [],
         deployments: [],
-        focusedList: [],
         isAdmin: false
       }
     },
     mounted(){
-      //TODO 사용자 별로 디플로이먼트 보기
-      //TODO 앱아이디 별로 디플로이먼트 보기
-      //이펙티브 서비스 앞에 앱 아이디 를 넣는다.
-      //포커스 이벤트는 없앤다.
-      //앱 아이디, 앱 액션 필드를 따로 뺀다.
       this.isAdmin = window.localStorage['acl'] == 'admin' ? true : false;
-
     },
     watch: {
       dcosData: {
@@ -96,7 +97,7 @@
     methods: {
       createDeploymentsRows: function () {
         var me = this;
-        me.deploymentsRows = [];
+        var deploymentsRows = [];
         if (!me.deployments) {
           return;
         }
@@ -107,44 +108,83 @@
             status: ''
           };
           //런 아이디가 포커스 상태일 경우
-          if (me.focusedList.indexOf(deployment.id) != -1) {
-            row.appId = [];
-            row.appStarted = [];
-            row.appStatus = [];
-            $.each(deployment.currentActions, function (t, currentAction) {
-              row.appId.push(currentAction.app);
-              row.appStarted.push('');
-              row.appStatus.push(currentAction.action);
-            })
-          }
-          me.deploymentsRows.push(row);
-        });
+          row.appId = [];
+          row.appStarted = [];
+          row.appStatus = [];
+          $.each(deployment.currentActions, function (t, currentAction) {
+            row.appId.push(currentAction.app);
+            row.appStarted.push('');
+            row.appStatus.push(currentAction.action);
+          });
 
-        //iam 아이디에 따라 필터링한다.
-//        if (me.dcosData.devopsApps.dcos.apps[appId].iam == window.localStorage['userName'] || window.localStorage['acl']=='admin') {
-//          app.id = appId;
-//          app.type = 'app';
-//          list.push(app);
-//          list = list.concat(additionalList);
-//        }
-      },
-      focusDeploymentId: function (deploymentId) {
-        if (this.focusedList.indexOf(deploymentId) != -1) {
-          this.focusedList.splice(this.focusedList.indexOf(deploymentId), 1);
-        } else {
-          this.focusedList.push(deploymentId);
-        }
-        this.createDeploymentsRows();
+
+          //필터링한다.
+          if (row.appId && row.appId.length) {
+            //appId 로부터 앱이름을 추출한다.
+
+            var isMine = false;
+
+            $.each(row.appId, function (a, id) {
+                var appName = id;
+                appName = appName.replace('/', '');
+                appName = appName.replace('-dev', '');
+                appName = appName.replace('-stg', '');
+                appName = appName.replace('-blue', '');
+                appName = appName.replace('-green', '');
+                var app = me.dcosData.devopsApps.dcos.apps[appName];
+
+                //앱 별 보기 목록인 경우
+                if (me.appIds && me.appIds.length) {
+                  //appIds 에 포함되어있다면 통과.
+                  if (me.appIds.indexOf(id) != -1) {
+                    isMine = true;
+                  }
+                }
+                //전체 보기 목록인 경우
+                else {
+                  //어드민 일 경우 통과
+                  if (me.isAdmin) {
+                    isMine = true;
+                  }
+                  //자신의 앱이 포함되어있다면 통과
+                  else if (app && app.iam == window.localStorage['userName']) {
+                    isMine = true;
+                  }
+                }
+              }
+            );
+            if (isMine) {
+              deploymentsRows.push(row);
+            }
+          }
+        });
+        me.deploymentsRows = deploymentsRows;
+        //TODO 서버단에서 acl 을 조정해야 한다.
+        //서버단에서 app 에디트시 acl 이 들어간다.
+        //ci 작업에서 app 에디트시 권한인증이 들어가야 한다.
+        //커밋시, 트리거 발동 => 시스템 권한 토큰을 생성. => 트리거 밸류로 전달한다.
+
+        //기존 앱 코드들의 마이그레이션이 필요.(Simple Java Program)
+
+
+        //me.$emit('deploymentsRows')
       },
       action: function (deploymentId) {
-        this.rollback(deploymentId);
-      },
-      open() {
+        var me = this;
+        me.$refs['confirm'].open(function () {
+          me.rollback(deploymentId);
+        })
+      }
+      ,
+      open()
+      {
         this.$refs['open'].open();
-      },
-      close(ref) {
+      }
+      ,
+      close(ref)
+      {
         this.$refs['open'].close();
-      },
+      }
     }
   }
 </script>

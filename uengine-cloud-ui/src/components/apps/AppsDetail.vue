@@ -10,6 +10,10 @@
       :role="'deploy'"
     ></gitlab-deploy>
 
+    <service-deployments
+      :appIds="['/'+ appName + '-blue', '/'+ appName + '-green', '/'+ appName + '-dev', '/'+ appName + '-stg']"
+      ref="service-deployments"></service-deployments>
+
     <md-layout v-if="status == 'repository-create-success'">
       <md-layout md-flex="15" style="border-right: 1px solid #DFE3E6;padding: 16px">
         <div>

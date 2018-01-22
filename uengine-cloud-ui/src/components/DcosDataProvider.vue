@@ -69,7 +69,7 @@
           .remove({})
           .then(
             function (response) {
-              me.$root.$children[0].success('배포를 중단하였습니다.');
+              me.$root.$children[0].success('배포를 중단하였습니다. 이전 설정으로 되돌아갑니다.');
               if (cb) {
                 cb(response);
               }

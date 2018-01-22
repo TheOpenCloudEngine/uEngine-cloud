@@ -173,7 +173,7 @@
                   //실패
                   me.$root.$children[0].error('앱정보를 불러올 수 없습니다.');
                 }
-              });``
+              });
             me.appName = appName;
           } else {
             this.service = this.getAppById(this.appId);

@@ -114,6 +114,10 @@ Vue.component('task-log', TaskLog);
 /**
  * 에디터
  */
+import Confirm from '../components/editor/Confirm'
+
+Vue.component('confirm', Confirm);
+
 import NewSingleContainer from '../components/editor/NewSingleContainer'
 
 Vue.component('new-single-container', NewSingleContainer);
