@@ -712,25 +712,6 @@ public class AppService {
             throw new RuntimeException("Failed to create ci Iam access_token");
         }
 
-        String configJson = null;
-        try {
-            Map dev = this.getOriginalCloudConfigJson(appName, "dev");
-            Map stg = this.getOriginalCloudConfigJson(appName, "stg");
-            Map prod = this.getOriginalCloudConfigJson(appName, "prod");
-            Map map = new HashMap();
-            map.put("dev", dev);
-            map.put("stg", stg);
-            map.put("prod", prod);
-            configJson = JsonUtils.marshal(map);
-        } catch (Exception ex) {
-            throw new RuntimeException("Failed to create cloud config env set");
-        }
-
-        //uengine-cloud-config
-
-
-        //TODO 클라우드 콘피그
-
         //프로젝트 파라미터
         data.put("APP_NAME", APP_NAME);
         data.put("CONFIG_SERVER_URL", "http://" + CONFIG_SERVER_URL);
@@ -739,9 +720,20 @@ public class AppService {
         data.put("UENGINE_CLOUD_URL", "http://" + UENGINE_CLOUD_URL);
         data.put("CONFIG_REPO_ID", CONFIG_REPO_ID);
         data.put("ACCESS_TOKEN", accessToken);
-        data.put("CONFIG_JSON", configJson);
         //data.put("PROFILE", stage);
         //data.put("APPLICATION_NAME", appName);
+
+        try {
+            System.out.println(data.get("APP_NAME").toString());
+            System.out.println(data.get("CONFIG_SERVER_URL").toString());
+            System.out.println(data.get("CONFIG_SERVER_INTERNAL_URL").toString());
+            System.out.println(data.get("REGISTRY_URL").toString());
+            System.out.println(data.get("UENGINE_CLOUD_URL").toString());
+            System.out.println(data.get("CONFIG_REPO_ID").toString());
+            System.out.println(data.get("ACCESS_TOKEN").toString());
+        } catch (Exception ex) {
+
+        }
         return data;
     }
 

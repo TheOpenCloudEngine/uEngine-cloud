@@ -1,227 +1,35 @@
 #!/bin/bash
 
-#----------------------------------------------------------------------
-# 유엔진 클라우드 환경변수
-
 echo "ACCESS_TOKEN: ${ACCESS_TOKEN}"
-echo "CONFIG_JSON: ${CONFIG_JSON}"
-
-JSON2="$(curl --request GET \
-              -H 'access_token: ${ACCESS_TOKEN}' \
-              -H 'content-type: application/json' \
-              ${UENGINE_CLOUD_URL}/app/${APP_NAME})"
-
-APP_TYPE=$( echo $JSON2 | jq -r '.appType' )
-PROD_SERVICE_PORT=$( echo $JSON2 | jq -r '.prod["servicePort"]' )
-PROD_EXTERNAL_URL=$( echo $JSON2 | jq -r '.prod.external' )
-PROD_INTERNAL_URL=$( echo $JSON2 | jq -r '.prod.internal' )
-PROD_DEPLOYMENT=$( echo $JSON2 | jq -r '.prod.deployment' )
-
-STG_SERVICE_PORT=$( echo $JSON2 | jq -r '.stg["servicePort"]' )
-STG_EXTERNAL_URL=$( echo $JSON2 | jq -r '.stg.external' )
-STG_INTERNAL_URL=$( echo $JSON2 | jq -r '.stg.internal' )
-STG_DEPLOYMENT=$( echo $JSON2 | jq -r '.stg.deployment' )
-
-DEV_SERVICE_PORT=$( echo $JSON2 | jq -r '.dev["servicePort"]' )
-DEV_EXTERNAL_URL=$( echo $JSON2 | jq -r '.dev.external' )
-DEV_INTERNAL_URL=$( echo $JSON2 | jq -r '.dev.internal' )
-DEV_DEPLOYMENT=$( echo $JSON2 | jq -r '.dev.deployment' )
-
-PROFILE="dev"
-
-echo "REGISTRY_URL: $REGISTRY_URL"
-echo "CONFIG_REPO_ID: $CONFIG_REPO_ID"
-echo "DCOS_URL: $DCOS_URL"
-echo "APP_TYPE: $APP_TYPE"
-echo "PROD_SERVICE_PORT: $PROD_SERVICE_PORT"
-echo "PROD_EXTERNAL_URL: $PROD_EXTERNAL_URL"
-echo "PROD_INTERNAL_URL: $PROD_INTERNAL_URL"
-echo "PROD_DEPLOYMENT: $PROD_DEPLOYMENT"
-echo "STG_SERVICE_PORT: $STG_SERVICE_PORT"
-echo "STG_EXTERNAL_URL: $STG_EXTERNAL_URL"
-echo "STG_INTERNAL_URL: $STG_INTERNAL_URL"
-echo "STG_DEPLOYMENT: $STG_DEPLOYMENT"
-echo "DEV_SERVICE_PORT: $DEV_SERVICE_PORT"
-echo "DEV_EXTERNAL_URL: $DEV_EXTERNAL_URL"
-echo "DEV_INTERNAL_URL: $DEV_INTERNAL_URL"
-echo "DEV_DEPLOYMENT: $DEV_DEPLOYMENT"
-echo "PROFILE: $PROFILE"
-
-#----------------------------------------------------------------------
-# 깃랩 환경 변수
-echo "IMAGE_NAME: ${IMAGE_NAME}"
+echo "UENGINE_CLOUD_URL: ${UENGINE_CLOUD_URL}"
 echo "APP_NAME: ${APP_NAME}"
-
-
-
-#----------------------------------------------------------------------
-# 개발 서버 마라톤 어플 이름
-MARATHON_APP_ID="${APP_NAME}-dev"
-echo "MARATHON_APP_ID: $MARATHON_APP_ID"
-
+echo "CI_COMMIT_SHA: ${CI_COMMIT_SHA}"
 
 #----------------------------------------------------------------------
-# 디플로이 파일 치환 작업
-# 깃랩 파일 받기
-DEPLOY_FILE_NAME=ci-deploy-dev.json
-DEPLOY_JSON="$(curl --request GET \
-            -H 'access_token: ${ACCESS_TOKEN}' \
-            -H 'content-type: application/json' \
-            $UENGINE_CLOUD_URL/gitlab/api/v4/projects/$CONFIG_REPO_ID/repository/files/deployment%2F${APP_NAME}%2F$DEPLOY_FILE_NAME/raw?ref=master)"
+# 배포 요청
+RESULT="$(curl --request POST \
+              -s -o /dev/null -w "%{http_code}" \
+              -H "access_token: ${ACCESS_TOKEN}" \
+              -H "content-type: application/json" \
+              "${UENGINE_CLOUD_URL}/app/${APP_NAME}/deploy?stage=dev&commit=${CI_COMMIT_SHA}")"
 
-echo $UENGINE_CLOUD_URL/gitlab/api/v4/projects/$CONFIG_REPO_ID/repository/files/deployment%2F${APP_NAME}%2F$DEPLOY_FILE_NAME/raw?ref=master
-
-echo $DEPLOY_JSON
-echo $DEPLOY_JSON > $DEPLOY_FILE_NAME
-sed -i'' -e "s|{{APP_ID}}|$MARATHON_APP_ID|g" $DEPLOY_FILE_NAME
-sed -i'' -e "s|{{IMAGE}}|${IMAGE_NAME}|g" $DEPLOY_FILE_NAME
-sed -i'' -e "s|{{DEPLOYMENT}}|$DEV_DEPLOYMENT|g" $DEPLOY_FILE_NAME
-sed -i'' -e "s|\"{{SERVICE_PORT}}\"|$DEV_SERVICE_PORT|g" $DEPLOY_FILE_NAME
-sed -i'' -e "s|{{EXTERNAL_URL}}|$DEV_EXTERNAL_URL|g" $DEPLOY_FILE_NAME
-sed -i'' -e "s|{{PROFILE}}|$PROFILE|g" $DEPLOY_FILE_NAME
-sed -i'' -e "s|{{APP_NAME}}|${APP_NAME}|g" $DEPLOY_FILE_NAME
-sed -i'' -e "s|{{CONFIG_JSON}}|${CONFIG_JSON}|g" $DEPLOY_FILE_NAME
-
-
-echo "$MARATHON_APP_ID server update like:"
-cat $DEPLOY_FILE_NAME
+echo "RESULT: $RESULT"
 
 #----------------------------------------------------------------------
-# 개발 서버 확인 후 디플로이
+# 배포 요청 성공
+if [ $RESULT -eq 200 ];then
 
-echo "Checking exist app....."
-
-DEV_EXIST="$(curl --request GET \
-            -s -o /dev/null -w "%{http_code}" \
-            -H 'access_token: ${ACCESS_TOKEN}' \
-            -H 'content-type: application/json' \
-            ${UENGINE_CLOUD_URL}/dcos/service/marathon/v2/apps/$MARATHON_APP_ID)"
-
-
-#----------------------------------------------------------------------
-# 개발 서버가 존재할 경우
-if [ $DEV_EXIST -eq 200 ];then
-   echo "${APP_NAME}-dev server is exist, will update container."
+   echo "Request Dev Application to cloud server succeeded."
    echo ""
-
-   JOB_WAIT="$(curl --request PUT \
-               -H 'access_token: ${ACCESS_TOKEN}' \
-               -H 'content-type: application/json' \
-               -d @$DEPLOY_FILE_NAME \
-               ${UENGINE_CLOUD_URL}/dcos/service/marathon/v2/apps/$MARATHON_APP_ID?force=true&partialUpdate=false)"
+   exit 0
 
 #----------------------------------------------------------------------
-# 개발 서버가 없을 경우
-elif [ $DEV_EXIST -eq 404 ];then
-   echo "${APP_NAME}-stg server is not exist, will create new container"
-   echo ""
+# 배포 요청 실패
 
-   JOB_WAIT="$(curl --request POST \
-               -H 'access_token: ${ACCESS_TOKEN}' \
-               -H 'content-type: application/json' \
-               -d @$DEPLOY_FILE_NAME \
-               ${UENGINE_CLOUD_URL}/dcos/service/marathon/v2/apps)"
-
-elif [ $DEV_EXIST -eq 000 ];then
-   echo "connection refused"
-   exit 1
 else
-   echo "Failed to get response"
+
+   echo "Request Dev Application to cloud server failed."
+   echo ""
    exit 1
 fi
-
-#----------------------------------------------------------------------
-# 개발 디플로이 결과 확인
-
-
-echo "DEPLOY RESULT is $JOB_WAIT"
-
-#----------------------------------------------------------------------
-# 개발 서버 디플로이 종료 대기
-
-echo "Start stage app deployment complete....."
-
-# 10분동안 기다리기. 120 * 5s = 600s = 10min
-MAX_COUNT=120
-CURRENT_COUNT=0
-
-while true
-do
-  DEV_APP="$(curl --request GET \
-              -H 'access_token: ${ACCESS_TOKEN}' \
-              -H 'content-type: application/json' \
-              ${UENGINE_CLOUD_URL}/dcos/service/marathon/v2/apps/$MARATHON_APP_ID)"
-
-  echo $DEV_APP
-
-  DEV_APP_STATUS="$(curl --request GET \
-                -s -o /dev/null -w "%{http_code}" \
-                -H 'access_token: ${ACCESS_TOKEN}' \
-                -H 'content-type: application/json' \
-                ${UENGINE_CLOUD_URL}/dcos/service/marathon/v2/apps/$MARATHON_APP_ID)"
-
-  if [ $DEV_APP_STATUS -eq 200 ];then
-     TASKS_RUNNING=$( echo $DEV_APP | jq -r '.app.tasksRunning' )
-     TASKS_HEALTHY=$( echo $DEV_APP | jq -r '.app.tasksHealthy' )
-     DEPLOYMENTS_LENGTH=$( echo $DEV_APP | jq -r '.app.deployments | length' )
-
-     echo "TASKS_RUNNING: $TASKS_RUNNING , TASKS_HEALTHY: $TASKS_HEALTHY, DEPLOYMENTS_LENGTH: $DEPLOYMENTS_LENGTH"
-
-     #----------------------------------------------------------------------
-     # 디플로이가 완료되었을 경우
-
-     if [ $TASKS_RUNNING -eq $TASKS_HEALTHY ] && [ $DEPLOYMENTS_LENGTH -eq 0 ];then
-        echo "Deploy completed!!"
-        break
-     fi
-
-     #----------------------------------------------------------------------
-     # 호출 카운트 증가
-
-     echo "Waiting....."
-     CURRENT_COUNT=$((CURRENT_COUNT + 1))
-
-     #----------------------------------------------------------------------
-     # 타임아웃이 걸렸을 경우
-
-     if [ "$CURRENT_COUNT" -gt "$MAX_COUNT" ];then
-        echo "Time out. deployment will cancel.";
-
-        # 디플로이먼트 원복
-        DEPLOYMENTS=$( echo $DEV_APP | jq -r '.app.deployments') &&
-        for row in $(echo "${DEPLOYMENTS}" | jq -r '.[] | @base64'); do
-            _jq() {
-             echo ${row} | base64 --decode | jq -r ${1}
-            }
-
-           DEPLOYMENT_ID=$(_jq '.id')
-
-           echo "CANCEL DEPLOYMENT_ID: $DEPLOYMENT_ID"
-
-           curl --request DELETE \
-                -H 'access_token: ${ACCESS_TOKEN}' \
-                -H 'content-type: application/json' \
-                ${UENGINE_CLOUD_URL}/dcos/service/marathon/v2/deployments/$DEPLOYMENT_ID
-
-        done
-
-        exit 1
-     fi
-     sleep 5
-
-  else
-     echo "Failed to get DEV_APP"
-     exit 1
-  fi
-done
-
-#----------------------------------------------------------------------
-# 스프링 부트인경우 라우트 변경
-
-echo "Router refresh"
-
-curl --request GET \
-    -H 'access_token: ${ACCESS_TOKEN}' \
-    -H 'content-type: application/json' \
-    ${UENGINE_CLOUD_URL}/refreshRoute
 

@@ -30,13 +30,11 @@
             profile = line.split('=')[1];
             window.profile = profile;
           }
-        })
-        $.each(lines, function (i, line) {
           if (line && line.indexOf('CONFIG_JSON=') == 0) {
-            config = JSON.parse(line.split('=')[1])[profile];
+            config = JSON.parse(line.split('=')[1]);
             window.config = config;
           }
-        })
+        });
       },
       error: function () {
         console.log('Failed to get env');

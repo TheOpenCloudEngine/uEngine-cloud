@@ -16,6 +16,7 @@
  */
 package org.uengine.cloud.scheduler;
 
+import org.apache.commons.io.IOUtils;
 import org.gitlab4j.api.GitLabApi;
 import org.uengine.cloud.app.*;
 import org.uengine.cloud.log.AppLogAction;
@@ -31,6 +32,9 @@ import org.quartz.JobExecutionException;
 import org.springframework.core.env.Environment;
 import org.uengine.cloud.templates.MustacheTemplateEngine;
 
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +43,8 @@ public class DeployAppJob implements Job {
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
+        //TODO 스크립트를 그냥 이 메소드를 실행하는 로직으로 바꾸자.
+
         // 클라이언트 잡 실행시 필요한 정보를 가져온다.
         JobDataMap map = jobExecutionContext.getMergedJobDataMap();
         String appName = map.get("appName").toString();
@@ -50,6 +56,8 @@ public class DeployAppJob implements Job {
         Map log = new HashMap();
         log.put("stage", stage);
         log.put("commit", commit);
+
+        System.out.println("Start DeployAppJob: " + appName + " : " + stage + " : " + commit);
 
         Environment environment = ApplicationContextRegistry.getApplicationContext().getBean(Environment.class);
         AppService appService = ApplicationContextRegistry.getApplicationContext().getBean(AppService.class);
@@ -353,18 +361,11 @@ public class DeployAppJob implements Job {
 
         String configJson = null;
         try {
-            Map dev = appService.getOriginalCloudConfigJson(appName, "dev");
-            Map stg = appService.getOriginalCloudConfigJson(appName, "stg");
-            Map prod = appService.getOriginalCloudConfigJson(appName, "prod");
-            Map map = new HashMap();
-            map.put("dev", dev);
-            map.put("stg", stg);
-            map.put("prod", prod);
-            configJson = JsonUtils.marshal(map);
+            Map configMap = appService.getOriginalCloudConfigJson(appName, stage);
+            configJson = JsonUtils.marshal(configMap);
         } catch (Exception ex) {
             throw new RuntimeException("Failed to create cloud config env set");
         }
-        data.put("CONFIG_JSON", configJson);
 
         String deployJsonString = JsonUtils.marshal(deployJson);
         MustacheTemplateEngine templateEngine = new MustacheTemplateEngine();
@@ -375,6 +376,9 @@ public class DeployAppJob implements Job {
                 portMappings.get(i).put("servicePort", servicePort);
             }
         }
+        Map env = (Map) unmarshal.get("env");
+        env.put("CONFIG_JSON", configJson);
+
         return JsonUtils.marshal(unmarshal);
     }
 }

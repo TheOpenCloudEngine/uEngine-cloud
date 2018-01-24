@@ -126,6 +126,7 @@ public class HookController {
 
             response.setStatus(200);
         } catch (Exception ex) {
+            ex.printStackTrace();
             response.setStatus(200);
         }
     }

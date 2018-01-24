@@ -201,7 +201,6 @@
                 me.categoryItem = item;
               });
             }
-            console.log('me.devApp', me.devApp);
           } else {
             me.devApp = null;
           }

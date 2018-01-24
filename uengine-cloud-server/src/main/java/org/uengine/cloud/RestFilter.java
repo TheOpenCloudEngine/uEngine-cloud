@@ -15,6 +15,7 @@ import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,18 +35,22 @@ public class RestFilter extends GenericFilterBean {
         HttpServletResponse response = (HttpServletResponse) res;
         HttpServletRequest request = (HttpServletRequest) req;
         String requestURI = request.getRequestURI();
+        String[] guestPaths = new String[]{"/info", "/", "/health", "/refreshRoute", "/hook"};
 
         if (request.getMethod().equals(HttpMethod.OPTIONS.toString())) {
+            chain.doFilter(req, res);
+        } else if (Arrays.asList(guestPaths).contains(requestURI)) {
             chain.doFilter(req, res);
         } else {
             //토큰이 없을 경우
             OauthUser user = TenantContext.getThreadLocalInstance().getUser();
-            if (!requestURI.startsWith("/config/uengine-cloud-server.json") && user == null) {
+            if (!requestURI.startsWith("/config/uengine-cloud-server.json")
+                    && !requestURI.startsWith("/gitlab")
+                    && user == null) {
                 response.setStatus(401);
                 this.addCors(response);
                 return;
             }
-
             if (requestURI.startsWith("/config")) {
                 try {
                     doConfigProxy(request, response);
