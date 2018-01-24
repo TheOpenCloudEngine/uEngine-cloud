@@ -160,6 +160,10 @@
     methods: {
       onCompleted: function () {
         var me = this;
+
+        //창 닫기
+        me.close();
+
         var appData = JSON.parse(JSON.stringify(me.copyDevApp));
         //dev 일 경우, 런타임 환경을 수정한 경우 데이터 교체.
         if (me.stage == 'dev') {
@@ -188,7 +192,7 @@
             //스테이지 디플로이
             //commit
             me.runDeployedApp(me.appName, me.stage, me.selectedRefCommit, function (response) {
-              me.close();
+
             });
           });
         }
@@ -197,7 +201,7 @@
           me.updateDevApp(me.appName, appData, function (response) {
             var ref = me.selectedRefBranch ? me.selectedRefBranch : me.selectedRefTag;
             me.excutePipelineTrigger(me.appName, ref, me.stage, function (response) {
-              me.close();
+
             })
           });
         }

@@ -109,6 +109,7 @@ public class AppService {
         //dcosApp 에 롤백을 프로덕션으로 등록한다.
         prod.setDeployment(rollbackDeployment);
         prod.setMarathonAppId(rollbackMarathonAppId);
+        appEntity.setProd(prod);
 
         appJpaRepository.save(appEntity);
 
@@ -309,9 +310,17 @@ public class AppService {
         }
 
         //appMap 최종 업로드
-        appEntity.getDev().setDeployJson(null);
-        appEntity.getStg().setDeployJson(null);
-        appEntity.getProd().setDeployJson(null);
+        AppStage dev = appEntity.getDev();
+        dev.setDeployJson(null);
+        appEntity.setDev(dev);
+
+        AppStage stg = appEntity.getStg();
+        stg.setDeployJson(null);
+        appEntity.setStg(stg);
+
+        AppStage prod = appEntity.getProd();
+        prod.setDeployJson(null);
+        appEntity.setProd(prod);
         appJpaRepository.save(appEntity);
 
         return appEntity;
@@ -330,9 +339,18 @@ public class AppService {
         appEntity.setName(appName);
 
         //appMap 최종 업로드
-        appEntity.getDev().setDeployJson(null);
-        appEntity.getStg().setDeployJson(null);
-        appEntity.getProd().setDeployJson(null);
+        AppStage dev = appEntity.getDev();
+        dev.setDeployJson(null);
+        appEntity.setDev(dev);
+
+        AppStage stg = appEntity.getStg();
+        stg.setDeployJson(null);
+        appEntity.setStg(stg);
+
+        AppStage prod = appEntity.getProd();
+        prod.setDeployJson(null);
+        appEntity.setProd(prod);
+
         appJpaRepository.save(appEntity);
         return appEntity;
     }

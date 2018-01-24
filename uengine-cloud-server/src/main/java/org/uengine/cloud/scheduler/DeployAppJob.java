@@ -246,6 +246,17 @@ public class DeployAppJob implements Job {
                     //dcosApp 에 디플로이먼트, 마라톤 아이디 업데이트
                     appStage.setDeployment(newDeployment);
                     appStage.setMarathonAppId("/" + newMarathonAppId);
+                    switch (stage) {
+                        case "dev":
+                            appEntity.setDev(appStage);
+                            break;
+                        case "stg":
+                            appEntity.setStg(appStage);
+                            break;
+                        case "prod":
+                            appEntity.setProd(appStage);
+                            break;
+                    }
                     appJpaRepository.save(appEntity);
 
                     //ci-deploy-rollback.json 을 생성(ci-deploy-production.json 카피)
