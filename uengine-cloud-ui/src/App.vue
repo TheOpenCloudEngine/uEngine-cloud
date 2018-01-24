@@ -3,39 +3,20 @@
     <router-view></router-view>
 
     <!--서비스 로케이터 리스트-->
-    <service-locator v-if="config" :host="'http://' + config.vcap.services['uengine-cloud-server'].external" path="/"
+    <service-locator :host="backendUrl" path="/"
                      resource-name="backend"></service-locator>
 
-    <service-locator v-if="config" :host="'http://' + config.vcap.services['uengine-cloud-server'].external"
+    <service-locator :host="backendUrl"
                      path="/dcos/"
                      resource-name="dcos"></service-locator>
 
-    <service-locator v-if="config" :host="'http://' + config.vcap.services['uengine-cloud-server'].external"
+    <service-locator :host="backendUrl"
                      path="/gitlab/"
                      resource-name="gitlab"></service-locator>
 
     <service-locator v-if="config" :host="'http://' + config.vcap.services['eureka-server'].external"
                      path="/eureka/"
                      resource-name="eureka"></service-locator>
-
-    <!--<service-locator v-if="config" :host="'http://localhost:8080'" path="/"-->
-    <!--resource-name="backend"></service-locator>-->
-
-    <!--<service-locator v-if="config" :host="'http://localhost:8080'"-->
-    <!--path="/dcos/"-->
-    <!--resource-name="dcos"></service-locator>-->
-
-    <!--<service-locator v-if="config" :host="'http://localhost:8080'"-->
-    <!--path="/gitlab/"-->
-    <!--resource-name="gitlab"></service-locator>-->
-
-    <!--<service-locator v-if="config" :host="'http://localhost:8761'"-->
-    <!--path="/eureka/"-->
-    <!--resource-name="eureka"></service-locator>-->
-
-    <service-locator v-if="config" :host="configServerUrl"
-                     path="/"
-                     resource-name="config"></service-locator>
 
     <!--글로벌 알림 컴포넌트-->
     <md-snackbar md-position="top right" ref="snackbar" :md-duration="4000">
@@ -51,7 +32,7 @@
     },
     data () {
       return {
-        configServerUrl: configServerUrl,
+        backendUrl: backendUrl,
         config: window.config,
         snackbar: {
           top: true,

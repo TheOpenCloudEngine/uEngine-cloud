@@ -6,6 +6,8 @@ import org.apache.http.util.EntityUtils;
 import org.uengine.cloud.log.AppLogAction;
 import org.uengine.cloud.log.AppLogService;
 import org.uengine.cloud.log.AppLogStatus;
+import org.uengine.cloud.tenant.TenantContext;
+import org.uengine.iam.client.model.OauthUser;
 import org.uengine.iam.util.HttpUtils;
 import org.uengine.iam.util.JsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +17,9 @@ import org.uengine.iam.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,6 +37,9 @@ public class AppController {
 
     @Autowired
     private AppLogService logService;
+
+    @Autowired
+    private AppAccessLevelRepository appAccessLevelRepository;
 
     /**
      * 앱의 도커 이미지 목록을 가져온다.
@@ -60,23 +67,6 @@ public class AppController {
         HttpEntity entity = res.getEntity();
         String json = EntityUtils.toString(entity);
         return JsonUtils.unmarshal(json);
-    }
-
-    /**
-     * 앱 생성 상태를 가져온다.
-     *
-     * @param request
-     * @param response
-     * @param appName  앱 이름
-     * @return
-     * @throws Exception
-     */
-    @RequestMapping(value = "/{appName}/status", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
-    public Map getAppCreateStatus(HttpServletRequest request,
-                                  HttpServletResponse response,
-                                  @PathVariable("appName") String appName
-    ) throws Exception {
-        return appService.getAppCreateStatus(appName);
     }
 
     /**
@@ -247,11 +237,10 @@ public class AppController {
      */
     @RequestMapping(value = "/{appName}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public Map getApp(HttpServletRequest request,
-                      HttpServletResponse response,
-                      @PathVariable("appName") String appName
+                            HttpServletResponse response,
+                            @PathVariable("appName") String appName
     ) throws Exception {
-
-        return appService.getAppIncludDeployJson(appName);
+        return appService.getAppIncludeDeployJson(appName);
     }
 
     /**
@@ -259,22 +248,22 @@ public class AppController {
      *
      * @param request
      * @param response
-     * @param appName  앱 이름
-     * @param appMap   앱 정보 내용
+     * @param appName   앱 이름
+     * @param appEntity 앱 정보 내용
      * @return
      * @throws Exception
      */
     @RequestMapping(value = "/{appName}", method = RequestMethod.PUT, produces = "application/json;charset=UTF-8")
-    public Map updateApp(HttpServletRequest request,
-                         HttpServletResponse response,
-                         @PathVariable("appName") String appName,
-                         @RequestBody Map appMap,
-                         @RequestParam(value = "excludeDeploy", defaultValue = "false") boolean excludeDeploy
+    public AppEntity updateApp(HttpServletRequest request,
+                               HttpServletResponse response,
+                               @PathVariable("appName") String appName,
+                               @RequestBody AppEntity appEntity,
+                               @RequestParam(value = "excludeDeploy", defaultValue = "false") boolean excludeDeploy
     ) throws Exception {
         try {
-            Map map = appService.updateAppIncludDeployJson(appName, appMap);
+            AppEntity entity = appService.updateAppIncludeDeployJson(appName, appEntity);
             logService.addHistory(appName, AppLogAction.UPDATE_APP, AppLogStatus.SUCCESS, null);
-            return map;
+            return entity;
         } catch (Exception ex) {
             logService.addHistory(appName, AppLogAction.UPDATE_APP, AppLogStatus.FAILED, null);
             throw ex;
@@ -321,15 +310,15 @@ public class AppController {
      */
     // deployment/<appName> 삭제. 이때 모든 파일들을 다 지워야 한다. => 삭제 api 에서 하기.
     @RequestMapping(value = "", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
-    public String createApp(HttpServletRequest request,
-                            HttpServletResponse response,
-                            @RequestBody AppCreate appCreate) throws Exception {
+    public AppEntity createApp(HttpServletRequest request,
+                               HttpServletResponse response,
+                               @RequestBody AppCreate appCreate) throws Exception {
 
         Map<String, Object> log = JsonUtils.convertClassToMap(appCreate);
         try {
-            String marshal = JsonUtils.marshal(appService.createApp(appCreate));
+            AppEntity appEntity = appService.createApp(appCreate);
             logService.addHistory(appCreate.getAppName(), AppLogAction.CREATE_APP_REQUEST, AppLogStatus.SUCCESS, log);
-            return marshal;
+            return appEntity;
         } catch (Exception ex) {
             logService.addHistory(appCreate.getAppName(), AppLogAction.CREATE_APP_REQUEST, AppLogStatus.FAILED, log);
             throw ex;

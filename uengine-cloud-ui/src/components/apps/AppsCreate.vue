@@ -160,8 +160,8 @@
           this.appNumber = 1;
           for (var i = min; i <= max; i++) {
             var canUse = true;
-            for (var appId in newVal.dcos.apps) {
-              if (i == newVal.dcos.apps[appId].number) {
+            for (var appId in newVal) {
+              if (i == newVal[appId].number) {
                 canUse = false;
               }
             }

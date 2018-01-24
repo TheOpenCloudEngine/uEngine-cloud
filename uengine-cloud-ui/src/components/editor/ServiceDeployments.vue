@@ -131,7 +131,7 @@
                 appName = appName.replace('-stg', '');
                 appName = appName.replace('-blue', '');
                 appName = appName.replace('-green', '');
-                var app = me.dcosData.devopsApps.dcos.apps[appName];
+                var app = me.dcosData.devopsApps[appName];
 
                 //앱 별 보기 목록인 경우
                 if (me.appIds && me.appIds.length) {

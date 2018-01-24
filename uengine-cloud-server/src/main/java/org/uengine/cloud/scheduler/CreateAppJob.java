@@ -24,6 +24,7 @@ import org.gitlab4j.api.models.ProjectHook;
 import org.gitlab4j.api.models.User;
 import org.gitlab4j.api.models.Visibility;
 
+import org.uengine.cloud.app.*;
 import org.uengine.cloud.catalog.CatalogService;
 import org.uengine.cloud.catalog.CategoryItem;
 import org.uengine.cloud.catalog.FileMapping;
@@ -39,9 +40,6 @@ import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.core.env.Environment;
-import org.uengine.cloud.app.AppCreate;
-import org.uengine.cloud.app.AppService;
-import org.uengine.cloud.app.GitlabExtentApi;
 import org.uengine.cloud.templates.MustacheTemplateEngine;
 import org.uengine.iam.util.StringUtils;
 
@@ -75,13 +73,14 @@ public class CreateAppJob implements Job {
         GitlabExtentApi gitlabExtentApi = ApplicationContextRegistry.getApplicationContext().getBean(GitlabExtentApi.class);
         AppLogService logService = ApplicationContextRegistry.getApplicationContext().getBean(AppLogService.class);
         CatalogService catalogService = ApplicationContextRegistry.getApplicationContext().getBean(CatalogService.class);
+        AppJpaRepository appJpaRepository = ApplicationContextRegistry.getApplicationContext().getBean(AppJpaRepository.class);
 
         try {
             //DCOS 앱 찾기
-            Map app = appService.getAppByName(appCreate.getAppName());
+            AppEntity appEntity = appJpaRepository.findOne(appCreate.getAppName());
 
             //iamUserName 은 IAM 유저네임
-            String iamUserName = app.get("iam").toString();
+            String iamUserName = appEntity.getIam();
 
 
             //IAM 유저정보(패스워드 포함)
@@ -217,20 +216,12 @@ public class CreateAppJob implements Job {
             );
 
             //dcos projectId 업데이트
-            Map dcosMap = appService.getDcosMap();
-            ((Map) app.get("gitlab")).put("projectId", projectId);
-            ((Map) ((Map) dcosMap.get("dcos")).get("apps")).put(appCreate.getAppName(), app);
-            appService.saveDcosYaml(dcosMap);
+            appEntity.setProjectId(projectId);
 
             //스테이터스 변경
-            //deployment/create.json 변경.
-            Map createMap = new HashMap();
-            createMap.put("status", "repository-create-success");
-            createMap.put("definition", JsonUtils.convertClassToMap(appCreate));
-            gitlabExtentApi.updateOrCraeteRepositoryFile(
-                    Integer.parseInt(environment.getProperty("gitlab.config-repo.projectId")),
-                    "master", "deployment/" + appCreate.getAppName() + "/create.json", JsonUtils.marshal(createMap)
-            );
+            appEntity.setCreateStatus("repository-create-success");
+            appJpaRepository.save(appEntity);
+
 
             //파이프라인 트리거 실행.
             Map pipeline = appService.excutePipelineTrigger(appCreate.getAppName(), "master", null);

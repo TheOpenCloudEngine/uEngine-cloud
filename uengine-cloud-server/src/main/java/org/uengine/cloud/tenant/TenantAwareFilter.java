@@ -3,7 +3,12 @@ package org.uengine.cloud.tenant;
 import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jwt.JWTClaimsSet;
 import net.minidev.json.JSONObject;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.GenericFilterBean;
+import org.uengine.iam.client.model.OauthUser;
+import org.uengine.iam.util.JsonUtils;
 
 import javax.servlet.*;
 import javax.servlet.annotation.WebFilter;
@@ -14,9 +19,9 @@ import java.util.Map;
 /**
  * Created by uengine on 2017. 6. 12..
  */
-@WebFilter
-//@Component
-public class TenantAwareFilter implements Filter {
+@Component
+@Order(0)
+public class TenantAwareFilter extends GenericFilterBean {
 
     public TenantAwareFilter() {
         setAllowAnonymousTenant(true);
@@ -36,10 +41,10 @@ public class TenantAwareFilter implements Filter {
     }
 
 
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-
-    }
+//    @Override
+//    public void init(FilterConfig filterConfig) throws ServletException {
+//
+//    }
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
@@ -56,7 +61,7 @@ public class TenantAwareFilter implements Filter {
             JWSObject jwsObject = null;
             String tenantId = null;
             String userName = null;
-            Map user = null;
+            OauthUser user = null;
             JSONObject contexts = null;
             try {
                 jwsObject = JWSObject.parse(token);
@@ -67,7 +72,7 @@ public class TenantAwareFilter implements Filter {
                 contexts = (JSONObject) jwtClaimsSet.getClaim("context");
                 userName = (String) contexts.get("userName");
                 tenantId = userName.split("@")[1];
-                user = (Map) contexts.get("user");
+                user = JsonUtils.convertValue((Map) contexts.get("user"), OauthUser.class);
 
             } catch (Exception e) {
                 if (isAllowAnonymousTenant()) {
@@ -80,7 +85,6 @@ public class TenantAwareFilter implements Filter {
                     filterChain.doFilter(servletRequest, servletResponse);
                     return;
                 }
-
             }
 
             new TenantContext(tenantId);

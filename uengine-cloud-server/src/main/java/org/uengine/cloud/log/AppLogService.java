@@ -36,6 +36,9 @@ public class AppLogService {
     @Autowired
     private AppService appService;
 
+    @Autowired
+    private AppJpaRepository appJpaRepository;
+
     public AppLogEntity addHistory(String appName, AppLogAction action, AppLogStatus status, Map params) {
         try {
             String updater = TenantContext.getThreadLocalInstance().getUserId();
@@ -44,9 +47,9 @@ public class AppLogService {
             }
 
             String owner = null;
-            Map app = appService.getAppByName(appName);
-            if (app != null && app.containsKey("iam")) {
-                owner = app.get("iam").toString();
+            AppEntity appEntity = appJpaRepository.findOne(appName);
+            if (appEntity != null) {
+                owner = appEntity.getIam();
             }
             AppLogEntity logEntity = new AppLogEntity();
             logEntity.setAppName(appName);

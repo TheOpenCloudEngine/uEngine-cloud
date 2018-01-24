@@ -17,6 +17,7 @@
 package org.uengine.cloud.scheduler;
 
 import org.gitlab4j.api.GitLabApi;
+import org.uengine.cloud.app.*;
 import org.uengine.cloud.log.AppLogAction;
 import org.uengine.cloud.log.AppLogService;
 import org.uengine.cloud.log.AppLogStatus;
@@ -28,9 +29,6 @@ import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.core.env.Environment;
-import org.uengine.cloud.app.AppService;
-import org.uengine.cloud.app.DcosApi;
-import org.uengine.cloud.app.GitlabExtentApi;
 import org.uengine.cloud.templates.MustacheTemplateEngine;
 
 import java.util.HashMap;
@@ -56,9 +54,8 @@ public class DeployAppJob implements Job {
         Environment environment = ApplicationContextRegistry.getApplicationContext().getBean(Environment.class);
         AppService appService = ApplicationContextRegistry.getApplicationContext().getBean(AppService.class);
         DcosApi dcosApi = ApplicationContextRegistry.getApplicationContext().getBean(DcosApi.class);
-        GitLabApi gitLabApi = ApplicationContextRegistry.getApplicationContext().getBean(GitLabApi.class);
-        GitlabExtentApi gitlabExtentApi = ApplicationContextRegistry.getApplicationContext().getBean(GitlabExtentApi.class);
         AppLogService logService = ApplicationContextRegistry.getApplicationContext().getBean(AppLogService.class);
+        AppJpaRepository appJpaRepository = ApplicationContextRegistry.getApplicationContext().getBean(AppJpaRepository.class);
         try {
 
             //deployApp 는 마라톤 어플리케이션이 존재하는 경우만 사용가능하다. 단, 커밋을 전달받을 경우는 존재하지 않아도 가능.
@@ -71,17 +68,30 @@ public class DeployAppJob implements Job {
             //나머지는 dcosApp 정보에서 가져오도록.
 
             //앱 정보.
-            Map app = appService.getAppByName(appName);
-            String appType = app.get("appType").toString();
-            int servicePort = (int) ((Map) app.get(stage)).get("service-port");
-            String externalUrl = (String) ((Map) app.get(stage)).get("external");
+            AppEntity appEntity = appJpaRepository.findOne(appName);
+            AppStage appStage = null;
+            String appType = appEntity.getAppType();
+            switch (stage) {
+                case "dev":
+                    appStage = appEntity.getDev();
+                    break;
+                case "stg":
+                    appStage = appEntity.getStg();
+                    break;
+                case "prod":
+                    appStage = appEntity.getProd();
+                    break;
+            }
+            int servicePort = appStage.getServicePort();
+            String externalUrl = appStage.getExternal();
+            String deployment = appStage.getDeployment();
 
 
             //커밋이 있고 프로덕션인 경우, 기존 프로덕션 이미지와 커밋이미지가 동일할 경우 blue,green 을 바꾸지 않는다.
             boolean bluegreenDeployment = false;
             if (!StringUtils.isEmpty(commit) && stage.equals("prod")) {
                 String expectDockerImage = environment.getProperty("registry.host") + "/" + appName + ":" + commit;
-                String currentDeployment = (String) ((Map) app.get(stage)).get("deployment");
+                String currentDeployment = deployment;
                 String currentMarathonAppId = appName + "-" + currentDeployment;
                 Map marathonApp = null;
                 try {
@@ -105,7 +115,7 @@ public class DeployAppJob implements Job {
                 String newDeployment = null;
 
                 //현재 blue,green 상태와 반대되는 이름으로 생성
-                String oldDeployment = (String) ((Map) app.get(stage)).get("deployment");
+                String oldDeployment = deployment;
                 String oldMarathonAppId = appName + "-" + oldDeployment;
 
                 if (oldDeployment.equals("blue")) {
@@ -226,12 +236,9 @@ public class DeployAppJob implements Job {
                 //디플로이 성공하였을 경우
                 if (deploySuccess) {
                     //dcosApp 에 디플로이먼트, 마라톤 아이디 업데이트
-                    Map dcosMap = appService.getDcosMap();
-                    ((Map) app.get(stage)).put("deployment", newDeployment);
-                    ((Map) app.get(stage)).put("marathonAppId", "/" + newMarathonAppId);
-                    Map apps = (Map) ((Map) dcosMap.get("dcos")).get("apps");
-                    apps.put(appName, app);
-                    appService.saveDcosYaml(dcosMap);
+                    appStage.setDeployment(newDeployment);
+                    appStage.setMarathonAppId("/" + newMarathonAppId);
+                    appJpaRepository.save(appEntity);
 
                     //ci-deploy-rollback.json 을 생성(ci-deploy-production.json 카피)
                     appService.copyDeployJson(appName, stage, "rollback");
@@ -254,7 +261,6 @@ public class DeployAppJob implements Job {
             }
             //일반 배포인 경우
             else {
-                String deployment = (String) ((Map) app.get(stage)).get("deployment");
                 String marathonAppId = appName + "-" + deployment;
                 Map marathonApp = null;
                 try {
@@ -344,6 +350,21 @@ public class DeployAppJob implements Job {
         data.put("EXTERNAL_URL", externalUrl);
         data.put("PROFILE", stage);
         data.put("APP_NAME", appName);
+
+        String configJson = null;
+        try {
+            Map dev = appService.getOriginalCloudConfigJson(appName, "dev");
+            Map stg = appService.getOriginalCloudConfigJson(appName, "stg");
+            Map prod = appService.getOriginalCloudConfigJson(appName, "prod");
+            Map map = new HashMap();
+            map.put("dev", dev);
+            map.put("stg", stg);
+            map.put("prod", prod);
+            configJson = JsonUtils.marshal(map);
+        } catch (Exception ex) {
+            throw new RuntimeException("Failed to create cloud config env set");
+        }
+        data.put("CONFIG_JSON", configJson);
 
         String deployJsonString = JsonUtils.marshal(deployJson);
         MustacheTemplateEngine templateEngine = new MustacheTemplateEngine();

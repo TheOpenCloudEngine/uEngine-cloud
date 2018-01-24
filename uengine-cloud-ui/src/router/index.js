@@ -245,10 +245,10 @@ import IAMAvatar from '../components/IAMAvatar'
 Vue.component('iam-avatar', IAMAvatar);
 
 /**
- * Get cloud configGet cloud configGet cloud configGet cloud config
+ * Get cloud config
  */
 $.ajax({
-  url: configServerUrl + "/uengine-cloud-server.json",
+  url: backendUrl + "/config/uengine-cloud-server.json",
   type: "get",
   async: false,
   success: function (data) {
@@ -258,15 +258,15 @@ $.ajax({
     console.log('Failed to get config');
   }
 });
-
 console.log('window.config', window.config);
+
 
 /**
  * Iam && Vue Router
  * @type {IAM}
  */
 //var iam = new IAM('http://localhost:18080');
-var iam = new IAM('http://' + config.vcap.services.iam.external);
+var iam = new IAM(iamUrl);
 iam.setDefaultClient('my-client-key', 'my-client-secret');
 window.iam = iam;
 
@@ -294,12 +294,13 @@ Vue.use(VueResource);
  */
 Vue.component('service-locator', ServiceLocator);
 Vue.http.interceptors.push(function (request, next) {
+  request.headers['access_token'] = localStorage['access_token'];
   //modify headers
   //console.log('request' , request);
-  if (request.url.indexOf(configServerUrl) == -1 && request.url.indexOf(config.vcap.services['eureka-server'].external) == -1) {
-
-    request.headers['access_token'] = localStorage['access_token'];
-  }
+  // if (request.url.indexOf(configServerUrl) == -1 && request.url.indexOf(config.vcap.services['eureka-server'].external) == -1) {
+  //
+  //   request.headers['access_token'] = localStorage['access_token'];
+  // }
   next();
 });
 

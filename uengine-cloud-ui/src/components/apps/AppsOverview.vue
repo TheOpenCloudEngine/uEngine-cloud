@@ -41,8 +41,7 @@
     props: {},
     data() {
       return {
-        view: 'list',
-        devopsApps: null
+        view: 'list'
       }
     },
     mounted(){

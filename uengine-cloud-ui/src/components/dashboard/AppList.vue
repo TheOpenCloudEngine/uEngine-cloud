@@ -156,16 +156,15 @@
           return;
         }
         //appId 를 추린다.
-        if (me.dcosData.devopsApps.dcos) {
-          for (var appId in me.dcosData.devopsApps.dcos.apps) {
-            //var appId = key;
-            excludeServiced.push('/' + appId + '-green');
-            excludeServiced.push('/' + appId + '-blue');
-            excludeServiced.push('/' + appId + '-dev');
-          }
+        for (var appId in me.dcosData.devopsApps) {
+          //var appId = key;
+          excludeServiced.push('/' + appId + '-green');
+          excludeServiced.push('/' + appId + '-blue');
+          excludeServiced.push('/' + appId + '-dev');
         }
+
         if (me.mode == 'app') {
-          for (var appId in me.dcosData.devopsApps.dcos.apps) {
+          for (var appId in me.dcosData.devopsApps) {
             var app = {
               tasksStaged: 0,
               instances: 0,
@@ -216,7 +215,7 @@
             }
 
             //iam 아이디에 따라 필터링한다.
-            if (me.dcosData.devopsApps.dcos.apps[appId].iam == window.localStorage['userName'] || window.localStorage['acl']=='admin') {
+            if (me.dcosData.devopsApps[appId].iam == window.localStorage['userName'] || window.localStorage['acl'] == 'admin') {
               app.id = appId;
               app.type = 'app';
               list.push(app);

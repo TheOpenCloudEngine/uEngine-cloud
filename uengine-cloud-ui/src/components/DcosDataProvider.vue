@@ -297,9 +297,9 @@
         if (!this.dcosData.devopsApps) {
           return null;
         }
-        for (var id in this.dcosData.devopsApps.dcos.apps) {
+        for (var id in this.dcosData.devopsApps) {
           if (id == appName) {
-            selectedApp = this.dcosData.devopsApps.dcos.apps[id];
+            selectedApp = this.dcosData.devopsApps[id];
           }
         }
         return selectedApp;

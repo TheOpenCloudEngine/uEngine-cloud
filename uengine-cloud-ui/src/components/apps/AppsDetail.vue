@@ -191,33 +191,17 @@
 
       this.updateActive();
 
-      //어플리케이션 레파지토리 생성 상태와 어플리케이션 정보를 풀링한다.
-      var intervalStatus = function () {
-        console.log('how many intervalStatus?');
-        me.getDevAppStatusByName(me.appName, function (response, error) {
-          if (response) {
-            me.status = response.data.status;
-          } else {
-            me.status = null;
-          }
-          if (me.interval && me.status != 'repository-create-success') {
-            setTimeout(function () {
-              intervalStatus();
-            }, 2000);
-          }
-        });
-      };
-      intervalStatus();
-
       var intervalDevApp = function () {
         me.getDevAppByName(me.appName, function (response, error) {
           if (response) {
             me.devApp = response.data;
+            me.status = response.data['createStatus'];
             if (!me.categoryItem) {
               me.getCategoryItem(me.devApp.appType, function (item) {
                 me.categoryItem = item;
               });
             }
+            console.log('me.devApp', me.devApp);
           } else {
             me.devApp = null;
           }
@@ -259,7 +243,7 @@
     methods: {
       updateCIInfo: function () {
         var me = this;
-        var projectId = me.devApp.gitlab.projectId;
+        var projectId = me.devApp.projectId;
         me.$root.gitlab('api/v4/projects/' + projectId + '/pipelines?page=1&per_page=1').get()
           .then(function (response) {
             if (response.data && response.data.length) {
@@ -289,7 +273,7 @@
           me.commitInfo = null;
           return;
         }
-        var projectId = me.devApp.gitlab.projectId;
+        var projectId = me.devApp.projectId;
         var marathonAppId = me.devApp[me.stage]['marathonAppId'];
         var marathonApp = me.getAppById(marathonAppId);
         if (!marathonApp) {
@@ -346,7 +330,7 @@
           return;
         }
         var data = JSON.parse(JSON.stringify(me.devApp));
-        data[me.stage]['deploy-json'].instances = 0;
+        data[me.stage]['deployJson'].instances = 0;
         //업데이트
         me.updateDevApp(me.appName, data, function (response) {
           window.busVue.$emit('appRefresh', true);
@@ -390,7 +374,7 @@
         window.open(url);
       },
       moveGitlab: function (type, objectId) {
-        this.getProject(this.devApp.gitlab.projectId, function (response, err) {
+        this.getProject(this.devApp.projectId, function (response, err) {
           var url = response.data.web_url;
           if (type == 'project') {
             window.open(url);

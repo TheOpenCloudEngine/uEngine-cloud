@@ -171,8 +171,8 @@
         else {
           //전단계의 런타임을 그대로 사용하는 경우
           if (me.usePreStage) {
-            var deployJson = JSON.parse(JSON.stringify(appData[me.preStage]['deploy-json']));
-            appData[me.stage]['deploy-json'] = deployJson;
+            var deployJson = JSON.parse(JSON.stringify(appData[me.preStage]['deployJson']));
+            appData[me.stage]['deployJson'] = deployJson;
           }
           //신규 런타임을 구성하는 경우
           else {
@@ -209,7 +209,7 @@
         this.branchList = [];
         this.hasImage = false;
 
-        var projectId = me.copyDevApp.gitlab.projectId;
+        var projectId = me.copyDevApp.projectId;
         var p1 = this.$root.gitlab('api/v4//projects/' + projectId + '/repository/tags').get();
         var p2 = this.$root.gitlab('api/v4//projects/' + projectId + '/repository/branches').get();
         var p3 = this.$root.backend('app/' + me.appName + '/tags').get();

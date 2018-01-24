@@ -1,6 +1,7 @@
 package org.uengine.cloud;
 
 import org.gitlab4j.api.GitLabApi;
+import org.uengine.iam.client.IamClient;
 import org.uengine.iam.util.ApplicationContextRegistry;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
@@ -37,20 +38,20 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         configurer.setUrlPathHelper(urlPathHelper);
     }
 
-    @Bean
-    public TenantAwareFilter tenantAwareFilter() {
-        return new TenantAwareFilter();
-    }
-
-    @Bean
-    public RestFilter restFilter() {
-        return new RestFilter();
-    }
-
-    @Bean
-    public CorsFilter corsFilter() {
-        return new CorsFilter();
-    }
+//    @Bean
+//    public TenantAwareFilter tenantAwareFilter() {
+//        return new TenantAwareFilter();
+//    }
+//
+//    @Bean
+//    public RestFilter restFilter() {
+//        return new RestFilter();
+//    }
+//
+//    @Bean
+//    public CorsFilter corsFilter() {
+//        return new CorsFilter();
+//    }
 
     @Bean
     public GitLabApi gitLabApi() {
@@ -59,6 +60,16 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         GitLabApi gitLabApi = new GitLabApi(host, token);
         gitLabApi.setDefaultPerPage(10000);
         return gitLabApi;
+    }
+
+    @Bean
+    public IamClient iamClient() {
+        String host = environment.getProperty("iam.host");
+        int port = Integer.parseInt(environment.getProperty("iam.port"));
+        String clientId = environment.getProperty("iam.clientId");
+        String clientSecret = environment.getProperty("iam.clientSecret");
+        IamClient iamClient = new IamClient(host, port, clientId, clientSecret);
+        return iamClient;
     }
 
     @Bean

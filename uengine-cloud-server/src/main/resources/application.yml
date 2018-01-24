@@ -8,6 +8,53 @@ security:
   ignored: /**
 
 ---
+
+dcos:
+  host: http://@server.public.master@/
+  token: @dcos.token@
+
+gitlab:
+  host: http://@host.gitlab@
+  token: @gitlab.root.token@
+  config-repo:
+    projectId: @gitlab.config-repo.projectId@
+    deployment-path: @gitlab.config-repo.deployment-path@
+    template-path: @gitlab.config-repo.template-path@
+
+iam:
+  host: @host.iam@
+  port: @iam.port@
+  clientId: @iam.client-key@
+  clientSecret: @iam.client-secret@
+
+registry:
+  host: @host.registry.private@
+  public-host: @host.registry.public@
+
+public-agent-ip: @server.public.public@
+
+vcap:
+  services:
+    db:
+      external: "@host.db@:10002"
+      internal: "marathon-lb-internal.marathon.mesos:10002"
+    iam:
+      external: "@host.iam@"
+      internal: "marathon-lb-internal.marathon.mesos:10003"
+    uengine-cloud-config:
+      external: "@server.public.public@:10000"
+      internal: "marathon-lb-internal.marathon.mesos:10000"
+    eureka-server:
+      external: "@host.eureka-server@"
+      internal: "marathon-lb-internal.marathon.mesos:10001"
+    uengine-cloud-server:
+      external: "@host.cloud-server@"
+      internal: "marathon-lb-internal.marathon.mesos:10005"
+    uengine-cloud-ui:
+      external: "@host.cloud-ui@"
+      internal: "marathon-lb-internal.marathon.mesos:10006"
+
+
 spring:
   security:
     enabled: false

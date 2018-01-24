@@ -31,6 +31,9 @@ public class HookController {
     @Autowired
     private AppLogService logService;
 
+    @Autowired
+    private AppJpaRepository appJpaRepository;
+
     private Map<String, String> reservedStages = new HashMap<>();
 
     public void addReservedStage(String pipelineId, String stage) {
@@ -58,12 +61,13 @@ public class HookController {
                 String appName = ((Map) payloads.get("project")).get("name").toString();
                 String pipelineId = ((Map) payloads.get("object_attributes")).get("id").toString();
                 String status = ((Map) payloads.get("object_attributes")).get("status").toString();
-                Map app = appService.getAppByName(appName);
+
+                AppEntity appEntity = appJpaRepository.findOne(appName);
 
                 //이력 저장
                 logService.addHistory(appName, AppLogAction.PIPELINE, AppLogStatus.valueOf(status.toUpperCase()), null);
 
-                int projectId = (int) ((Map) app.get("gitlab")).get("projectId");
+                int projectId = appEntity.getProjectId();
                 Map pipeLineJson = appService.getPipeLineJson(appName);
                 List<String> autoDeploys = (List<String>) pipeLineJson.get("auto-deploy");
 
@@ -94,8 +98,8 @@ public class HookController {
                 }
             } else if (payloads.get("object_kind").toString().equals("push")) {
                 String appName = ((Map) payloads.get("project")).get("name").toString();
-                Map app = appService.getAppByName(appName);
-                int projectId = (int) ((Map) app.get("gitlab")).get("projectId");
+                AppEntity appEntity = appJpaRepository.findOne(appName);
+                int projectId = appEntity.getProjectId();
 
                 //푸시 이력 남기기
                 logService.addHistory(appName, AppLogAction.PUSH, AppLogStatus.SUCCESS, null);
