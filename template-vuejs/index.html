@@ -12,9 +12,8 @@
         type="text/css">
 
   <script>
-    var applicationName = "template-vuejs";
-    var configServerUrl = 'http://config.pas-mini.io';
     var profile = 'local';
+    var config = {};
 
     /**
      * Get profile from system env given by dcos
@@ -32,25 +31,15 @@
             window.profile = profile;
           }
         })
+        $.each(lines, function (i, line) {
+          if (line && line.indexOf('CONFIG_JSON=') == 0) {
+            config = JSON.parse(line.split('=')[1])[profile];
+            window.config = config;
+          }
+        })
       },
       error: function () {
         console.log('Failed to get env');
-      }
-    });
-
-    /**
-     * Get cloud configGet
-     */
-    $.ajax({
-      url: configServerUrl + "/" + applicationName + "-" + profile + ".json",
-      type: "get",
-      async: false,
-      success: function (data) {
-        window.config = data;
-        console.log(window.config);
-      },
-      error: function () {
-        console.log('Failed to get config');
       }
     });
   </script>

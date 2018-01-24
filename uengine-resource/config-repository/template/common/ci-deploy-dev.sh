@@ -1,57 +1,31 @@
 #!/bin/bash
 
 #----------------------------------------------------------------------
-# 환경 변수 받아오기
-
-STATUS="$(curl --request GET \
-            -s -o /dev/null -w "%{http_code}" \
-            -H 'content-type: application/json' \
-            ${CONFIG_SERVER_URL}/uengine-cloud-server.json)"
-
-# 환경 변수 세팅을 받을 수 없는 경우
-if [ $STATUS -eq 200 ];then
-   echo "Success to connect cloud config server"
-else
-   echo "Failed to connect cloud config server"
-   exit 1
-fi
-
-
-#----------------------------------------------------------------------
 # 유엔진 클라우드 환경변수
 
-JSON1="$(curl --request GET \
-              -H 'content-type: application/json' \
-              ${CONFIG_SERVER_URL}/uengine-cloud-server.json)"
-
-echo $CONFIG_SERVER_URL
-echo $JSON1
-
-REGISTRY_URL=$( echo $JSON1 | jq -r '.registry.host' )
-CONFIG_REPO_ID=$( echo $JSON1 | jq -r '.gitlab["config-repo"].projectId' )
-DCOS_URL=$( echo $JSON1 | jq -r '.dcos.host' )
+echo "ACCESS_TOKEN: ${ACCESS_TOKEN}"
+echo "CONFIG_JSON: ${CONFIG_JSON}"
 
 JSON2="$(curl --request GET \
+              -H 'access_token: ${ACCESS_TOKEN}' \
               -H 'content-type: application/json' \
-              ${CONFIG_SERVER_URL}/dcos-apps.json)"
+              ${UENGINE_CLOUD_URL}/app/${APP_NAME})"
 
-UENGINE_CLOUD_URL=$( echo $JSON2 | jq -r '.vcap.services["uengine-cloud-server"].external' )
-APP_TYPE=$( echo $JSON2 | jq -r '.dcos.apps["'${APP_NAME}'"].appType' )
-APP_OWNER=$( echo $JSON2 | jq -r '.dcos.apps["'${APP_NAME}'"].owner' )
-PROD_SERVICE_PORT=$( echo $JSON2 | jq -r '.dcos.apps["'${APP_NAME}'"].prod["service-port"]' )
-PROD_EXTERNAL_URL=$( echo $JSON2 | jq -r '.dcos.apps["'${APP_NAME}'"].prod.external' )
-PROD_INTERNAL_URL=$( echo $JSON2 | jq -r '.dcos.apps["'${APP_NAME}'"].prod.internal' )
-PROD_DEPLOYMENT=$( echo $JSON2 | jq -r '.dcos.apps["'${APP_NAME}'"].prod.deployment' )
+APP_TYPE=$( echo $JSON2 | jq -r '.appType' )
+PROD_SERVICE_PORT=$( echo $JSON2 | jq -r '.prod["servicePort"]' )
+PROD_EXTERNAL_URL=$( echo $JSON2 | jq -r '.prod.external' )
+PROD_INTERNAL_URL=$( echo $JSON2 | jq -r '.prod.internal' )
+PROD_DEPLOYMENT=$( echo $JSON2 | jq -r '.prod.deployment' )
 
-STG_SERVICE_PORT=$( echo $JSON2 | jq -r '.dcos.apps["'${APP_NAME}'"].stg["service-port"]' )
-STG_EXTERNAL_URL=$( echo $JSON2 | jq -r '.dcos.apps["'${APP_NAME}'"].stg.external' )
-STG_INTERNAL_URL=$( echo $JSON2 | jq -r '.dcos.apps["'${APP_NAME}'"].stg.internal' )
-STG_DEPLOYMENT=$( echo $JSON2 | jq -r '.dcos.apps["'${APP_NAME}'"].stg.deployment' )
+STG_SERVICE_PORT=$( echo $JSON2 | jq -r '.stg["servicePort"]' )
+STG_EXTERNAL_URL=$( echo $JSON2 | jq -r '.stg.external' )
+STG_INTERNAL_URL=$( echo $JSON2 | jq -r '.stg.internal' )
+STG_DEPLOYMENT=$( echo $JSON2 | jq -r '.stg.deployment' )
 
-DEV_SERVICE_PORT=$( echo $JSON2 | jq -r '.dcos.apps["'${APP_NAME}'"].dev["service-port"]' )
-DEV_EXTERNAL_URL=$( echo $JSON2 | jq -r '.dcos.apps["'${APP_NAME}'"].dev.external' )
-DEV_INTERNAL_URL=$( echo $JSON2 | jq -r '.dcos.apps["'${APP_NAME}'"].dev.internal' )
-DEV_DEPLOYMENT=$( echo $JSON2 | jq -r '.dcos.apps["'${APP_NAME}'"].dev.deployment' )
+DEV_SERVICE_PORT=$( echo $JSON2 | jq -r '.dev["servicePort"]' )
+DEV_EXTERNAL_URL=$( echo $JSON2 | jq -r '.dev.external' )
+DEV_INTERNAL_URL=$( echo $JSON2 | jq -r '.dev.internal' )
+DEV_DEPLOYMENT=$( echo $JSON2 | jq -r '.dev.deployment' )
 
 PROFILE="dev"
 
@@ -59,7 +33,6 @@ echo "REGISTRY_URL: $REGISTRY_URL"
 echo "CONFIG_REPO_ID: $CONFIG_REPO_ID"
 echo "DCOS_URL: $DCOS_URL"
 echo "APP_TYPE: $APP_TYPE"
-echo "APP_OWNER: $APP_OWNER"
 echo "PROD_SERVICE_PORT: $PROD_SERVICE_PORT"
 echo "PROD_EXTERNAL_URL: $PROD_EXTERNAL_URL"
 echo "PROD_INTERNAL_URL: $PROD_INTERNAL_URL"
@@ -81,13 +54,6 @@ echo "APP_NAME: ${APP_NAME}"
 
 
 
-
-
-
-
-
-
-
 #----------------------------------------------------------------------
 # 개발 서버 마라톤 어플 이름
 MARATHON_APP_ID="${APP_NAME}-dev"
@@ -99,6 +65,7 @@ echo "MARATHON_APP_ID: $MARATHON_APP_ID"
 # 깃랩 파일 받기
 DEPLOY_FILE_NAME=ci-deploy-dev.json
 DEPLOY_JSON="$(curl --request GET \
+            -H 'access_token: ${ACCESS_TOKEN}' \
             -H 'content-type: application/json' \
             $UENGINE_CLOUD_URL/gitlab/api/v4/projects/$CONFIG_REPO_ID/repository/files/deployment%2F${APP_NAME}%2F$DEPLOY_FILE_NAME/raw?ref=master)"
 
@@ -113,6 +80,7 @@ sed -i'' -e "s|\"{{SERVICE_PORT}}\"|$DEV_SERVICE_PORT|g" $DEPLOY_FILE_NAME
 sed -i'' -e "s|{{EXTERNAL_URL}}|$DEV_EXTERNAL_URL|g" $DEPLOY_FILE_NAME
 sed -i'' -e "s|{{PROFILE}}|$PROFILE|g" $DEPLOY_FILE_NAME
 sed -i'' -e "s|{{APP_NAME}}|${APP_NAME}|g" $DEPLOY_FILE_NAME
+sed -i'' -e "s|{{CONFIG_JSON}}|${CONFIG_JSON}|g" $DEPLOY_FILE_NAME
 
 
 echo "$MARATHON_APP_ID server update like:"
@@ -125,6 +93,7 @@ echo "Checking exist app....."
 
 DEV_EXIST="$(curl --request GET \
             -s -o /dev/null -w "%{http_code}" \
+            -H 'access_token: ${ACCESS_TOKEN}' \
             -H 'content-type: application/json' \
             ${UENGINE_CLOUD_URL}/dcos/service/marathon/v2/apps/$MARATHON_APP_ID)"
 
@@ -136,6 +105,7 @@ if [ $DEV_EXIST -eq 200 ];then
    echo ""
 
    JOB_WAIT="$(curl --request PUT \
+               -H 'access_token: ${ACCESS_TOKEN}' \
                -H 'content-type: application/json' \
                -d @$DEPLOY_FILE_NAME \
                ${UENGINE_CLOUD_URL}/dcos/service/marathon/v2/apps/$MARATHON_APP_ID?force=true&partialUpdate=false)"
@@ -147,6 +117,7 @@ elif [ $DEV_EXIST -eq 404 ];then
    echo ""
 
    JOB_WAIT="$(curl --request POST \
+               -H 'access_token: ${ACCESS_TOKEN}' \
                -H 'content-type: application/json' \
                -d @$DEPLOY_FILE_NAME \
                ${UENGINE_CLOUD_URL}/dcos/service/marathon/v2/apps)"
@@ -177,6 +148,7 @@ CURRENT_COUNT=0
 while true
 do
   DEV_APP="$(curl --request GET \
+              -H 'access_token: ${ACCESS_TOKEN}' \
               -H 'content-type: application/json' \
               ${UENGINE_CLOUD_URL}/dcos/service/marathon/v2/apps/$MARATHON_APP_ID)"
 
@@ -184,6 +156,7 @@ do
 
   DEV_APP_STATUS="$(curl --request GET \
                 -s -o /dev/null -w "%{http_code}" \
+                -H 'access_token: ${ACCESS_TOKEN}' \
                 -H 'content-type: application/json' \
                 ${UENGINE_CLOUD_URL}/dcos/service/marathon/v2/apps/$MARATHON_APP_ID)"
 
@@ -226,14 +199,11 @@ do
            echo "CANCEL DEPLOYMENT_ID: $DEPLOYMENT_ID"
 
            curl --request DELETE \
+                -H 'access_token: ${ACCESS_TOKEN}' \
                 -H 'content-type: application/json' \
                 ${UENGINE_CLOUD_URL}/dcos/service/marathon/v2/deployments/$DEPLOYMENT_ID
 
         done
-        # 개발 앱 삭제
-        # curl --request DELETE \
-        # -H 'content-type: application/json' \
-        # ${UENGINE_CLOUD_URL}/dcos/service/marathon/v2/apps/$MARATHON_APP_ID?force=true
 
         exit 1
      fi
@@ -251,6 +221,7 @@ done
 echo "Router refresh"
 
 curl --request GET \
+    -H 'access_token: ${ACCESS_TOKEN}' \
     -H 'content-type: application/json' \
     ${UENGINE_CLOUD_URL}/refreshRoute
 

@@ -60,7 +60,6 @@ host:
   db: db.pas-mini.io
   gitlab: gitlab.pas-mini.io
   iam: iam.pas-mini.io
-  config: config.pas-mini.io
   eureka-server: eureka-server.pas-mini.io
   cloud-server: cloud-server.pas-mini.io
   cloud-ui: cloud.pas-mini.io

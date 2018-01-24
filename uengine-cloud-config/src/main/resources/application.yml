@@ -6,3 +6,20 @@ spring:
           uri: http://@host.gitlab@/root/cloud-config-repository.git
           username: root
           password: adminadmin
+
+security:
+  basic:
+    enabled: false
+  user:
+    name: root
+    password: 12341234
+    # base64 root:12341234
+    # Authorization: Basic cm9vdDoxMjM0MTIzNA==
+
+# At client.
+#spring:
+#  cloud:
+#    config:
+#     uri: https://myconfig.mycompany.com
+#     username: user
+#     password: secret

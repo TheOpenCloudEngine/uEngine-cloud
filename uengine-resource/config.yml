@@ -1,69 +1,63 @@
 # SSH and Resolve.conf part
 cluster_name: uEngine
 ansible_user: centos
-ansible_ssh_private_key_file: /home/centos/belugarKey.pem
+ansible_ssh_private_key_file: /home/centos/dcos-key.pem
 ssh_port: 22
 resolvers:
-- 172.31.0.2
-dns_search: ap-northeast-2.compute.internal
+- 121.88.255.50
+- 121.88.255.49
+dns_search:
 
 # Server list part
 server:
   private:
-    bootstrap: 172.31.8.143
-    gitlab: 172.31.15.249
-    ci: 172.31.3.61
-    public: 172.31.5.136
+    bootstrap: 192.168.0.19
+    gitlab: 192.168.0.31
+    ci:
+    public: 192.168.0.11
 
     master:
-      master1: 172.31.12.143
-      master2: 172.31.4.125
-      master3: 172.31.1.198
+      master1: 192.168.0.8
+      master2: 192.168.0.9
+      master3: 192.168.0.10
 
     agent:
-      agent1: 172.31.6.35
-      agent2: 172.31.1.235
-      agent3: 172.31.5.245
-      agent4: 172.31.14.247
-      agent5: 172.31.7.160
-      agent6: 172.31.11.70
-      agent7: 172.31.0.164
+      agent1: 192.168.0.13
+      agent2: 192.168.0.15
+      agent3: 192.168.0.16
+      agent4: 192.168.0.17
+      agent5: 192.168.0.18
+      agent6: 192.168.0.21
+      agent7: 192.168.0.42
 
     add-agent:
-      agent8: 172.31.10.202
-      agent9: 172.31.14.197
-      agent10: 172.31.13.131
-      agent11: 172.31.1.166
-      agent12: 172.31.8.5
-
     gracefully-remove-agent:
     uninstall:
 
   public:
     # Choice one of your master's public ip
-    master: 52.79.125.242
+    master: 58.140.91.67:8081
     # Your public node's public ip
-    public: 52.79.51.79
+    public: 58.140.91.67
 
 # DB part
 db:
-  ip: 172.31.6.35
+  ip: 192.168.0.13
   database: uengine
   password: my-secret-pw
 
 # Domain part
 host:
   registry:
-    package: sppark
-    private: gitlab.pas-mini.io:5000
-    public: gitlab.pas-mini.io:5000
-  db: db.pas-mini.io
-  gitlab: gitlab.pas-mini.io
-  iam: iam.pas-mini.io
-  config: config.pas-mini.io
-  eureka-server: eureka-server.pas-mini.io
-  cloud-server: cloud-server.pas-mini.io
-  cloud-ui: cloud.pas-mini.io
+    package: darkgodarkgo
+    private: gitlab.pasmini.io:5000
+    public: gitlab.pasmini.io:5000
+  db: db.pasmini.io
+  gitlab: gitlab.pasmini.io
+  iam: iam.pasmini.io
+  eureka-server: eureka-server.pasmini.io
+  cloud-server: cloud-server.pasmini.io
+  cloud-ui: cloud.pasmini.io
 
 # Security(IAM) part
 iam:
@@ -88,7 +82,7 @@ iam:
 # Fill out those properties after install DC/OS cluster && Gitlab
 # Then, you should re-command "mvn clean install exec:java package"
 dcos:
-  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJkYXJrZ29kYXJrZ29AZ21haWwuY29tIiwiZXhwIjozMTI1NTU5MDY0MzkuODk0MX0.aHgH_M-g-n-WlnPg_CorMGYEprULPSeUTIGu3GyZQ-U
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJkYXJrZ29kYXJrZ29AZ21haWwuY29tIiwiZXhwIjozMTI1NTQ4ODM3MTEuNzkzOX0.NCDPD4HuR8SLMw8T_6lr2QTQ75_E7ppvYIqgaPeWX4s
 
 gitlab:
   root:
@@ -96,6 +90,6 @@ gitlab:
     password: adminadmin
     token: -arWnfRY7S4h6oyRthNy
   config-repo:
-    projectId: 47
+    projectId: 94
     deployment-path: /deployment
     template-path: /template

@@ -1,5 +1,5 @@
 # Untag this, if you use docker hub to store your generated cloud package apps.
-# docker login
+docker login
 
 REGISTRY_URL=@host.registry.package@
 CURRENT_DIR="$(dirname $(pwd))"
