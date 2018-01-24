@@ -59,9 +59,7 @@ Vue.use(VueResource);
  */
 Vue.component('service-locator', ServiceLocator);
 Vue.http.interceptors.push(function (request, next) {
-  if (request.url.indexOf(configServerUrl) == -1) {
-    request.headers['access_token'] = localStorage['access_token'];
-  }
+  request.headers['access_token'] = localStorage['access_token'];
   next();
 });
 

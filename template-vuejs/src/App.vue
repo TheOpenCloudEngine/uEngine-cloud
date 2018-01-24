@@ -2,11 +2,6 @@
   <div>
     <router-view></router-view>
 
-    <!--서비스 로케이터 리스트-->
-    <!--<service-locator v-if="config" :host="'http://' + config.vcap.services['SERVICE_TO_CONNECT'].external" path="/"-->
-    <!--resource-name="backend"></service-locator>-->
-
-
     <!--글로벌 알림 컴포넌트-->
     <md-snackbar md-position="top right" ref="snackbar" :md-duration="4000">
       <span class="md-primary">{{snackbar.text}}</span>
@@ -18,7 +13,6 @@
   export default {
     data () {
       return {
-        configServerUrl: configServerUrl,
         config: window.config,
         snackbar: {
           top: true,
