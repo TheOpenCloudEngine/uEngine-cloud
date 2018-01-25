@@ -60,7 +60,7 @@
 
     <confirm
       title="Are you sure?"
-      content-html="현재 배포가 중단되고 새 배포가 시작되어 영향을받는 서비스를 이전 버전으로 되돌릴 것입니다."
+      content-html="현재 배포가 중단되고, 서비스를 이전 버전으로 되돌리기 위해 새 배포가 시작될 것입니다."
       ok-text="배포 중단 하기"
       cancel-text="취소"
       ref="confirm"
@@ -157,15 +157,7 @@
           }
         });
         me.deploymentsRows = deploymentsRows;
-        //TODO 서버단에서 acl 을 조정해야 한다.
-        //서버단에서 app 에디트시 acl 이 들어간다.
-        //ci 작업에서 app 에디트시 권한인증이 들어가야 한다.
-        //커밋시, 트리거 발동 => 시스템 권한 토큰을 생성. => 트리거 밸류로 전달한다.
-
-        //기존 앱 코드들의 마이그레이션이 필요.(Simple Java Program)
-
-
-        //me.$emit('deploymentsRows')
+        me.$emit('rows', deploymentsRows.length);
       },
       action: function (deploymentId) {
         var me = this;

@@ -11,6 +11,7 @@
     ></gitlab-deploy>
 
     <service-deployments
+      v-on:rows="onDeploymentRows"
       :appIds="['/'+ appName + '-blue', '/'+ appName + '-green', '/'+ appName + '-dev', '/'+ appName + '-stg']"
       ref="service-deployments"></service-deployments>
 
@@ -51,6 +52,15 @@
                   </div>
                 </md-layout>
                 <md-layout md-flex="60" md-align="end">
+
+                  <!--배포-->
+                  <md-button class="md-raised"
+                             @click="openDeployments">
+                    <md-spinner v-if="deploymentsRowNumber > 0" :md-size="20" md-indeterminate class="md-accent"
+                                style="margin-top: 5px"
+                    ></md-spinner>
+                    ({{deploymentsRowNumber}}) 배포중
+                  </md-button>
 
                   <!--롤백-->
                   <md-button v-if="hasRollback" v-on:click="rollbackApp" class="md-raised md-primary">
@@ -224,6 +234,7 @@
         categoryItem: null,
         devApp: null,
         status: null,
+        deploymentsRowNumber: 0,
         items: [
           {title: '시작하기', icon: 'question_answer', routerName: 'appsDetailDocs'},
           {title: '개요', icon: 'question_answer', routerName: 'appsDetailDashboard'},
@@ -297,6 +308,12 @@
       }
     },
     methods: {
+      openDeployments: function () {
+        this.$refs['service-deployments'].open();
+      },
+      onDeploymentRows: function (rowNumbers) {
+        this.deploymentsRowNumber = rowNumbers;
+      },
       updateCIInfo: function () {
         var me = this;
         var projectId = me.devApp.projectId;
