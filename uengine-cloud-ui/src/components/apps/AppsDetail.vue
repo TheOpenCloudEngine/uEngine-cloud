@@ -206,11 +206,28 @@
       </md-layout>
     </md-layout>
     <md-layout v-else-if="status == 'repository-create-failed'">
-      레파지토리 생성에 실패했습니다.
-      <a v-on:click="remove(appName)">어플리케이션 삭제하기</a>
+      <md-card md-with-hover style="width: 100%;">
+        <md-card-area>
+          <md-card-content style="text-align: center">
+            <div>
+              레파지토리 생성에 실패했습니다.
+              <a v-on:click="remove(appName)">어플리케이션 삭제하기</a>
+            </div>
+          </md-card-content>
+        </md-card-area>
+      </md-card>
     </md-layout>
     <md-layout :md-gutter="16" v-else-if="status == 'repository-create'">
-      레파지토리 생성중입니다.
+      <md-card md-with-hover style="width: 100%;">
+        <md-card-area>
+          <md-card-content style="text-align: center">
+            <div>
+              <md-spinner :md-size="20" md-indeterminate class="md-accent"></md-spinner>
+              레파지토리 생성중입니다.
+            </div>
+          </md-card-content>
+        </md-card-area>
+      </md-card>
     </md-layout>
   </div>
 </template>

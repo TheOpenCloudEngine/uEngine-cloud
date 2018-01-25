@@ -134,9 +134,6 @@ import ServiceDeployments from '../components/editor/ServiceDeployments'
 
 Vue.component('service-deployments', ServiceDeployments);
 
-import DeploymentCanvas from '../components/editor/DeploymentCanvas'
-
-Vue.component('deployment-canvas', DeploymentCanvas);
 
 /**
  * 앱

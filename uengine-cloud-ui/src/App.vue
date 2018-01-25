@@ -2,6 +2,8 @@
   <div>
     <router-view></router-view>
 
+    <BlockUI ref="block" v-if="isBlock" message="처리중..."></BlockUI>
+
     <!--서비스 로케이터 리스트-->
     <service-locator :host="backendUrl" path="/"
                      resource-name="backend"></service-locator>
@@ -40,6 +42,7 @@
     },
     data () {
       return {
+        isBlock: false,
         backendUrl: backendUrl,
         config: window.config,
         snackbar: {
@@ -110,6 +113,12 @@
       },
       confirm: function (options) {
         this.$refs.confirm.open(options);
+      },
+      block: function(){
+        this.isBlock = true;
+      },
+      unblock: function(){
+        this.isBlock = false;
       }
     }
   }

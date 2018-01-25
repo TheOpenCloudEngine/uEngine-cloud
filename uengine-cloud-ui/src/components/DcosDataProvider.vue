@@ -65,6 +65,7 @@
       },
       rollbackDcosApp: function (deploymentId, cb) {
         var me = this;
+        me.$root.$children[0].block();
         this.$root.dcos('service/marathon/v2/deployments/' + deploymentId)
           .remove({})
           .then(
@@ -80,12 +81,16 @@
                 cb(response);
               }
             })
+          .finally(function () {
+            me.$root.$children[0].unblock();
+          });
       },
       deleteDcosApp: function (appId, force, cb) {
         var me = this;
         var app = this.getDcosAppById(appId);
         if (app) {
           var forceParam = force ? 'true' : 'false';
+          me.$root.$children[0].block();
           this.$root.dcos('service/marathon/v2/apps/' + appId + '?force=' + forceParam)
             .remove({})
             .then(
@@ -101,6 +106,9 @@
                   cb(response);
                 }
               })
+            .finally(function () {
+              me.$root.$children[0].unblock();
+            });
         }
       },
       restartDcosApp: function (appId, force, cb) {
@@ -108,6 +116,7 @@
         var app = this.getDcosAppById(appId);
         if (app) {
           var forceParam = force ? 'true' : 'false';
+          me.$root.$children[0].block();
           this.$root.dcos('service/marathon/v2/apps/' + appId + '/restart?force=' + forceParam)
             .save({}, null)
             .then(
@@ -123,11 +132,15 @@
                   cb(response);
                 }
               })
+            .finally(function () {
+              me.$root.$children[0].unblock();
+            });
         }
       },
       createDcosApp: function (appJson, cb) {
         var me = this;
         var copy = JSON.parse(JSON.stringify(appJson));
+        me.$root.$children[0].block();
         this.$root.dcos('service/marathon/v2/apps')
           .save({}, copy)
           .then(
@@ -143,6 +156,9 @@
                 cb(response);
               }
             })
+          .finally(function () {
+            me.$root.$children[0].unblock();
+          });
       },
       updateDcosApp: function (appId, appJson, force, cb) {
         var me = this;
@@ -150,6 +166,7 @@
         if (app) {
           var forceParam = force ? 'true' : 'false';
           var copy = JSON.parse(JSON.stringify(appJson));
+          me.$root.$children[0].block();
           this.$root.dcos('service/marathon/v2/apps/' + appId + '?partialUpdate=false&force=' + forceParam)
             .update({}, copy)
             .then(
@@ -165,6 +182,9 @@
                   cb(response);
                 }
               })
+            .finally(function () {
+              me.$root.$children[0].unblock();
+            });
         }
       },
       scaleDcosApp: function (appId, instances, force, cb) {
@@ -174,6 +194,7 @@
           var forceParam = force ? 'true' : 'false';
           var copy = JSON.parse(JSON.stringify(app));
           copy.instances = instances;
+          me.$root.$children[0].block();
           this.$root.dcos('service/marathon/v2/apps/' + appId + '?partialUpdate=false&force=' + forceParam)
             .update({}, copy)
             .then(
@@ -189,6 +210,9 @@
                   cb(response);
                 }
               })
+            .finally(function () {
+              me.$root.$children[0].unblock();
+            });
         }
       },
       suspendDcosApp: function (appId, force, cb) {
@@ -198,6 +222,7 @@
           var forceParam = force ? 'true' : 'false';
           var copy = JSON.parse(JSON.stringify(app));
           copy.instances = 0;
+          me.$root.$children[0].block();
           this.$root.dcos('service/marathon/v2/apps/' + appId + '?partialUpdate=false&force=' + forceParam)
             .update({}, copy)
             .then(
@@ -213,6 +238,9 @@
                   cb(response);
                 }
               })
+            .finally(function () {
+              me.$root.$children[0].unblock();
+            });
         }
       },
       getJobById: function (jobId) {
@@ -370,6 +398,7 @@
       },
       updateDevApp: function (appName, data, cb) {
         var me = this;
+        me.$root.$children[0].block();
         this.$root.backend('app/' + appName)
           .update({}, data)
           .then(
@@ -385,9 +414,13 @@
                 cb(response);
               }
             })
+          .finally(function () {
+            me.$root.$children[0].unblock();
+          });
       },
       rollbackDevApp: function (appName, cb) {
         var me = this;
+        me.$root.$children[0].block();
         this.$root.backend('app/' + appName + '/rollback')
           .save({})
           .then(
@@ -403,6 +436,9 @@
                 cb(response);
               }
             })
+          .finally(function () {
+            me.$root.$children[0].unblock();
+          });
       },
       getAppPipeLineJson: function (appName, cb) {
         this.$root.backend('app/' + appName + '/pipeline/info').get()
@@ -414,6 +450,7 @@
       },
       createApp: function (appCreate, cb) {
         var me = this;
+        me.$root.$children[0].block();
         this.$root.backend('app')
           .save({}, appCreate)
           .then(
@@ -429,9 +466,13 @@
                 cb(response);
               }
             })
+          .finally(function () {
+            me.$root.$children[0].unblock();
+          });
       },
       updateAppExcludeDeployJson: function (appName, json, cb) {
         var me = this;
+        me.$root.$children[0].block();
         this.$root.backend('app/' + appName + '?excludeDeploy=true')
           .update({}, json)
           .then(function (response) {
@@ -441,9 +482,13 @@
             me.$root.$children[0].error('어플리케이션 정보를 업데이트 할 수 없습니다.');
             cb(null, response);
           })
+          .finally(function () {
+            me.$root.$children[0].unblock();
+          });
       },
       updateApp: function (appName, json, cb) {
         var me = this;
+        me.$root.$children[0].block();
         this.$root.backend('app/' + appName)
           .update({}, json)
           .then(function (response) {
@@ -453,9 +498,13 @@
             me.$root.$children[0].error('어플리케이션 구동 설정을 변경할 수 없습니다.');
             cb(null, response);
           })
+          .finally(function () {
+            me.$root.$children[0].unblock();
+          });
       },
       updateAppPipeLineJson: function (appName, json, cb) {
         var me = this;
+        me.$root.$children[0].block();
         this.$root.backend('app/' + appName + '/pipeline/info')
           .update({}, json)
           .then(function (response) {
@@ -465,6 +514,9 @@
             me.$root.$children[0].error('어플리케이션 빌드 설정을 할 수 없습니다.');
             cb(null, response);
           })
+          .finally(function () {
+            me.$root.$children[0].unblock();
+          });
       },
       excutePipelineTrigger: function (appName, ref, stage, cb) {
         var me = this;
@@ -472,6 +524,7 @@
         if (stage) {
           url = url + '&stage=' + stage;
         }
+        me.$root.$children[0].block();
         this.$root.backend(url)
           .save({})
           .then(
@@ -487,6 +540,9 @@
                 cb(response);
               }
             })
+          .finally(function () {
+            me.$root.$children[0].unblock();
+          });
       },
       runDeployedApp: function (appName, stage, commit, cb) {
         var me = this;
@@ -494,6 +550,7 @@
         if (commit) {
           url = url + '&commit=' + commit;
         }
+        me.$root.$children[0].block();
         this.$root.backend(url)
           .save({})
           .then(
@@ -509,9 +566,13 @@
                 cb(response);
               }
             })
+          .finally(function () {
+            me.$root.$children[0].unblock();
+          });
       },
       removeDevAppByName: function (appName, cb) {
         var me = this;
+        me.$root.$children[0].block();
         this.$root.backend('app/' + appName)
           .remove({})
           .then(
@@ -527,9 +588,13 @@
                 cb(response);
               }
             })
+          .finally(function () {
+            me.$root.$children[0].unblock();
+          });
       },
       removeDevAppStage: function (appName, stage, cb) {
         var me = this;
+        me.$root.$children[0].block();
         this.$root.backend('app/' + appName + '/deploy?stage=' + stage)
           .remove({})
           .then(
@@ -545,6 +610,9 @@
                 cb(response);
               }
             })
+          .finally(function () {
+            me.$root.$children[0].unblock();
+          });
       },
       getDevAppByName: function (appName, cb) {
         this.$root.backend('app/' + appName).get()
@@ -581,6 +649,7 @@
       updateDevAppConfigYml: function (appName, stage, yml, cb) {
         var me = this;
         var stageParam = stage ? stage : '';
+        me.$root.$children[0].block();
         this.$root.backend('app/' + appName + '/config?stage=' + stageParam)
           .update({}, yml)
           .then(
@@ -646,6 +715,9 @@
                 cb(response);
               }
             })
+          .finally(function () {
+            me.$root.$children[0].unblock();
+          });
       },
       getProject: function (projectId, cb) {
         this.$root.gitlab('api/v4/projects/' + projectId).get()

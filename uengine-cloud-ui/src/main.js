@@ -4,15 +4,12 @@ import Vue from 'vue'
 import VueMaterial from '../node_modules/vue-material'
 import 'vue-material/dist/vue-material.css'
 
-// import BpmnVue from './components/bpmn'
-import Opengraph from './components/opengraph'
 import App from './App'
 import router from './router'
-
+import BlockUI from 'vue-blockui'
 
 Vue.use(VueMaterial);
-// Vue.use(BpmnVue);
-Vue.use(Opengraph);
+Vue.use(BlockUI);
 
 var VueCodeMirror = require('vue-codemirror-lite')
 Vue.use(VueCodeMirror);
