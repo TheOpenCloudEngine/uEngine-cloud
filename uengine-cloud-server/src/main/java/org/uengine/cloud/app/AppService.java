@@ -590,7 +590,7 @@ public class AppService {
                 environment.getProperty("iam.clientSecret"));
 
         OauthUser oauthUser = iamClient.getUser(userName);
-        int gitlabId = (int) oauthUser.getMetaData().get("gitlab-id");
+        int gitlabId = ((Long) oauthUser.getMetaData().get("gitlab-id")).intValue();
 
         //깃랩에 유저가 있는지 체크
         User existGitlabUser = gitLabApi.getUserApi().getUser(gitlabId);

@@ -106,7 +106,7 @@ public class AppAccessLevelRepository {
     public AppEntity setAccessLevel(AppEntity appEntity, OauthUser oauthUser) {
         try {
             appEntity.setAccessLevel(0);
-            int gitlabId = (int) oauthUser.getMetaData().get("gitlab-id");
+            int gitlabId = ((Long) oauthUser.getMetaData().get("gitlab-id")).intValue();
             List<Member> members = appEntity.getMembers();
             for (int i = 0; i < members.size(); i++) {
                 Member member = members.get(i);

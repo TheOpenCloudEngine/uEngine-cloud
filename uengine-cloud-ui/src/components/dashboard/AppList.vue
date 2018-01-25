@@ -12,6 +12,7 @@
               <md-table-head md-sort-by="name">이름</md-table-head>
               <md-table-head md-sort-by="instances">인스턴스</md-table-head>
               <md-table-head md-sort-by="status">상태</md-table-head>
+              <md-table-head md-sort-by="accessLevel">소유</md-table-head>
               <md-table-head md-sort-by="cpu" md-numeric style="text-align: left">CPU</md-table-head>
               <md-table-head md-sort-by="mem" md-numeric style="text-align: left">메모리(MB)</md-table-head>
               <md-table-head md-sort-by="disk" md-numeric style="text-align: left">디스크(MB)</md-table-head>
@@ -55,6 +56,28 @@
               <md-table-cell>
                 <span v-if="app.role && !app.active" style="color: red">미배포</span>
                 <service-progress v-else :app="app"></service-progress>
+              </md-table-cell>
+
+              <md-table-cell>
+                <div v-if="app.accessLevel == 50">
+                  Owner
+                </div>
+                <div v-if="app.accessLevel == 40">
+                  Master
+                </div>
+                <div v-if="app.accessLevel == 30">
+                  Developer
+                </div>
+                <div class="md-caption" v-if="app.accessLevel == 20">
+                  Reporter
+                </div>
+                <div class="md-caption" v-if="app.accessLevel == 10">
+                  Guest
+                </div>
+                <div class="md-caption" v-if="app.accessLevel == 0">
+                  None
+                </div>
+
               </md-table-cell>
 
               <md-table-cell>{{app.cpus}}</md-table-cell>
@@ -174,7 +197,8 @@
               cpus: 0,
               mem: 0,
               disk: 0,
-              deployments: []
+              deployments: [],
+              accessLevel: me.dcosData.devopsApps[appId].accessLevel
             };
 
             //메소스 app 를 합산.
@@ -214,13 +238,10 @@
               }
             }
 
-            //iam 아이디에 따라 필터링한다.
-            if (me.dcosData.devopsApps[appId].iam == window.localStorage['userName'] || window.localStorage['acl'] == 'admin') {
-              app.id = appId;
-              app.type = 'app';
-              list.push(app);
-              list = list.concat(additionalList);
-            }
+            app.id = appId;
+            app.type = 'app';
+            list.push(app);
+            list = list.concat(additionalList);
           }
         } else if (me.mode == 'service') {
           $.each(me.dcosData.groups.apps, function (i, service) {

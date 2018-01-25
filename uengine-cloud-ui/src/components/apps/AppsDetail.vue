@@ -64,32 +64,39 @@
                   <app-route ref="app-route" :app="devApp"></app-route>
 
                   <!--재시작-->
-                  <md-button v-on:click="restartAppStage" class="md-raised md-primary">
+                  <md-button :disabled="devApp.accessLevel < 30 && !isAdmin"
+                             v-on:click="restartAppStage" class="md-raised md-primary">
                     <md-icon>replay</md-icon>
                   </md-button>
 
                   <!--중지-->
-                  <md-button v-on:click="suspendAppStage" class="md-raised md-primary">
+                  <md-button :disabled="devApp.accessLevel < 30 && !isAdmin"
+                             v-on:click="suspendAppStage" class="md-raised md-primary">
                     <md-icon>pause_circle_outline</md-icon>
                   </md-button>
 
                   <!--삭제-->
                   <md-menu md-size="4" md-direction="bottom left">
-                    <md-button class="md-raised md-primary" md-menu-trigger>
+                    <md-button :disabled="devApp.accessLevel < 30 && !isAdmin"
+                               class="md-raised md-primary" md-menu-trigger>
                       <md-icon>delete_forever</md-icon>
                     </md-button>
 
                     <md-menu-content>
-                      <md-menu-item v-on:click="remove(appName)">
+                      <md-menu-item v-if="devApp.accessLevel >= 40 || isAdmin"
+                                    v-on:click="remove(appName)">
                         <span>어플리케이션 삭제</span>
                       </md-menu-item>
-                      <md-menu-item v-on:click="removeAppStage('dev')">
+                      <md-menu-item v-if="devApp.accessLevel >= 30 || isAdmin"
+                                    v-on:click="removeAppStage('dev')">
                         <span>개발 영역만 삭제</span>
                       </md-menu-item>
-                      <md-menu-item v-on:click="removeAppStage('stg')">
+                      <md-menu-item v-if="devApp.accessLevel >= 40 || isAdmin"
+                                    v-on:click="removeAppStage('stg')">
                         <span>스테이징 영역만 삭제</span>
                       </md-menu-item>
-                      <md-menu-item v-on:click="removeAppStage('prod')">
+                      <md-menu-item v-if="devApp.accessLevel >= 40 || isAdmin"
+                                    v-on:click="removeAppStage('prod')">
                         <span>프로덕션 영역만 삭제</span>
                       </md-menu-item>
                     </md-menu-content>
@@ -100,19 +107,53 @@
             <div v-if="currentRoute != 'appsDetailDeployment'">
               <md-layout>
                 <md-layout md-flex="50">
-                  <div>
-                    <span class="md-caption">소유자: {{devApp.iam}}</span>
-                    <span style="margin-left: 16px">
-                      <md-radio v-model="stage" :mdValue="'dev'">
-                        <span class="md-caption">개발</span>
-                      </md-radio>
-                      <md-radio v-model="stage" :mdValue="'stg'">
-                        <span class="md-caption">스테이징</span>
-                      </md-radio>
-                      <md-radio v-model="stage" :mdValue="'prod'">
-                        <span class="md-caption">프로덕션</span>
-                      </md-radio>
-                    </span>
+                  <div style="width: 100%">
+                    <md-layout>
+                      <md-layout>
+                        <div>
+                          <span class="md-caption">소유자: {{devApp.iam}}</span><br>
+                          <span class="md-caption">권한:
+                            <span v-if="devApp.accessLevel == 50">
+                              Owner
+                            </span>
+                            <span v-if="devApp.accessLevel == 40">
+                              Master
+                            </span>
+                            <span v-if="devApp.accessLevel == 30">
+                              Developer
+                            </span>
+                            <span class="md-caption" v-if="devApp.accessLevel == 20">
+                              Reporter
+                            </span>
+                            <span class="md-caption" v-if="devApp.accessLevel == 10">
+                              Guest
+                            </span>
+                            <span class="md-caption" v-if="devApp.accessLevel == 0">
+                              None
+                            </span>
+                          </span><br>
+                          <span class="md-caption">시스템 권한:
+                          <span v-if="isAdmin">
+                              관리자
+                            </span>
+                            <span v-else>
+                              일반
+                            </span>
+                          </span>
+                        </div>
+                      </md-layout>
+                      <md-layout>
+                        <md-radio v-model="stage" :mdValue="'dev'" :disabled="devApp.accessLevel < 30 && !isAdmin">
+                          <span class="md-caption">개발</span>
+                        </md-radio>
+                        <md-radio v-model="stage" :mdValue="'stg'" :disabled="devApp.accessLevel < 40 && !isAdmin">
+                          <span class="md-caption">스테이징</span>
+                        </md-radio>
+                        <md-radio v-model="stage" :mdValue="'prod'" :disabled="devApp.accessLevel < 40 && !isAdmin">
+                          <span class="md-caption">프로덕션</span>
+                        </md-radio>
+                      </md-layout>
+                    </md-layout>
                   </div>
                 </md-layout>
                 <md-layout md-flex="50">
@@ -132,10 +173,24 @@
           </div>
           <div style="width: 100%;padding: 16px" class="bg-default">
             <router-view
+              v-if="devApp.accessLevel >= 30 || isAdmin"
               :stage="stage"
               :devApp="devApp"
               :categoryItem="categoryItem"
               style="width: 100%"></router-view>
+
+            <md-layout v-else class="bg-white">
+              <div class="header-top-line"></div>
+              <md-layout style="height: 200px">
+                <md-card md-with-hover style="width: 100%;">
+                  <md-card-area>
+                    <md-card-content style="text-align: center">
+                      <div>프로젝트에 접근 권한이 없습니다. 프로젝트 멤버또는 그룹으로 등록이 필요합니다.</div>
+                    </md-card-content>
+                  </md-card-area>
+                </md-card>
+              </md-layout>
+            </md-layout>
           </div>
         </div>
       </md-layout>
@@ -157,6 +212,7 @@
     props: {},
     data() {
       return {
+        isAdmin: false,
         pipeline: null,
         hasRollback: false,
         tagList: [],
@@ -183,6 +239,7 @@
     },
     mounted() {
       var me = this;
+      me.isAdmin = window.localStorage['acl'] == 'admin' ? true : false;
       me.categoryItem = null;
 
       window.busVue.$on('openGitlabDeploy', function (val) {

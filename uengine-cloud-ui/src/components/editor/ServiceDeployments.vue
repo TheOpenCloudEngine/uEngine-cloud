@@ -38,7 +38,8 @@
 
             <md-table-cell>
               <md-menu md-size="4" md-direction="bottom left">
-                <md-button class="md-icon-button" md-menu-trigger>
+                <md-button :disabled="row.accessLevel < 30 && !isAdmin"
+                           class="md-icon-button" md-menu-trigger>
                   <md-icon>more_vert</md-icon>
                 </md-button>
 
@@ -105,7 +106,8 @@
           var row = {
             id: deployment.id,
             started: deployment.version ? me.ddhhmmssDifFromDate(new Date(deployment.version)) : 'N/A',
-            status: ''
+            status: '',
+            accessLevel: 0
           };
           //런 아이디가 포커스 상태일 경우
           row.appId = [];
@@ -132,6 +134,9 @@
                 appName = appName.replace('-blue', '');
                 appName = appName.replace('-green', '');
                 var app = me.dcosData.devopsApps[appName];
+                if (app) {
+                  row.accessLevel = app.accessLevel;
+                }
 
                 //앱 별 보기 목록인 경우
                 if (me.appIds && me.appIds.length) {
@@ -142,14 +147,7 @@
                 }
                 //전체 보기 목록인 경우
                 else {
-                  //어드민 일 경우 통과
-                  if (me.isAdmin) {
-                    isMine = true;
-                  }
-                  //자신의 앱이 포함되어있다면 통과
-                  else if (app && app.iam == window.localStorage['userName']) {
-                    isMine = true;
-                  }
+                  isMine = true;
                 }
               }
             );
