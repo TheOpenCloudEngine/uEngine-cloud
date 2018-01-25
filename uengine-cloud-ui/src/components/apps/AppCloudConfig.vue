@@ -32,20 +32,23 @@
         <div>
           <md-layout md-align="center">
             <md-radio v-model="menu" :mdValue="'vcap'">
+              <md-tooltip md-direction="bottom">환경변수로 사용할 수 있는 앱 호스트 목록입니다.</md-tooltip>
               <span class="md-caption">서비스 링크</span>
             </md-radio>
             <md-radio v-model="menu" :mdValue="'common'">
+              <md-tooltip md-direction="bottom">개발,스테이징,프로덕션 에 모두 적용되는 공통 환경변수 입니다.</md-tooltip>
               <span class="md-caption">공통 설정 파일</span>
             </md-radio>
             <md-radio v-model="menu" :mdValue="'config'">
               <span class="md-caption">
+                <md-tooltip md-direction="bottom">특정한 서버 환경에서만 적용되는 환경 변수입니다. 공통 환경변수와 겹칠 경우 이곳의 환경 변수가 우선시 됩니다.</md-tooltip>
                 <span v-if="stage == 'dev'">개발</span>
                 <span v-if="stage == 'stg'">스테이징</span>
                 <span v-if="stage == 'prod'">프로덕션</span>
-
                 설정 파일</span>
             </md-radio>
             <md-radio v-model="menu" :mdValue="'url'">
+              <md-tooltip md-direction="bottom">앱 구동시 제공되는 환경 변수의 최종 모습을 살펴봅니다.</md-tooltip>
               <span class="md-caption">설정 파일 미리보기</span>
             </md-radio>
           </md-layout>

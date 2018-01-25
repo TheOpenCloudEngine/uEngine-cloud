@@ -3,32 +3,40 @@
     <md-layout md-align="center">
       <md-layout md-flex="60" class="bar-wrapper">
         <md-layout>
-          <!--v-if="appType && $refs['extension-menu'].tagExists()"-->
-          <!--apptype이 zuul일때만 버튼나오도록 수정되어야함  -->
           <md-button
             v-if="appType =='zuul'"
             class="md-raised" v-bind:class="{ 'md-primary': menu == appType }"
-            v-on:click="changeMenu(appType)">{{appType}} 환경설정
+            v-on:click="changeMenu(appType)">
+            <md-tooltip md-direction="bottom">앱에 특화된 설정 도구입니다.</md-tooltip>
+            {{appType}} 환경설정
           </md-button>
         </md-layout>
         <md-layout>
           <md-button class="md-raised" v-bind:class="{ 'md-primary': menu == 'runtime' }"
-                     v-on:click="changeMenu('runtime')">메모리 및 인스턴스
+                     v-on:click="changeMenu('runtime')">
+            <md-tooltip md-direction="bottom">앱의 리소스 자원과 도커 인스턴스 목록을 관리합니다.</md-tooltip>
+            메모리 및 인스턴스
           </md-button>
         </md-layout>
         <md-layout>
           <md-button class="md-raised" v-bind:class="{ 'md-primary': menu == 'config' }"
-                     v-on:click="changeMenu('config')">환경변수
+                     v-on:click="changeMenu('config')">
+            <md-tooltip md-direction="bottom">앱 구동시 환경변수를 관리합니다.</md-tooltip>
+            환경변수
           </md-button>
         </md-layout>
         <md-layout>
           <md-button class="md-raised" v-bind:class="{ 'md-primary': menu == 'ssh' }"
-                     v-on:click="changeMenu('ssh')">SSH
+                     v-on:click="changeMenu('ssh')">
+            <md-tooltip md-direction="bottom">앱의 도커 인스턴스로 웹 터미널을 통해 접근합니다.</md-tooltip>
+            SSH
           </md-button>
         </md-layout>
         <md-layout>
           <md-button class="md-raised"
-                     v-on:click="openEdit">고급 설정
+                     v-on:click="openEdit">
+            <md-tooltip md-direction="bottom">보다 자세히 앱의 구동 설정을 꾸밀 수 있습니다.</md-tooltip>
+            고급 설정
           </md-button>
         </md-layout>
         <md-layout style="margin-left: 20px;">

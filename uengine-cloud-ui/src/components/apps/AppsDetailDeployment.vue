@@ -27,6 +27,7 @@
 
         <md-menu md-align-trigger>
           <md-button md-menu-trigger class="md-raised md-primary">
+            <md-tooltip md-direction="bottom">CI 작업을 시작합니다.</md-tooltip>
             <md-icon>play_circle_outline</md-icon>
             시작
           </md-button>

@@ -60,15 +60,18 @@
                                 style="margin-top: 5px"
                     ></md-spinner>
                     ({{deploymentsRowNumber}}) 배포중
+                    <md-tooltip md-direction="bottom">배포중인 앱을 복원할 수 있습니다.</md-tooltip>
                   </md-button>
 
                   <!--롤백-->
                   <md-button v-if="hasRollback" v-on:click="rollbackApp" class="md-raised md-primary">
+                    <md-tooltip md-direction="bottom">프로덕션 앱을 이전 버젼으로 되돌립니다.</md-tooltip>
                     롤백
                   </md-button>
 
                   <!--라우트-->
                   <md-button v-on:click="$refs['app-route'].open()" class="md-raised md-primary">라우트
+                    <md-tooltip md-direction="bottom">앱 호스트를 목록을 봅니다.</md-tooltip>
                     <md-icon>arrow_drop_down</md-icon>
                   </md-button>
                   <app-route ref="app-route" :app="devApp"></app-route>
@@ -76,12 +79,14 @@
                   <!--재시작-->
                   <md-button :disabled="devApp.accessLevel < 30 && !isAdmin"
                              v-on:click="restartAppStage" class="md-raised md-primary">
+                    <md-tooltip md-direction="bottom">앱을 재시작 합니다.</md-tooltip>
                     <md-icon>replay</md-icon>
                   </md-button>
 
                   <!--중지-->
                   <md-button :disabled="devApp.accessLevel < 30 && !isAdmin"
                              v-on:click="suspendAppStage" class="md-raised md-primary">
+                    <md-tooltip md-direction="bottom">앱을 중지시킵니다.</md-tooltip>
                     <md-icon>pause_circle_outline</md-icon>
                   </md-button>
 
@@ -89,6 +94,7 @@
                   <md-menu md-size="4" md-direction="bottom left">
                     <md-button :disabled="devApp.accessLevel < 30 && !isAdmin"
                                class="md-raised md-primary" md-menu-trigger>
+                      <md-tooltip md-direction="bottom">앱을 삭제합니다.</md-tooltip>
                       <md-icon>delete_forever</md-icon>
                     </md-button>
 
@@ -121,8 +127,13 @@
                     <md-layout>
                       <md-layout>
                         <div>
-                          <span class="md-caption">소유자: {{devApp.iam}}</span><br>
-                          <span class="md-caption">권한:
+                          <span class="md-caption">
+                            <md-tooltip md-direction="bottom">앱의 소유자 입니다.</md-tooltip>
+                            소유자: {{devApp.iam}}
+                          </span><br>
+                          <span class="md-caption">
+                            <md-tooltip md-direction="bottom">앱에 대한 어세스 권한입니다. 깃랩 프로젝트 멤버를 통해 조정가능합니다.</md-tooltip>
+                            프로젝트 권한:
                             <span v-if="devApp.accessLevel == 50">
                               Owner
                             </span>
@@ -142,7 +153,9 @@
                               None
                             </span>
                           </span><br>
-                          <span class="md-caption">시스템 권한:
+                          <span class="md-caption">
+                            <md-tooltip md-direction="bottom">로그인한 사용자의 클라우드 플랫폼 이용권한 입니다.</md-tooltip>
+                            시스템 권한:
                           <span v-if="isAdmin">
                               관리자
                             </span>
@@ -154,12 +167,15 @@
                       </md-layout>
                       <md-layout>
                         <md-radio v-model="stage" :mdValue="'dev'" :disabled="devApp.accessLevel < 30 && !isAdmin">
+                          <md-tooltip md-direction="bottom">Developer 부터 사용가능합니다.</md-tooltip>
                           <span class="md-caption">개발</span>
                         </md-radio>
                         <md-radio v-model="stage" :mdValue="'stg'" :disabled="devApp.accessLevel < 40 && !isAdmin">
+                          <md-tooltip md-direction="bottom">Master, Owner 부터 사용가능합니다.</md-tooltip>
                           <span class="md-caption">스테이징</span>
                         </md-radio>
                         <md-radio v-model="stage" :mdValue="'prod'" :disabled="devApp.accessLevel < 40 && !isAdmin">
+                          <md-tooltip md-direction="bottom">Master, Owner 부터 사용가능합니다.</md-tooltip>
                           <span class="md-caption">프로덕션</span>
                         </md-radio>
                       </md-layout>
@@ -169,13 +185,27 @@
                 <md-layout md-flex="50">
                   <div v-if="commitInfo">
                     <span
-                      class="md-caption">커미터: {{commitInfo.committer_name}} | 날짜: {{commitInfo.committed_date}}</span><br>
-                    <span class="md-caption">커밋: <a
-                      v-on:click="moveGitlab('commit',commitInfo.id)">{{commitInfo.id}}</a></span><br>
-                    <span class="md-caption">태그:
-                      <a v-if="commitInfo.tag" v-on:click="moveGitlab('tag',commitInfo.tag)">{{commitInfo.tag}}</a>
-                      <span v-else>없음</span> |
-                      <a v-on:click="openGitlabDeploy">태그 또는 브랜치 선택하여 배포하기</a></span><br>
+                      class="md-caption">
+                      커미터: {{commitInfo.committer_name}} | 날짜: {{commitInfo.committed_date}}</span><br>
+                    <span class="md-caption">
+                      커밋:
+                      <a v-on:click="moveGitlab('commit',commitInfo.id)">
+                        <md-tooltip md-direction="bottom">커밋 이력으로 이동합니다.</md-tooltip>
+                        {{commitInfo.id}}
+                      </a>
+                    </span><br>
+                    <span class="md-caption">
+                      태그:
+                      <a v-if="commitInfo.tag" v-on:click="moveGitlab('tag',commitInfo.tag)">
+                        <md-tooltip md-direction="bottom">태그 보기로 이동합니다.</md-tooltip>
+                        {{commitInfo.tag}}
+                      </a>
+                    <span v-else>없음</span> |
+                      <a v-on:click="openGitlabDeploy">
+                        <md-tooltip md-direction="bottom">새 버전의 앱 배포합니다.</md-tooltip>
+                        태그 또는 브랜치 선택하여 배포하기
+                      </a>
+                    </span><br>
                   </div>
                 </md-layout>
               </md-layout>
@@ -211,7 +241,10 @@
           <md-card-content style="text-align: center">
             <div>
               레파지토리 생성에 실패했습니다.
-              <a v-on:click="remove(appName)">어플리케이션 삭제하기</a>
+              <a v-on:click="remove(appName)">
+                <md-tooltip md-direction="bottom">생성시 사용된 모든 자원을 삭제합니다.</md-tooltip>
+                어플리케이션 삭제하기
+              </a>
             </div>
           </md-card-content>
         </md-card-area>

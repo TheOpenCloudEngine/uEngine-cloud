@@ -93,19 +93,19 @@
 
                   <md-menu-content>
                     <md-menu-item v-on:click="openEdit(app.id)">
-                      <span>Edit</span>
+                      <span>수정</span>
                     </md-menu-item>
                     <md-menu-item v-on:click="openScaleApp(app.id,'scale')">
-                      <span>Scale</span>
+                      <span>인스턴스 수 조정</span>
                     </md-menu-item>
                     <md-menu-item v-on:click="openScaleApp(app.id,'restart')">
-                      <span>Restart</span>
+                      <span>재시작</span>
                     </md-menu-item>
                     <md-menu-item v-on:click="openScaleApp(app.id,'suspend')">
-                      <span>Suspend</span>
+                      <span>중단</span>
                     </md-menu-item>
                     <md-menu-item v-on:click="openScaleApp(app.id,'delete')">
-                      <span>Delete</span>
+                      <span>삭제</span>
                     </md-menu-item>
                   </md-menu-content>
                 </md-menu>

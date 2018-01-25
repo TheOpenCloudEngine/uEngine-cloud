@@ -9,6 +9,7 @@
           </md-layout>
           <md-layout md-align="end">
             <md-button v-on:click="hostEdit" class="md-raised md-primary">
+              <md-tooltip md-direction="bottom">앱 호스트를 변경합니다.</md-tooltip>
               <md-icon>mode_edit</md-icon>
             </md-button>
           </md-layout>
