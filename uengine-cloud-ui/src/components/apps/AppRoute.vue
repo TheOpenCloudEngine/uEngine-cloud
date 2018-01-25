@@ -1,9 +1,44 @@
 <template xmlns:v-on="http://www.w3.org/1999/xhtml">
   <md-dialog v-if="app" md-open-from="#open" md-close-to="#open" ref="open">
 
-    <md-dialog-title>라우트 목록</md-dialog-title>
+    <md-dialog-title>
+      <div>
+        <md-layout>
+          <md-layout>
+            라우트 목록
+          </md-layout>
+          <md-layout md-align="end">
+            <md-button v-on:click="hostEdit" class="md-raised md-primary">
+              <md-icon>mode_edit</md-icon>
+            </md-button>
+          </md-layout>
+        </md-layout>
+      </div>
+    </md-dialog-title>
     <md-dialog-content>
-      <md-table>
+
+      <md-layout v-if="editMode">
+        <md-layout md-flex="100" :md-gutter="16">
+          <md-layout>
+            <div class="bold">외부 접속 주소:</div>
+            <md-input-container>
+              <label>외부 프로덕션 도메인 주소</label>
+              <md-input v-model="externalProdDomain"></md-input>
+            </md-input-container>
+            <md-input-container>
+              <label>외부 스테이징 도메인 주소</label>
+              <md-input v-model="externalStgDomain"></md-input>
+            </md-input-container>
+            <md-input-container>
+              <label>외부 개발 도메인 주소</label>
+              <md-input v-model="externalDevDomain"></md-input>
+            </md-input-container>
+          </md-layout>
+        </md-layout>
+        <md-button class="md-primary md-raised" @click="save">저장하기</md-button>
+      </md-layout>
+
+      <md-table v-else>
         <md-table-header>
           <md-table-row>
             <md-table-head>역할</md-table-head>
@@ -37,6 +72,10 @@
     },
     data() {
       return {
+        editMode: false,
+        externalProdDomain: '',
+        externalStgDomain: '',
+        externalDevDomain: '',
         appRoutes: []
       }
     },
@@ -53,6 +92,24 @@
     }
     ,
     methods: {
+      save: function () {
+        var me = this;
+        var copy = JSON.parse(JSON.stringify(me.app));
+        copy.prod.external = this.externalProdDomain;
+        copy.stg.external = this.externalStgDomain;
+        copy.dev.external = this.externalDevDomain;
+        me.updateAppExcludeDeployJson(copy.name, copy, function (response) {
+          if (response) {
+            me.runDeployedAppByExistStages(copy.name, null);
+          }
+        });
+      },
+      hostEdit: function () {
+        this.externalProdDomain = this.app.prod.external;
+        this.externalStgDomain = this.app.stg.external;
+        this.externalDevDomain = this.app.dev.external;
+        this.editMode = true;
+      },
       makeRoutes: function () {
         this.appRoutes = [
           {
@@ -82,6 +139,7 @@
         ];
       },
       open() {
+        this.editMode = false;
         this.$refs['open'].open();
       },
       close(ref) {

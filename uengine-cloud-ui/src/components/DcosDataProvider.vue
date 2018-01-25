@@ -656,55 +656,8 @@
             function (response) {
               me.$root.$children[0].success('어플리케이션 환경 정보를 저장하였습니다.');
 
-              var existStages = [];
-              if (me.getDcosAppById('/' + appName + '-green') || me.getDcosAppById('/' + appName + '-blue')) {
-                existStages.push('prod')
-              }
-              if (me.getDcosAppById('/' + appName + '-dev')) {
-                existStages.push('dev')
-              }
-              if (me.getDcosAppById('/' + appName + '-stg')) {
-                existStages.push('stg')
-              }
-              var toChangeStages = [];
-              //스테이지가 지정된 경우
-              if (stage) {
-                if (existStages.indexOf(stage) != -1) {
-                  toChangeStages.push(stage);
-                }
-              }
-              //지정되지 않은 경우 (공통)
-              else {
-                toChangeStages = existStages;
-              }
-              if (toChangeStages && toChangeStages.length) {
-                var stageNames = '';
-                $.each(toChangeStages, function (i, toChangeStage) {
-                  if (toChangeStage == 'prod') {
-                    stageNames += '[프로덕션] '
-                  }
-                  else if (toChangeStage == 'stg') {
-                    stageNames += '[스테이징] '
-                  }
-                  else if (toChangeStage == 'dev') {
-                    stageNames += '[개발] '
-                  }
-                });
-                me.$root.$children[0].confirm(
-                  {
-                    contentHtml: '변경된 설정으로 인해 ' + stageNames + ' 서버들이 영향을 받습니다. 앱들을 재시작하겠습니까?',
-                    okText: '진행하기',
-                    cancelText: '취소',
-                    callback: function () {
-                      //스테이지 디플로이
-                      $.each(toChangeStages, function (s, toChangeStage) {
-                        me.runDeployedApp(appName, toChangeStage, null, function (response) {
+              me.runDeployedAppByExistStages(appName, stage);
 
-                        });
-                      });
-                    }
-                  });
-              }
               if (cb) {
                 cb(response);
               }
@@ -719,6 +672,59 @@
             me.$root.$children[0].unblock();
           });
       },
+      runDeployedAppByExistStages: function (appName, stage) {
+        var me = this;
+        var existStages = [];
+        if (me.getDcosAppById('/' + appName + '-green') || me.getDcosAppById('/' + appName + '-blue')) {
+          existStages.push('prod')
+        }
+        if (me.getDcosAppById('/' + appName + '-dev')) {
+          existStages.push('dev')
+        }
+        if (me.getDcosAppById('/' + appName + '-stg')) {
+          existStages.push('stg')
+        }
+        var toChangeStages = [];
+        //스테이지가 지정된 경우
+        if (stage) {
+          if (existStages.indexOf(stage) != -1) {
+            toChangeStages.push(stage);
+          }
+        }
+        //지정되지 않은 경우 (공통)
+        else {
+          toChangeStages = existStages;
+        }
+        if (toChangeStages && toChangeStages.length) {
+          var stageNames = '';
+          $.each(toChangeStages, function (i, toChangeStage) {
+            if (toChangeStage == 'prod') {
+              stageNames += '[프로덕션] '
+            }
+            else if (toChangeStage == 'stg') {
+              stageNames += '[스테이징] '
+            }
+            else if (toChangeStage == 'dev') {
+              stageNames += '[개발] '
+            }
+          });
+          me.$root.$children[0].confirm(
+            {
+              contentHtml: '변경된 설정으로 인해 ' + stageNames + ' 서버들이 영향을 받습니다. 앱들을 재시작하겠습니까?',
+              okText: '진행하기',
+              cancelText: '취소',
+              callback: function () {
+                //스테이지 디플로이
+                $.each(toChangeStages, function (s, toChangeStage) {
+                  me.runDeployedApp(appName, toChangeStage, null, function (response) {
+
+                  });
+                });
+              }
+            });
+        }
+      },
+
       getProject: function (projectId, cb) {
         this.$root.gitlab('api/v4/projects/' + projectId).get()
           .then(function (response) {

@@ -5,6 +5,7 @@ db.ip: 192.168.0.13
 db.database: uengine
 db.password: my-secret-pw
 
+host.default: pasmini.io
 host.registry.package: darkgodarkgo
 host.registry.private: gitlab.pasmini.io:5000
 host.registry.public: gitlab.pasmini.io:5000

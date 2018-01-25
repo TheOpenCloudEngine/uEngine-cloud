@@ -53,6 +53,7 @@ db:
 
 # Domain part
 host:
+  default: pas-mini.io
   registry:
     package: sppark
     private: gitlab.pas-mini.io:5000

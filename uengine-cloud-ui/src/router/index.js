@@ -292,12 +292,6 @@ Vue.use(VueResource);
 Vue.component('service-locator', ServiceLocator);
 Vue.http.interceptors.push(function (request, next) {
   request.headers['access_token'] = localStorage['access_token'];
-  //modify headers
-  //console.log('request' , request);
-  // if (request.url.indexOf(configServerUrl) == -1 && request.url.indexOf(config.vcap.services['eureka-server'].external) == -1) {
-  //
-  //   request.headers['access_token'] = localStorage['access_token'];
-  // }
   next();
 });
 

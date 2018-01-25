@@ -5,6 +5,7 @@ db.ip: {{db.ip}}
 db.database: {{db.database}}
 db.password: {{db.password}}
 
+host.default: {{host.default}}
 host.registry.package: {{host.registry.package}}
 host.registry.private: {{host.registry.private}}
 host.registry.public: {{host.registry.public}}

@@ -116,6 +116,7 @@
     props: {},
     data() {
       return {
+        defaultHost: window.config['default-host'],
         categoryItem: null,
         cpu: 0.4,
         mem: 512,
@@ -187,6 +188,8 @@
         this.internalProdDomain = 'marathon-lb-internal.marathon.mesos:' + prodPort;
         this.internalStgDomain = 'marathon-lb-internal.marathon.mesos:' + stgPort;
         this.internalDevDomain = 'marathon-lb-internal.marathon.mesos:' + devPort;
+
+        this.externalProdDomain = val + '.' + this.defaultHost;
       },
       externalProdDomain: function (val) {
         if (val) {

@@ -48,6 +48,7 @@ db:
 
 # Domain part
 host:
+  default: pasmini.io
   registry:
     package: darkgodarkgo
     private: gitlab.pasmini.io:5000

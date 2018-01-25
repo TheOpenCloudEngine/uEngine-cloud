@@ -237,8 +237,8 @@ public class AppController {
      */
     @RequestMapping(value = "/{appName}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public Map getApp(HttpServletRequest request,
-                            HttpServletResponse response,
-                            @PathVariable("appName") String appName
+                      HttpServletResponse response,
+                      @PathVariable("appName") String appName
     ) throws Exception {
         return appService.getAppIncludeDeployJson(appName);
     }
@@ -261,7 +261,12 @@ public class AppController {
                                @RequestParam(value = "excludeDeploy", defaultValue = "false") boolean excludeDeploy
     ) throws Exception {
         try {
-            AppEntity entity = appService.updateAppIncludeDeployJson(appName, appEntity);
+            AppEntity entity = null;
+            if (excludeDeploy) {
+                entity = appService.updateAppExcludeDeployJson(appName, appEntity);
+            } else {
+                entity = appService.updateAppIncludeDeployJson(appName, appEntity);
+            }
             logService.addHistory(appName, AppLogAction.UPDATE_APP, AppLogStatus.SUCCESS, null);
             return entity;
         } catch (Exception ex) {
