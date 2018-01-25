@@ -207,7 +207,7 @@
     methods: {
       create: function () {
         var me = this;
-        this.$root.backend('app').save(null, {
+        var appCreate = {
           categoryItemId: me.categoryItemId,
           cpu: me.cpu,
           mem: me.mem,
@@ -218,28 +218,18 @@
           externalProdDomain: me.externalProdDomain,
           externalStgDomain: me.externalStgDomain,
           externalDevDomain: me.externalDevDomain,
-//          internalProdDomain: me.internalProdDomain,
-//          internalStgDomain: me.internalStgDomain,
-//          internalDevDomain: me.internalDevDomain,
-//          prodPort: me.prodPort,
-//          stgPort: me.stgPort,
-//          devPort: me.devPort,
           namespace: me.namespace
-        })
-          .then(
-            function (response) {
-              me.$root.$children[0].error('어플리케이션을 생성하였습니다.');
-              this.$router.push(
-                {
-                  name: 'appsDetail',
-                  params: {appName: me.appName}
-                }
-              );
-            },
-            function (response) {
-              me.$root.$children[0].error('어플리케이션을 생성할 수 없습니다.');
-            }
-          );
+        };
+        me.createApp(appCreate, function (response) {
+          if (response) {
+            me.$router.push(
+              {
+                name: 'appsDetail',
+                params: {appName: me.appName}
+              }
+            );
+          }
+        });
       }
     }
   }

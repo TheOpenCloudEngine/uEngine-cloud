@@ -13,15 +13,16 @@
 </template>
 <script>
   export default {
-    props: {
-      title: String,
-      contentHtml: String,
-      okText: String,
-      cancelText: String
-    },
+    props: {},
     data() {
       return {
-        callback: null
+        title: '',
+        contentHtml: '',
+        okText: '',
+        cancelText: '',
+        callback: function () {
+
+        }
       }
     },
     mounted(){
@@ -30,14 +31,25 @@
     ,
     methods: {
       action: function () {
+        this.close();
         this.callback();
       },
-      open(cb) {
-        this.callback = cb;
+      open(options) {
+        var me = this;
+        me.title = options.title || 'Are you sure?';
+        me.contentHtml = options.contentHtml || '진행하시겠습니까?';
+        me.okText = options.okText || '수락';
+        me.cancelText = options.cancelText || '취소';
+        if (options.callback) {
+          me.callback = options.callback;
+        } else {
+          me.callback = function () {
+
+          }
+        }
         this.$refs['open'].open();
       },
       close(ref) {
-        this.callback = null;
         this.$refs['open'].close();
       }
     }

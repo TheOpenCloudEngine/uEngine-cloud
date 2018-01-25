@@ -329,9 +329,6 @@
       },
       saveConfig: function () {
         var me = this;
-        var jsonObj = "";
-        jsonObj = JSON.stringify(YAML.load(me.zuulConfigCode));
-        // config저장
         me.updateDevAppConfigYml(me.appName, me.stage, me.zuulConfigCode, function (response) {
           me.codeChanged = false;
           me.getCodes();

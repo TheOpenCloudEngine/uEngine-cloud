@@ -175,7 +175,7 @@
           //마라톤 타스크일 경우
           if (marathonId == task['framework_id']) {
             task.framework = 'marathon';
-            app = me.getAppById('/' + task.name);
+            app = me.getDcosAppById('/' + task.name);
           } else {
             task.framework = 'metronome';
           }

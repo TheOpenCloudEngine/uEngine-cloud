@@ -325,9 +325,18 @@
           })
       },
       rollbackApp: function () {
-        this.rollbackDevApp(this.appName, function (response) {
+        var me = this;
+        me.$root.$children[0].confirm(
+          {
+            contentHtml: '롤백용으로 보관된 프로덕션 앱이 있습니다. 프로덕션 앱을 교체하시겠습니까?',
+            okText: '진행하기',
+            cancelText: '취소',
+            callback: function () {
+              me.rollbackDevApp(me.appName, function (response) {
 
-        })
+              })
+            }
+          });
       },
       openGitlabDeploy: function () {
         this.$refs['gitlab-deploy'].open();
@@ -348,7 +357,7 @@
         }
         var projectId = me.devApp.projectId;
         var marathonAppId = me.devApp[me.stage]['marathonAppId'];
-        var marathonApp = me.getAppById(marathonAppId);
+        var marathonApp = me.getDcosAppById(marathonAppId);
         if (!marathonApp) {
           me.commitInfo = null;
           return;
@@ -393,37 +402,70 @@
       restartAppStage: function () {
         var me = this;
         var marathonAppId = me.devApp[me.stage]['marathonAppId'];
-        me.restartApp(marathonAppId, true, function (response) {
+        me.$root.$children[0].confirm(
+          {
+            contentHtml: '앱을 재시작합니다. 재시작된 앱이 실행될 때 까지 이전의 앱의 삭제되지 않습니다.',
+            okText: '진행하기',
+            cancelText: '취소',
+            callback: function () {
+              me.restartDcosApp(marathonAppId, true, function (response) {
 
-        });
+              });
+            }
+          });
       },
       suspendAppStage: function () {
         var me = this;
         if (!me.devApp) {
           return;
         }
-        var data = JSON.parse(JSON.stringify(me.devApp));
-        data[me.stage]['deployJson'].instances = 0;
-        //업데이트
-        me.updateDevApp(me.appName, data, function (response) {
-          window.busVue.$emit('appRefresh', true);
-          //스테이지 디플로이
-          me.runDeployedApp(me.appName, me.stage, null, function (response) {
+        me.$root.$children[0].confirm(
+          {
+            contentHtml: '앱을 중지합니다. 배포된 앱이 삭제되지는 않으며, 스케일 조정을 통해 복구하실 수 있습니다.',
+            okText: '진행하기',
+            cancelText: '취소',
+            callback: function () {
+              var data = JSON.parse(JSON.stringify(me.devApp));
+              data[me.stage]['deployJson'].instances = 0;
+              //업데이트
+              me.updateDevApp(me.appName, data, function (response) {
+                window.busVue.$emit('appRefresh', true);
+                //스테이지 디플로이
+                me.runDeployedApp(me.appName, me.stage, null, function (response) {
+                });
+              });
+            }
           });
-        });
       },
       removeAppStage: function (stage) {
-        this.removeDevAppStage(this.appName, stage);
+        var me = this;
+        me.$root.$children[0].confirm(
+          {
+            contentHtml: stage + ' 서버에 배포된 앱을 완전히 삭제합니다. 복구를 위해서는 재배포가 필요합니다.',
+            okText: '진행하기',
+            cancelText: '취소',
+            callback: function () {
+              me.removeDevAppStage(this.appName, stage);
+            }
+          });
       },
       remove: function (appName) {
         var me = this;
-        this.removeDevAppByName(appName, function () {
-          me.$router.push(
-            {
-              name: 'appsOverview'
+        me.$root.$children[0].confirm(
+          {
+            contentHtml: '앱과, 소스코드를 완전히 삭제합니다. (주의: 중요 소스코드는 백업해두세요)',
+            okText: '진행하기',
+            cancelText: '취소',
+            callback: function () {
+              me.removeDevAppByName(appName, function () {
+                me.$router.push(
+                  {
+                    name: 'appsOverview'
+                  }
+                )
+              });
             }
-          )
-        });
+          });
       },
       move: function (routeName) {
         var me = this;

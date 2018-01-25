@@ -58,13 +58,6 @@
       <md-button class="md-primary" @click="close">Close</md-button>
     </md-dialog-actions>
 
-    <confirm
-      title="Are you sure?"
-      content-html="현재 배포가 중단되고, 서비스를 이전 버전으로 되돌리기 위해 새 배포가 시작될 것입니다."
-      ok-text="배포 중단 하기"
-      cancel-text="취소"
-      ref="confirm"
-    ></confirm>
   </md-dialog>
 </template>
 <script>
@@ -161,9 +154,15 @@
       },
       action: function (deploymentId) {
         var me = this;
-        me.$refs['confirm'].open(function () {
-          me.rollback(deploymentId);
-        })
+        me.$root.$children[0].confirm(
+          {
+            contentHtml: '현재 배포가 중단되고, 서비스를 이전 버전으로 되돌리기 위해 새 배포가 시작될 것입니다.',
+            okText: '배포 중단 하기',
+            cancelText: '취소',
+            callback: function () {
+              me.rollbackDcosApp(deploymentId);
+            }
+          })
       }
       ,
       open()

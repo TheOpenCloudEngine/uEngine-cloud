@@ -116,6 +116,10 @@
       });
     },
     watch: {
+      stage: function () {
+        this.resourceUpdated = false;
+        this.makeItems();
+      },
       devApp: {
         handler: function (newVal, oldVal) {
           this.makeItems();
@@ -143,7 +147,6 @@
             });
           });
         }
-
       },
       updateCancel: function () {
         this.resourceUpdated = false;
@@ -202,7 +205,7 @@
         //isActive
         me.stageApp = me.devApp[me.stage];
         var marathonAppId = me.stageApp['marathonAppId'];
-        me.marathonApp = me.getAppById(marathonAppId);
+        me.marathonApp = me.getDcosAppById(marathonAppId);
 
         //프로덕션인 경우 배포중 표기
         if (me.stage == 'prod') {
@@ -214,7 +217,7 @@
           } else {
             rollbackMarathonAppId = '/' + me.appName + '-blue';
           }
-          me.rollbackMarathonApp = me.getAppById(rollbackMarathonAppId);
+          me.rollbackMarathonApp = me.getDcosAppById(rollbackMarathonAppId);
         } else {
           me.rollbackMarathonApp = null;
         }

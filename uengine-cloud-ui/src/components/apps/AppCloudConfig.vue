@@ -233,7 +233,7 @@
       saveCommon: function () {
         var me = this;
         //커먼 컨피그 저장
-        me.updateDevAppConfigYml(me.appName, '', me.commonCode, function (response) {
+        me.updateDevAppConfigYml(me.appName, null, me.commonCode, function (response) {
           me.commonChanged = false;
           me.getCodes();
         })

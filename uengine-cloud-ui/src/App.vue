@@ -23,6 +23,14 @@
       <span class="md-primary">{{snackbar.text}}</span>
       <md-button class="md-accent" md-theme="light-blue" @click="$refs.snackbar.close()">Close</md-button>
     </md-snackbar>
+
+    <confirm
+      title="Are you sure?"
+      content-html="현재 배포가 중단되고, 서비스를 이전 버전으로 되돌리기 위해 새 배포가 시작될 것입니다."
+      ok-text="배포 중단 하기"
+      cancel-text="취소"
+      ref="confirm"
+    ></confirm>
   </div>
 </template>
 <script>
@@ -42,7 +50,7 @@
           mode: 'multi-line',
           context: 'info',
           text: ''
-        },
+        }
       }
     },
     mounted() {
@@ -99,6 +107,9 @@
         this.snackbar.context = 'success';
         this.snackbar.text = msg;
         this.$refs.snackbar.open();
+      },
+      confirm: function (options) {
+        this.$refs.confirm.open(options);
       }
     }
   }
