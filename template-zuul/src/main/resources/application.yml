@@ -35,23 +35,43 @@ eureka:
         profile: local
         appType: zuul
 
-#zuul:
-#  ignored-headers: Access-Control-Allow-Credentials, Access-Control-Allow-Origin
-#  addProxyHeaders: true
-#  routes:
-#    order:
-#      path: /orders/**
-#      serviceId: order-service
-#      stripPrefix: false
-#      iam-scopes:
-#        - catalog-access/GET
-#        - catalog-manage/POST-PATCH-DELETE
+zuul:
+  ignored-headers: Access-Control-Allow-Credentials, Access-Control-Allow-Origin
+  addProxyHeaders: true
 
-#    order-manage:
-#      path: /orders/**
-#      serviceId: order-service
-#      iam-scopes: manage-catalog
-#      methods: POST, DELETE, PATCH
+  # Decides to check the token.
+  iam-authentication: true
+
+  # Key to determine if the token's signature is correct.
+  # It must be the same key that IAM used to issue the token.
+  # Copy and paste from your IAM's iam.jwt.key
+  iam-jwt-key: my-jwt-encrypt-key-my-jwt-encrypt-key
+
+  routes:
+    order:
+      path: /orders/**
+      serviceId: order-service
+      stripPrefix: false
+      # Check whether the user's metadata also has a scope.
+      iam-user-scopes-check: true
+      # List of scopes needed for this path
+      iam-scopes:
+        - guest/GET
+        - catalog-order/PUT-POST-DELETE
+
+    customer:
+      path: /customers/**
+      serviceId: customer-service
+      stripPrefix: false
+
+    item:
+      path: /items/**
+      serviceId: order-service
+      stripPrefix: false
+      iam-user-scopes-check: true
+      iam-scopes:
+        - guest/GET
+        - catalog-manage/PUT-PATCH-POST-DELETE
 
 ribbon:
   # Max number of retries on the same server (excluding the first try)

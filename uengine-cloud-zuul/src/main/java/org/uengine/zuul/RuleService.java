@@ -12,17 +12,26 @@ import java.util.Map;
 @ConfigurationProperties(prefix = "zuul")
 public class RuleService {
 
-    @Autowired
-    private Environment environment;
-
     private Map<String, Map> routes;
 
-    public Environment getEnvironment() {
-        return environment;
+    private boolean iamAuthentication;
+
+    private String iamJwtKey;
+
+    public boolean getIamAuthentication() {
+        return iamAuthentication;
     }
 
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
+    public void setIamAuthentication(boolean iamAuthentication) {
+        this.iamAuthentication = iamAuthentication;
+    }
+
+    public String getIamJwtKey() {
+        return iamJwtKey;
+    }
+
+    public void setIamJwtKey(String iamJwtKey) {
+        this.iamJwtKey = iamJwtKey;
     }
 
     public Map<String, Map> getRoutes() {
