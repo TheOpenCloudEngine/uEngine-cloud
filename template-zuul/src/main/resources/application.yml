@@ -53,22 +53,24 @@ zuul:
       serviceId: order-service
       stripPrefix: false
       # Check whether the user's metadata also has a scope.
-      iam-user-scopes-check: true
+      iam-user-scopes-check: false
       # List of scopes needed for this path
       iam-scopes:
         - guest/GET
-        - catalog-order/PUT-POST-DELETE
+        - catalog-order/PUT-PATCH-POST-DELETE
 
+    # If no iam-scopes, all request will be passed.
     customer:
       path: /customers/**
       serviceId: customer-service
       stripPrefix: false
 
+
     item:
       path: /items/**
       serviceId: order-service
       stripPrefix: false
-      iam-user-scopes-check: true
+      iam-user-scopes-check: false
       iam-scopes:
         - guest/GET
         - catalog-manage/PUT-PATCH-POST-DELETE

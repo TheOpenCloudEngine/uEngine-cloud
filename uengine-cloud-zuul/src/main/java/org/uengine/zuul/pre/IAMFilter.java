@@ -50,14 +50,12 @@ public class IAMFilter extends ZuulFilter {
         String token = request.getHeader("access_token");
 
 
-        //java 처리 후
-        String tenantId = null;
-        String userName = null;
-        OauthUser user = null;
+        //java 처리
         List<String> clientScopes = new ArrayList<>();
         List<String> userScopes = new ArrayList<>();
         boolean iamAuthentication = ruleService.getIamAuthentication();
         String iamJwtKey = ruleService.getIamJwtKey();
+        String userName = null;
 
         if (!iamAuthentication) {
             return null;
@@ -70,8 +68,9 @@ public class IAMFilter extends ZuulFilter {
             JSONObject jsonPayload = jwsObject.getPayload().toJSONObject();
             JWTClaimsSet jwtClaimsSet = JWTClaimsSet.parse(jsonPayload);
             JSONObject contexts = (JSONObject) jwtClaimsSet.getClaim("context");
-            tenantId = userName.split("@")[1];
-            user = JsonUtils.convertValue((Map) contexts.get("user"), OauthUser.class);
+            OauthUser user = JsonUtils.convertValue((Map) contexts.get("user"), OauthUser.class);
+            userName = user.getUserName();
+
             clientScopes = (List<String>) contexts.get("scopes");
 
             if (user.getMetaData().containsKey("scopes")) {
@@ -94,91 +93,111 @@ public class IAMFilter extends ZuulFilter {
                 throw new ZuulRuntimeException(new ZuulException(
                         "Not auth", HttpStatus.UNAUTHORIZED.value(), "Invalid token signatures."));
             }
-
-
         } catch (Exception e) {
+
         }
 
         String requestedUrl = request.getRequestURL().toString();
         try {
             URL url = new URL(requestedUrl);
             String path = url.getPath();
+
             for (Map routeValueMap : ruleService.getRoutes().values()) {
 
+                //라우터 패스
                 String routePath = (String) routeValueMap.get("path");
                 if (routePath.endsWith("/**")) {
                     routePath = routePath.substring(0, routePath.length() - 3);
                 }
 
+                //라우터 스코프
                 Map<String, String> iamScopes = null;
                 if (routeValueMap.containsKey("iam-scopes")) {
                     iamScopes = (Map<String, String>) routeValueMap.get("iam-scopes");
                 }
 
+                //라우터 유저 스코프 체크 여부
                 boolean iamUserScopesCheck = false;
                 if (routeValueMap.containsKey("iam-user-scopes-check")) {
                     iamUserScopesCheck = (boolean) routeValueMap.get("iam-user-scopes-check");
                 }
 
-
-                if (iamScopes != null && path.indexOf(routePath) > -1) {
-
+                /*
+                 * 라우트에 대한 검증 조건.
+                 * 1. 라우트 패스와 리퀘스트 패스가 일치할 경우
+                 * 2. 라우트가 스코프 체크를 필요로 할 경우
+                 * 3. 1,2 에 해당하는 경우, passable 하지 못하면 에러.
+                 */
+                if (path.indexOf(routePath) > -1 && iamScopes != null) {
+                    boolean passable = false;
                     boolean hasScope = false;
-                    boolean hasUserScope = false;
 
+                    //라우트에 명시된 스코프/메소드 마다 루프
+                    //스코프/메소드 조건 중 하나라도 해당된다면 라우드에 대해 passable 하다.
                     for (String iamScope : iamScopes.values()) {
+
+                        //필요한 스콥
                         String[] scopeAndMethod = iamScope.split("/");
                         String scope = scopeAndMethod[0].trim();
-                        String methods = scopeAndMethod.length > 1 ? scopeAndMethod[1] : null;
 
-                        if (clientScopes.contains(scope) || "guest".equals(scope)) {
-                            hasScope = true;
-                            hasUserScope = userScopes.contains(scope);
-
-                            methods = methods.trim();
-
-                            String[] methodsArr = methods.split("-");
-
-                            // allow if there's no method restrictions
-                            if (methods == null || methods.length() == 0 || "*".equals(methods)) {
-
-                                // check user also has scope
-                                if (!"guest".equals(scope) && iamUserScopesCheck) {
-                                    if (userScopes.contains(scope))
-                                        return null;
-
-                                } else {
-                                    return null;
-                                }
-                            }
+                        //필요한 메소드 목록
+                        String methods = scopeAndMethod.length > 1 ? scopeAndMethod[1] : "";
+                        methods = methods.trim();
+                        String[] methodsArr = methods.split("-");
 
 
-                            //need check method
+                        boolean methodMatch = false;
+                        //모든 메소드 허용 체크
+                        if ("*".equals(methods)) {
+                            methodMatch = true;
+                        }
+                        //메소드 체크 필요
+                        else {
                             for (String method : methodsArr) {
                                 if (method.equals(request.getMethod())) {
-
-                                    // check user also has scope
-                                    if (!"guest".equals(scope) && iamUserScopesCheck) {
-                                        if (userScopes.contains(scope))
-                                            return null;
-
-                                    } else {
-                                        return null;
-                                    }
+                                    methodMatch = true;
                                 }
                             }
                         }
+
+                        boolean scopeMath = false;
+                        //모든 스코프 통과
+                        if ("guest".equals(scope)) {
+                            scopeMath = true;
+                        }
+                        //스코프 체크 필요
+                        else {
+                            //사용자 스코프 체크가 필요없는경우
+                            if (clientScopes.contains(scope) && !iamUserScopesCheck) {
+                                scopeMath = true;
+                            }
+
+                            //사용자 스코프 체크가 필요한 경우
+                            else if (clientScopes.contains(scope) && iamUserScopesCheck) {
+                                if (userScopes.contains(scope)) {
+                                    scopeMath = true;
+                                }
+                            }
+                        }
+
+                        if (scopeMath && !"guest".equals(scope)) {
+                            hasScope = true;
+                        }
+                        if (methodMatch && scopeMath) {
+                            passable = true;
+                        }
+                    }
+
+                    // if passable, end filter.
+                    if (passable) {
+                        return null;
                     }
 
                     // throwing Error
-                    if (hasScope && iamUserScopesCheck && hasUserScope) {
+                    if (hasScope) {
                         throw new ZuulRuntimeException(new ZuulException(
                                 "Method is not allowed", HttpStatus.METHOD_NOT_ALLOWED.value(), "User has scope, but method " + request.getMethod() + " is not allowed."));
 
-
-                    } else if (hasScope && !iamUserScopesCheck) {
-                        throw new ZuulRuntimeException(new ZuulException(
-                                "Method is not allowed", HttpStatus.METHOD_NOT_ALLOWED.value(), "User has scope, but method " + request.getMethod() + " is not allowed."));
 
                     } else {
                         throw new ZuulRuntimeException(new ZuulException(
@@ -191,7 +210,7 @@ public class IAMFilter extends ZuulFilter {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-//        log.info(String.format("%s request to %s", request.getMethod(), request.getRequestURL().toString()));
+        log.info(String.format("%s request to %s", request.getMethod(), request.getRequestURL().toString()));
 
         return null;
 

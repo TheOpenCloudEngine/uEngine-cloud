@@ -91,7 +91,7 @@ public class CreateAppJob implements Job {
             OauthUser oauthUser = iamClient.getUser(iamUserName);
 
             //깃랩 유저
-            int gitlabId = ((Long) oauthUser.getMetaData().get("gitlab-id")).intValue();
+            int gitlabId = (int) oauthUser.getMetaData().get("gitlab-id");
             User gitlabUser = gitLabApi.getUserApi().getUser(gitlabId);
 
             //네임스페이스 구하기
