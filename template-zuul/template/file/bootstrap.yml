@@ -7,9 +7,6 @@ spring:
 ---
 spring:
   profiles: local
-  cloud:
-    config:
-      uri: {{CONFIG_SERVER_URL}}
 
 ---
 spring:

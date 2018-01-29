@@ -98,8 +98,13 @@ public class DcosApi implements InitializingBean {
                 deployString,
                 this.addHeaders()
         );
+        int statusCode = response.getStatusLine().getStatusCode();
         HttpEntity entity = response.getEntity();
         String json = EntityUtils.toString(entity);
+        System.out.println("Create: " + json);
+        if (statusCode != 200 && statusCode != 201) {
+            throw new Exception(json);
+        }
         return JsonUtils.unmarshal(json);
     }
 
@@ -109,8 +114,13 @@ public class DcosApi implements InitializingBean {
                 deployString,
                 this.addHeaders()
         );
+        int statusCode = response.getStatusLine().getStatusCode();
         HttpEntity entity = response.getEntity();
         String json = EntityUtils.toString(entity);
+        System.out.println("Update: " + json);
+        if (statusCode != 200) {
+            throw new Exception(json);
+        }
         return JsonUtils.unmarshal(json);
     }
 

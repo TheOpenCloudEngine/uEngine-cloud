@@ -3,6 +3,7 @@ package org.uengine.cloud.scheduler;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
+import org.uengine.cloud.app.*;
 import org.uengine.iam.util.HttpUtils;
 import org.uengine.iam.util.JsonUtils;
 import org.springframework.beans.factory.InitializingBean;
@@ -10,14 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.uengine.cloud.app.AppService;
-import org.uengine.cloud.app.DcosApi;
 import org.uengine.cloud.ssh.SshService;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by uengine on 2017. 12. 4..
@@ -37,23 +33,33 @@ public class CronTable implements InitializingBean {
     @Autowired
     private Environment environment;
 
+    @Autowired
+    private AppJpaRepository appEntityRepository;
+
+    @Autowired
+    private AppAccessLevelRepository appAccessLevelRepository;
+
     private String host;
     private String token;
 
-    public Map dcosData;
+    public Map<String, Object> dcosData;
+
+    public List<AppEntity> appEntityList;
 
     public Map getDcosData() {
         return dcosData;
     }
 
-    public void setDcosData(Map dcosData) {
-        this.dcosData = dcosData;
+    public List<AppEntity> getAppEntityList() {
+        return appEntityList;
     }
 
     @Override
     public void afterPropertiesSet() throws Exception {
         this.host = environment.getProperty("dcos.host");
         this.token = environment.getProperty("dcos.token");
+        this.dcosData = new HashMap<String, Object>();
+        this.appEntityList = new ArrayList<>();
     }
 
     private Map<String, String> addHeaders() {
@@ -66,8 +72,6 @@ public class CronTable implements InitializingBean {
     // 애플리케이션 시작 후 1초 후에 첫 실행, 그 후 매 2초마다 주기적으로 실행한다.
     @Scheduled(initialDelay = 1000, fixedDelay = 2000)
     public void fetchDcosData() throws Exception {
-        Map dcosData = new HashMap();
-
         //last
         try {
             HttpResponse response = new HttpUtils().makeRequest("GET",
@@ -165,21 +169,20 @@ public class CronTable implements InitializingBean {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
 
-        //devopsApps
+    // 애플리케이션 시작 후 1초 후에 첫 실행, 그 후 매 2초마다 주기적으로 실행한다.
+    @Scheduled(initialDelay = 1000, fixedDelay = 2000)
+    public void getAppsData() throws Exception {
         try {
-            HttpResponse response = new HttpUtils().makeRequest("GET",
-                    environment.getProperty("spring.cloud.config.uri") + "/dcos-apps.json",
-                    null,
-                    new HashMap<>()
-            );
-            HttpEntity entity = response.getEntity();
-            String json = EntityUtils.toString(entity);
-            dcosData.put("devopsApps", JsonUtils.unmarshal(json));
+            List<AppEntity> all = appEntityRepository.findAll();
+            for (int i = 0; i < all.size(); i++) {
+                appAccessLevelRepository.addGitlabMember(all.get(i));
+            }
+            appEntityList = all;
         } catch (Exception e) {
             e.printStackTrace();
         }
-        this.setDcosData(dcosData);
     }
 
     // 애플리케이션 시작 후 10초 후에 첫 실행, 그 후 매 10초마다 주기적으로 실행한다.

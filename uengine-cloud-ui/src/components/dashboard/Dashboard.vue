@@ -1,5 +1,7 @@
 <template>
   <div>
+    <service-deployments ref="service-deployments"></service-deployments>
+
     <md-layout>
       <md-input-container>
         <md-icon>search</md-icon>
@@ -15,6 +17,7 @@
         <md-button class="md-raised md-primary"
                    v-if="dcosData.deployments"
                    @click="openDeployments">
+          <md-tooltip md-direction="bottom">배포중인 앱 또는 서비스를 중단할 수 있습니다.</md-tooltip>
           배포중 {{dcosData.deployments.length}}
         </md-button>
       </md-input-container>
@@ -25,7 +28,9 @@
         <span class="md-subheading">앱 목록</span>
       </md-layout>
       <md-layout md-align="end">
-        <md-button class="md-raised md-primary" @click="openNewApp">작성
+        <md-button class="md-raised md-primary" @click="openNewApp">
+          <md-tooltip md-direction="bottom">앱을 새로 작성합니다.</md-tooltip>
+          작성
           <md-icon>control_point</md-icon>
         </md-button>
       </md-layout>
@@ -38,13 +43,15 @@
         <span class="md-subheading">서비스 목록</span>
       </md-layout>
       <md-layout md-align="end">
-        <md-button class="md-raised md-primary" @click="openNewService">작성
+        <md-button class="md-raised md-primary" @click="openNewService">
+          <md-tooltip md-direction="bottom">서비스를 새로 작성합니다.</md-tooltip>
+          작성
           <md-icon>control_point</md-icon>
         </md-button>
       </md-layout>
     </md-layout>
+
     <div v-if="isAdmin">
-      <service-deployments ref="service-deployments"></service-deployments>
       <new-service ref="new-service"></new-service>
       <app-list :mode="'service'"></app-list>
       <br><br><br>

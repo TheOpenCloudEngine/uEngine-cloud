@@ -1,5 +1,11 @@
 package org.uengine.cloud;
 
+import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.GenericFilterBean;
+import org.uengine.cloud.tenant.TenantContext;
+import org.uengine.iam.client.model.OauthUser;
 import org.uengine.iam.util.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -9,63 +15,95 @@ import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Created by uengine on 2016. 4. 22..
  */
-@WebFilter
-public class RestFilter implements Filter {
+@Component
+@Order(1)
+public class RestFilter extends GenericFilterBean {
 
     @Autowired
-    Environment environment;
+    private Environment environment;
 
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-
-    }
 
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
         HttpServletResponse response = (HttpServletResponse) res;
         HttpServletRequest request = (HttpServletRequest) req;
         String requestURI = request.getRequestURI();
+        String[] guestPaths = new String[]{"/info", "/", "/health", "/refreshRoute", "/hook"};
 
-        if (requestURI.startsWith("/gitlab")) {
-            try {
-                doGitlabProxy(request, response);
-                return;
-            } catch (Exception ex) {
-                response.setStatus(400);
-                this.addCors(response);
-                ExceptionUtils.httpExceptionResponse(ex, response);
-                return;
-            }
-        } else if (requestURI.startsWith("/dcos")) {
-            if(request.getMethod().equals("OPTIONS")){
-                response.setStatus(200);
-                this.addCors(response);
-                return;
-            }
-            try {
-                doDcosProxy(request, response);
-                return;
-            } catch (Exception ex) {
-                response.setStatus(400);
-                this.addCors(response);
-                ExceptionUtils.httpExceptionResponse(ex, response);
-                return;
-            }
-        } else {
-            this.addCors(response);
+        if (request.getMethod().equals(HttpMethod.OPTIONS.toString())) {
             chain.doFilter(req, res);
+        } else if (Arrays.asList(guestPaths).contains(requestURI)) {
+            chain.doFilter(req, res);
+        } else {
+            //토큰이 없을 경우
+            OauthUser user = TenantContext.getThreadLocalInstance().getUser();
+            if (!requestURI.startsWith("/config/uengine-cloud-server.json")
+                    && !requestURI.startsWith("/gitlab")
+                    && user == null) {
+                response.setStatus(401);
+                this.addCors(response);
+                return;
+            }
+            if (requestURI.startsWith("/config")) {
+                try {
+                    doConfigProxy(request, response);
+                    return;
+                } catch (Exception ex) {
+                    response.setStatus(400);
+                    this.addCors(response);
+                    ExceptionUtils.httpExceptionResponse(ex, response);
+                    return;
+                }
+            } else if (requestURI.startsWith("/gitlab")) {
+                try {
+                    doGitlabProxy(request, response);
+                    return;
+                } catch (Exception ex) {
+                    response.setStatus(400);
+                    this.addCors(response);
+                    ExceptionUtils.httpExceptionResponse(ex, response);
+                    return;
+                }
+            } else if (requestURI.startsWith("/dcos")) {
+                try {
+                    doDcosProxy(request, response);
+                    return;
+                } catch (Exception ex) {
+                    response.setStatus(400);
+                    this.addCors(response);
+                    ExceptionUtils.httpExceptionResponse(ex, response);
+                    return;
+                }
+            } else {
+                this.addCors(response);
+                chain.doFilter(req, res);
+            }
         }
     }
 
     @Override
     public void destroy() {
 
+    }
+
+    private void doConfigProxy(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        ProxyRequest proxyRequest = new ProxyRequest();
+        proxyRequest.setRequest(request);
+        proxyRequest.setResponse(response);
+
+        proxyRequest.setHost("http://" + environment.getProperty("vcap.services.uengine-cloud-config.external"));
+        proxyRequest.setPath(request.getRequestURI().replaceFirst("/config", ""));
+        proxyRequest.setHeaders(new HashMap<>());
+        proxyRequest.setResponseHeaders(this.addReponseHeaders());
+
+        new ProxyService().doProxy(proxyRequest);
     }
 
     private void doDcosProxy(HttpServletRequest request, HttpServletResponse response) throws Exception {

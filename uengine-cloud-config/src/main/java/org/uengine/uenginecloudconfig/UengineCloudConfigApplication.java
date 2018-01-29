@@ -3,8 +3,12 @@ package org.uengine.uenginecloudconfig;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.config.server.EnableConfigServer;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 import java.text.NumberFormat;
 
@@ -15,6 +19,7 @@ public class UengineCloudConfigApplication {
 	private static Log logger = LogFactory.getLog(UengineCloudConfigApplication.class);
 
 	public static void main(String[] args) {
+
 		SpringApplication.run(UengineCloudConfigApplication.class, args);
 
 		Runtime runtime = Runtime.getRuntime();

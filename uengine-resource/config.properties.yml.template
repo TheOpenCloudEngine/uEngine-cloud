@@ -5,13 +5,14 @@ db.ip: {{db.ip}}
 db.database: {{db.database}}
 db.password: {{db.password}}
 
+host.default: {{host.default}}
 host.registry.package: {{host.registry.package}}
 host.registry.private: {{host.registry.private}}
 host.registry.public: {{host.registry.public}}
 host.db: {{host.db}}
 host.gitlab: {{host.gitlab}}
 host.iam: {{host.iam}}
-host.config: {{host.config}}
+host.config: {{server.private.public}}:10000
 host.eureka-server: {{host.eureka-server}}
 host.cloud-server: {{host.cloud-server}}
 host.cloud-ui: {{host.cloud-ui}}

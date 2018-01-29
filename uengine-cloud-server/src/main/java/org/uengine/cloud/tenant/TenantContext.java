@@ -1,5 +1,7 @@
 package org.uengine.cloud.tenant;
 
+import org.uengine.iam.client.model.OauthUser;
+
 import java.util.Map;
 
 /**
@@ -9,7 +11,7 @@ public class TenantContext {
     static ThreadLocal<TenantContext> local = new ThreadLocal();
     String tenantId;
     String userId;
-    Map user;
+    OauthUser user;
 
     public String getTenantId() {
         return this.tenantId;
@@ -27,11 +29,11 @@ public class TenantContext {
         this.userId = userId;
     }
 
-    public Map getUser() {
+    public OauthUser getUser() {
         return user;
     }
 
-    public void setUser(Map user) {
+    public void setUser(OauthUser user) {
         this.user = user;
     }
 

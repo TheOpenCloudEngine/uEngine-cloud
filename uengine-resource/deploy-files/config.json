@@ -42,7 +42,6 @@
   ],
   "labels": {
     "HAPROXY_GROUP": "external,internal",
-    "HAPROXY_0_VHOST": "@host.config@",
     "HAPROXY_0_BACKEND_HEAD": "backend {backend}\n balance roundrobin\n mode {mode}\n rspadd Access-Control-Allow-Origin:\\ *\n rspadd Access-Control-Allow-Methods:\\ GET,\\ POST,\\ PUT,\\ OPTIONS,\\ DELETE\n rspadd Access-Control-Allow-Headers:\\ management-key,\\ management-secret,\\ client-key,\\ client-secret,\\ Origin,\\ X-Requested-With,\\ Content-Type,\\ Accept,\\ Authorization\n"
   },
   "env": {

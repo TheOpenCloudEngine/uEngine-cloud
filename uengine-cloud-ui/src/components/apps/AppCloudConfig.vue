@@ -1,26 +1,55 @@
 <template xmlns:v-on="http://www.w3.org/1999/xhtml">
   <div>
+    <md-dialog
+      md-open-from="#confirm" md-close-to="#confirm" ref="open">
+      <md-dialog-title>설정 파일 미리보기</md-dialog-title>
+      <md-dialog-content>
+        <div>
+          <p>* 어플리케이션이 다운로드 받게 될 최종 환경설정의 미리보기 입니다. </p>
+          <p>* 외부 네트워크에서는 이 설정에 대해 접근이 차단됩니다. </p>
+          <br>
+        </div>
+        <div style="width: 100%">
+          <codemirror :options="{
+              theme: 'dracula',
+              mode: 'json',
+              extraKeys: {'Ctrl-Space': 'autocomplete'},
+              lineNumbers: true,
+              lineWrapping: true,
+              readOnly: true
+            }"
+                      :value="previewConfig"></codemirror>
+        </div>
+      </md-dialog-content>
+      <md-dialog-actions>
+        <md-button class="md-primary" @click="close">닫기</md-button>
+      </md-dialog-actions>
+    </md-dialog>
+
     <md-layout>
       <md-table-card style="width: 100%">
         <div class="header-top-line"></div>
         <div>
           <md-layout md-align="center">
             <md-radio v-model="menu" :mdValue="'vcap'">
+              <md-tooltip md-direction="bottom">환경변수로 사용할 수 있는 앱 호스트 목록입니다.</md-tooltip>
               <span class="md-caption">서비스 링크</span>
             </md-radio>
             <md-radio v-model="menu" :mdValue="'common'">
+              <md-tooltip md-direction="bottom">개발,스테이징,프로덕션 에 모두 적용되는 공통 환경변수 입니다.</md-tooltip>
               <span class="md-caption">공통 설정 파일</span>
             </md-radio>
             <md-radio v-model="menu" :mdValue="'config'">
               <span class="md-caption">
+                <md-tooltip md-direction="bottom">특정한 서버 환경에서만 적용되는 환경 변수입니다. 공통 환경변수와 겹칠 경우 이곳의 환경 변수가 우선시 됩니다.</md-tooltip>
                 <span v-if="stage == 'dev'">개발</span>
                 <span v-if="stage == 'stg'">스테이징</span>
                 <span v-if="stage == 'prod'">프로덕션</span>
-
                 설정 파일</span>
             </md-radio>
             <md-radio v-model="menu" :mdValue="'url'">
-              <span class="md-caption">환경설정 파일 접속 주소</span>
+              <md-tooltip md-direction="bottom">앱 구동시 제공되는 환경 변수의 최종 모습을 살펴봅니다.</md-tooltip>
+              <span class="md-caption">설정 파일 미리보기</span>
             </md-radio>
           </md-layout>
         </div>
@@ -86,7 +115,7 @@
                   {{url.text}}
                 </md-table-cell>
                 <md-table-cell>
-                  <a target="_blank" :href="url.href" style="cursor: pointer">{{url.href}}</a>
+                  <a v-on:click="openConfigUrl(url.path)" style="cursor: pointer">{{url.href}}</a>
                 </md-table-cell>
               </md-table-row>
             </md-table-body>
@@ -117,7 +146,8 @@
         menu: 'vcap',
         commonChanged: false,
         codeChanged: false,
-        configUrlList: []
+        configUrlList: [],
+        previewConfig: ''
       }
     },
     mounted() {
@@ -147,20 +177,39 @@
       }
     },
     methods: {
+      openConfigUrl: function (path) {
+        var me = this;
+        this.$root.backend('config/' + path).get()
+          .then(function (response) {
+            if (path.indexOf('.yml') == -1) {
+              me.previewConfig = JSON.stringify(response.data, null, 2);
+            } else {
+              me.previewConfig = response.data;
+            }
+            console.log('me.previewConfig', me.previewConfig);
+            me.open();
+          }, function (response) {
+            me.$root.$children[0].error('클라우드 콘피그 주소에 접속할 수 없습니다.');
+          })
+      },
       getConfigUrlList: function () {
         var me = this;
+        var configServerUrl = 'http://' + window.config.vcap.services['uengine-cloud-config'].external;
         this.configUrlList = [
           {
-            text: 'springboot',
-            href: configServerUrl + '/' + me.appName + '/' + me.stage
+            text: 'springboot 요청시',
+            href: configServerUrl + '/' + me.appName + '/' + me.stage,
+            path: '/' + me.appName + '/' + me.stage
           },
           {
-            text: 'json',
-            href: configServerUrl + '/' + me.appName + '-' + me.stage + '.json'
+            text: 'json 요청시',
+            href: configServerUrl + '/' + me.appName + '-' + me.stage + '.json',
+            path: '/' + me.appName + '-' + me.stage + '.json'
           },
           {
-            text: 'yml',
-            href: configServerUrl + '/' + me.appName + '-' + me.stage + '.yml'
+            text: 'yml 요청시',
+            href: configServerUrl + '/' + me.appName + '-' + me.stage + '.yml',
+            path: '/' + me.appName + '-' + me.stage + '.yml'
           }
         ]
       },
@@ -187,7 +236,7 @@
       saveCommon: function () {
         var me = this;
         //커먼 컨피그 저장
-        me.updateDevAppConfigYml(me.appName, '', me.commonCode, function (response) {
+        me.updateDevAppConfigYml(me.appName, null, me.commonCode, function (response) {
           me.commonChanged = false;
           me.getCodes();
         })
@@ -199,6 +248,12 @@
           me.codeChanged = false;
           me.getCodes();
         })
+      },
+      open() {
+        this.$refs['open'].open();
+      },
+      close(ref) {
+        this.$refs['open'].close();
       }
     }
   }

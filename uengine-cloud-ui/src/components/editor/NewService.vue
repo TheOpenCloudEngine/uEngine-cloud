@@ -166,17 +166,17 @@
                     //현재 프로덕션이 아니므로 수정불가능 (롤백 또는 신규버젼 배포중){}
                     me.editable = false;
                   }
-                  me.service = response.data[stage]['deploy-json'];
-                  me.$set(me.service,"servicePort",response.data[stage]['service-port']);
+                  me.service = response.data[stage]['deployJson'];
+                  me.$set(me.service, "servicePort", response.data[stage]['servicePort']);
                   console.log("newService response.data[stage]", response.data[stage]);
                 } else if (fail) {
                   //실패
                   me.$root.$children[0].error('앱정보를 불러올 수 없습니다.');
                 }
-              });``
+              });
             me.appName = appName;
           } else {
-            this.service = this.getAppById(this.appId);
+            this.service = this.getDcosAppById(this.appId);
             me.appName = this.appId;
           }
         }
@@ -211,7 +211,7 @@
         this.$refs.rightSidenav.close();
       },
       reviewService: function () {
-        if (!this.$refs.rightSidenav.validation()){
+        if (!this.$refs.rightSidenav.validation()) {
           this.reviewFlag = this.$refs.rightSidenav.changeView('reviewview');
         }
       },
@@ -221,71 +221,41 @@
         var devApp = null;
         if (this.mode == 'app') {
           me.getDevAppByName(me.appName.replace("/", ""), function (response, error) {
-            console.log("response", response)
             if (response) {
               devApp = response.data;
-              devApp[me.deployment]['deploy-json'] = me.service;
-              me.$root.backend('app' + me.appName).update(devApp)
-                .then(
-                  function (response) {
-                    //성공
-                    console.log("success", response);
-                    me.$root.backend('app' + me.appName + "/deploy?stage=" + me.deployment).save({})
-                      .then(function (response) {
-                          // deploy 성공 메시지 변경
-                        console.log('me.deployment', me.deployment, response);
+              devApp[me.deployment]['deployJson'] = me.service;
+              me.updateApp(me.appName, devApp, function (response) {
+                if (response) {
+                  me.$root.$children[0].confirm(
+                    {
+                      contentHtml: '앱의 구동 설정이 변경되었습니다. 지금 앱을 다시 시작하시겠습니까?',
+                      okText: '진행하기',
+                      cancelText: '취소',
+                      callback: function () {
+                        //runDeployedApp
+                        me.runDeployedApp(me.appName, me.deployment, null, function (response) {
                           me.reviewFlag = false;
-                          me.$root.$children[0].success("수정하였습니다.");
                           me.close();
-                        },
-                        function (response) {
-                          // deploy 실패 메시지 변경
-                          me.reviewFlag = false;
-                          me.$root.$children[0].error("수정에 실패하였습니다.");
                         });
-
-                  },
-                  function (response) {
-                    //실패 메시지 변경
-                    me.reviewFlag = false;
-                    me.$root.$children[0].error("서버에 접속할 수 없습니다.");
-                  }
-                );
+                      }
+                    });
+                }
+              });
             }
           })
         } else {
           //서비스일때
-          console.log("service");
           if (this.newSingleContainer) {
             //new
-            //POST http://cloud-server.pas-mini.io/dcos/service/marathon/v2/apps
-            me.$root.backend('dcos/service/marathon/v2/apps').save(me.service)
-              .then(function (response) {
-                  // deploy 성공 메시지 변경
-                  me.$root.$children[0].success("저장하였습니다.");
-                  me.close();
-                },
-                function (response) {
-                  // deploy 실패 메시지 변경
-                  console.log("failed",response);
-                  me.$root.$children[0].error("저장에 실패하였습니다.");
-                });
+            me.createDcosApp(me.service, function (response) {
+              me.close();
+            });
           } else {
             //update
-            //PUT http://cloud-server.pas-mini.io/dcos/service/marathon/v2/apps//uengine-cloud-ui?partialUpdate=false&force=false
-            me.$root.backend('dcos/service/marathon/v2/apps/'+me.appId+"?partialUpdate=false&force=false").update(me.service)
-              .then(function (response) {
-                  // deploy 성공 메시지 변경
-                  me.$root.$children[0].success("수정하였습니다.");
-                  me.close();
-                },
-                function (response) {
-                  // deploy 실패 메시지 변경
-                  console.log("failed",response);
-                  me.$root.$children[0].error("수정에 실패하였습니다.");
-                });
+            me.updateDcosApp(me.appId, me.service, true, function (response) {
+              me.close();
+            });
           }
-
         }
       }
     }

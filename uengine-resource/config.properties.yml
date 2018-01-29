@@ -1,17 +1,18 @@
 server.public.master: 58.140.91.67:8081
-server.public.public: 58.140.91.70
+server.public.public: 58.140.91.67
 
 db.ip: 192.168.0.13
 db.database: uengine
 db.password: my-secret-pw
 
+host.default: pasmini.io
 host.registry.package: darkgodarkgo
 host.registry.private: gitlab.pasmini.io:5000
 host.registry.public: gitlab.pasmini.io:5000
 host.db: db.pasmini.io
 host.gitlab: gitlab.pasmini.io
 host.iam: iam.pasmini.io
-host.config: config.pasmini.io
+host.config: 192.168.0.11:10000
 host.eureka-server: eureka-server.pasmini.io
 host.cloud-server: cloud-server.pasmini.io
 host.cloud-ui: cloud.pasmini.io
@@ -36,7 +37,7 @@ dcos.token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJkYXJrZ29kYXJrZ29AZ21
 gitlab.root.username: root
 gitlab.root.password: adminadmin
 gitlab.root.token: -arWnfRY7S4h6oyRthNy
-gitlab.config-repo.projectId: 47
+gitlab.config-repo.projectId: 94
 gitlab.config-repo.deployment-path: /deployment
 gitlab.config-repo.template-path: /template
 

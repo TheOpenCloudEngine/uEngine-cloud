@@ -64,7 +64,7 @@
     data: function () {
       return {
         iam: window.iam,
-        iamHost: 'http://' + window.config.vcap.services.iam.external,
+        iamHost: window.iam.host,
         user: {
           metaData:{}
         }

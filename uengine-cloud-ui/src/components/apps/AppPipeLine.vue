@@ -88,7 +88,7 @@
     },
     methods: {
       movePipeLine: function (pipelineId) {
-        this.getProject(this.devApp.gitlab.projectId, function (response, err) {
+        this.getProject(this.devApp.projectId, function (response, err) {
           var url = response.data.web_url + '/pipelines/' + pipelineId;
           window.open(url);
         });
@@ -100,7 +100,7 @@
       },
       makeList: function () {
         var me = this;
-        var projectId = me.devApp.gitlab.projectId;
+        var projectId = me.devApp.projectId;
         me.$root.gitlab('api/v4/projects/' + projectId + '/pipelines?page=' + me.page + '&per_page=' + me.size).get()
           .then(function (response) {
             me.list = [];

@@ -212,7 +212,7 @@
           //마라톤 일 경우 헬스 체크
           if (marathonId == taskValue['framework_id']) {
             taskValue.framework = 'marathon';
-            var app = me.getAppById('/' + taskValue.name);
+            var app = me.getDcosAppById('/' + taskValue.name);
             if (app) {
               $.each(app.tasks, function (key, value) {
                 if (taskValue.id == value.id) {

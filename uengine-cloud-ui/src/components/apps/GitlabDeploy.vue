@@ -1,18 +1,20 @@
 <template xmlns:v-on="http://www.w3.org/1999/xhtml">
   <md-dialog
-    md-open-from="#open" md-close-to="#open" ref="open">
-    <!--<md-dialog-title v-if="force">-->
-    <!--서비스가 현재 하나 이상의 배포에 의해 잠겨 있습니다.<br>-->
-    <!--버튼을 다시 누르면 새 구성을 강제로 변경하고 배포합니다.-->
-    <!--</md-dialog-title>-->
+    md-open-from="#open" md-close-to="#open" ref="open"
+    @open="onOpen"
+    @close="onClose"
+  >
     <div v-if="role == 'deploy'">
       <md-dialog-title>{{stageName}} 환경 앱 배포</md-dialog-title>
       <md-dialog-content>
         <md-stepper style="min-width: 800px"
                     :md-elevation="elevation"
                     v-on:completed="onCompleted"
+                    v-on:change="onChange"
+                    md-vertical
+                    v-if="opened"
         >
-          <md-step>
+          <md-step md-label="앱 버젼">
             <div style="text-align: center">
               <span class="md-body-1">배포할 브런치 또는 태그를 선택하세요.</span>
               <md-layout md-align="center">
@@ -39,7 +41,7 @@
               </md-input-container>
             </div>
           </md-step>
-          <md-step>
+          <md-step md-label="앱 빌드">
             <div style="text-align: center" v-if="!hasImage">
               <span class="md-body-1"
                     v-if="refType == 'branch'">{{selectedRef}} 브런치 를 선택하셨습니다. 배포 작업은 소스코드 빌드부터 진행됩니다.</span>
@@ -58,7 +60,7 @@
               </md-layout>
             </div>
           </md-step>
-          <md-step>
+          <md-step md-label="앱 배포">
             <span class="md-body-1">런타임 환경을 설정합니다.</span>
             <div v-if="preStage">
               <md-layout md-align="center">
@@ -110,6 +112,7 @@
     },
     data() {
       return {
+        opened: false,
         copyDevApp: null,
         elevation: 0,
         refType: 'branch',
@@ -158,8 +161,15 @@
     }
     ,
     methods: {
+      onChange: function (elevation) {
+
+      },
       onCompleted: function () {
         var me = this;
+
+        //창 닫기
+        me.close();
+
         var appData = JSON.parse(JSON.stringify(me.copyDevApp));
         //dev 일 경우, 런타임 환경을 수정한 경우 데이터 교체.
         if (me.stage == 'dev') {
@@ -171,8 +181,8 @@
         else {
           //전단계의 런타임을 그대로 사용하는 경우
           if (me.usePreStage) {
-            var deployJson = JSON.parse(JSON.stringify(appData[me.preStage]['deploy-json']));
-            appData[me.stage]['deploy-json'] = deployJson;
+            var deployJson = JSON.parse(JSON.stringify(appData[me.preStage]['deployJson']));
+            appData[me.stage]['deployJson'] = deployJson;
           }
           //신규 런타임을 구성하는 경우
           else {
@@ -188,7 +198,7 @@
             //스테이지 디플로이
             //commit
             me.runDeployedApp(me.appName, me.stage, me.selectedRefCommit, function (response) {
-              me.close();
+
             });
           });
         }
@@ -197,7 +207,7 @@
           me.updateDevApp(me.appName, appData, function (response) {
             var ref = me.selectedRefBranch ? me.selectedRefBranch : me.selectedRefTag;
             me.excutePipelineTrigger(me.appName, ref, me.stage, function (response) {
-              me.close();
+
             })
           });
         }
@@ -209,7 +219,7 @@
         this.branchList = [];
         this.hasImage = false;
 
-        var projectId = me.copyDevApp.gitlab.projectId;
+        var projectId = me.copyDevApp.projectId;
         var p1 = this.$root.gitlab('api/v4//projects/' + projectId + '/repository/tags').get();
         var p2 = this.$root.gitlab('api/v4//projects/' + projectId + '/repository/branches').get();
         var p3 = this.$root.backend('app/' + me.appName + '/tags').get();
@@ -236,6 +246,12 @@
       close(ref) {
         this.$refs['open'].close();
       },
+      onOpen: function () {
+        this.opened = true;
+      },
+      onClose: function () {
+        this.opened = false;
+      }
     }
   }
 </script>

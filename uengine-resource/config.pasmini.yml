@@ -38,7 +38,7 @@ server:
     # Choice one of your master's public ip
     master: 58.140.91.67:8081
     # Your public node's public ip
-    public: 58.140.91.70
+    public: 58.140.91.67
 
 # DB part
 db:
@@ -48,6 +48,7 @@ db:
 
 # Domain part
 host:
+  default: pasmini.io
   registry:
     package: darkgodarkgo
     private: gitlab.pasmini.io:5000
@@ -55,7 +56,6 @@ host:
   db: db.pasmini.io
   gitlab: gitlab.pasmini.io
   iam: iam.pasmini.io
-  config: config.pasmini.io
   eureka-server: eureka-server.pasmini.io
   cloud-server: cloud-server.pasmini.io
   cloud-ui: cloud.pasmini.io
@@ -91,6 +91,6 @@ gitlab:
     password: adminadmin
     token: -arWnfRY7S4h6oyRthNy
   config-repo:
-    projectId: 47
+    projectId: 94
     deployment-path: /deployment
     template-path: /template

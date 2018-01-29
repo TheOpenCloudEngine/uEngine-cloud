@@ -1,5 +1,7 @@
 package org.uengine.cloud.app;
 
+import org.uengine.iam.client.model.OauthUser;
+
 import java.util.Map;
 
 /**
@@ -22,8 +24,9 @@ public class AppCreate {
     private int prodPort;
     private int stgPort;
     private int devPort;
-    private Map user;
+    private OauthUser user;
     private String namespace;
+    private boolean insecureConfig;
 
     public String getCategoryItemId() {
         return categoryItemId;
@@ -153,11 +156,11 @@ public class AppCreate {
         this.devPort = devPort;
     }
 
-    public Map getUser() {
+    public OauthUser getUser() {
         return user;
     }
 
-    public void setUser(Map user) {
+    public void setUser(OauthUser user) {
         this.user = user;
     }
 
@@ -167,5 +170,13 @@ public class AppCreate {
 
     public void setNamespace(String namespace) {
         this.namespace = namespace;
+    }
+
+    public boolean getInsecureConfig() {
+        return insecureConfig;
+    }
+
+    public void setInsecureConfig(boolean insecureConfig) {
+        this.insecureConfig = insecureConfig;
     }
 }

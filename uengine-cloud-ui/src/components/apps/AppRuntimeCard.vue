@@ -116,6 +116,10 @@
       });
     },
     watch: {
+      stage: function () {
+        this.resourceUpdated = false;
+        this.makeItems();
+      },
       devApp: {
         handler: function (newVal, oldVal) {
           this.makeItems();
@@ -143,7 +147,6 @@
             });
           });
         }
-
       },
       updateCancel: function () {
         this.resourceUpdated = false;
@@ -152,9 +155,9 @@
       updateDeploy: function () {
         var me = this;
         var stageCopy = JSON.parse(JSON.stringify(me.stageApp));
-        stageCopy['deploy-json'].instances = me.instances;
-        stageCopy['deploy-json'].mem = me.mem;
-        stageCopy['deploy-json'].cpus = me.cpus;
+        stageCopy['deployJson'].instances = me.instances;
+        stageCopy['deployJson'].mem = me.mem;
+        stageCopy['deployJson'].cpus = me.cpus;
         var data = JSON.parse(JSON.stringify(me.devApp));
         data[me.stage] = stageCopy;
 
@@ -202,7 +205,7 @@
         //isActive
         me.stageApp = me.devApp[me.stage];
         var marathonAppId = me.stageApp['marathonAppId'];
-        me.marathonApp = me.getAppById(marathonAppId);
+        me.marathonApp = me.getDcosAppById(marathonAppId);
 
         //프로덕션인 경우 배포중 표기
         if (me.stage == 'prod') {
@@ -214,7 +217,7 @@
           } else {
             rollbackMarathonAppId = '/' + me.appName + '-blue';
           }
-          me.rollbackMarathonApp = me.getAppById(rollbackMarathonAppId);
+          me.rollbackMarathonApp = me.getDcosAppById(rollbackMarathonAppId);
         } else {
           me.rollbackMarathonApp = null;
         }
@@ -226,9 +229,9 @@
         }
         //최초 리소스 로딩인경우 값 배정
         if (!me.resourceUpdated) {
-          me.instances = me.stageApp['deploy-json'].instances;
-          me.mem = me.stageApp['deploy-json'].mem;
-          me.cpus = me.stageApp['deploy-json'].cpus;
+          me.instances = me.stageApp['deployJson'].instances;
+          me.mem = me.stageApp['deployJson'].mem;
+          me.cpus = me.stageApp['deployJson'].cpus;
           me.resourceUpdated = true;
         }
 
@@ -246,7 +249,7 @@
             subTitle: '',
             type: 'instances',
             size: me.instances,
-            diff: me.stageApp['deploy-json'].instances != me.instances
+            diff: me.stageApp['deployJson'].instances != me.instances
           },
           {
             image: me.categoryItem.logoSrc,
@@ -254,7 +257,7 @@
             subTitle: '',
             type: 'mem',
             size: me.mem,
-            diff: me.stageApp['deploy-json'].mem != me.mem
+            diff: me.stageApp['deployJson'].mem != me.mem
           },
           {
             image: me.categoryItem.logoSrc,
@@ -262,7 +265,7 @@
             subTitle: '',
             type: 'cpus',
             size: me.cpus,
-            diff: me.stageApp['deploy-json'].cpus != me.cpus
+            diff: me.stageApp['deployJson'].cpus != me.cpus
           }
         ]
       }

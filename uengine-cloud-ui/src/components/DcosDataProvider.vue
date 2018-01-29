@@ -63,13 +63,14 @@
         }
         return text;
       },
-      rollback: function (deploymentId, cb) {
+      rollbackDcosApp: function (deploymentId, cb) {
         var me = this;
+        me.$root.$children[0].block();
         this.$root.dcos('service/marathon/v2/deployments/' + deploymentId)
           .remove({})
           .then(
             function (response) {
-              me.$root.$children[0].success('배포를 중단하였습니다.');
+              me.$root.$children[0].success('배포를 중단하였습니다. 이전 설정으로 되돌아갑니다.');
               if (cb) {
                 cb(response);
               }
@@ -80,12 +81,16 @@
                 cb(response);
               }
             })
+          .finally(function () {
+            me.$root.$children[0].unblock();
+          });
       },
-      deleteApp: function (appId, force, cb) {
+      deleteDcosApp: function (appId, force, cb) {
         var me = this;
-        var app = this.getAppById(appId);
+        var app = this.getDcosAppById(appId);
         if (app) {
           var forceParam = force ? 'true' : 'false';
+          me.$root.$children[0].block();
           this.$root.dcos('service/marathon/v2/apps/' + appId + '?force=' + forceParam)
             .remove({})
             .then(
@@ -101,13 +106,17 @@
                   cb(response);
                 }
               })
+            .finally(function () {
+              me.$root.$children[0].unblock();
+            });
         }
       },
-      restartApp: function (appId, force, cb) {
+      restartDcosApp: function (appId, force, cb) {
         var me = this;
-        var app = this.getAppById(appId);
+        var app = this.getDcosAppById(appId);
         if (app) {
           var forceParam = force ? 'true' : 'false';
+          me.$root.$children[0].block();
           this.$root.dcos('service/marathon/v2/apps/' + appId + '/restart?force=' + forceParam)
             .save({}, null)
             .then(
@@ -123,15 +132,69 @@
                   cb(response);
                 }
               })
+            .finally(function () {
+              me.$root.$children[0].unblock();
+            });
         }
       },
-      scaleApp: function (appId, instances, force, cb) {
+      createDcosApp: function (appJson, cb) {
         var me = this;
-        var app = this.getAppById(appId);
+        var copy = JSON.parse(JSON.stringify(appJson));
+        me.$root.$children[0].block();
+        this.$root.dcos('service/marathon/v2/apps')
+          .save({}, copy)
+          .then(
+            function (response) {
+              me.$root.$children[0].success("서비스를 생성하였습니다.");
+              if (cb) {
+                cb(response);
+              }
+            },
+            function (response) {
+              me.$root.$children[0].error("서비스를 생성할 수 없습니다.");
+              if (cb) {
+                cb(response);
+              }
+            })
+          .finally(function () {
+            me.$root.$children[0].unblock();
+          });
+      },
+      updateDcosApp: function (appId, appJson, force, cb) {
+        var me = this;
+        var app = this.getDcosAppById(appId);
+        if (app) {
+          var forceParam = force ? 'true' : 'false';
+          var copy = JSON.parse(JSON.stringify(appJson));
+          me.$root.$children[0].block();
+          this.$root.dcos('service/marathon/v2/apps/' + appId + '?partialUpdate=false&force=' + forceParam)
+            .update({}, copy)
+            .then(
+              function (response) {
+                me.$root.$children[0].success("서비스를 수정하였습니다.");
+                if (cb) {
+                  cb(response);
+                }
+              },
+              function (response) {
+                me.$root.$children[0].error("서비스 수정에 실패하였습니다.");
+                if (cb) {
+                  cb(response);
+                }
+              })
+            .finally(function () {
+              me.$root.$children[0].unblock();
+            });
+        }
+      },
+      scaleDcosApp: function (appId, instances, force, cb) {
+        var me = this;
+        var app = this.getDcosAppById(appId);
         if (app) {
           var forceParam = force ? 'true' : 'false';
           var copy = JSON.parse(JSON.stringify(app));
           copy.instances = instances;
+          me.$root.$children[0].block();
           this.$root.dcos('service/marathon/v2/apps/' + appId + '?partialUpdate=false&force=' + forceParam)
             .update({}, copy)
             .then(
@@ -147,15 +210,19 @@
                   cb(response);
                 }
               })
+            .finally(function () {
+              me.$root.$children[0].unblock();
+            });
         }
       },
-      suspendApp: function (appId, force, cb) {
+      suspendDcosApp: function (appId, force, cb) {
         var me = this;
-        var app = this.getAppById(appId);
+        var app = this.getDcosAppById(appId);
         if (app) {
           var forceParam = force ? 'true' : 'false';
           var copy = JSON.parse(JSON.stringify(app));
           copy.instances = 0;
+          me.$root.$children[0].block();
           this.$root.dcos('service/marathon/v2/apps/' + appId + '?partialUpdate=false&force=' + forceParam)
             .update({}, copy)
             .then(
@@ -171,6 +238,9 @@
                   cb(response);
                 }
               })
+            .finally(function () {
+              me.$root.$children[0].unblock();
+            });
         }
       },
       getJobById: function (jobId) {
@@ -185,7 +255,7 @@
         });
         return selectedJob;
       },
-      getAppById: function (appId) {
+      getDcosAppById: function (appId) {
         var selectedApp;
         if (!this.dcosData.groups) {
           return null;
@@ -297,9 +367,9 @@
         if (!this.dcosData.devopsApps) {
           return null;
         }
-        for (var id in this.dcosData.devopsApps.dcos.apps) {
+        for (var id in this.dcosData.devopsApps) {
           if (id == appName) {
-            selectedApp = this.dcosData.devopsApps.dcos.apps[id];
+            selectedApp = this.dcosData.devopsApps[id];
           }
         }
         return selectedApp;
@@ -309,14 +379,14 @@
         if (devApp) {
           var newProd;
           if (devApp.prod.deployment == 'green') {
-            newProd = this.getAppById('/' + appName + '-blue');
+            newProd = this.getDcosAppById('/' + appName + '-blue');
           } else {
-            newProd = this.getAppById('/' + appName + '-green');
+            newProd = this.getDcosAppById('/' + appName + '-green');
           }
           var data = {
-            prod: this.getAppById(devApp.prod['marathonAppId']),
-            stg: this.getAppById(devApp.stg['marathonAppId']),
-            dev: this.getAppById(devApp.dev['marathonAppId'])
+            prod: this.getDcosAppById(devApp.prod['marathonAppId']),
+            stg: this.getDcosAppById(devApp.stg['marathonAppId']),
+            dev: this.getDcosAppById(devApp.dev['marathonAppId'])
           };
           if (newProd) {
             data.newProd = newProd;
@@ -328,6 +398,7 @@
       },
       updateDevApp: function (appName, data, cb) {
         var me = this;
+        me.$root.$children[0].block();
         this.$root.backend('app/' + appName)
           .update({}, data)
           .then(
@@ -343,9 +414,13 @@
                 cb(response);
               }
             })
+          .finally(function () {
+            me.$root.$children[0].unblock();
+          });
       },
       rollbackDevApp: function (appName, cb) {
         var me = this;
+        me.$root.$children[0].block();
         this.$root.backend('app/' + appName + '/rollback')
           .save({})
           .then(
@@ -361,6 +436,9 @@
                 cb(response);
               }
             })
+          .finally(function () {
+            me.$root.$children[0].unblock();
+          });
       },
       getAppPipeLineJson: function (appName, cb) {
         this.$root.backend('app/' + appName + '/pipeline/info').get()
@@ -370,8 +448,31 @@
             cb(null, response);
           })
       },
+      createApp: function (appCreate, cb) {
+        var me = this;
+        me.$root.$children[0].block();
+        this.$root.backend('app')
+          .save({}, appCreate)
+          .then(
+            function (response) {
+              me.$root.$children[0].error('어플리케이션을 생성하였습니다.');
+              if (cb) {
+                cb(response);
+              }
+            },
+            function (response) {
+              me.$root.$children[0].error('어플리케이션을 생성할 수 없습니다.');
+              if (cb) {
+                cb(response);
+              }
+            })
+          .finally(function () {
+            me.$root.$children[0].unblock();
+          });
+      },
       updateAppExcludeDeployJson: function (appName, json, cb) {
         var me = this;
+        me.$root.$children[0].block();
         this.$root.backend('app/' + appName + '?excludeDeploy=true')
           .update({}, json)
           .then(function (response) {
@@ -381,21 +482,29 @@
             me.$root.$children[0].error('어플리케이션 정보를 업데이트 할 수 없습니다.');
             cb(null, response);
           })
+          .finally(function () {
+            me.$root.$children[0].unblock();
+          });
       },
       updateApp: function (appName, json, cb) {
         var me = this;
+        me.$root.$children[0].block();
         this.$root.backend('app/' + appName)
           .update({}, json)
           .then(function (response) {
-            me.$root.$children[0].success('어플리케이션 빌드 설정을 하였습니다.');
+            me.$root.$children[0].success('어플리케이션 구동 설정을 업데이트 하였습니다.');
             cb(response);
           }, function (response) {
-            me.$root.$children[0].error('어플리케이션 빌드 설정을 할 수 없습니다.');
+            me.$root.$children[0].error('어플리케이션 구동 설정을 변경할 수 없습니다.');
             cb(null, response);
           })
+          .finally(function () {
+            me.$root.$children[0].unblock();
+          });
       },
       updateAppPipeLineJson: function (appName, json, cb) {
         var me = this;
+        me.$root.$children[0].block();
         this.$root.backend('app/' + appName + '/pipeline/info')
           .update({}, json)
           .then(function (response) {
@@ -405,6 +514,9 @@
             me.$root.$children[0].error('어플리케이션 빌드 설정을 할 수 없습니다.');
             cb(null, response);
           })
+          .finally(function () {
+            me.$root.$children[0].unblock();
+          });
       },
       excutePipelineTrigger: function (appName, ref, stage, cb) {
         var me = this;
@@ -412,6 +524,7 @@
         if (stage) {
           url = url + '&stage=' + stage;
         }
+        me.$root.$children[0].block();
         this.$root.backend(url)
           .save({})
           .then(
@@ -427,6 +540,9 @@
                 cb(response);
               }
             })
+          .finally(function () {
+            me.$root.$children[0].unblock();
+          });
       },
       runDeployedApp: function (appName, stage, commit, cb) {
         var me = this;
@@ -434,22 +550,29 @@
         if (commit) {
           url = url + '&commit=' + commit;
         }
+        me.$root.$children[0].block();
         this.$root.backend(url)
           .save({})
           .then(
             function (response) {
+              me.$root.$children[0].success("앱 배포를 시작하였습니다.");
               if (cb) {
                 cb(response);
               }
             },
             function (response) {
+              me.$root.$children[0].error("앱 배포 요청에 실패하였습니다.");
               if (cb) {
                 cb(response);
               }
             })
+          .finally(function () {
+            me.$root.$children[0].unblock();
+          });
       },
       removeDevAppByName: function (appName, cb) {
         var me = this;
+        me.$root.$children[0].block();
         this.$root.backend('app/' + appName)
           .remove({})
           .then(
@@ -465,9 +588,13 @@
                 cb(response);
               }
             })
+          .finally(function () {
+            me.$root.$children[0].unblock();
+          });
       },
       removeDevAppStage: function (appName, stage, cb) {
         var me = this;
+        me.$root.$children[0].block();
         this.$root.backend('app/' + appName + '/deploy?stage=' + stage)
           .remove({})
           .then(
@@ -483,6 +610,9 @@
                 cb(response);
               }
             })
+          .finally(function () {
+            me.$root.$children[0].unblock();
+          });
       },
       getDevAppByName: function (appName, cb) {
         this.$root.backend('app/' + appName).get()
@@ -518,11 +648,16 @@
       },
       updateDevAppConfigYml: function (appName, stage, yml, cb) {
         var me = this;
-        this.$root.backend('app/' + appName + '/config?stage=' + stage)
+        var stageParam = stage ? stage : '';
+        me.$root.$children[0].block();
+        this.$root.backend('app/' + appName + '/config?stage=' + stageParam)
           .update({}, yml)
           .then(
             function (response) {
               me.$root.$children[0].success('어플리케이션 환경 정보를 저장하였습니다.');
+
+              me.runDeployedAppByExistStages(appName, stage);
+
               if (cb) {
                 cb(response);
               }
@@ -533,7 +668,63 @@
                 cb(response);
               }
             })
+          .finally(function () {
+            me.$root.$children[0].unblock();
+          });
       },
+      runDeployedAppByExistStages: function (appName, stage) {
+        var me = this;
+        var existStages = [];
+        if (me.getDcosAppById('/' + appName + '-green') || me.getDcosAppById('/' + appName + '-blue')) {
+          existStages.push('prod')
+        }
+        if (me.getDcosAppById('/' + appName + '-dev')) {
+          existStages.push('dev')
+        }
+        if (me.getDcosAppById('/' + appName + '-stg')) {
+          existStages.push('stg')
+        }
+        var toChangeStages = [];
+        //스테이지가 지정된 경우
+        if (stage) {
+          if (existStages.indexOf(stage) != -1) {
+            toChangeStages.push(stage);
+          }
+        }
+        //지정되지 않은 경우 (공통)
+        else {
+          toChangeStages = existStages;
+        }
+        if (toChangeStages && toChangeStages.length) {
+          var stageNames = '';
+          $.each(toChangeStages, function (i, toChangeStage) {
+            if (toChangeStage == 'prod') {
+              stageNames += '[프로덕션] '
+            }
+            else if (toChangeStage == 'stg') {
+              stageNames += '[스테이징] '
+            }
+            else if (toChangeStage == 'dev') {
+              stageNames += '[개발] '
+            }
+          });
+          me.$root.$children[0].confirm(
+            {
+              contentHtml: '변경된 설정으로 인해 ' + stageNames + ' 서버들이 영향을 받습니다. 앱들을 재시작하겠습니까?',
+              okText: '진행하기',
+              cancelText: '취소',
+              callback: function () {
+                //스테이지 디플로이
+                $.each(toChangeStages, function (s, toChangeStage) {
+                  me.runDeployedApp(appName, toChangeStage, null, function (response) {
+
+                  });
+                });
+              }
+            });
+        }
+      },
+
       getProject: function (projectId, cb) {
         this.$root.gitlab('api/v4/projects/' + projectId).get()
           .then(function (response) {

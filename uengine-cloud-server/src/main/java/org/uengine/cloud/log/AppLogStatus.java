@@ -7,5 +7,7 @@ public enum AppLogStatus {
     SUCCESS,
     FAILED,
     CANCELED,
-    SKIPPED
+    SKIPPED,
+    RUNNING,
+    PENDING
 }

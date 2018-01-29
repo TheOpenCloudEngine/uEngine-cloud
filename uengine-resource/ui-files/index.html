@@ -21,9 +21,11 @@
   <script src="/static/js/plugins/flot/jquery.flot.time.js"></script>
 
   <script>
-    var configServerUrl = 'http://@host.config@';
-    var eurekaServerUrl = 'http://@host.eureka-server@';
-    var baseUrl = location.protocol + '//' + location.hostname + (location.port ? ':' + location.port : '');
+      var backendUrl = 'http://@host.cloud-server@';
+      //var backendUrl = 'http://localhost:8080';
+      var iamUrl = 'http://@host.iam@';
+
+      var baseUrl = location.protocol + '//' + location.hostname + (location.port ? ':' + location.port : '');
   </script>
   <style>
     body {

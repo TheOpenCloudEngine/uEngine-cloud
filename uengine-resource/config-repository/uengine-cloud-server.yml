@@ -22,4 +22,6 @@ registry:
   
 public-agent-ip: @server.public.public@
 
+default-host: @host.default@
+
 cadvisor:

@@ -12,6 +12,7 @@
               <md-table-head md-sort-by="name">이름</md-table-head>
               <md-table-head md-sort-by="instances">인스턴스</md-table-head>
               <md-table-head md-sort-by="status">상태</md-table-head>
+              <md-table-head md-sort-by="accessLevel">소유</md-table-head>
               <md-table-head md-sort-by="cpu" md-numeric style="text-align: left">CPU</md-table-head>
               <md-table-head md-sort-by="mem" md-numeric style="text-align: left">메모리(MB)</md-table-head>
               <md-table-head md-sort-by="disk" md-numeric style="text-align: left">디스크(MB)</md-table-head>
@@ -57,6 +58,28 @@
                 <service-progress v-else :app="app"></service-progress>
               </md-table-cell>
 
+              <md-table-cell>
+                <div v-if="app.accessLevel == 50">
+                  Owner
+                </div>
+                <div v-if="app.accessLevel == 40">
+                  Master
+                </div>
+                <div v-if="app.accessLevel == 30">
+                  Developer
+                </div>
+                <div class="md-caption" v-if="app.accessLevel == 20">
+                  Reporter
+                </div>
+                <div class="md-caption" v-if="app.accessLevel == 10">
+                  Guest
+                </div>
+                <div class="md-caption" v-if="app.accessLevel == 0">
+                  None
+                </div>
+
+              </md-table-cell>
+
               <md-table-cell>{{app.cpus}}</md-table-cell>
               <md-table-cell>{{app.mem}}</md-table-cell>
               <md-table-cell>{{app.disk}}</md-table-cell>
@@ -70,19 +93,19 @@
 
                   <md-menu-content>
                     <md-menu-item v-on:click="openEdit(app.id)">
-                      <span>Edit</span>
+                      <span>수정</span>
                     </md-menu-item>
                     <md-menu-item v-on:click="openScaleApp(app.id,'scale')">
-                      <span>Scale</span>
+                      <span>인스턴스 수 조정</span>
                     </md-menu-item>
                     <md-menu-item v-on:click="openScaleApp(app.id,'restart')">
-                      <span>Restart</span>
+                      <span>재시작</span>
                     </md-menu-item>
                     <md-menu-item v-on:click="openScaleApp(app.id,'suspend')">
-                      <span>Suspend</span>
+                      <span>중단</span>
                     </md-menu-item>
                     <md-menu-item v-on:click="openScaleApp(app.id,'delete')">
-                      <span>Delete</span>
+                      <span>삭제</span>
                     </md-menu-item>
                   </md-menu-content>
                 </md-menu>
@@ -156,16 +179,15 @@
           return;
         }
         //appId 를 추린다.
-        if (me.dcosData.devopsApps.dcos) {
-          for (var appId in me.dcosData.devopsApps.dcos.apps) {
-            //var appId = key;
-            excludeServiced.push('/' + appId + '-green');
-            excludeServiced.push('/' + appId + '-blue');
-            excludeServiced.push('/' + appId + '-dev');
-          }
+        for (var appId in me.dcosData.devopsApps) {
+          //var appId = key;
+          excludeServiced.push('/' + appId + '-green');
+          excludeServiced.push('/' + appId + '-blue');
+          excludeServiced.push('/' + appId + '-dev');
         }
+
         if (me.mode == 'app') {
-          for (var appId in me.dcosData.devopsApps.dcos.apps) {
+          for (var appId in me.dcosData.devopsApps) {
             var app = {
               tasksStaged: 0,
               instances: 0,
@@ -175,7 +197,8 @@
               cpus: 0,
               mem: 0,
               disk: 0,
-              deployments: []
+              deployments: [],
+              accessLevel: me.dcosData.devopsApps[appId].accessLevel
             };
 
             //메소스 app 를 합산.
@@ -214,12 +237,11 @@
                 }
               }
             }
-            if (me.dcosData.devopsApps.dcos.apps[appId].iam == window.localStorage['userName'] || window.localStorage['acl']=='admin') {
-              app.id = appId;
-              app.type = 'app';
-              list.push(app);
-              list = list.concat(additionalList);
-            }
+
+            app.id = appId;
+            app.type = 'app';
+            list.push(app);
+            list = list.concat(additionalList);
           }
         } else if (me.mode == 'service') {
           $.each(me.dcosData.groups.apps, function (i, service) {

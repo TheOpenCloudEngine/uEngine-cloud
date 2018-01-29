@@ -32,6 +32,7 @@
           window.iam.validateToken(access_token)
             .done(function (info) {
               localStorage['access_token'] = access_token;
+
               //원래 가고자 했던 화면으로 리다이렉트
               if (localStorage['redirect'] && localStorage['redirect'] != 'undefined') {
                 me.$router.push({

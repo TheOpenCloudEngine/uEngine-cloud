@@ -13,7 +13,7 @@
     <md-sidenav class="md-left" ref="leftSidenav">
       <md-toolbar class="md-account-header">
         <md-layout>
-          <iam-avatar :iam="iam"></iam-avatar>
+          <iam-avatar></iam-avatar>
         </md-layout>
       </md-toolbar>
 
@@ -36,7 +36,7 @@
 <script>
   export default {
     props: {
-      iam: Object
+
     },
     data() {
       return {
@@ -62,17 +62,6 @@
     methods: {
       toggleLeftSidenav() {
         this.$refs.leftSidenav.toggle();
-      },
-      logout: function () {
-        var me = this;
-        this.iam.logout();
-
-        //Additional access_token storage
-        localStorage.removeItem('access_token');
-
-        this.$router.push({
-          path: '/auth/login'
-        })
       },
       updateActive: function () {
         var me = this;

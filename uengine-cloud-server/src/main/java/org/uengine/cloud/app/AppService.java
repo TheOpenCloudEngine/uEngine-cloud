@@ -9,6 +9,8 @@ import org.gitlab4j.api.GitLabApi;
 import org.gitlab4j.api.models.Project;
 import org.gitlab4j.api.models.User;
 import org.uengine.iam.client.IamClient;
+import org.uengine.iam.client.ResourceOwnerPasswordCredentials;
+import org.uengine.iam.client.TokenType;
 import org.uengine.iam.client.model.OauthUser;
 import org.uengine.iam.util.HttpUtils;
 import org.uengine.iam.util.JsonUtils;
@@ -16,14 +18,10 @@ import org.uengine.iam.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
-import org.uengine.cloud.scheduler.CronTable;
 import org.uengine.cloud.scheduler.JobScheduler;
 import org.uengine.cloud.tenant.TenantContext;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Created by uengine on 2017. 11. 16..
@@ -31,7 +29,7 @@ import java.util.UUID;
 @Service
 public class AppService {
     @Autowired
-    Environment environment;
+    private Environment environment;
 
     @Autowired
     private GitLabApi gitLabApi;
@@ -49,14 +47,13 @@ public class AppService {
     private HookController hookController;
 
     @Autowired
-    private CronTable cronTable;
+    private AppAccessLevelRepository appAccessLevelRepository;
 
-    public Map getAppCreateStatus(String appName) throws Exception {
-        int repoId = Integer.parseInt(environment.getProperty("gitlab.config-repo.projectId"));
-        String createFilePath = "deployment/" + appName + "/create.json";
-        String content = gitlabExtentApi.getRepositoryFile(repoId, "master", createFilePath);
-        return JsonUtils.unmarshal(content);
-    }
+    @Autowired
+    private AppJpaRepository appJpaRepository;
+
+    @Autowired
+    private IamClient iamClient;
 
     /**
      * 어플리케이션의 주어진 스테이지의 마라톤 서비스를 재기동한다.
@@ -87,14 +84,15 @@ public class AppService {
      * @throws Exception
      */
     public void rollbackDeployedApp(String appName) throws Exception {
-        Map app = this.getAppByName(appName);
-        Map prod = (Map) app.get("prod");
-        String deployment = prod.get("deployment").toString();
+        AppEntity appEntity = appJpaRepository.findOne(appName);
+
+        AppStage prod = appEntity.getProd();
+        String deployment = prod.getDeployment();
 
         //롤백을 할 수 있는 마라톤 어플이 있는지 확인한다.
         String rollbackDeployment = null;
         String rollbackMarathonAppId = null;
-        String currentMarathonAppId = prod.get("marathonAppId").toString();
+        String currentMarathonAppId = prod.getMarathonAppId();
         if (deployment.equals("blue")) {
             rollbackDeployment = "green";
             rollbackMarathonAppId = "/" + appName + "-green";
@@ -109,13 +107,11 @@ public class AppService {
         }
 
         //dcosApp 에 롤백을 프로덕션으로 등록한다.
-        prod.put("deployment", rollbackDeployment);
-        prod.put("marathonAppId", rollbackMarathonAppId);
+        prod.setDeployment(rollbackDeployment);
+        prod.setMarathonAppId(rollbackMarathonAppId);
+        appEntity.setProd(prod);
 
-        Map dcosMap = this.getDcosMap();
-        Map apps = (Map) ((Map) dcosMap.get("dcos")).get("apps");
-        apps.put(appName, app);
-        this.saveDcosYaml(dcosMap);
+        appJpaRepository.save(appEntity);
 
         //ci-deploy-rollback.json 을  ci-deploy-production.json 으로.
         try {
@@ -146,7 +142,6 @@ public class AppService {
         //특정 디플로이 단계를 삭제 (removeDeployedApp) => 마라톤 어플리케이션을 삭제하는것을 의미한다.
         //미배포 상태 => 마라톤 어플리케이션이 없을 경우 미배포 상태로 정의한다.
         //메소스 앱 삭제
-
 
         if (stage.equals("prod")) {
             String marathonAppId = appName + "-blue";
@@ -265,62 +260,99 @@ public class AppService {
      * @return
      * @throws Exception
      */
-    public Map getAppIncludDeployJson(String appName) throws Exception {
-        Map app = this.getAppByName(appName);
+    public Map getAppIncludeDeployJson(String appName) throws Exception {
+        AppEntity appEntity = appAccessLevelRepository.findByName(appName);
+        Map<String, Object> map = JsonUtils.convertClassToMap(appEntity);
         String[] stages = new String[]{"prod", "stg", "dev"};
         for (String stage : stages) {
             Map deployJson = this.getDeployJson(appName, stage);
-            ((Map) app.get(stage)).put("deploy-json", deployJson);
+
+            switch (stage) {
+                case "dev":
+                    ((Map) map.get("dev")).put("deployJson", deployJson);
+                    break;
+                case "stg":
+                    ((Map) map.get("stg")).put("deployJson", deployJson);
+                    break;
+                case "prod":
+                    ((Map) map.get("prod")).put("deployJson", deployJson);
+                    break;
+            }
         }
-        return app;
+        return map;
     }
 
     /**
      * 어플리케이션의 dcos 정보 및 deploy 정보를 업데이트한다.
      *
      * @param appName
-     * @param appMap
+     * @param appEntity
      * @return
      * @throws Exception
      */
-    public Map updateAppIncludDeployJson(String appName, Map appMap) throws Exception {
-        String copy = JsonUtils.marshal(appMap);
+    public AppEntity updateAppIncludeDeployJson(String appName, AppEntity appEntity) throws Exception {
 
         String[] stages = new String[]{"prod", "stg", "dev"};
         for (String stage : stages) {
-            Map stageMap = ((Map) appMap.get(stage));
-            Map deployJson = (Map) stageMap.get("deploy-json");
+            Map deployJson = null;
+            switch (stage) {
+                case "dev":
+                    deployJson = appEntity.getDev().getDeployJson();
+                    break;
+                case "stg":
+                    deployJson = appEntity.getStg().getDeployJson();
+                    break;
+                case "prod":
+                    deployJson = appEntity.getProd().getDeployJson();
+                    break;
+            }
             this.updateDeployJson(appName, stage, deployJson);
-            stageMap.remove("deploy-json");
         }
 
         //appMap 최종 업로드
-        Map dcosMap = this.getDcosMap();
-        Map apps = (Map) ((Map) dcosMap.get("dcos")).get("apps");
-        apps.put(appName, appMap);
-        this.saveDcosYaml(dcosMap);
+        AppStage dev = appEntity.getDev();
+        dev.setDeployJson(null);
+        appEntity.setDev(dev);
 
-        return JsonUtils.unmarshal(copy);
+        AppStage stg = appEntity.getStg();
+        stg.setDeployJson(null);
+        appEntity.setStg(stg);
+
+        AppStage prod = appEntity.getProd();
+        prod.setDeployJson(null);
+        appEntity.setProd(prod);
+        appJpaRepository.save(appEntity);
+
+        return appEntity;
     }
 
     /**
      * 어플리케이션의 dcos-apps.yml 정보만 업데이트 한다.
      *
      * @param appName
-     * @param appMap
+     * @param appEntity
      * @return
      * @throws Exception
      */
-    public Map updateAppExcludDeployJson(String appName, Map appMap) throws Exception {
-        String copy = JsonUtils.marshal(appMap);
+    public AppEntity updateAppExcludeDeployJson(String appName, AppEntity appEntity) throws Exception {
+
+        appEntity.setName(appName);
 
         //appMap 최종 업로드
-        Map dcosMap = this.getDcosMap();
-        Map apps = (Map) ((Map) dcosMap.get("dcos")).get("apps");
-        apps.put(appName, appMap);
-        this.saveDcosYaml(dcosMap);
+        AppStage dev = appEntity.getDev();
+        dev.setDeployJson(null);
+        appEntity.setDev(dev);
 
-        return JsonUtils.unmarshal(copy);
+        AppStage stg = appEntity.getStg();
+        stg.setDeployJson(null);
+        appEntity.setStg(stg);
+
+        AppStage prod = appEntity.getProd();
+        prod.setDeployJson(null);
+        appEntity.setProd(prod);
+
+        appJpaRepository.save(appEntity);
+        return appEntity;
     }
 
     /**
@@ -331,7 +363,7 @@ public class AppService {
      * @throws Exception
      */
     public void deleteApp(String appName, boolean removeRepository) throws Exception {
-        Map app = this.getAppByName(appName);
+        AppEntity appEntity = appJpaRepository.findOne(appName);
 
         //메소스 앱 삭제
         String[] stages = new String[]{"blue", "green", "stg", "dev"};
@@ -345,7 +377,7 @@ public class AppService {
 
         //프로젝트 삭제
         try {
-            int projectId = Integer.parseInt(((Map) app.get("gitlab")).get("projectId").toString());
+            int projectId = appEntity.getProjectId();
             if (projectId > 0 && removeRepository) {
                 gitLabApi.getProjectApi().deleteProject(projectId);
                 try {
@@ -363,25 +395,30 @@ public class AppService {
         this.removeAppToVcapService(appName);
         this.removeAppConfigYml(appName);
 
-
-        //dcos app 삭제
-        Map dcosMap = this.getDcosMap();
-        Map apps = (Map) ((Map) dcosMap.get("dcos")).get("apps");
-        apps.remove(appName);
-        if (apps.isEmpty()) {
-            ((Map) dcosMap.get("dcos")).put("apps", "");
-        }
-        this.saveDcosYaml(dcosMap);
+        //app 삭제
+        appJpaRepository.delete(appEntity);
     }
 
     public void addAppToVcapService(String appName) throws Exception {
-        Map app = this.getAppByName(appName);
+        AppEntity appEntity = appJpaRepository.findOne(appName);
         String[] stages = new String[]{"prod", "stg", "dev"};
         Map service = new HashMap();
         for (String stage : stages) {
             Map map = new HashMap();
-            map.put("external", ((Map) app.get(stage)).get("external").toString());
-            map.put("internal", ((Map) app.get(stage)).get("internal").toString());
+            switch (stage) {
+                case "dev":
+                    map.put("external", appEntity.getDev().getExternal());
+                    map.put("internal", appEntity.getDev().getInternal());
+                    break;
+                case "stg":
+                    map.put("external", appEntity.getStg().getExternal());
+                    map.put("internal", appEntity.getStg().getInternal());
+                    break;
+                case "prod":
+                    map.put("external", appEntity.getProd().getExternal());
+                    map.put("internal", appEntity.getProd().getInternal());
+                    break;
+            }
             service.put(stage, map);
         }
 
@@ -480,23 +517,56 @@ public class AppService {
      * @return
      * @throws Exception
      */
-    public Map createApp(AppCreate appCreate) throws Exception {
+    public AppEntity createApp(AppCreate appCreate) throws Exception {
 
         //appName 체크
         if (StringUtils.isEmpty(appCreate.getAppName())) {
             throw new Exception("App name is empty");
         }
+
+        //이름 강제 고정
         appCreate.setAppName(appCreate.getAppName().toLowerCase().replaceAll(" ", "-"));
 
         //appName 중복 체크
-        Map<String, Map> apps = this.getApps();
-        if (!apps.isEmpty()) {
-            for (Map.Entry<String, Map> entry : apps.entrySet()) {
-                if (entry.getKey().equals(appCreate.getAppName())) {
-                    throw new Exception("App name is exist");
+        AppEntity existEntity = appJpaRepository.findOne(appCreate.getAppName());
+        if (existEntity != null) {
+            throw new Exception("App name is exist");
+        }
+
+        List<AppEntity> apps = appJpaRepository.findAll();
+
+        //포트 설정
+        int min = 1;
+        int max = 100;
+        int appNumber = 1;
+        for (int i = min; i <= max; i++) {
+            boolean canUse = true;
+            if (!apps.isEmpty()) {
+                for (int i1 = 0; i1 < apps.size(); i1++) {
+                    AppEntity entity = apps.get(i1);
+                    if (i == entity.getNumber()) {
+                        canUse = false;
+                    }
                 }
             }
+            if (canUse) {
+                appNumber = i;
+                break;
+            }
         }
+        int prodPort = 10010 + ((appNumber - 1) * 3) + 1;
+        int stgPort = 10010 + ((appNumber - 1) * 3) + 2;
+        int devPort = 10010 + ((appNumber - 1) * 3) + 3;
+        String internalProdDomain = "marathon-lb-internal.marathon.mesos:" + prodPort;
+        String internalStgDomain = "marathon-lb-internal.marathon.mesos:" + stgPort;
+        String internalDevDomain = "marathon-lb-internal.marathon.mesos:" + devPort;
+        appCreate.setAppNumber(appNumber);
+        appCreate.setDevPort(devPort);
+        appCreate.setStgPort(stgPort);
+        appCreate.setProdPort(prodPort);
+        appCreate.setInternalDevDomain(internalDevDomain);
+        appCreate.setInternalStgDomain(internalStgDomain);
+        appCreate.setInternalProdDomain(internalProdDomain);
 
         //깃랩 프로젝트 체크
         gitLabApi.unsudo();
@@ -511,10 +581,6 @@ public class AppService {
         //러너체크
         int runnerId = gitlabExtentApi.getDockerRunnerId();
 
-        //app 생성
-
-        //doos app 파일 받기
-        Map dcosMap = this.getDcosMap();
 
         //깃랩 사용자 정의
         String userName = TenantContext.getThreadLocalInstance().getUserId();
@@ -532,113 +598,60 @@ public class AppService {
             throw new Exception("Not found gitlab user id: " + gitlabId);
         }
 
-        //신규 app 맵
-        Map app = new HashMap();
-        app.put("number", appCreate.getAppNumber());
-        app.put("appType", appCreate.getCategoryItemId());
-        app.put("iam", userName);
-
-        app.put("gitlab", new HashMap<>());
-        Map gitMap = (Map) app.get("gitlab");
-        gitMap.put("projectId", null);
+        //신규 appEntity
+        AppEntity appEntity = new AppEntity();
+        appEntity.setName(appCreate.getAppName());
+        appEntity.setNumber(appCreate.getAppNumber());
+        appEntity.setAppType(appCreate.getCategoryItemId());
+        appEntity.setIam(userName);
 
         //prod,stg,dev
-        Map<String, Object> prod = new HashMap<>();
-        prod.put("commit-sha", null);
-        prod.put("active", true);
-        prod.put("marathonAppId", "/" + appCreate.getAppName() + "-green");
-        prod.put("service-port", appCreate.getProdPort());
-        prod.put("external", appCreate.getExternalProdDomain());
-        prod.put("internal", appCreate.getInternalProdDomain());
-        prod.put("deployment", "green");
-        app.put("prod", prod);
+        AppStage prod = new AppStage();
+        prod.setMarathonAppId("/" + appCreate.getAppName() + "-green");
+        prod.setServicePort(appCreate.getProdPort());
+        prod.setExternal(appCreate.getExternalProdDomain());
+        prod.setInternal(appCreate.getInternalProdDomain());
+        prod.setDeployment("green");
+        appEntity.setProd(prod);
 
-        Map<String, Object> stg = new HashMap<>();
-        stg.put("commit-sha", null);
-        stg.put("active", true);
-        stg.put("marathonAppId", "/" + appCreate.getAppName() + "-stg");
-        stg.put("service-port", appCreate.getStgPort());
-        stg.put("external", appCreate.getExternalStgDomain());
-        stg.put("internal", appCreate.getInternalStgDomain());
-        stg.put("deployment", "stg");
-        app.put("stg", stg);
+        AppStage stg = new AppStage();
+        stg.setMarathonAppId("/" + appCreate.getAppName() + "-stg");
+        stg.setServicePort(appCreate.getStgPort());
+        stg.setExternal(appCreate.getExternalStgDomain());
+        stg.setInternal(appCreate.getInternalStgDomain());
+        stg.setDeployment("stg");
+        appEntity.setStg(stg);
 
-        Map<String, Object> dev = new HashMap<>();
-        dev.put("commit-sha", null);
-        dev.put("active", true);
-        dev.put("marathonAppId", "/" + appCreate.getAppName() + "-dev");
-        dev.put("service-port", appCreate.getDevPort());
-        dev.put("external", appCreate.getExternalDevDomain());
-        dev.put("internal", appCreate.getInternalDevDomain());
-        dev.put("deployment", "dev");
-        app.put("dev", dev);
 
-        apps.put(appCreate.getAppName(), app);
-        ((Map) dcosMap.get("dcos")).put("apps", apps);
-        this.saveDcosYaml(dcosMap);
+        AppStage dev = new AppStage();
+        dev.setMarathonAppId("/" + appCreate.getAppName() + "-dev");
+        dev.setServicePort(appCreate.getDevPort());
+        dev.setExternal(appCreate.getExternalDevDomain());
+        dev.setInternal(appCreate.getInternalDevDomain());
+        dev.setDeployment("dev");
+        appEntity.setDev(dev);
 
-        //deployment/create.json 생성.
-        //후에 초기 마라톤 명세서 작성시 리소스 분배 정보가 담겨있으니 템플릿 변환에 참조하도록 한다.
-        Map createMap = new HashMap();
-        createMap.put("status", "repository-create");
-        createMap.put("definition", JsonUtils.convertClassToMap(appCreate));
-        gitlabExtentApi.updateOrCraeteRepositoryFile(
-                Integer.parseInt(environment.getProperty("gitlab.config-repo.projectId")),
-                "master", "deployment/" + appCreate.getAppName() + "/create.json", JsonUtils.marshal(createMap)
-        );
+        //생성 상태 저장
+        appEntity.setCreateStatus("repository-create");
+
+        //콘피그 패스워드 생성
+        appEntity.setConfigPassword(UUID.randomUUID().toString());
+
+        //시큐어 콘피그 여부 저장
+        appEntity.setInsecureConfig(appCreate.getInsecureConfig());
+
+        AppEntity save = appJpaRepository.save(appEntity);
+
 
         //vcapservice 등록
         this.addAppToVcapService(appCreate.getAppName());
-
 
         //앱 생성 백그라운드 작업 시작.
         appCreate.setUser(TenantContext.getThreadLocalInstance().getUser());
         jobScheduler.startJobImmediatly(UUID.randomUUID().toString(), "appCreate", JsonUtils.convertClassToMap(appCreate));
 
         System.out.println("End");
-        return app;
-    }
-
-    /**
-     * 모든 어플리케이션을 가져온다.
-     *
-     * @return
-     * @throws Exception
-     */
-    public Map<String, Map> getApps() throws Exception {
-        String configUrl = environment.getProperty("spring.cloud.config.uri");
-        String url = configUrl + "/" + "dcos-apps.json";
-        HttpResponse httpResponse = new HttpUtils().makeRequest("GET", url, null, new HashMap<>());
-        HttpEntity entity = httpResponse.getEntity();
-        String json = EntityUtils.toString(entity);
-
-        Map map = JsonUtils.marshal(json);
-        Map dcos = (Map) map.get("dcos");
-        try {
-            return (Map) dcos.get("apps");
-        } catch (Exception ex) {
-            return new HashMap<>();
-        }
-    }
-
-    /**
-     * 주어진 이름에 해당하는 어플리케이션을 가져온다.
-     *
-     * @param appName
-     * @return
-     * @throws Exception
-     */
-    public Map getAppByName(String appName) throws Exception {
-        Map<String, Map> apps = this.getApps();
-        Map app = null;
-        if (!apps.isEmpty()) {
-            for (Map.Entry<String, Map> entry : apps.entrySet()) {
-                if (entry.getKey().equals(appName)) {
-                    app = entry.getValue();
-                }
-            }
-        }
-        return app;
+        return save;
     }
 
     /**
@@ -650,8 +663,8 @@ public class AppService {
      * @throws Exception
      */
     public Map excutePipelineTrigger(String appName, String ref, String stage) throws Exception {
-        Map app = this.getAppByName(appName);
-        int projectId = (int) ((Map) app.get("gitlab")).get("projectId");
+        AppEntity appEntity = appJpaRepository.findOne(appName);
+        int projectId = appEntity.getProjectId();
         String token = gitlabExtentApi.getProjectDcosTriggerToken(projectId);
 
         //콘텐트 교체.
@@ -697,6 +710,26 @@ public class AppService {
         String UENGINE_CLOUD_URL = environment.getProperty("vcap.services.uengine-cloud-server.external");
         int CONFIG_REPO_ID = Integer.parseInt(environment.getProperty("gitlab.config-repo.projectId"));
 
+        String accessToken = null;
+        try {
+            AppEntity appEntity = appJpaRepository.findOne(appName);
+            String userName = appEntity.getIam();
+            OauthUser oauthUser = iamClient.getUser(userName);
+            ResourceOwnerPasswordCredentials passwordCredentials = new ResourceOwnerPasswordCredentials();
+            passwordCredentials.setUsername(oauthUser.getUserName());
+            passwordCredentials.setPassword(oauthUser.getUserPassword());
+            passwordCredentials.setScope("cloud-server");
+            passwordCredentials.setToken_type(TokenType.JWT);
+
+            Map claim = new HashMap();
+            passwordCredentials.setClaim(JsonUtils.marshal(claim));
+
+            Map map = iamClient.accessToken(passwordCredentials);
+            accessToken = map.get("access_token").toString();
+        } catch (Exception ex) {
+            throw new RuntimeException("Failed to create ci Iam access_token");
+        }
+
         //프로젝트 파라미터
         data.put("APP_NAME", APP_NAME);
         data.put("CONFIG_SERVER_URL", "http://" + CONFIG_SERVER_URL);
@@ -704,55 +737,63 @@ public class AppService {
         data.put("REGISTRY_URL", REGISTRY_URL);
         data.put("UENGINE_CLOUD_URL", "http://" + UENGINE_CLOUD_URL);
         data.put("CONFIG_REPO_ID", CONFIG_REPO_ID);
+        data.put("ACCESS_TOKEN", accessToken);
         //data.put("PROFILE", stage);
         //data.put("APPLICATION_NAME", appName);
+
+        try {
+            System.out.println(data.get("APP_NAME").toString());
+            System.out.println(data.get("CONFIG_SERVER_URL").toString());
+            System.out.println(data.get("CONFIG_SERVER_INTERNAL_URL").toString());
+            System.out.println(data.get("REGISTRY_URL").toString());
+            System.out.println(data.get("UENGINE_CLOUD_URL").toString());
+            System.out.println(data.get("CONFIG_REPO_ID").toString());
+            System.out.println(data.get("ACCESS_TOKEN").toString());
+        } catch (Exception ex) {
+
+        }
         return data;
     }
 
-    /**
-     * dcos-apps.yml 의 데이터를 가져온다.
-     *
-     * @return
-     * @throws Exception
-     */
-    public Map getDcosMap() throws Exception {
-        String dcosYml = gitlabExtentApi.getRepositoryFile(
-                Integer.parseInt(environment.getProperty("gitlab.config-repo.projectId")),
-                "master", "dcos-apps.yml"
-        );
-        ObjectMapper yamlReader = new ObjectMapper(new YAMLFactory());
-        return yamlReader.readValue(dcosYml, Map.class);
-    }
-
-    /**
-     * dcos-apps.yml 을 업데이트한다.
-     *
-     * @param dcosMap
-     * @throws Exception
-     */
-    public void saveDcosYaml(Map dcosMap) throws Exception {
-        ObjectMapper yamlReader = new ObjectMapper(new YAMLFactory());
-        String dcosYaml = yamlReader.writeValueAsString(dcosMap);
-
-        gitlabExtentApi.updateOrCraeteRepositoryFile(
-                Integer.parseInt(environment.getProperty("gitlab.config-repo.projectId")),
-                "master", "dcos-apps.yml", dcosYaml);
-    }
 
     public void updateAppConfigChanged(String appName, String stage, boolean isChanged) throws Exception {
         //TODO 스테이지가 없으면 모든 스테이지가 변화된 것.
+        AppEntity appEntity = appJpaRepository.findOne(appName);
         if (StringUtils.isEmpty(stage)) {
-            return;
-        }
-
-        Map app = this.getAppByName(appName);
-        Map stageMap = (Map) app.get(stage);
-        if (isChanged) {
-            stageMap.put("config-changed", true);
+            appEntity.getDev().setConfigChanged(true);
+            appEntity.getStg().setConfigChanged(true);
+            appEntity.getProd().setConfigChanged(true);
         } else {
-            stageMap.remove("config-changed");
+            AppStage appStage = null;
+            switch (stage) {
+                case "dev":
+                    appStage = appEntity.getDev();
+                    break;
+                case "stg":
+                    appStage = appEntity.getStg();
+                    break;
+                case "prod":
+                    appStage = appEntity.getProd();
+                    break;
+            }
+
+            if (isChanged) {
+                appStage.setConfigChanged(true);
+            } else {
+                appStage.setConfigChanged(false);
+            }
         }
-        app.put(stage, stageMap);
-        this.updateAppExcludDeployJson(appName, app);
+        this.updateAppExcludeDeployJson(appName, appEntity);
+    }
+
+    public Map getOriginalCloudConfigJson(String appName, String stage) throws Exception {
+        HttpResponse response = new HttpUtils().makeRequest("GET",
+                "http://" + environment.getProperty("vcap.services.uengine-cloud-config.external") + "/" + appName + "-" + stage + ".json",
+                null,
+                new HashMap<>()
+        );
+        HttpEntity entity = response.getEntity();
+        String json = EntityUtils.toString(entity);
+        return JsonUtils.unmarshal(json);
     }
 }

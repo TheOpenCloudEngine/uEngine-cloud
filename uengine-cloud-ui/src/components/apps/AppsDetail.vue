@@ -10,6 +10,11 @@
       :role="'deploy'"
     ></gitlab-deploy>
 
+    <service-deployments
+      v-on:rows="onDeploymentRows"
+      :appIds="['/'+ appName + '-blue', '/'+ appName + '-green', '/'+ appName + '-dev', '/'+ appName + '-stg']"
+      ref="service-deployments"></service-deployments>
+
     <md-layout v-if="status == 'repository-create-success'">
       <md-layout md-flex="15" style="border-right: 1px solid #DFE3E6;padding: 16px">
         <div>
@@ -48,44 +53,66 @@
                 </md-layout>
                 <md-layout md-flex="60" md-align="end">
 
+                  <!--배포-->
+                  <md-button class="md-raised"
+                             @click="openDeployments">
+                    <md-spinner v-if="deploymentsRowNumber > 0" :md-size="20" md-indeterminate class="md-accent"
+                                style="margin-top: 5px"
+                    ></md-spinner>
+                    ({{deploymentsRowNumber}}) 배포중
+                    <md-tooltip md-direction="bottom">배포중인 앱을 복원할 수 있습니다.</md-tooltip>
+                  </md-button>
+
                   <!--롤백-->
                   <md-button v-if="hasRollback" v-on:click="rollbackApp" class="md-raised md-primary">
+                    <md-tooltip md-direction="bottom">프로덕션 앱을 이전 버젼으로 되돌립니다.</md-tooltip>
                     롤백
                   </md-button>
 
                   <!--라우트-->
                   <md-button v-on:click="$refs['app-route'].open()" class="md-raised md-primary">라우트
+                    <md-tooltip md-direction="bottom">앱 호스트를 목록을 봅니다.</md-tooltip>
                     <md-icon>arrow_drop_down</md-icon>
                   </md-button>
                   <app-route ref="app-route" :app="devApp"></app-route>
 
                   <!--재시작-->
-                  <md-button v-on:click="restartAppStage" class="md-raised md-primary">
+                  <md-button :disabled="devApp.accessLevel < 30 && !isAdmin"
+                             v-on:click="restartAppStage" class="md-raised md-primary">
+                    <md-tooltip md-direction="bottom">앱을 재시작 합니다.</md-tooltip>
                     <md-icon>replay</md-icon>
                   </md-button>
 
                   <!--중지-->
-                  <md-button v-on:click="suspendAppStage" class="md-raised md-primary">
+                  <md-button :disabled="devApp.accessLevel < 30 && !isAdmin"
+                             v-on:click="suspendAppStage" class="md-raised md-primary">
+                    <md-tooltip md-direction="bottom">앱을 중지시킵니다.</md-tooltip>
                     <md-icon>pause_circle_outline</md-icon>
                   </md-button>
 
                   <!--삭제-->
                   <md-menu md-size="4" md-direction="bottom left">
-                    <md-button class="md-raised md-primary" md-menu-trigger>
+                    <md-button :disabled="devApp.accessLevel < 30 && !isAdmin"
+                               class="md-raised md-primary" md-menu-trigger>
+                      <md-tooltip md-direction="bottom">앱을 삭제합니다.</md-tooltip>
                       <md-icon>delete_forever</md-icon>
                     </md-button>
 
                     <md-menu-content>
-                      <md-menu-item v-on:click="remove(appName)">
+                      <md-menu-item v-if="devApp.accessLevel >= 40 || isAdmin"
+                                    v-on:click="remove(appName)">
                         <span>어플리케이션 삭제</span>
                       </md-menu-item>
-                      <md-menu-item v-on:click="removeAppStage('dev')">
+                      <md-menu-item v-if="devApp.accessLevel >= 30 || isAdmin"
+                                    v-on:click="removeAppStage('dev')">
                         <span>개발 영역만 삭제</span>
                       </md-menu-item>
-                      <md-menu-item v-on:click="removeAppStage('stg')">
+                      <md-menu-item v-if="devApp.accessLevel >= 40 || isAdmin"
+                                    v-on:click="removeAppStage('stg')">
                         <span>스테이징 영역만 삭제</span>
                       </md-menu-item>
-                      <md-menu-item v-on:click="removeAppStage('prod')">
+                      <md-menu-item v-if="devApp.accessLevel >= 40 || isAdmin"
+                                    v-on:click="removeAppStage('prod')">
                         <span>프로덕션 영역만 삭제</span>
                       </md-menu-item>
                     </md-menu-content>
@@ -96,31 +123,89 @@
             <div v-if="currentRoute != 'appsDetailDeployment'">
               <md-layout>
                 <md-layout md-flex="50">
-                  <div>
-                    <span class="md-caption">소유자: {{devApp.iam}}</span>
-                    <span style="margin-left: 16px">
-                      <md-radio v-model="stage" :mdValue="'dev'">
-                        <span class="md-caption">개발</span>
-                      </md-radio>
-                      <md-radio v-model="stage" :mdValue="'stg'">
-                        <span class="md-caption">스테이징</span>
-                      </md-radio>
-                      <md-radio v-model="stage" :mdValue="'prod'">
-                        <span class="md-caption">프로덕션</span>
-                      </md-radio>
-                    </span>
+                  <div style="width: 100%">
+                    <md-layout>
+                      <md-layout>
+                        <div>
+                          <span class="md-caption">
+                            <md-tooltip md-direction="bottom">앱의 소유자 입니다.</md-tooltip>
+                            소유자: {{devApp.iam}}
+                          </span><br>
+                          <span class="md-caption">
+                            <md-tooltip md-direction="bottom">앱에 대한 어세스 권한입니다. 깃랩 프로젝트 멤버를 통해 조정가능합니다.</md-tooltip>
+                            프로젝트 권한:
+                            <span v-if="devApp.accessLevel == 50">
+                              Owner
+                            </span>
+                            <span v-if="devApp.accessLevel == 40">
+                              Master
+                            </span>
+                            <span v-if="devApp.accessLevel == 30">
+                              Developer
+                            </span>
+                            <span class="md-caption" v-if="devApp.accessLevel == 20">
+                              Reporter
+                            </span>
+                            <span class="md-caption" v-if="devApp.accessLevel == 10">
+                              Guest
+                            </span>
+                            <span class="md-caption" v-if="devApp.accessLevel == 0">
+                              None
+                            </span>
+                          </span><br>
+                          <span class="md-caption">
+                            <md-tooltip md-direction="bottom">로그인한 사용자의 클라우드 플랫폼 이용권한 입니다.</md-tooltip>
+                            시스템 권한:
+                          <span v-if="isAdmin">
+                              관리자
+                            </span>
+                            <span v-else>
+                              일반
+                            </span>
+                          </span>
+                        </div>
+                      </md-layout>
+                      <md-layout>
+                        <md-radio v-model="stage" :mdValue="'dev'" :disabled="devApp.accessLevel < 30 && !isAdmin">
+                          <md-tooltip md-direction="bottom">Developer 부터 사용가능합니다.</md-tooltip>
+                          <span class="md-caption">개발</span>
+                        </md-radio>
+                        <md-radio v-model="stage" :mdValue="'stg'" :disabled="devApp.accessLevel < 40 && !isAdmin">
+                          <md-tooltip md-direction="bottom">Master, Owner 부터 사용가능합니다.</md-tooltip>
+                          <span class="md-caption">스테이징</span>
+                        </md-radio>
+                        <md-radio v-model="stage" :mdValue="'prod'" :disabled="devApp.accessLevel < 40 && !isAdmin">
+                          <md-tooltip md-direction="bottom">Master, Owner 부터 사용가능합니다.</md-tooltip>
+                          <span class="md-caption">프로덕션</span>
+                        </md-radio>
+                      </md-layout>
+                    </md-layout>
                   </div>
                 </md-layout>
                 <md-layout md-flex="50">
                   <div v-if="commitInfo">
                     <span
-                      class="md-caption">커미터: {{commitInfo.committer_name}} | 날짜: {{commitInfo.committed_date}}</span><br>
-                    <span class="md-caption">커밋: <a
-                      v-on:click="moveGitlab('commit',commitInfo.id)">{{commitInfo.id}}</a></span><br>
-                    <span class="md-caption">태그:
-                      <a v-if="commitInfo.tag" v-on:click="moveGitlab('tag',commitInfo.tag)">{{commitInfo.tag}}</a>
-                      <span v-else>없음</span> |
-                      <a v-on:click="openGitlabDeploy">태그 또는 브랜치 선택하여 배포하기</a></span><br>
+                      class="md-caption">
+                      커미터: {{commitInfo.committer_name}} | 날짜: {{commitInfo.committed_date}}</span><br>
+                    <span class="md-caption">
+                      커밋:
+                      <a v-on:click="moveGitlab('commit',commitInfo.id)">
+                        <md-tooltip md-direction="bottom">커밋 이력으로 이동합니다.</md-tooltip>
+                        {{commitInfo.id}}
+                      </a>
+                    </span><br>
+                    <span class="md-caption">
+                      태그:
+                      <a v-if="commitInfo.tag" v-on:click="moveGitlab('tag',commitInfo.tag)">
+                        <md-tooltip md-direction="bottom">태그 보기로 이동합니다.</md-tooltip>
+                        {{commitInfo.tag}}
+                      </a>
+                    <span v-else>없음</span> |
+                      <a v-on:click="openGitlabDeploy">
+                        <md-tooltip md-direction="bottom">새 버전의 앱 배포합니다.</md-tooltip>
+                        태그 또는 브랜치 선택하여 배포하기
+                      </a>
+                    </span><br>
                   </div>
                 </md-layout>
               </md-layout>
@@ -128,20 +213,54 @@
           </div>
           <div style="width: 100%;padding: 16px" class="bg-default">
             <router-view
+              v-if="devApp.accessLevel >= 30 || isAdmin"
               :stage="stage"
               :devApp="devApp"
               :categoryItem="categoryItem"
               style="width: 100%"></router-view>
+
+            <md-layout v-else class="bg-white">
+              <div class="header-top-line"></div>
+              <md-layout style="height: 200px">
+                <md-card md-with-hover style="width: 100%;">
+                  <md-card-area>
+                    <md-card-content style="text-align: center">
+                      <div>프로젝트에 접근 권한이 없습니다. 프로젝트 멤버또는 그룹으로 등록이 필요합니다.</div>
+                    </md-card-content>
+                  </md-card-area>
+                </md-card>
+              </md-layout>
+            </md-layout>
           </div>
         </div>
       </md-layout>
     </md-layout>
     <md-layout v-else-if="status == 'repository-create-failed'">
-      레파지토리 생성에 실패했습니다.
-      <a v-on:click="remove(appName)">어플리케이션 삭제하기</a>
+      <md-card md-with-hover style="width: 100%;">
+        <md-card-area>
+          <md-card-content style="text-align: center">
+            <div>
+              레파지토리 생성에 실패했습니다.
+              <a v-on:click="remove(appName)">
+                <md-tooltip md-direction="bottom">생성시 사용된 모든 자원을 삭제합니다.</md-tooltip>
+                어플리케이션 삭제하기
+              </a>
+            </div>
+          </md-card-content>
+        </md-card-area>
+      </md-card>
     </md-layout>
     <md-layout :md-gutter="16" v-else-if="status == 'repository-create'">
-      레파지토리 생성중입니다.
+      <md-card md-with-hover style="width: 100%;">
+        <md-card-area>
+          <md-card-content style="text-align: center">
+            <div>
+              <md-spinner :md-size="20" md-indeterminate class="md-accent"></md-spinner>
+              레파지토리 생성중입니다.
+            </div>
+          </md-card-content>
+        </md-card-area>
+      </md-card>
     </md-layout>
   </div>
 </template>
@@ -153,6 +272,7 @@
     props: {},
     data() {
       return {
+        isAdmin: false,
         pipeline: null,
         hasRollback: false,
         tagList: [],
@@ -164,6 +284,7 @@
         categoryItem: null,
         devApp: null,
         status: null,
+        deploymentsRowNumber: 0,
         items: [
           {title: '시작하기', icon: 'question_answer', routerName: 'appsDetailDocs'},
           {title: '개요', icon: 'question_answer', routerName: 'appsDetailDashboard'},
@@ -179,6 +300,7 @@
     },
     mounted() {
       var me = this;
+      me.isAdmin = window.localStorage['acl'] == 'admin' ? true : false;
       me.categoryItem = null;
 
       window.busVue.$on('openGitlabDeploy', function (val) {
@@ -187,28 +309,11 @@
 
       this.updateActive();
 
-      //어플리케이션 레파지토리 생성 상태와 어플리케이션 정보를 풀링한다.
-      var intervalStatus = function () {
-        console.log('how many intervalStatus?');
-        me.getDevAppStatusByName(me.appName, function (response, error) {
-          if (response) {
-            me.status = response.data.status;
-          } else {
-            me.status = null;
-          }
-          if (me.interval && me.status != 'repository-create-success') {
-            setTimeout(function () {
-              intervalStatus();
-            }, 2000);
-          }
-        });
-      };
-      intervalStatus();
-
       var intervalDevApp = function () {
         me.getDevAppByName(me.appName, function (response, error) {
           if (response) {
             me.devApp = response.data;
+            me.status = response.data['createStatus'];
             if (!me.categoryItem) {
               me.getCategoryItem(me.devApp.appType, function (item) {
                 me.categoryItem = item;
@@ -253,9 +358,15 @@
       }
     },
     methods: {
+      openDeployments: function () {
+        this.$refs['service-deployments'].open();
+      },
+      onDeploymentRows: function (rowNumbers) {
+        this.deploymentsRowNumber = rowNumbers;
+      },
       updateCIInfo: function () {
         var me = this;
-        var projectId = me.devApp.gitlab.projectId;
+        var projectId = me.devApp.projectId;
         me.$root.gitlab('api/v4/projects/' + projectId + '/pipelines?page=1&per_page=1').get()
           .then(function (response) {
             if (response.data && response.data.length) {
@@ -264,9 +375,18 @@
           })
       },
       rollbackApp: function () {
-        this.rollbackDevApp(this.appName, function (response) {
+        var me = this;
+        me.$root.$children[0].confirm(
+          {
+            contentHtml: '롤백용으로 보관된 프로덕션 앱이 있습니다. 프로덕션 앱을 교체하시겠습니까?',
+            okText: '진행하기',
+            cancelText: '취소',
+            callback: function () {
+              me.rollbackDevApp(me.appName, function (response) {
 
-        })
+              })
+            }
+          });
       },
       openGitlabDeploy: function () {
         this.$refs['gitlab-deploy'].open();
@@ -285,9 +405,9 @@
           me.commitInfo = null;
           return;
         }
-        var projectId = me.devApp.gitlab.projectId;
+        var projectId = me.devApp.projectId;
         var marathonAppId = me.devApp[me.stage]['marathonAppId'];
-        var marathonApp = me.getAppById(marathonAppId);
+        var marathonApp = me.getDcosAppById(marathonAppId);
         if (!marathonApp) {
           me.commitInfo = null;
           return;
@@ -332,37 +452,70 @@
       restartAppStage: function () {
         var me = this;
         var marathonAppId = me.devApp[me.stage]['marathonAppId'];
-        me.restartApp(marathonAppId, true, function (response) {
+        me.$root.$children[0].confirm(
+          {
+            contentHtml: '앱을 재시작합니다. 재시작된 앱이 실행될 때 까지 이전의 앱의 삭제되지 않습니다.',
+            okText: '진행하기',
+            cancelText: '취소',
+            callback: function () {
+              me.restartDcosApp(marathonAppId, true, function (response) {
 
-        });
+              });
+            }
+          });
       },
       suspendAppStage: function () {
         var me = this;
         if (!me.devApp) {
           return;
         }
-        var data = JSON.parse(JSON.stringify(me.devApp));
-        data[me.stage]['deploy-json'].instances = 0;
-        //업데이트
-        me.updateDevApp(me.appName, data, function (response) {
-          window.busVue.$emit('appRefresh', true);
-          //스테이지 디플로이
-          me.runDeployedApp(me.appName, me.stage, null, function (response) {
+        me.$root.$children[0].confirm(
+          {
+            contentHtml: '앱을 중지합니다. 배포된 앱이 삭제되지는 않으며, 스케일 조정을 통해 복구하실 수 있습니다.',
+            okText: '진행하기',
+            cancelText: '취소',
+            callback: function () {
+              var data = JSON.parse(JSON.stringify(me.devApp));
+              data[me.stage]['deployJson'].instances = 0;
+              //업데이트
+              me.updateDevApp(me.appName, data, function (response) {
+                window.busVue.$emit('appRefresh', true);
+                //스테이지 디플로이
+                me.runDeployedApp(me.appName, me.stage, null, function (response) {
+                });
+              });
+            }
           });
-        });
       },
       removeAppStage: function (stage) {
-        this.removeDevAppStage(this.appName, stage);
+        var me = this;
+        me.$root.$children[0].confirm(
+          {
+            contentHtml: stage + ' 서버에 배포된 앱을 완전히 삭제합니다. 복구를 위해서는 재배포가 필요합니다.',
+            okText: '진행하기',
+            cancelText: '취소',
+            callback: function () {
+              me.removeDevAppStage(this.appName, stage);
+            }
+          });
       },
       remove: function (appName) {
         var me = this;
-        this.removeDevAppByName(appName, function () {
-          me.$router.push(
-            {
-              name: 'appsOverview'
+        me.$root.$children[0].confirm(
+          {
+            contentHtml: '앱과, 소스코드를 완전히 삭제합니다. (주의: 중요 소스코드는 백업해두세요)',
+            okText: '진행하기',
+            cancelText: '취소',
+            callback: function () {
+              me.removeDevAppByName(appName, function () {
+                me.$router.push(
+                  {
+                    name: 'appsOverview'
+                  }
+                )
+              });
             }
-          )
-        });
+          });
       },
       move: function (routeName) {
         var me = this;
@@ -386,7 +539,7 @@
         window.open(url);
       },
       moveGitlab: function (type, objectId) {
-        this.getProject(this.devApp.gitlab.projectId, function (response, err) {
+        this.getProject(this.devApp.projectId, function (response, err) {
           var url = response.data.web_url;
           if (type == 'project') {
             window.open(url);

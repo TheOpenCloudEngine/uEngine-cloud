@@ -7,9 +7,6 @@ spring:
 ---
 spring:
   profiles: local
-  cloud:
-    config:
-      uri: http://config.pas-mini.io
 
 # ui host for embedded front-end. Not in docker(local), front-end and server is separated for development
 ui-host: http://localhost:8081/

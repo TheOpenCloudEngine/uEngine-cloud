@@ -68,44 +68,47 @@
 
     }
     ,
-    //TODO newservice 도 다이어로그창 빼기
     methods: {
       action: function () {
         //409
         var me = this;
         if (this.role == 'scale') {
-          this.scaleApp(this.appId, this.instances, this.force, function (response) {
+          this.scaleDcosApp(this.appId, this.instances, this.force, function (response) {
             if (response.status == 409) {
               me.force = true;
             } else {
               me.force = false;
+              me.close();
             }
           });
         }
         if (this.role == 'suspend') {
-          this.suspendApp(this.appId, this.force, function (response) {
+          this.suspendDcosApp(this.appId, this.force, function (response) {
             if (response.status == 409) {
               me.force = true;
             } else {
               me.force = false;
+              me.close();
             }
           });
         }
         if (this.role == 'restart') {
-          this.restartApp(this.appId, this.force, function (response) {
+          this.restartDcosApp(this.appId, this.force, function (response) {
             if (response.status == 409) {
               me.force = true;
             } else {
               me.force = false;
+              me.close();
             }
           });
         }
         if (this.role == 'delete') {
-          this.deleteApp(this.appId, this.force, function (response) {
+          this.deleteDcosApp(this.appId, this.force, function (response) {
             if (response.status == 409) {
               me.force = true;
             } else {
               me.force = false;
+              me.close();
             }
           });
         }
@@ -115,7 +118,7 @@
         this.role = role;
         this.force = false;
         this.$refs['open'].open();
-        var app = this.getAppById(appId);
+        var app = this.getDcosAppById(appId);
         if (app) {
           this.instances = app.instances;
         }

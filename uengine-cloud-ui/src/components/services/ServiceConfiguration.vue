@@ -191,7 +191,7 @@
     watch: {
       'dcosData': {
         handler: function (newVal, oldVal) {
-          this.app = this.getAppById(this.appId);
+          this.app = this.getDcosAppById(this.appId);
         },
         deep: true
       }
