@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import ServiceLocator from '@/components/ServiceLocator'
 import Home from '@/components/Home'
 import Dashboard from '@/components/Dashboard'
 Vue.component('dashboard', Dashboard);
@@ -54,10 +53,6 @@ let VueResource = require('vue-resource-2');
 Vue.use(VueResource);
 
 
-/**
- * ServiceLocator
- */
-Vue.component('service-locator', ServiceLocator);
 Vue.http.interceptors.push(function (request, next) {
   request.headers['access_token'] = localStorage['access_token'];
   next();
