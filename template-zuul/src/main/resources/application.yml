@@ -35,10 +35,10 @@ eureka:
         profile: local
         appType: zuul
 
-#zuul:
-#  ignored-headers: Access-Control-Allow-Credentials, Access-Control-Allow-Origin
-#  addProxyHeaders: true
-#  routes:
+zuul:
+  ignored-headers: Access-Control-Allow-Credentials, Access-Control-Allow-Origin
+  addProxyHeaders: true
+  routes:
 #    order:
 #      path: /orders/**
 #      serviceId: order-service
@@ -46,6 +46,25 @@ eureka:
 #      iam-scopes:
 #        - catalog-access/GET
 #        - catalog-manage/POST-PATCH-DELETE
+    order:
+      path: /orders/**
+      serviceId: order-service
+      stripPrefix: false
+      iam-scopes:
+        - guest/GET
+        - catalog-order/PUT-POST-DELETE
+    customer:
+      path: /customers/**
+      serviceId: customer-service
+      stripPrefix: false
+
+    item:
+      path: /items/**
+      serviceId: order-service
+      stripPrefix: false
+      iam-scopes:
+        - catalog-access/GET
+        - catalog-manage/PUT-POST-DELETE
 
 #    order-manage:
 #      path: /orders/**

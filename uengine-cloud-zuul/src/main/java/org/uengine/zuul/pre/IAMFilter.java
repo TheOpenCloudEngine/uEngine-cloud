@@ -108,7 +108,7 @@ public class IAMFilter extends ZuulFilter {
                             String scope = scopeAndMethod[0].trim();
                             String methods = scopeAndMethod.length > 1 ? scopeAndMethod[1] : null;
 
-                            if (myScopes.contains(scope) || "*".equals(scope)) {
+                            if (myScopes.contains(scope) || "guest".equals(scope)) {
 
                                 hasScope = true;
 
