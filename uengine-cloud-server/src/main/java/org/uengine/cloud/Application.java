@@ -5,6 +5,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
 import org.uengine.cloud.app.AppAccessLevelRepository;
 import org.uengine.cloud.app.AppEntity;
+import org.uengine.cloud.migration.MigrationService;
 import org.uengine.cloud.tenant.TenantContext;
 import org.uengine.iam.client.model.OauthUser;
 import org.uengine.iam.util.HttpUtils;
@@ -52,6 +53,9 @@ public class Application {
     @Autowired
     private AppAccessLevelRepository appAccessLevelRepository;
 
+    @Autowired
+    private MigrationService migrationService;
+
     //findAll
 
     @RequestMapping(value = "/fetchData", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
@@ -92,6 +96,14 @@ public class Application {
                              HttpServletResponse response
     ) throws Exception {
         dcosApi.refreshRoute();
+        response.setStatus(200);
+    }
+
+    @RequestMapping(value = "/migration", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+    public void migration(HttpServletRequest request,
+                          HttpServletResponse response
+    ) throws Exception {
+        migrationService.migration();
         response.setStatus(200);
     }
 

@@ -40,8 +40,9 @@ iam:
 # 시스템 이메일 정보 (옵셔널)
   mail:
     host: @iam.mail.host@
-    username: "@iam.mail.username@"
-    password: "@iam.mail.password@"
+    username: @iam.mail.username@
+    password: "!gosu23546"
+    #password: @iam.mail.password@
     port: @iam.mail.port@
     smtp-auth: @iam.mail.smtp-auth@
     smtp-starttls-enable: @iam.mail.smtp-starttls-enable@

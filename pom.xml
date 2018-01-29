@@ -19,6 +19,7 @@
         <module>template-springboot</module>
         <module>template-zuul</module>
         <module>template-iam</module>
+        <module>template-tomcat7</module>
     </modules>
 
     <parent>

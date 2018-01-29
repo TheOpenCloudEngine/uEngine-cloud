@@ -76,8 +76,8 @@ iam:
   access-token-lifetime: 7200
   mail:
     host: smtp.gmail.com
-    username: sppark@uengine.org
-    password: !gosu23546
+    username: "sppark@uengine.org"
+    password: "!gosu23546"
     port: 587
     smtp-auth: true
     smtp-starttls-enable: true

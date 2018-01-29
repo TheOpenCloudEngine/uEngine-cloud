@@ -10,6 +10,7 @@
           <md-table-header>
             <md-table-row>
               <md-table-head md-sort-by="name">이름</md-table-head>
+              <md-table-head md-sort-by="appType">종류</md-table-head>
               <md-table-head md-sort-by="instances">인스턴스</md-table-head>
               <md-table-head md-sort-by="status">상태</md-table-head>
               <md-table-head md-sort-by="accessLevel">소유</md-table-head>
@@ -47,6 +48,10 @@
                   <span v-on:click="focusId(app.id)"><md-icon>keyboard_arrow_right</md-icon></span>
                   <a v-on:click="moveApp(app.id)">{{app.id}}</a>
                 </div>
+              </md-table-cell>
+
+              <md-table-cell>
+                {{app.appType}}
               </md-table-cell>
 
               <md-table-cell>
@@ -198,7 +203,8 @@
               mem: 0,
               disk: 0,
               deployments: [],
-              accessLevel: me.dcosData.devopsApps[appId].accessLevel
+              accessLevel: me.dcosData.devopsApps[appId].accessLevel,
+              appType: me.dcosData.devopsApps[appId].appType
             };
 
             //메소스 app 를 합산.

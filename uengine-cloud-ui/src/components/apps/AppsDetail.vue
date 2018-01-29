@@ -312,6 +312,7 @@
       var intervalDevApp = function () {
         me.getDevAppByName(me.appName, function (response, error) {
           if (response) {
+            console.log('response.data', response.data);
             me.devApp = response.data;
             me.status = response.data['createStatus'];
             if (!me.categoryItem) {
