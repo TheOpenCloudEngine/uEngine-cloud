@@ -6,6 +6,7 @@ ARG CI_COMMIT_SHA
 ENV CI_PROJECT_NAME=$CI_PROJECT_NAME
 ENV CI_COMMIT_SHA=$CI_COMMIT_SHA
 
+RUN rm -rf /usr/local/tomcat/webapps/ROOT
 ADD /target/*.war /usr/local/tomcat/webapps/ROOT.war
 RUN chmod +x /usr/local/tomcat/webapps/ROOT.war
 

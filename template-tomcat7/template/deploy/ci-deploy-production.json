@@ -40,7 +40,7 @@
       "ignoreHttp1xx": false,
       "intervalSeconds": 60,
       "maxConsecutiveFailures": 3,
-      "path": "/health",
+      "path": "/",
       "portIndex": 0,
       "protocol": "HTTP",
       "timeoutSeconds": 20,
