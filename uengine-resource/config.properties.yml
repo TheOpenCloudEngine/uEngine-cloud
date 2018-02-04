@@ -41,6 +41,13 @@ gitlab.config-repo.projectId: 47
 gitlab.config-repo.deployment-path: /deployment
 gitlab.config-repo.template-path: /template
 
+nexus.ip: 172.31.10.202
+nexus.username: admin
+nexus.password: admin123
+nexus.public: http://nexus.pas-mini.io/nexus/content/groups/public/
+nexus.release: http://nexus.pas-mini.io/nexus/content/repositories/releases/
+nexus.snapshot: http://nexus.pas-mini.io/nexus/content/repositories/snapshots/
+
 
 
 

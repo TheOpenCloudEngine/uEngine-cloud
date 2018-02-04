@@ -17,6 +17,7 @@ iam:
   clientSecret: @iam.client-secret@
     
 registry:
+  nexus: @nexus.public@
   host: @host.registry.private@
   public-host: @host.registry.public@
   

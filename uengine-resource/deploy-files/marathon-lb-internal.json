@@ -20,7 +20,7 @@
     "type": "DOCKER",
     "volumes": [],
     "docker": {
-      "image": "mesosphere/marathon-lb:v1.11.2",
+      "image": "@host.registry.package@/marathon-lb:v1.11.2",
       "forcePullImage": false,
       "privileged": true,
       "parameters": [

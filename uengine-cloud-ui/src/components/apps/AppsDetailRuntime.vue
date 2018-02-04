@@ -132,8 +132,7 @@
       dcosData: {
         handler: function (newVal, oldVal) {
           var copy = newVal;
-          this.configChanged = copy.devopsApps[this.appName][this.stage]['config-changed']?copy.devopsApps[this.appName][this.stage]['config-changed']:false;
-//          console.log("configChaged",this.configChanged);
+          this.configChanged = copy.devopsApps[this.appName][this.stage]['config-changed'] ? copy.devopsApps[this.appName][this.stage]['config-changed'] : false;
         },
         deep: true
       }

@@ -1,33 +1,33 @@
 {
-  "id": "/uengine-db",
+  "id": "/uengine-nexus",
   "backoffFactor": 1.15,
   "backoffSeconds": 1,
   "constraints": [
     [
       "hostname",
       "LIKE",
-      "@db.ip@"
+      "@nexus.ip@"
     ]
   ],
   "container": {
     "portMappings": [
       {
-        "containerPort": 3306,
+        "containerPort": 8081,
         "hostPort": 0,
         "protocol": "tcp",
-        "servicePort": 10002
+        "servicePort": 10007
       }
     ],
     "type": "DOCKER",
     "volumes": [
       {
-        "containerPath": "/var/lib/mysql",
-        "hostPath": "/mysql/datadir",
+        "containerPath": "/sonatype-work",
+        "hostPath": "/nexus-data",
         "mode": "RW"
       }
     ],
     "docker": {
-      "image": "@host.registry.package@/mysql:5.7",
+      "image": "@host.registry.package@/nexus:2.14.6-02",
       "forcePullImage": false,
       "privileged": false,
       "parameters": [
@@ -38,8 +38,7 @@
   "cpus": 0.3,
   "disk": 0,
   "env": {
-    "MYSQL_DATABASE": "@db.database@",
-    "MYSQL_ROOT_PASSWORD": "@db.password@"
+    "MAX_HEAP": "512m"
   },
   "healthChecks": [
     {

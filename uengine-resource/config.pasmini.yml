@@ -46,6 +46,14 @@ db:
   database: uengine
   password: my-secret-pw
 
+nexus:
+  ip: 192.168.0.13
+  username: admin
+  password: admin123
+  public: http://nexus.pasmini.io/nexus/content/groups/public/
+  release: http://nexus.pasmini.io/nexus/content/repositories/releases/
+  snapshot: http://nexus.pasmini.io/nexus/content/repositories/snapshots/
+
 # Domain part
 host:
   default: pasmini.io
@@ -78,6 +86,19 @@ iam:
     smtp-starttls-enable: true
     from-address: sppark@uengine.org
     from-name: uengine
+
+# Mandatory-docker part
+mandatory-docker:
+  - mesosphere/marathon-lb:v1.11.2
+  - mysql:5.7
+  - docker:latest
+  - node:latest
+  - maven:3-jdk-8
+  - maven:3-jdk-7
+  - sppark/curl-jq:v1
+  - openjdk:8u111-jdk-alpine
+  - tomcat:7.0.84-jre7
+  - webratio/nodejs-http-server
 
 # Cloud package part
 # Fill out those properties after install DC/OS cluster && Gitlab

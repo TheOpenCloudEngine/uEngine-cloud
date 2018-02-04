@@ -41,6 +41,13 @@ gitlab.config-repo.projectId: {{gitlab.config-repo.projectId}}
 gitlab.config-repo.deployment-path: {{gitlab.config-repo.deployment-path}}
 gitlab.config-repo.template-path: {{gitlab.config-repo.template-path}}
 
+nexus.ip: {{nexus.ip}}
+nexus.username: {{nexus.username}}
+nexus.password: {{nexus.password}}
+nexus.public: {{nexus.public}}
+nexus.release: {{nexus.release}}
+nexus.snapshot: {{nexus.snapshot}}
+
 
 
 

@@ -58,26 +58,4 @@
         </dependency>
     </dependencies>
 
-    <!-- Maven Repository -->
-    <repositories>
-        <repository>
-            <id>central</id>
-            <url>http://repo1.maven.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <id>maven2-plugin-repository.maven.apache.org</id>
-            <name>maven.org Plugin Repository for Maven</name>
-            <url>http://repo1.maven.org/maven2/org/apache/maven/plugins/</url>
-            <layout>default</layout>
-        </pluginRepository>
-    </pluginRepositories>
-
 </project>

@@ -146,6 +146,38 @@ public class RunResource {
                 cluseteryml,
                 "UTF-8"
         );
+
+
+        //mandatory-docker-upload.sh 파일을 작성한다.
+        List<String> strings = (List<String>) configMap.get("mandatory-docker");
+        Map mandatory = new HashMap();
+        StringBuilder madatoryBuilder = new StringBuilder();
+        Map registryMap = (Map) ((Map) configMap.get("host")).get("registry");
+        String packageName = registryMap.get("package").toString();
+        for (String image : strings) {
+            String originalImage = "";
+            String[] split = image.split("/");
+            if (split.length > 1) {
+                originalImage = split[1];
+            } else {
+                originalImage = image;
+            }
+            madatoryBuilder.append("docker pull " + image + "\n");
+            madatoryBuilder.append("docker tag " + image + " " + packageName + "/" + originalImage + "\n");
+            madatoryBuilder.append("docker push " + packageName + "/" + originalImage + "\n");
+            madatoryBuilder.append("docker rmi " + packageName + "/" + originalImage + "\n");
+            madatoryBuilder.append("docker rmi " + image + "\n\n\n");
+        }
+        mandatory.put("mandatory", madatoryBuilder.toString());
+        File mandatoryTemplateFile = new File(baseDir + "/install-files/mandatory-docker-upload.template");
+        String mandatoryTemplateString = new String(Files.readAllBytes(Paths.get(mandatoryTemplateFile.getPath())));
+        String mandatoryBody = templateEngine.executeTemplateText(mandatoryTemplateString, mandatory);
+        org.apache.commons.io.FileUtils.writeStringToFile(
+                new File(baseDir + "/install-files/mandatory-docker-upload.sh"),
+                mandatoryBody,
+                "UTF-8"
+        );
+
     }
 
     private static List<String> getCluseterIpList(Map source) {
