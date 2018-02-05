@@ -711,6 +711,7 @@ public class AppService {
         int CONFIG_REPO_ID = Integer.parseInt(environment.getProperty("gitlab.config-repo.projectId"));
         String NEXUS_MVN_URL = environment.getProperty("nexus.mvn.public");
         String NEXUS_NPM_URL = environment.getProperty("nexus.npm.public");
+        String PACKAGE_URL = environment.getProperty("registry.package");
 
         String accessToken = null;
         try {
@@ -742,6 +743,7 @@ public class AppService {
         data.put("ACCESS_TOKEN", accessToken);
         data.put("NEXUS_MVN_URL", NEXUS_MVN_URL);
         data.put("NEXUS_NPM_URL", NEXUS_NPM_URL);
+        data.put("PACKAGE_URL", PACKAGE_URL);
         //data.put("PROFILE", stage);
         //data.put("APPLICATION_NAME", appName);
 
@@ -755,6 +757,7 @@ public class AppService {
             System.out.println(data.get("ACCESS_TOKEN").toString());
             System.out.println(data.get("NEXUS_MVN_URL").toString());
             System.out.println(data.get("NEXUS_NPM_URL").toString());
+            System.out.println(data.get("PACKAGE_URL").toString());
         } catch (Exception ex) {
 
         }

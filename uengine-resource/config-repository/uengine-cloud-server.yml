@@ -17,6 +17,7 @@ iam:
   clientSecret: @iam.client-secret@
     
 registry:
+  package: @host.registry.package@
   host: @host.registry.private@
   public-host: @host.registry.public@
   
