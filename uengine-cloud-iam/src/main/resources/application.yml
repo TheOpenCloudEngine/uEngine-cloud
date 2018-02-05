@@ -54,7 +54,7 @@ iam:
 # =============================================
 scopes:
   - name: cloud-server
-    description: 유엔진 클라우드 서버 접근을 허용합니다.
+    description: 클라우드 서버 접근을 허용합니다.
 
 # =============================================
 #  클라이언트 - 주로 프론트 엔드 어플리케이션에 해당됩니다.
@@ -121,9 +121,30 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
         show_sql: true
   datasource:
-      url: jdbc:mysql://@host.db@/@db.database@
+      url: jdbc:mysql://@host.db@:10002/@db.database@
       username: root
       password: @db.password@
+
+vcap:
+  services:
+    db:
+      external: "@host.db@:10002"
+      internal: "marathon-lb-internal.marathon.mesos:10002"
+    iam:
+      external: "@host.iam@"
+      internal: "marathon-lb-internal.marathon.mesos:10003"
+    uengine-cloud-config:
+      external: "@server.public.public@:10000"
+      internal: "marathon-lb-internal.marathon.mesos:10000"
+    eureka-server:
+      external: "@host.eureka-server@"
+      internal: "marathon-lb-internal.marathon.mesos:10001"
+    uengine-cloud-server:
+      external: "@host.cloud-server@"
+      internal: "marathon-lb-internal.marathon.mesos:10005"
+    uengine-cloud-ui:
+      external: "@host.cloud-ui@"
+      internal: "marathon-lb-internal.marathon.mesos:10006"
 
 # ======================
 #  Eureka Configuration

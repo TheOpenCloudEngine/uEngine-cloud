@@ -39,9 +39,10 @@ public class GitlabExtentApi implements InitializingBean {
     public void afterPropertiesSet() throws Exception {
         //깃랩 호스트 정보 얻기
         //http://config.pas-mini.io/uengine-cloud-server.json 로 get 을 날려야함.
-        String configServerUrl = environment.getProperty("spring.cloud.config.uri");
+        String uengineServerUrl = environment.getProperty("vcap.services.uengine-cloud-server.external");
+        //String configServerUrl = environment.getProperty("spring.cloud.config.uri");
         HttpResponse res = new HttpUtils().makeRequest("GET",
-                configServerUrl + "/uengine-cloud-server.json",
+                "http://" + uengineServerUrl + "/config/uengine-cloud-server.json",
                 null,
                 new HashMap<>()
         );
@@ -78,10 +79,10 @@ public class GitlabExtentApi implements InitializingBean {
     public Map createUserCustomAttributes(Map user) throws Exception {
 
         Map iamUserCustomAttribute = new HashMap();
-        iamUserCustomAttribute.put("value",user.get("userName").toString());
+        iamUserCustomAttribute.put("value", user.get("userName").toString());
 
         HttpResponse response = new HttpUtils().makeRequest("PUT",
-                host + "/api/v4/users/"+user.get("id")+"/custom_attributes/iam",
+                host + "/api/v4/users/" + user.get("id") + "/custom_attributes/iam",
                 JsonUtils.marshal(iamUserCustomAttribute),
                 this.addHeaders()
         );

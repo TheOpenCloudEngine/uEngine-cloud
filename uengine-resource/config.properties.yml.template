@@ -1,3 +1,4 @@
+title: {{title}}
 server.public.master: {{server.public.master}}
 server.public.public: {{server.public.public}}
 
