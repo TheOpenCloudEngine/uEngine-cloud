@@ -20,6 +20,7 @@ build:
   only:
     - triggers
   script:
+    - npm config set registry ${NEXUS_NPM_URL}
     - npm install
     - npm run build
 

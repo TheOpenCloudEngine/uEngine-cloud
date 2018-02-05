@@ -1,7 +1,10 @@
 {
   "id": "/uengine-nexus",
-  "backoffFactor": 1.15,
-  "backoffSeconds": 1,
+  "cmd": null,
+  "cpus": 0.5,
+  "mem": 650,
+  "disk": 0,
+  "instances": 1,
   "constraints": [
     [
       "hostname",
@@ -10,33 +13,30 @@
     ]
   ],
   "container": {
+    "type": "DOCKER",
+    "docker": {
+      "forcePullImage": false,
+      "image": "@host.registry.package@/nexus:2.14.6-02",
+      "parameters": [],
+      "privileged": false
+    },
+    "volumes": [
+      {
+        "containerPath": "/sonatype-work",
+        "hostPath": "/nexus2/sonatype-work",
+        "mode": "RW"
+      }
+    ],
     "portMappings": [
       {
         "containerPort": 8081,
         "hostPort": 0,
+        "labels": {},
         "protocol": "tcp",
         "servicePort": 10007
       }
-    ],
-    "type": "DOCKER",
-    "volumes": [
-      {
-        "containerPath": "/sonatype-work",
-        "hostPath": "/nexus-data",
-        "mode": "RW"
-      }
-    ],
-    "docker": {
-      "image": "@host.registry.package@/nexus:2.14.6-02",
-      "forcePullImage": false,
-      "privileged": false,
-      "parameters": [
-        { "key": "rm", "value": "true" }
-      ]
-    }
+    ]
   },
-  "cpus": 0.3,
-  "disk": 0,
   "env": {
     "MAX_HEAP": "512m"
   },
@@ -53,34 +53,14 @@
       }
     }
   ],
-  "instances": 1,
   "labels": {
     "HAPROXY_GROUP": "external,internal",
-    "HAPROXY_0_MODE": "tcp"
+    "HAPROXY_0_VHOST": "@host.nexus@"
   },
-  "maxLaunchDelaySeconds": 3600,
-  "mem": 512,
-  "gpus": 0,
   "networks": [
     {
       "mode": "container/bridge"
     }
   ],
-  "requirePorts": false,
-  "upgradeStrategy": {
-    "maximumOverCapacity": 1,
-    "minimumHealthCapacity": 1
-  },
-  "killSelection": "YOUNGEST_FIRST",
-  "unreachableStrategy": {
-    "inactiveAfterSeconds": 0,
-    "expungeAfterSeconds": 0
-  },
-  "fetch": [],
-  "args": [
-    "--character-set-server",
-    "utf8",
-    "--collation-server",
-    "utf8_unicode_ci"
-  ]
+  "portDefinitions": []
 }

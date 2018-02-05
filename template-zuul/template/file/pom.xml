@@ -15,15 +15,15 @@
 
     <repositories>
         <repository>
-            <id>spring-releases</id>
-            <url>http://localhost:8081/nexus/content/groups/public/</url>
+            <id>nexus</id>
+            <url>{{NEXUS_MVN_URL}}</url>
         </repository>
     </repositories>
 
     <pluginRepositories>
         <pluginRepository>
-            <id>spring-releases</id>
-            <url>{{NEXUS_URL}}</url>
+            <id>nexus</id>
+            <url>{{NEXUS_MVN_URL}}</url>
         </pluginRepository>
     </pluginRepositories>
 

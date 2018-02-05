@@ -55,9 +55,13 @@ nexus:
   ip: 172.31.10.202
   username: admin
   password: admin123
-  public: http://nexus.pas-mini.io/nexus/content/groups/public/
-  release: http://nexus.pas-mini.io/nexus/content/repositories/releases/
-  snapshot: http://nexus.pas-mini.io/nexus/content/repositories/snapshots/
+  mvn:
+    public: http://nexus.pas-mini.io/nexus/content/groups/public/
+    release: http://nexus.pas-mini.io/nexus/content/repositories/releases/
+    snapshot: http://nexus.pas-mini.io/nexus/content/repositories/snapshots/
+  npm:
+    public: http://nexus.pas-mini.io/nexus/content/groups/npm/
+    private: http://nexus.pas-mini.io/nexus/content/repositories/npm-private/
 
 # Domain part
 host:

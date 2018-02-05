@@ -50,9 +50,14 @@ nexus:
   ip: 192.168.0.13
   username: admin
   password: admin123
-  public: http://nexus.pasmini.io/nexus/content/groups/public/
-  release: http://nexus.pasmini.io/nexus/content/repositories/releases/
-  snapshot: http://nexus.pasmini.io/nexus/content/repositories/snapshots/
+  mvn:
+    public: http://nexus.pasmini.io/nexus/content/groups/public/
+    release: http://nexus.pasmini.io/nexus/content/repositories/releases/
+    snapshot: http://nexus.pasmini.io/nexus/content/repositories/snapshots/
+  npm:
+    public: http://nexus.pasmini.io/nexus/content/groups/npm/
+    private: http://nexus.pasmini.io/nexus/content/repositories/npm-private/
+
 
 # Domain part
 host:

@@ -24,6 +24,7 @@ npm-build:
     - triggers
   script:
     - cd front-end
+    - npm config set registry ${NEXUS_NPM_URL}
     - npm install
     - npm run build
 
