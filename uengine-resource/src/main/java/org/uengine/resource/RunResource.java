@@ -139,6 +139,7 @@ public class RunResource {
         cluseterMap.put("ssh_user", configMap.get("ansible_user"));
         cluseterMap.put("telemetry_enabled", true);
         cluseterMap.put("oauth_enabled", true);
+        cluseterMap.put("mesos_max_completed_tasks_per_framework", 10);
 
         String cluseteryml = yamlReader.writeValueAsString(cluseterMap);
         org.apache.commons.io.FileUtils.writeStringToFile(

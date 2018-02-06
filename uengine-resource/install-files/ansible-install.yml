@@ -127,6 +127,9 @@
         - sudo systemctl restart docker
       ignore_errors: True
 
+- hosts: public:agent
+  remote_user: "{{ansible_user}}"
+  tasks:
     - name: Docker cadvisor
       command: "{{ item }}"
       with_items:
