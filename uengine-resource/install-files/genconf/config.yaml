@@ -28,3 +28,4 @@ master_list:
 - "172.31.4.125"
 - "172.31.1.198"
 ssh_user: "centos"
+mesos_max_completed_tasks_per_framework: 10

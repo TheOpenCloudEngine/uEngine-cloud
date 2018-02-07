@@ -1,4 +1,4 @@
-image: docker:latest
+image: ${PACKAGE_URL}/docker:latest
 
 variables:
   IMAGE_NAME: "${REGISTRY_URL}/${APP_NAME}:${CI_COMMIT_SHA}"
@@ -15,7 +15,7 @@ stages:
   - deploy
 
 build:
-  image: maven:3-jdk-7
+  image: ${PACKAGE_URL}/maven:3-jdk-7
   stage: build
   only:
     - triggers
@@ -34,7 +34,7 @@ docker-build:
     - docker rmi ${IMAGE_NAME}
 
 test:
-  image: sppark/curl-jq:v1
+  image: ${PACKAGE_URL}/curl-jq:v1
   stage: test
   only:
     - triggers
@@ -43,7 +43,7 @@ test:
     - "curl -H \"access_token: ${ACCESS_TOKEN}\" ${UENGINE_CLOUD_URL}/gitlab/api/v4/projects/${CONFIG_REPO_ID}/repository/files/deployment%2F${APP_NAME}%2Fci-test.sh/raw?ref=master | sh"
 
 dev:
-  image: sppark/curl-jq:v1
+  image: ${PACKAGE_URL}/curl-jq:v1
   stage: deploy
   only:
     - triggers
@@ -52,7 +52,7 @@ dev:
     - "curl -H \"access_token: ${ACCESS_TOKEN}\" ${UENGINE_CLOUD_URL}/gitlab/api/v4/projects/${CONFIG_REPO_ID}/repository/files/template%2Fcommon%2Fci-deploy-dev.sh/raw?ref=master | sh"
 
 staging:
-  image: sppark/curl-jq:v1
+  image: ${PACKAGE_URL}/curl-jq:v1
   stage: deploy
   only:
     - triggers
@@ -61,7 +61,7 @@ staging:
     - "curl -H \"access_token: ${ACCESS_TOKEN}\" ${UENGINE_CLOUD_URL}/gitlab/api/v4/projects/${CONFIG_REPO_ID}/repository/files/template%2Fcommon%2Fci-deploy-staging.sh/raw?ref=master | sh"
 
 production:
-  image: sppark/curl-jq:v1
+  image: ${PACKAGE_URL}/curl-jq:v1
   stage: deploy
   only:
     - triggers

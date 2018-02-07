@@ -47,9 +47,10 @@ public class WebConfig extends WebMvcConfigurerAdapter {
 
         //깃랩 호스트 정보 얻기
         //http://config.pas-mini.io/uengine-cloud-server.json 로 get 을 날려야함.
-        String configServerUrl = environment.getProperty("spring.cloud.config.uri");
+        String uengineServerUrl = environment.getProperty("vcap.services.uengine-cloud-server.external");
+        //String configServerUrl = environment.getProperty("spring.cloud.config.uri");
         HttpResponse res = new HttpUtils().makeRequest("GET",
-                configServerUrl + "/uengine-cloud-server.json",
+                "http://" + uengineServerUrl + "/config/uengine-cloud-server.json",
                 null,
                 new HashMap<>()
         );

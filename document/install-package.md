@@ -148,6 +148,64 @@ $ cd uEngine-cloud/install
 $ sh docker-build.sh
 ```
 
+## 클라우드 서버 로컬 테스트
+
+클라우드 서버, 클라우드 UI 코드 로컬 개발 방법입니다. config.yml 의 사전세팅이 필요하며, uengine-cloud-iam 과 config-server 가 
+DC/OS 클러스터에 사전 설치되야 합니다. 아래 절차를 진행할 경우 설치된 DC/OS 클러스터 환경을 바라보며 작업이 가능합니다.
+
+
+먼저 앞선 config.yml 의 설정내용을 빌드합니다.
+ 
+```
+$ cd uengine-resource
+$ mvn clean install exec:java package
+```
+
+유레카 서버를 실행합니다.
+
+```
+$ cd uengine-eureka-server
+$ mvn install
+$ java -jar target/uengine-eureka-server-1.0-SNAPSHOT.jar
+```
+
+클라우드 서버를 실행합니다.
+
+```
+$ cd uengine-cloud-server
+$ mvn install
+$ java -jar target/uengine-cloud-server-1.0-SNAPSHOT.jar
+```
+
+## 클라우드 UI 로컬 테스트
+
+`uengine-cloud-ui` 의 `index.html` 파일을 클라우드 서버 경로를 로컬 또는 클러스터 를 바라보도록 설정합니다. 
+
+<클러스터>
+
+```
+var backendUrl = 'http://cloud-server.pas-mini.io';
+//var backendUrl = 'http://localhost:8080';
+```
+
+<로컬>
+
+```
+//var backendUrl = 'http://cloud-server.pas-mini.io';
+var backendUrl = 'http://localhost:8080';
+```
+
+인스톨 후 실행합니다.
+
+```
+$ cd uengine-cloud-ui
+$ npm install
+$ npm run dev
+```
+
+
+
+
 
 
 

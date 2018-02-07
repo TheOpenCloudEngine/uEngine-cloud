@@ -1,3 +1,4 @@
+title: {{title}}
 server.public.master: {{server.public.master}}
 server.public.public: {{server.public.public}}
 
@@ -16,6 +17,7 @@ host.config: {{server.private.public}}:10000
 host.eureka-server: {{host.eureka-server}}
 host.cloud-server: {{host.cloud-server}}
 host.cloud-ui: {{host.cloud-ui}}
+host.nexus: {{host.nexus}}
 
 iam.port: {{iam.port}}
 iam.client-key: {{iam.client-key}}
@@ -40,6 +42,15 @@ gitlab.root.token: {{gitlab.root.token}}
 gitlab.config-repo.projectId: {{gitlab.config-repo.projectId}}
 gitlab.config-repo.deployment-path: {{gitlab.config-repo.deployment-path}}
 gitlab.config-repo.template-path: {{gitlab.config-repo.template-path}}
+
+nexus.ip: {{nexus.ip}}
+nexus.username: {{nexus.username}}
+nexus.password: {{nexus.password}}
+nexus.mvn.public: {{nexus.mvn.public}}
+nexus.mvn.release: {{nexus.mvn.release}}
+nexus.mvn.snapshot: {{nexus.mvn.snapshot}}
+nexus.npm.public: {{nexus.npm.public}}
+nexus.npm.private: {{nexus.npm.private}}
 
 
 

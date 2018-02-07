@@ -27,7 +27,7 @@
       }
     ],
     "docker": {
-      "image": "mysql:5.7",
+      "image": "@host.registry.package@/mysql:5.7",
       "forcePullImage": false,
       "privileged": false,
       "parameters": [

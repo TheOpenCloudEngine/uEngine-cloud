@@ -19,3 +19,6 @@ vcap:
     uengine-cloud-ui:
       external: "@host.cloud-ui@"
       internal: "marathon-lb-internal.marathon.mesos:10006"
+    uengine-nexus:
+      external: "@host.nexus@"
+      internal: "marathon-lb-internal.marathon.mesos:10007"

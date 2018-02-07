@@ -1,0 +1,66 @@
+{
+  "id": "/uengine-nexus",
+  "cmd": null,
+  "cpus": 0.5,
+  "mem": 650,
+  "disk": 0,
+  "instances": 1,
+  "constraints": [
+    [
+      "hostname",
+      "LIKE",
+      "@nexus.ip@"
+    ]
+  ],
+  "container": {
+    "type": "DOCKER",
+    "docker": {
+      "forcePullImage": false,
+      "image": "@host.registry.package@/nexus:2.14.6-02",
+      "parameters": [],
+      "privileged": false
+    },
+    "volumes": [
+      {
+        "containerPath": "/sonatype-work",
+        "hostPath": "/nexus2/sonatype-work",
+        "mode": "RW"
+      }
+    ],
+    "portMappings": [
+      {
+        "containerPort": 8081,
+        "hostPort": 0,
+        "labels": {},
+        "protocol": "tcp",
+        "servicePort": 10007
+      }
+    ]
+  },
+  "env": {
+    "MAX_HEAP": "512m"
+  },
+  "healthChecks": [
+    {
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 60,
+      "maxConsecutiveFailures": 3,
+      "timeoutSeconds": 20,
+      "delaySeconds": 15,
+      "protocol": "COMMAND",
+      "command": {
+        "value": "pwd"
+      }
+    }
+  ],
+  "labels": {
+    "HAPROXY_GROUP": "external,internal",
+    "HAPROXY_0_VHOST": "@host.nexus@"
+  },
+  "networks": [
+    {
+      "mode": "container/bridge"
+    }
+  ],
+  "portDefinitions": []
+}

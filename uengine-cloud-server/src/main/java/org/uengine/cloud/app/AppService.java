@@ -709,6 +709,9 @@ public class AppService {
         String REGISTRY_URL = environment.getProperty("registry.host");
         String UENGINE_CLOUD_URL = environment.getProperty("vcap.services.uengine-cloud-server.external");
         int CONFIG_REPO_ID = Integer.parseInt(environment.getProperty("gitlab.config-repo.projectId"));
+        String NEXUS_MVN_URL = environment.getProperty("nexus.mvn.public");
+        String NEXUS_NPM_URL = environment.getProperty("nexus.npm.public");
+        String PACKAGE_URL = environment.getProperty("registry.package");
 
         String accessToken = null;
         try {
@@ -738,6 +741,9 @@ public class AppService {
         data.put("UENGINE_CLOUD_URL", "http://" + UENGINE_CLOUD_URL);
         data.put("CONFIG_REPO_ID", CONFIG_REPO_ID);
         data.put("ACCESS_TOKEN", accessToken);
+        data.put("NEXUS_MVN_URL", NEXUS_MVN_URL);
+        data.put("NEXUS_NPM_URL", NEXUS_NPM_URL);
+        data.put("PACKAGE_URL", PACKAGE_URL);
         //data.put("PROFILE", stage);
         //data.put("APPLICATION_NAME", appName);
 
@@ -749,6 +755,9 @@ public class AppService {
             System.out.println(data.get("UENGINE_CLOUD_URL").toString());
             System.out.println(data.get("CONFIG_REPO_ID").toString());
             System.out.println(data.get("ACCESS_TOKEN").toString());
+            System.out.println(data.get("NEXUS_MVN_URL").toString());
+            System.out.println(data.get("NEXUS_NPM_URL").toString());
+            System.out.println(data.get("PACKAGE_URL").toString());
         } catch (Exception ex) {
 
         }

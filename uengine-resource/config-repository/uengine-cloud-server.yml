@@ -17,11 +17,24 @@ iam:
   clientSecret: @iam.client-secret@
     
 registry:
+  package: @host.registry.package@
   host: @host.registry.private@
   public-host: @host.registry.public@
   
 public-agent-ip: @server.public.public@
 
 default-host: @host.default@
+
+nexus:
+  ip: @nexus.ip@
+  username: @nexus.username@
+  password: @nexus.password@
+  mvn:
+    public: @nexus.mvn.public@
+    release: @nexus.mvn.release@
+    snapshot: @nexus.mvn.snapshot@
+  npm:
+    public: @nexus.npm.public@
+    private: @nexus.npm.private@
 
 cadvisor:

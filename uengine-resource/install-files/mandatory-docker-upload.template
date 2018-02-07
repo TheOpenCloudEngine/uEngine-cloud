@@ -1,0 +1,7 @@
+# Untag this, if you use docker hub to store your generated cloud package apps.
+# docker login
+
+# Untag this, if you need sudo
+# sudo su
+
+{{mandatory}}

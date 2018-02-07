@@ -1,3 +1,4 @@
+title: Open Cloud Engine
 server.public.master: 52.79.125.242
 server.public.public: 52.79.51.79
 
@@ -16,6 +17,7 @@ host.config: 172.31.5.136:10000
 host.eureka-server: eureka-server.pas-mini.io
 host.cloud-server: cloud-server.pas-mini.io
 host.cloud-ui: cloud.pas-mini.io
+host.nexus: nexus.pas-mini.io
 
 iam.port: 80
 iam.client-key: my-client-key
@@ -40,6 +42,15 @@ gitlab.root.token: -arWnfRY7S4h6oyRthNy
 gitlab.config-repo.projectId: 47
 gitlab.config-repo.deployment-path: /deployment
 gitlab.config-repo.template-path: /template
+
+nexus.ip: 172.31.10.202
+nexus.username: admin
+nexus.password: admin123
+nexus.mvn.public: http://nexus.pas-mini.io/nexus/content/groups/public/
+nexus.mvn.release: http://nexus.pas-mini.io/nexus/content/repositories/releases/
+nexus.mvn.snapshot: http://nexus.pas-mini.io/nexus/content/repositories/snapshots/
+nexus.npm.public: http://nexus.pas-mini.io/nexus/content/groups/npm/
+nexus.npm.private: http://nexus.pas-mini.io/nexus/content/repositories/npm-private/
 
 
 

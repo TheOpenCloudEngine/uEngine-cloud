@@ -31,33 +31,26 @@
 
     <repositories>
         <repository>
-            <id>spring-releases</id>
-            <url>https://repo.spring.io/libs-release</url>
-        </repository>
-        <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
+            <id>nexus</id>
+            <url>http://nexus.pas-mini.io/nexus/content/groups/public</url>
         </repository>
     </repositories>
 
     <pluginRepositories>
         <pluginRepository>
-            <id>spring-releases</id>
-            <url>https://repo.spring.io/libs-release</url>
+            <id>nexus</id>
+            <url>http://nexus.pas-mini.io/nexus/content/groups/public</url>
         </pluginRepository>
     </pluginRepositories>
 
     <distributionManagement>
         <repository>
             <id>releases</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+            <url>http://nexus.pas-mini.io/nexus/content/repositories/releases</url>
         </repository>
         <snapshotRepository>
             <id>snapshots</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <url>http://nexus.pas-mini.io/nexus/content/repositories/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
 
@@ -77,5 +70,4 @@
             <email>sppark@uengine.org</email>
         </developer>
     </developers>
-
 </project>

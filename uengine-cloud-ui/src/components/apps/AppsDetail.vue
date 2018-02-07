@@ -496,7 +496,7 @@
             okText: '진행하기',
             cancelText: '취소',
             callback: function () {
-              me.removeDevAppStage(this.appName, stage);
+              me.removeDevAppStage(me.appName, stage);
             }
           });
       },

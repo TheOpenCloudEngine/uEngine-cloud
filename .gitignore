@@ -15,7 +15,8 @@ buildNumber.properties
 deploys
 cloud-config-repository
 install
-pdf
+*.pdf
 config.properties.yml
 config.pas-mini.yml
 config.pasmini.yml
+config.hwgi.circle-pas.io.yml
