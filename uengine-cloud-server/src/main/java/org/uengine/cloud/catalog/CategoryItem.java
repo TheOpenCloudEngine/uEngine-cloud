@@ -1,6 +1,9 @@
 package org.uengine.cloud.catalog;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by uengine on 2018. 1. 15..
@@ -26,6 +29,16 @@ public class CategoryItem {
     private String configDev;
     private String configStg;
     private String configProd;
+
+//    @JsonIgnore
+//    Map<String, String> templateFiles;
+//        public Map<String, String> getTemplateFiles() {
+//            return templateFiles;
+//        }
+//        public void setTemplateFiles(Map<String, String> templateFiles) {
+//            this.templateFiles = templateFiles;
+//        }
+
 
     public String getId() {
         return id;

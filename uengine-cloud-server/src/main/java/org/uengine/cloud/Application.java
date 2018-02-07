@@ -1,8 +1,13 @@
 package org.uengine.cloud;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
+import org.springframework.context.annotation.Bean;
 import org.uengine.cloud.app.AppAccessLevelRepository;
 import org.uengine.cloud.app.AppEntity;
 import org.uengine.cloud.migration.MigrationService;
@@ -116,5 +121,7 @@ public class Application {
         System.setProperty("org.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH", "true");
         new SpringApplicationBuilder(Application.class).web(true).run(args);
     }
+
+
 
 }

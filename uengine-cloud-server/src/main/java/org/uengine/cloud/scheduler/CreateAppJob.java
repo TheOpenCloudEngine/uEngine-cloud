@@ -131,14 +131,44 @@ public class CreateAppJob implements Job {
 
             Map<String, Object> data = appService.getTriggerVariables(appCreate.getAppName());
 
+            //template 특유의 정보가 있으면 전달함
+            if(appCreate.getTemplateSpecific()!=null && appCreate.getTemplateSpecific().getData()!=null)
+                data.put("templateSpecificData", appCreate.getTemplateSpecific().getData());
+
+
             //mapping 파일들의 콘텐트를 교체한다.
             List<FileMapping> mappings = categoryItem.getMappings();
+
+            //template 특유의 파일 목록이 있으면 파일 생성 목록에 추가해줌
+            if(appCreate.getTemplateSpecific()!=null && appCreate.getTemplateSpecific().getFileMappings()!=null)
+                mappings.addAll(appCreate.getTemplateSpecific().getFileMappings());
+
+            Map<String, String> templateFileCache = new HashMap<>();
+
             MustacheTemplateEngine templateEngine = new MustacheTemplateEngine();
             for (FileMapping mapping : mappings) {
+
+                Map<String, Object> templateData = data;
+
                 String path = mapping.getPath();
                 String file = mapping.getFile();
 
-                final String body = templateEngine.executeTemplateText(file, data);
+                //override if there are template data specified in each file mapping
+                if(mapping.getData()!=null){
+                    templateData = new HashMap<String, Object>();
+                    templateData.putAll(data);
+                    templateData.put("templateSpecificData", mapping.getData());
+
+                    if(templateFileCache.containsKey(file))
+                        file = templateFileCache.get(file);
+                    else {
+                        String templateFile = gitlabExtentApi.getRepositoryFile(categoryItem.getProjectId(), "master", "template/file/" + file);
+                        templateFileCache.put(file, templateFile);
+                        file = templateFile;
+                    }
+                }
+
+                final String body = templateEngine.executeTemplateText(file, templateData);
                 gitlabExtentApi.updateOrCraeteRepositoryFile(projectId, "master", path, body);
             }
 

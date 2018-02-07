@@ -1,0 +1,30 @@
+---
+ip_detect_path: "genconf/ip-detect"
+cluster_name: "uEngine"
+oauth_enabled: true
+resolvers:
+- "172.31.0.2"
+ssh_port: 22
+master_discovery: "static"
+ip_detect_public_filename: "genconf/ip-detect"
+process_timeout: 10000
+exhibitor_storage_backend: "static"
+public_agent_list:
+- "172.31.5.136"
+bootstrap_url: "file:///opt/dcos_install_tmp"
+dns_search: "ap-northeast-2.compute.internal"
+agent_list:
+- "172.31.6.35"
+- "172.31.1.235"
+- "172.31.5.245"
+- "172.31.14.247"
+- "172.31.7.160"
+- "172.31.11.70"
+- "172.31.0.164"
+telemetry_enabled: true
+ssh_key_path: "genconf/ssh_key"
+master_list:
+- "172.31.12.143"
+- "172.31.4.125"
+- "172.31.1.198"
+ssh_user: "centos"
