@@ -82,7 +82,7 @@ $ sudo gitlab-ctl reconfigure
 아래 명령어는 항시적으로 registry 서버가 떠있도록 해줍니다.
 
 ```
-sudo docker run -d -p 5000:5000 --restart=always --name registry registry:2
+sudo docker run -d -p 5000:5000 -v /mnt/registry:/var/lib/registry --restart=always --name registry registry:2
 ```
 
 

@@ -13,6 +13,7 @@
     "test": "npm run unit && npm run e2e"
   },
   "dependencies": {
+    "acorn": "^5.3.0",
     "fs": "0.0.1-security",
     "metaworks4": "^1.0.6",
     "node-sass": "^4.5.3",
