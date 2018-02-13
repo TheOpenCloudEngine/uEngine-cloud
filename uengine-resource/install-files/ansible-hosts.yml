@@ -9,6 +9,7 @@
 ansible_user=centos
 ansible_ssh_private_key_file=/home/centos/belugarKey.pem
 registry_host=gitlab.pas-mini.io:5000
+pinpoint_agent_path=/pinpoint-agent
 
 [bootstrap]
 172.31.8.143
@@ -37,14 +38,14 @@ registry_host=gitlab.pas-mini.io:5000
 172.31.7.160
 172.31.11.70
 172.31.0.164
-
-
-[add-agent]
 172.31.10.202
 172.31.14.197
 172.31.13.131
 172.31.1.166
 172.31.8.5
+
+
+[add-agent]
 
 
 [gracefully-remove-agent]

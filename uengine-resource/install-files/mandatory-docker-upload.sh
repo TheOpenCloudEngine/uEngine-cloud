@@ -74,10 +74,3 @@ docker rmi sppark/nodejs-http-server
 docker rmi webratio/nodejs-http-server
 
 
-docker pull sonatype/nexus:2.14.6-02
-docker tag sonatype/nexus:2.14.6-02 sppark/nexus:2.14.6-02
-docker push sppark/nexus:2.14.6-02
-docker rmi sppark/nexus:2.14.6-02
-docker rmi sonatype/nexus:2.14.6-02
-
-

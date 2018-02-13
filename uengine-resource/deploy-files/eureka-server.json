@@ -16,7 +16,13 @@
       "parameters": [],
       "privileged": false
     },
-    "volumes": [],
+    "volumes": [
+      {
+        "containerPath": "@pinpoint.agent-path@",
+        "hostPath": "@pinpoint.agent-path@",
+        "mode": "RW"
+      }
+    ],
     "portMappings": [
       {
         "containerPort": 8761,
@@ -28,7 +34,9 @@
     ]
   },
   "env": {
-    "DEPLOYMENT": "BLUE"
+    "DEPLOYMENT": "BLUE",
+    "AGENT_USE": "@pinpoint.use@",
+    "AGENT_PATH": "@pinpoint.agent-path@"
   },
   "healthChecks": [
     {

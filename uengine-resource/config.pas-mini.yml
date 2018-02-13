@@ -28,14 +28,13 @@ server:
       agent5: 172.31.7.160
       agent6: 172.31.11.70
       agent7: 172.31.0.164
-
-    add-agent:
       agent8: 172.31.10.202
       agent9: 172.31.14.197
       agent10: 172.31.13.131
       agent11: 172.31.1.166
       agent12: 172.31.8.5
 
+    add-agent:
     gracefully-remove-agent:
     uninstall:
 
@@ -124,3 +123,13 @@ gitlab:
     projectId: 47
     deployment-path: /deployment
     template-path: /template
+
+pinpoint:
+  use: true
+  agent-path: /pinpoint-agent
+  web: http://pinpoint.pas-mini.io
+  collector:
+    ip: 172.31.1.228
+    tcp-port: 9994
+    stat-port: 9995
+    span-port: 9996

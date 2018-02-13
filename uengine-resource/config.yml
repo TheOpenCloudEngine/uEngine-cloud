@@ -1,5 +1,4 @@
 # SSH and Resolve.conf part
-title: Open Cloud Engine
 cluster_name: uEngine
 ansible_user: centos
 ansible_ssh_private_key_file: /home/centos/belugarKey.pem
@@ -29,14 +28,13 @@ server:
       agent5: 172.31.7.160
       agent6: 172.31.11.70
       agent7: 172.31.0.164
-
-    add-agent:
       agent8: 172.31.10.202
       agent9: 172.31.14.197
       agent10: 172.31.13.131
       agent11: 172.31.1.166
       agent12: 172.31.8.5
 
+    add-agent:
     gracefully-remove-agent:
     uninstall:
 
@@ -64,7 +62,6 @@ nexus:
     public: http://nexus.pas-mini.io/nexus/content/groups/npm/
     private: http://nexus.pas-mini.io/nexus/content/repositories/npm-private/
 
-
 # Domain part
 host:
   default: pas-mini.io
@@ -78,7 +75,6 @@ host:
   eureka-server: eureka-server.pas-mini.io
   cloud-server: cloud-server.pas-mini.io
   cloud-ui: cloud.pas-mini.io
-  nexus: nexus.pas-mini.io
 
 # Security(IAM) part
 iam:
@@ -111,7 +107,6 @@ mandatory-docker:
   - openjdk:8u111-jdk-alpine
   - tomcat:7.0.84-jre7
   - webratio/nodejs-http-server
-  - sonatype/nexus:2.14.6-02
 
 # Cloud package part
 # Fill out those properties after install DC/OS cluster && Gitlab
@@ -128,3 +123,13 @@ gitlab:
     projectId: 47
     deployment-path: /deployment
     template-path: /template
+
+pinpoint:
+  use: true
+  agent-path: /pinpoint-agent
+  web: http://pinpoint.pas-mini.io
+  collector:
+    ip: 172.31.1.228
+    tcp-port: 9994
+    stat-port: 9995
+    span-port: 9996

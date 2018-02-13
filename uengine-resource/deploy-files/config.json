@@ -16,7 +16,13 @@
       "parameters": [],
       "privileged": false
     },
-    "volumes": [],
+    "volumes": [
+      {
+        "containerPath": "@pinpoint.agent-path@",
+        "hostPath": "@pinpoint.agent-path@",
+        "mode": "RW"
+      }
+    ],
     "portMappings": [
       {
         "containerPort": 8080,
@@ -47,7 +53,9 @@
   "env": {
     "SPRING_CLOUD_CONFIG_SERVER_GIT_URI": "http://@host.gitlab@/root/cloud-config-repository.git",
     "SPRING_CLOUD_CONFIG_SERVER_GIT_USERNAME": "@gitlab.root.username@",
-    "SPRING_CLOUD_CONFIG_SERVER_GIT_PASSWORD": "@gitlab.root.password@"
+    "SPRING_CLOUD_CONFIG_SERVER_GIT_PASSWORD": "@gitlab.root.password@",
+    "AGENT_USE": "@pinpoint.use@",
+    "AGENT_PATH": "@pinpoint.agent-path@"
   },
   "networks": [
     {

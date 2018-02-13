@@ -1,4 +1,4 @@
-title: Open Cloud Engine
+title: 
 server.public.master: 52.79.125.242
 server.public.public: 52.79.51.79
 
@@ -17,7 +17,7 @@ host.config: 172.31.5.136:10000
 host.eureka-server: eureka-server.pas-mini.io
 host.cloud-server: cloud-server.pas-mini.io
 host.cloud-ui: cloud.pas-mini.io
-host.nexus: nexus.pas-mini.io
+host.nexus: 
 
 iam.port: 80
 iam.client-key: my-client-key
@@ -51,6 +51,14 @@ nexus.mvn.release: http://nexus.pas-mini.io/nexus/content/repositories/releases/
 nexus.mvn.snapshot: http://nexus.pas-mini.io/nexus/content/repositories/snapshots/
 nexus.npm.public: http://nexus.pas-mini.io/nexus/content/groups/npm/
 nexus.npm.private: http://nexus.pas-mini.io/nexus/content/repositories/npm-private/
+
+pinpoint.use: true
+pinpoint.agent-path: /pinpoint-agent
+pinpoint.web: http://pinpoint.pas-mini.io
+pinpoint.collector.ip: 172.31.1.228
+pinpoint.collector.tcp-port: 9994
+pinpoint.collector.stat-port: 9995
+pinpoint.collector.span-port: 9996
 
 
 

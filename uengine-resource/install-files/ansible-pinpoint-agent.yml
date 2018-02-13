@@ -1,0 +1,13 @@
+---
+- hosts: public:agent:add-agent
+  remote_user: "{{ansible_user}}"
+  tasks:
+    - name: pinpoint agent copy
+      become: true
+      become_method: sudo
+      copy:
+        src: ./pinpoint-agent
+        dest: "{{pinpoint_agent_path}}"
+        owner: root
+        group: root
+        mode: 0777

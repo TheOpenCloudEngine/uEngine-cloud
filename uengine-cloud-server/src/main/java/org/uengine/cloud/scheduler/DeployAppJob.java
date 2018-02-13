@@ -35,6 +35,7 @@ import org.uengine.cloud.templates.MustacheTemplateEngine;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -389,6 +390,27 @@ public class DeployAppJob implements Job {
         }
         Map env = (Map) unmarshal.get("env");
         env.put("CONFIG_JSON", configJson);
+
+        //pinpoint agent
+        Environment environment = ApplicationContextRegistry.getApplicationContext().getBean(Environment.class);
+        String AGENT_USE = environment.getProperty("pinpoint.use");
+        String AGENT_PATH = environment.getProperty("pinpoint.agent-path");
+        env.put("AGENT_USE", AGENT_USE);
+        env.put("AGENT_PATH", AGENT_PATH);
+
+        //pinpoint agent volume (if exist)
+        if ("true".equals(AGENT_USE)) {
+            Map container = (Map) unmarshal.get("container");
+            if (!container.containsKey("volumes")) {
+                container.put("volumes", new ArrayList<>());
+            }
+            ArrayList volumes = (ArrayList) container.get("volumes");
+            Map agentPathMap = new HashMap();
+            agentPathMap.put("containerPath", AGENT_PATH);
+            agentPathMap.put("hostPath", AGENT_PATH);
+            agentPathMap.put("mode", "RW");
+            volumes.add(agentPathMap);
+        }
 
         return JsonUtils.marshal(unmarshal);
     }
