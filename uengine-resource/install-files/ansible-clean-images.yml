@@ -5,4 +5,4 @@
     - name: image prune
       command: "{{ item }}"
       with_items:
-        - sudo docker image prune -a
+        - sudo docker image prune -a -f
