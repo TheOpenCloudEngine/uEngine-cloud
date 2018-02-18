@@ -60,6 +60,9 @@ pinpoint.collector.tcp-port: 9994
 pinpoint.collector.stat-port: 9995
 pinpoint.collector.span-port: 9996
 
+elk.elasticsearch: 172.31.11.218:9200
+elk.kibana: 172.31.11.218:5601
+
 
 
 

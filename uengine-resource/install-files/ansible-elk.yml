@@ -1,0 +1,23 @@
+---
+- hosts: public:agent:add-agent
+  remote_user: "{{ansible_user}}"
+  tasks:
+    - name: metricbeat install
+      command: "{{ item }}"
+      with_items:
+        - curl -L -O https://artifacts.elastic.co/downloads/beats/metricbeat/metricbeat-6.2.1-x86_64.rpm
+        - sudo rpm -vi metricbeat-6.2.1-x86_64.rpm
+        - sudo mv /etc/metricbeat/metricbeat.yml /etc/metricbeat/metricbeat.yml.bk
+    - name: metricbeat file copy
+      become: true
+      become_method: sudo
+      copy:
+        src: ./metricbeat.yml
+        dest: /etc/metricbeat/metricbeat.yml
+        owner: root
+        group: root
+        mode: 0644
+    - name: metricbeat start
+      command: "{{ item }}"
+      with_items:
+        - sudo service metricbeat start

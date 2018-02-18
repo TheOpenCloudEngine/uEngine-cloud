@@ -60,6 +60,9 @@ pinpoint.collector.tcp-port: {{pinpoint.collector.tcp-port}}
 pinpoint.collector.stat-port: {{pinpoint.collector.stat-port}}
 pinpoint.collector.span-port: {{pinpoint.collector.span-port}}
 
+elk.elasticsearch: {{elk.elasticsearch}}
+elk.kibana: {{elk.kibana}}
+
 
 
 

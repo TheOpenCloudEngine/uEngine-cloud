@@ -133,3 +133,7 @@ pinpoint:
     tcp-port: 9994
     stat-port: 9995
     span-port: 9996
+
+elk:
+  elasticsearch: 172.31.11.218:9200
+  kibana: 172.31.11.218:5601
