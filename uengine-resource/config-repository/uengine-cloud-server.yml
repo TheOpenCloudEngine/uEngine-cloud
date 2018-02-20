@@ -47,4 +47,12 @@ pinpoint:
     stat-port: @pinpoint.collector.stat-port@
     span-port: @pinpoint.collector.span-port@
 
+elk:
+  elasticsearch:
+    private: @elk.elasticsearch.private@
+    web: @elk.elasticsearch.web@
+  kibana:
+    private: @elk.kibana.private@
+    web: @elk.kibana.web@
+
 cadvisor:

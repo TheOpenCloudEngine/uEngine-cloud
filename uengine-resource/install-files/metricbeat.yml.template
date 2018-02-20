@@ -17,9 +17,9 @@ metricbeat.modules:
   period: 10s
 
 output.elasticsearch:
-  hosts: ["{{elk.elasticsearch}}"]
+  hosts: ["{{elk.elasticsearch.private}}"]
 
 setup.kibana:
-  host: "{{elk.kibana}}"
+  host: "{{elk.kibana.private}}"
 
 setup.dashboards.enabled: true

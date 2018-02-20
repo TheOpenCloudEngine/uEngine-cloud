@@ -135,5 +135,9 @@ pinpoint:
     span-port: 9996
 
 elk:
-  elasticsearch: 172.31.11.218:9200
-  kibana: 172.31.11.218:5601
+  elasticsearch:
+    private: 172.31.11.218:9200
+    web: http://13.125.185.128:9200
+  kibana:
+    private: 172.31.11.218:5601
+    web: http://13.125.185.128:5601

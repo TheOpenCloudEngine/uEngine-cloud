@@ -120,3 +120,21 @@ gitlab:
     projectId: 94
     deployment-path: /deployment
     template-path: /template
+
+pinpoint:
+  use: false
+  agent-path:
+  web:
+  collector:
+    ip:
+    tcp-port:
+    stat-port:
+    span-port:
+
+elk:
+  elasticsearch:
+    private:
+    web:
+  kibana:
+    private:
+    web:
