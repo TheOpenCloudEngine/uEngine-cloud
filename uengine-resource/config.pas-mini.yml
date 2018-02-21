@@ -50,18 +50,6 @@ db:
   database: uengine
   password: my-secret-pw
 
-nexus:
-  ip: 172.31.10.202
-  username: admin
-  password: admin123
-  mvn:
-    public: http://nexus.pas-mini.io/nexus/content/groups/public/
-    release: http://nexus.pas-mini.io/nexus/content/repositories/releases/
-    snapshot: http://nexus.pas-mini.io/nexus/content/repositories/snapshots/
-  npm:
-    public: http://nexus.pas-mini.io/nexus/content/groups/npm/
-    private: http://nexus.pas-mini.io/nexus/content/repositories/npm-private/
-
 # Domain part
 host:
   default: pas-mini.io
@@ -107,6 +95,8 @@ mandatory-docker:
   - openjdk:8u111-jdk-alpine
   - tomcat:7.0.84-jre7
   - webratio/nodejs-http-server
+  - google/cadvisor:latest
+  - sonatype/nexus:2.14.6-02
 
 # Cloud package part
 # Fill out those properties after install DC/OS cluster && Gitlab
@@ -124,6 +114,20 @@ gitlab:
     deployment-path: /deployment
     template-path: /template
 
+# Nexus part
+nexus:
+  ip: 172.31.10.202
+  username: admin
+  password: admin123
+  mvn:
+    public: http://nexus.pas-mini.io/nexus/content/groups/public/
+    release: http://nexus.pas-mini.io/nexus/content/repositories/releases/
+    snapshot: http://nexus.pas-mini.io/nexus/content/repositories/snapshots/
+  npm:
+    public: http://nexus.pas-mini.io/nexus/content/groups/npm/
+    private: http://nexus.pas-mini.io/nexus/content/repositories/npm-private/
+
+# Pinpoint part
 pinpoint:
   use: true
   agent-path: /pinpoint-agent
@@ -134,6 +138,7 @@ pinpoint:
     stat-port: 9995
     span-port: 9996
 
+# Elk part
 elk:
   elasticsearch:
     private: 172.31.11.218:9200

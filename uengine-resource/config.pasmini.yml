@@ -46,19 +46,6 @@ db:
   database: uengine
   password: my-secret-pw
 
-nexus:
-  ip: 192.168.0.13
-  username: admin
-  password: admin123
-  mvn:
-    public: http://nexus.pasmini.io/nexus/content/groups/public/
-    release: http://nexus.pasmini.io/nexus/content/repositories/releases/
-    snapshot: http://nexus.pasmini.io/nexus/content/repositories/snapshots/
-  npm:
-    public: http://nexus.pasmini.io/nexus/content/groups/npm/
-    private: http://nexus.pasmini.io/nexus/content/repositories/npm-private/
-
-
 # Domain part
 host:
   default: pasmini.io
@@ -104,6 +91,8 @@ mandatory-docker:
   - openjdk:8u111-jdk-alpine
   - tomcat:7.0.84-jre7
   - webratio/nodejs-http-server
+  - google/cadvisor:latest
+  - sonatype/nexus:2.14.6-02
 
 # Cloud package part
 # Fill out those properties after install DC/OS cluster && Gitlab
@@ -121,6 +110,20 @@ gitlab:
     deployment-path: /deployment
     template-path: /template
 
+# Nexus part
+nexus:
+  ip: 192.168.0.13
+  username: admin
+  password: admin123
+  mvn:
+    public: http://nexus.pasmini.io/nexus/content/groups/public/
+    release: http://nexus.pasmini.io/nexus/content/repositories/releases/
+    snapshot: http://nexus.pasmini.io/nexus/content/repositories/snapshots/
+  npm:
+    public: http://nexus.pasmini.io/nexus/content/groups/npm/
+    private: http://nexus.pasmini.io/nexus/content/repositories/npm-private/
+
+# Pinpoint part
 pinpoint:
   use: false
   agent-path:
@@ -131,6 +134,7 @@ pinpoint:
     stat-port:
     span-port:
 
+# Elk part
 elk:
   elasticsearch:
     private:

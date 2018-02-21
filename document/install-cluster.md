@@ -249,6 +249,52 @@ gitlab:
     template-path: /template
 ```
 
+### Mandatory-docker part
+
+이 파트는 클라우드 플랫폼에서 사용될 도커 이미지 목록입니다. 이 파트에 기록된 도커 이미지 리스트들은 [필수 도커 업로드](install-docker-upload.md) 섹션을 
+진행 할 때 Docker hub 에서 필요한 도커 이미지들을 다운로드 받아 프라이빗 도커 레지스트리로 복사됩니다.
+ 
+```
+# Mandatory-docker part
+mandatory-docker:
+  - mesosphere/marathon-lb:v1.11.2
+  - mysql:5.7
+  - docker:latest
+  - node:latest
+  - maven:3-jdk-8
+  - maven:3-jdk-7
+  - sppark/curl-jq:v1
+  - openjdk:8u111-jdk-alpine
+  - tomcat:7.0.84-jre7
+  - webratio/nodejs-http-server
+  - google/cadvisor:latest
+  - sonatype/nexus:2.14.6-02
+```
+
+| 이미지                           | 역할                                                                    |
+|----------------------------------|-------------------------------------------------------------------------|
+| - mesosphere/marathon-lb:v1.11.2 | Haproxy 로드밸런서 이미지                                               |
+| - mysql:5.7                      | Mysql 도커 이미지                                                       |
+| - docker:latest                  | CI 작업시 가상화 빌드 격리 공간을 위한 Docker in Docker 컨테이너 이미지 |
+| - node:latest                    | CI 작업시 Npm 빌드를 위한 이미지                                        |
+| - maven:3-jdk-8                  | CI 작업시 Maven 빌드를 위한 이미지                                      |
+| - maven:3-jdk-7                  | CI 작업시 Maven 빌드를 위한 이미지                                      |
+| - sppark/curl-jq:v1              | CI 작업시 클라우드 플랫폼과의 통신을 위한 이미지                        |
+| - openjdk:8u111-jdk-alpine       | Springboot 계열 앱을 부팅시키기 위한 이미지                             |
+| - tomcat:7.0.84-jre7             | Tomcat 계열 앱을 부팅시키기 위한 이미지                                 |
+| - webratio/nodejs-http-server    | VueJs 를 비롯한 SPA 계열 앱을 부팅시키기 위한 이미지                    |
+| - google/cadvisor:latest         | Docker metrics 모니터를 위한 이미지                                     |
+| - sonatype/nexus:2.14.6-02       | Nexus 도커 이미지                                                       |
+
+
+### Nexus part
+
+넥서스 파트는 클라우드 플랫폼에서 Maven 및 Npm 빌드 될 때, 좀 더 빠른 빌드를 수행할 수 있도록 
+
+### Pinpoint part(Optional)
+
+### Elk part(Optional)
+
 ### Summary
 
 전체 설정 파일의 리뷰입니다.

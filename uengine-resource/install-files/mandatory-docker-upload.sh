@@ -74,3 +74,17 @@ docker rmi sppark/nodejs-http-server
 docker rmi webratio/nodejs-http-server
 
 
+docker pull google/cadvisor:latest
+docker tag google/cadvisor:latest sppark/cadvisor:latest
+docker push sppark/cadvisor:latest
+docker rmi sppark/cadvisor:latest
+docker rmi google/cadvisor:latest
+
+
+docker pull sonatype/nexus:2.14.6-02
+docker tag sonatype/nexus:2.14.6-02 sppark/nexus:2.14.6-02
+docker push sppark/nexus:2.14.6-02
+docker rmi sppark/nexus:2.14.6-02
+docker rmi sonatype/nexus:2.14.6-02
+
+
