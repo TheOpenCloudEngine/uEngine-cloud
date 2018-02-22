@@ -12,6 +12,12 @@ import DcosDataProvider from '../components/DcosDataProvider'
 Vue.component('dcos-data-provider', DcosDataProvider);
 
 /**
+ * 시스템
+ */
+import System from '../components/system/System'
+
+
+/**
  * 대쉬보드
  */
 import Dashboard from '../components/dashboard/Dashboard'
@@ -314,6 +320,15 @@ export default new Router({
           beforeEnter: RouterGuard.requireUser,
           meta: {
             breadcrumb: '대시보드'
+          },
+        },
+        {
+          path: 'system',
+          name: 'system',
+          component: System,
+          beforeEnter: RouterGuard.requireUser,
+          meta: {
+            breadcrumb: '시스템 메트릭스'
           },
         },
         {

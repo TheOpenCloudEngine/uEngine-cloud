@@ -13,7 +13,16 @@
     "docker": {
       "forcePullImage": true,
       "image": "@host.registry.package@/uengine-eureka-server:v1",
-      "parameters": [],
+      "parameters": [
+        {
+          "key": "label",
+          "value": "APP_NAME=eureka-server"
+        },
+        {
+          "key": "label",
+          "value": "APP_TYPE=system"
+        }
+      ],
       "privileged": false
     },
     "volumes": [

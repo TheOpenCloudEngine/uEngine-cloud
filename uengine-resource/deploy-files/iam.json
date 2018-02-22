@@ -13,7 +13,16 @@
     "docker": {
       "forcePullImage": true,
       "image": "@host.registry.package@/uengine-cloud-iam:v1",
-      "parameters": [],
+      "parameters": [
+        {
+          "key": "label",
+          "value": "APP_NAME=uengine-cloud-iam"
+        },
+        {
+          "key": "label",
+          "value": "APP_TYPE=system"
+        }
+      ],
       "privileged": false
     },
     "volumes": [
