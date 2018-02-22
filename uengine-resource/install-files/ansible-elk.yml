@@ -22,7 +22,7 @@
       command: "{{ item }}"
       with_items:
         - sudo systemctl enable metricbeat
-        - sudo service metricbeat start
+        - sudo service metricbeat restart
 
     - name: filebeat install
       command: "{{ item }}"
@@ -44,4 +44,4 @@
       command: "{{ item }}"
       with_items:
         - sudo systemctl enable filebeat
-        - sudo service filebeat start
+        - sudo service filebeat restart
