@@ -289,7 +289,10 @@ mandatory-docker:
 
 ### Nexus part
 
-넥서스 파트는 클라우드 플랫폼에서 Maven 및 Npm 빌드 될 때, 좀 더 빠른 빌드를 수행할 수 있도록 
+넥서스는 Maven,Npm,Yum Rpm 패키지등의 리소스를 
+넥서스 파트는 클라우드 플랫폼에서 Maven 및 Npm 빌드 될 때, 좀 더 빠른 빌드를 수행할 수 있도록  
+
+
 
 ### Pinpoint part(Optional)
 

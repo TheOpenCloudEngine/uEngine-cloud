@@ -64,7 +64,9 @@ elk.elasticsearch.private: 172.31.11.218:9200
 elk.elasticsearch.web: http://13.125.185.128:9200
 elk.kibana.private: 172.31.11.218:5601
 elk.kibana.web: http://13.125.185.128:5601
-
+elk.kibana.dashboard-id.app-log: uengine-app-log
+elk.kibana.dashboard-id.docker-metric: uengine-doker-metric
+elk.kibana.dashboard-id.system-metric: Metricbeat-system-overview
 
 
 

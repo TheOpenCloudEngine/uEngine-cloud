@@ -146,3 +146,7 @@ elk:
   kibana:
     private: 172.31.11.218:5601
     web: http://13.125.185.128:5601
+    dashboard-id:
+      app-log: uengine-app-log
+      docker-metric: uengine-doker-metric
+      system-metric: Metricbeat-system-overview

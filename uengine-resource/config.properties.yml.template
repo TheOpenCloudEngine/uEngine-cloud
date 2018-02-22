@@ -64,7 +64,9 @@ elk.elasticsearch.private: {{elk.elasticsearch.private}}
 elk.elasticsearch.web: {{elk.elasticsearch.web}}
 elk.kibana.private: {{elk.kibana.private}}
 elk.kibana.web: {{elk.kibana.web}}
-
+elk.kibana.dashboard-id.app-log: {{elk.kibana.dashboard-id.app-log}}
+elk.kibana.dashboard-id.docker-metric: {{elk.kibana.dashboard-id.docker-metric}}
+elk.kibana.dashboard-id.system-metric: {{elk.kibana.dashboard-id.system-metric}}
 
 
 

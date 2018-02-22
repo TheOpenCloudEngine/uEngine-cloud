@@ -35,10 +35,7 @@ import org.uengine.cloud.templates.MustacheTemplateEngine;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class DeployAppJob implements Job {
 
@@ -160,7 +157,8 @@ public class DeployAppJob implements Job {
                         dockerImage,
                         servicePort,
                         newDeployment,
-                        externalUrl
+                        externalUrl,
+                        appEntity
                 );
                 //신규 앱이 있을 경우 업데이트 디플로이
                 if (newMarathonApp != null) {
@@ -296,7 +294,8 @@ public class DeployAppJob implements Job {
                         dockerImage,
                         servicePort,
                         deployment,
-                        externalUrl
+                        externalUrl,
+                        appEntity
                 );
                 //기존 앱이 있을 경우 업데이트 디플로이
                 if (marathonApp != null) {
@@ -356,7 +355,8 @@ public class DeployAppJob implements Job {
             String dockerImage,
             int servicePort,
             String deployment,
-            String externalUrl
+            String externalUrl,
+            AppEntity appEntity
     ) throws Exception {
         AppService appService = ApplicationContextRegistry.getApplicationContext().getBean(AppService.class);
         Map deployJson = appService.getDeployJson(appName, stage);
@@ -410,6 +410,25 @@ public class DeployAppJob implements Job {
             agentPathMap.put("hostPath", AGENT_PATH);
             agentPathMap.put("mode", "RW");
             volumes.add(agentPathMap);
+        }
+
+        //elk labels
+        Map docker = (Map) ((Map) unmarshal.get("container")).get("docker");
+        ArrayList parameters = (ArrayList) docker.get("parameters");
+        Map<String, String> labels = new HashMap();
+        labels.put("APP_NAME", appEntity.getName());
+        labels.put("APP_TYPE", appEntity.getAppType());
+        labels.put("PROFILE", stage);
+        labels.put("DEPLOYMENT", deployment);
+        labels.put("IAM", appEntity.getIam());
+        //TODO 커스텀 라벨 주입
+
+        List<String> keys = new ArrayList<>(labels.keySet());
+        for (String key : keys) {
+            Map keyMap = new HashMap();
+            keyMap.put("key", "label");
+            keyMap.put("value", key + "=" + labels.get(key));
+            parameters.add(keyMap);
         }
 
         return JsonUtils.marshal(unmarshal);

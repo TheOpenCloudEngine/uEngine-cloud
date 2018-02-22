@@ -142,3 +142,7 @@ elk:
   kibana:
     private:
     web:
+    dashboard-id:
+      app-log: uengine-app-log
+      docker-metric: uengine-doker-metric
+      system-metric: Metricbeat-system-overview

@@ -65,6 +65,10 @@ elk:
   kibana:
     private: @elk.kibana.private@
     web: @elk.kibana.web@
+    dashboard-id:
+      app-log: @elk.kibana.dashboard-id.app-log@
+      docker-metric: @elk.kibana.dashboard-id.docker-metric@
+      system-metric: @elk.kibana.dashboard-id.system-metric@
 
 vcap:
   services:

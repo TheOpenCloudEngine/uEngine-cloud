@@ -20,4 +20,26 @@
     - name: metricbeat start
       command: "{{ item }}"
       with_items:
+        - sudo systemctl enable metricbeat
         - sudo service metricbeat start
+
+    - name: filebeat install
+      command: "{{ item }}"
+      with_items:
+        - curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-6.2.2-x86_64.rpm
+        - sudo rpm -vi filebeat-6.2.2-x86_64.rpm
+        - sudo mv /etc/filebeat/filebeat.yml /etc/filebeat/filebeat.yml.bk
+    - name: filebeat file copy
+      become: true
+      become_method: sudo
+      copy:
+        src: ./filebeat.yml
+        dest: /etc/filebeat/filebeat.yml
+        owner: root
+        group: root
+        mode: 0644
+    - name: filebeat start
+      command: "{{ item }}"
+      with_items:
+        - sudo systemctl enable filebeat
+        - sudo service filebeat start

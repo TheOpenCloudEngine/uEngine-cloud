@@ -117,6 +117,16 @@ public class RunResource {
                 "UTF-8"
         );
 
+        //filebeat 파일을 생성한다.
+        File filebeatTemplateFile = new File(baseDir + "/install-files/filebeat.yml.template");
+        String filebeatTemplateString = new String(Files.readAllBytes(Paths.get(filebeatTemplateFile.getPath())));
+        String filebeatBody = templateEngine.executeTemplateText(filebeatTemplateString, configMap);
+        org.apache.commons.io.FileUtils.writeStringToFile(
+                new File(baseDir + "/install-files/filebeat.yml"),
+                filebeatBody,
+                "UTF-8"
+        );
+
 
         //dcos 클러스터 yml 을 작성한다.
         Map cluseterMap = new HashMap();
