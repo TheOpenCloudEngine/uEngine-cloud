@@ -19,6 +19,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import org.uengine.zuul.pre.AddingCustomHeaderFilter;
 import org.uengine.zuul.pre.IAMFilter;
 
 /**
@@ -74,5 +75,11 @@ public class Application {
     public IAMFilter iamFilter() {
         return new IAMFilter();
     }
+
+    @Bean
+    public AddingCustomHeaderFilter addingCustomHeaderFilter() {
+        return new AddingCustomHeaderFilter();
+    }
+
 
 }

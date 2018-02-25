@@ -102,12 +102,21 @@ public class IAMFilter extends ZuulFilter {
             URL url = new URL(requestedUrl);
             String path = url.getPath();
 
-            for (Map routeValueMap : ruleService.getRoutes().values()) {
+            for (String key : ruleService.getRoutes().keySet()) {
 
-                //라우터 패스
-                String routePath = (String) routeValueMap.get("path");
-                if (routePath.endsWith("/**")) {
-                    routePath = routePath.substring(0, routePath.length() - 3);
+                Map routeValueMap = ruleService.getRoutes().get(key);
+
+                String routePath = key;
+
+                if(routeValueMap.containsKey("path")){
+
+                    routePath = (String) routeValueMap.get("path");
+
+                    //라우터 패스
+                    if (routePath.endsWith("/**")) {
+                        routePath = routePath.substring(0, routePath.length() - 3);
+                    }
+
                 }
 
                 //라우터 스코프
