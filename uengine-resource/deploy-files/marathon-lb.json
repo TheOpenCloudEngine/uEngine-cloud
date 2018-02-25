@@ -33,6 +33,14 @@
         {
           "key": "label",
           "value": "dcos_pkg_name=marathon-lb"
+        },
+        {
+          "key": "label",
+          "value": "APP_NAME=marathon-lb"
+        },
+        {
+          "key": "label",
+          "value": "APP_TYPE=system"
         }
       ]
     }

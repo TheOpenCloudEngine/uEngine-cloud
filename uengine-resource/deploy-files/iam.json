@@ -13,10 +13,25 @@
     "docker": {
       "forcePullImage": true,
       "image": "@host.registry.package@/uengine-cloud-iam:v1",
-      "parameters": [],
+      "parameters": [
+        {
+          "key": "label",
+          "value": "APP_NAME=uengine-cloud-iam"
+        },
+        {
+          "key": "label",
+          "value": "APP_TYPE=system"
+        }
+      ],
       "privileged": false
     },
-    "volumes": [],
+    "volumes": [
+      {
+        "containerPath": "@pinpoint.agent-path@",
+        "hostPath": "@pinpoint.agent-path@",
+        "mode": "RW"
+      }
+    ],
     "portMappings": [
       {
         "containerPort": 8080,
@@ -28,7 +43,9 @@
     ]
   },
   "env": {
-    "DEPLOYMENT": "blue"
+    "DEPLOYMENT": "blue",
+    "AGENT_USE": "@pinpoint.use@",
+    "AGENT_PATH": "@pinpoint.agent-path@"
   },
   "healthChecks": [
     {

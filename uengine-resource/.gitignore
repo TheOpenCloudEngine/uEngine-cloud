@@ -23,7 +23,7 @@ dist/
 nbdist/
 .nb-gradle/
 
-config.properties.yml
-config.pas-mini.yml
-config.pasmini.yml
+#config.properties.yml
+#config.pas-mini.yml
+#config.pasmini.yml
 

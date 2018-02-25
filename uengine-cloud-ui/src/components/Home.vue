@@ -49,6 +49,7 @@
         items: [
           {title: 'Dashboard', icon: 'dashboard', routerPath: '/dashboard'},
           {title: 'Apps', icon: 'dashboard', routerPath: '/apps'},
+          {title: 'System Metrics', icon: 'dashboard', routerPath: '/system'},
           {title: 'Settings', icon: 'settings_applications', routerPath: '/settings'},
           {title: 'Organization', icon: 'people', routerPath: '/organization'}
         ],

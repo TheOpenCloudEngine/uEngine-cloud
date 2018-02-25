@@ -31,7 +31,18 @@
       "forcePullImage": false,
       "privileged": false,
       "parameters": [
-        { "key": "rm", "value": "true" }
+        {
+          "key": "rm",
+          "value": "true"
+        },
+        {
+          "key": "label",
+          "value": "APP_NAME=uengine-db"
+        },
+        {
+          "key": "label",
+          "value": "APP_TYPE=system"
+        }
       ]
     }
   },

@@ -1,0 +1,8 @@
+---
+- hosts: public:agent:add-agent
+  remote_user: "{{ansible_user}}"
+  tasks:
+    - name: image prune
+      command: "{{ item }}"
+      with_items:
+        - sudo docker image prune -a -f

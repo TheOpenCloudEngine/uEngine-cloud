@@ -107,6 +107,26 @@ public class RunResource {
                 "UTF-8"
         );
 
+        //metricbeat 파일을 생성한다.
+        File metricbeatTemplateFile = new File(baseDir + "/install-files/metricbeat.yml.template");
+        String metricbeatTemplateString = new String(Files.readAllBytes(Paths.get(metricbeatTemplateFile.getPath())));
+        String metricbeatBody = templateEngine.executeTemplateText(metricbeatTemplateString, configMap);
+        org.apache.commons.io.FileUtils.writeStringToFile(
+                new File(baseDir + "/install-files/metricbeat.yml"),
+                metricbeatBody,
+                "UTF-8"
+        );
+
+        //filebeat 파일을 생성한다.
+        File filebeatTemplateFile = new File(baseDir + "/install-files/filebeat.yml.template");
+        String filebeatTemplateString = new String(Files.readAllBytes(Paths.get(filebeatTemplateFile.getPath())));
+        String filebeatBody = templateEngine.executeTemplateText(filebeatTemplateString, configMap);
+        org.apache.commons.io.FileUtils.writeStringToFile(
+                new File(baseDir + "/install-files/filebeat.yml"),
+                filebeatBody,
+                "UTF-8"
+        );
+
 
         //dcos 클러스터 yml 을 작성한다.
         Map cluseterMap = new HashMap();
