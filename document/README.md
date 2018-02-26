@@ -11,7 +11,6 @@
   - [클러스터 계정 및 CLI](install-cluster-user.md)
   - [깃랩 && 도커 레지스트리 설치](install-gitlab.md)
   - [CI 서버 설치](install-ci.md)
-  - [필수 도커 업로드](install-docker-upload.md)
   - [클라우드 패키지 빌드](install-package.md)
   - [클라우드 앱 실행](install-package-run.md)
   - [테스트](install-test.md)
@@ -30,6 +29,7 @@
 - Additional documents
   - [VirtualBox](additional-virtualbox.md)
   - [Vagrant-kvm(Expert)](additional-vagrant.md)
+  - [필수 도커 업로드](additional-docker-upload.md)
   - [Nexus](additional-nexus.md)
   - [Pinpoint](additional-pinpoint.md)
   - [ELK](additional-elk.md)

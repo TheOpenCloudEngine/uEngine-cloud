@@ -268,7 +268,7 @@ gitlab:
 
 ### Mandatory-docker part
 
-이 파트는 클라우드 플랫폼에서 사용될 도커 이미지 목록입니다. 이 파트에 기록된 도커 이미지 리스트들은 [필수 도커 업로드](install-docker-upload.md) 섹션을 
+이 파트는 클라우드 플랫폼에서 사용될 도커 이미지 목록입니다. 이 파트에 기록된 도커 이미지 리스트들은 [필수 도커 업로드](additional-docker-upload.md) 섹션을 
 진행 할 때 Docker hub 에서 필요한 도커 이미지들을 다운로드 받아 프라이빗 도커 레지스트리로 복사됩니다.
  
 ```
@@ -481,6 +481,11 @@ server:
       agent5: 172.31.7.160
       agent6: 172.31.11.70
       agent7: 172.31.0.164
+      agent8: 172.31.10.202
+      agent9: 172.31.14.197
+      agent10: 172.31.13.131
+      agent11: 172.31.1.166
+      agent12: 172.31.8.5
 
     add-agent:
     gracefully-remove-agent:
@@ -500,6 +505,7 @@ db:
 
 # Domain part
 host:
+  default: pas-mini.io
   registry:
     package: sppark
     private: gitlab.pas-mini.io:5000
@@ -507,7 +513,6 @@ host:
   db: db.pas-mini.io
   gitlab: gitlab.pas-mini.io
   iam: iam.pas-mini.io
-  config: config.pas-mini.io
   eureka-server: eureka-server.pas-mini.io
   cloud-server: cloud-server.pas-mini.io
   cloud-ui: cloud.pas-mini.io
@@ -523,29 +528,81 @@ iam:
   access-token-lifetime: 7200
   mail:
     host: smtp.gmail.com
-    username: sppark@uengine.org
-    password: ********
+    username: "sppark@uengine.org"
+    password: "!gosu23546"
     port: 587
     smtp-auth: true
     smtp-starttls-enable: true
     from-address: sppark@uengine.org
     from-name: uengine
 
+# Mandatory-docker part
+mandatory-docker:
+  - mesosphere/marathon-lb:v1.11.2
+  - mysql:5.7
+  - docker:latest
+  - node:latest
+  - maven:3-jdk-8
+  - maven:3-jdk-7
+  - sppark/curl-jq:v1
+  - openjdk:8u111-jdk-alpine
+  - tomcat:7.0.84-jre7
+  - webratio/nodejs-http-server
+  - google/cadvisor:latest
+  - sonatype/nexus:2.14.6-02
+
 # Cloud package part
 # Fill out those properties after install DC/OS cluster && Gitlab
 # Then, you should re-command "mvn clean install exec:java package"
 dcos:
-  token:
+  token: 
 
 gitlab:
   root:
-    username:
-    password:
-    token:
+    username: 
+    password: 
+    token: 
   config-repo:
-    projectId:
+    projectId: 
     deployment-path: /deployment
     template-path: /template
+
+# Nexus part
+nexus:
+  ip: 172.31.10.202
+  username: admin
+  password: admin123
+  mvn:
+    public: http://nexus.pas-mini.io/nexus/content/groups/public/
+    release: http://nexus.pas-mini.io/nexus/content/repositories/releases/
+    snapshot: http://nexus.pas-mini.io/nexus/content/repositories/snapshots/
+  npm:
+    public: http://nexus.pas-mini.io/nexus/content/groups/npm/
+    private: http://nexus.pas-mini.io/nexus/content/repositories/npm-private/
+
+# Pinpoint part
+pinpoint:
+  use: true
+  agent-path: /pinpoint-agent
+  web: http://pinpoint.pas-mini.io
+  collector:
+    ip: 172.31.1.228
+    tcp-port: 9994
+    stat-port: 9995
+    span-port: 9996
+
+# Elk part
+elk:
+  elasticsearch:
+    private: 172.31.11.218:9200
+    web: http://13.125.185.128:9200
+  kibana:
+    private: 172.31.11.218:5601
+    web: http://13.125.185.128:5601
+    dashboard-id:
+      app-log: uengine-app-log
+      docker-metric: uengine-doker-metric
+      system-metric: Metricbeat-system-overview
 ```
 
 ## 설정 파일 빌드
