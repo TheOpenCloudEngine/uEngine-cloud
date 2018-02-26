@@ -391,7 +391,8 @@ Pinpoint 를 사용하게 되면 n계층 아키텍처를 추적해 대규모 분
 - bytecode instrumentation 기법으로 코드를 수정하지 않고 원하는 기능을 추가
 
 
-유엔진 클라우드 플랫폼은 Java 계열의 앱 실행시 Pinpoint JVM agent 를 자동으로 앱에 mount 하여 분산 트랙잭션 모니터를 가능하게 합니다.
+유엔진 클라우드 플랫폼은 Java 계열의 앱 실행시 Pinpoint JVM agent 를 자동으로 앱에 mount 하여 분산 트랙잭션 모니터를 가능하게 합니다. 
+이 과정에서 기존 앱의 소스코드를 전혀 수정할 필요가 없습니다.
 Pinpoint 를 클라우드 플랫폼과 연동하기 위해서는 [Pinpoint](additional-pinpoint.md) 문서를 통해 설치를 진행하도록 합니다. 
 
 아래는 설치 후 알맞은 설정의 예입니다.
@@ -413,7 +414,35 @@ pinpoint:
 
 ### Elk part(Optional)
 
+오늘날의 현대적이고 분산 된 컨테이너 형 애플리케이션 플랫폼의 복잡성을 감안할 때 개별 로그에 액세스하는 것은 비현실적이며 효과가 없습니다. 
+ELK Stack (Elasticsearch, Logstash 및 Kibana) 은 이러한 장애물 중 일부를 극복하기위한 하나의 방법입니다. 
 
+유엔진 클라우드 플랫폼은 ELK stack 과의 연동을 통해 다음의 기능을 제공합니다.
+
+ - 앱별 통합 로그 검색
+ - 앱별 Docker 메트릭스 정보 검색 및 시각화
+ - 호스트 머신 메트릭스 정보 검색 및 시각화
+ - 사용자 지정 태그에 의한 통합 로그 검색
+
+또한, 적재된 로그 및 메트릭스 데이터는 API 를 통해 APM 서버나 데이터 분석 솔루션 등에 정보를 제공할 수 있습니다.
+
+유엔진 클라우드 플랫폼은 Docker 를 통해 매우 빠르게 ELK 를 구축하고, 생성된 앱의 각종 정보를 저장합니다. 이 과정에서 기존 앱의 소스코드를 전혀 수정할 필요가 없습니다. 
+[ELK](additional-elk.md) 문서를 통해 설치를 진행 한 후, 올바른 설정 예는 다음과 같습니다.
+ 
+```
+# Elk part
+elk:
+  elasticsearch:
+    private: 172.31.11.218:9200
+    web: http://13.125.185.128:9200
+  kibana:
+    private: 172.31.11.218:5601
+    web: http://13.125.185.128:5601
+    dashboard-id:
+      app-log: uengine-app-log
+      docker-metric: uengine-doker-metric
+      system-metric: Metricbeat-system-overview
+```
 
 ---
 
