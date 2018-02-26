@@ -18,6 +18,7 @@ package org.uengine.cloud.scheduler;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.gitlab4j.api.GitLabApi;
 import org.gitlab4j.api.models.Project;
 import org.gitlab4j.api.models.ProjectHook;
@@ -168,7 +169,10 @@ public class CreateAppJob implements Job {
                     }
                 }
 
-                final String body = templateEngine.executeTemplateText(file, templateData);
+                String body = templateEngine.executeTemplateText(file, templateData);
+
+                body = StringEscapeUtils.unescapeHtml(body);
+
                 gitlabExtentApi.updateOrCraeteRepositoryFile(projectId, "master", path, body);
             }
 

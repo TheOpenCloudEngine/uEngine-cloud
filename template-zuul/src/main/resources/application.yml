@@ -1,5 +1,5 @@
 server:
-  port: 4000
+  port: 8080
 
 endpoints:
   routes:
@@ -48,32 +48,96 @@ zuul:
   iam-jwt-key: my-jwt-encrypt-key-my-jwt-encrypt-key
 
   routes:
-    order:
-      path: /orders/**
-      serviceId: order-service
-      stripPrefix: false
-      # Check whether the user's metadata also has a scope.
-      iam-user-scopes-check: false
-      # List of scopes needed for this path
-      iam-scopes:
-        - guest/GET
-        - catalog-order/PUT-PATCH-POST-DELETE
+#    order:
+#      path: /orders/**
+#      serviceId: order-service
+#      stripPrefix: false
+#      # Check whether the user's metadata also has a scope.
+#      iam-user-scopes-check: false
+#      # List of scopes needed for this path
+#      iam-scopes:
+#        - guest/GET
+#        - catalog-order/PUT-PATCH-POST-DELETE
 
-    # If no iam-scopes, all request will be passed.
-    customer:
-      path: /customers/**
-      serviceId: customer-service
+#    # If no iam-scopes, all request will be passed.
+#    customer:
+#      path: /customers/**
+#      serviceId: customer-service
+#      stripPrefix: false
+
+
+#    item:
+#      path: /items/**
+#      serviceId: order-service
+#      stripPrefix: false
+#      iam-user-scopes-check: false
+#      iam-scopes:
+#        - guest/GET
+#        - catalog-manage/PUT-PATCH-POST-DELETE
+
+    definition:
+      path: /definition/**
+      serviceId: definition
+      stripPrefix: false
+    version:
+      path: /version/**
+      serviceId: definition
+      stripPrefix: false
+    instance:
+      path: /instance/**
+      serviceId: bpm
+      stripPrefix: false
+    instance-entity:
+      path: /instances/**
+      serviceId: bpm
+      stripPrefix: false
+    instance-service:
+      path: /service/**
+      serviceId: bpm
+      stripPrefix: false
+    instance-create-app:
+      path: /create-app/**
+      serviceId: definition
+      stripPrefix: false
+    instance-services:
+      path: /services/**
+      serviceId: bpm
+      stripPrefix: false
+    worklist-entity:
+      path: /worklist/**
+      serviceId: bpm
+      stripPrefix: false
+    instance-workitem:
+      path: /work-item/**
+      serviceId: bpm
+      stripPrefix: false
+    metadata:
+      path: /classdefinition/**
+      serviceId: bpm
       stripPrefix: false
 
 
-    item:
-      path: /items/**
-      serviceId: order-service
-      stripPrefix: false
-      iam-user-scopes-check: false
-      iam-scopes:
-        - guest/GET
-        - catalog-manage/PUT-PATCH-POST-DELETE
+#### important for BPM introspection  ####
+
+    eureka:
+      path: /eureka/**
+      url: ${eureka.client.serviceUrl.defaultZone}
+      stripPrefix: true
+
+    bpm:
+      path: /bpm/**
+      serviceId: bpm
+      stripPrefix: true
+
+#### proxies for reverse engineering and java code generation ###
+
+    gitlab:
+      url: http://gitlab.pas-mini.io/api/v4/
+      stripPrefix: true
+      addHeader:
+        PRIVATE-TOKEN: EBXSvH425E3MzB2sc9Qz
+
+###########################################
 
 ribbon:
   # Max number of retries on the same server (excluding the first try)

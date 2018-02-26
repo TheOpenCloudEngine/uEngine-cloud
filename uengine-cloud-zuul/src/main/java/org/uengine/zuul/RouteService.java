@@ -42,7 +42,7 @@ public class RouteService implements InitializingBean {
         } catch (Exception ex) {
             role = "local";
         }
-        if (!role.equals("local")) {
+        if (role!=null && !"local".equals(role)) {
             this.refreshApps();
         }
     }
