@@ -289,9 +289,71 @@ mandatory-docker:
 
 ### Nexus part
 
-넥서스는 Maven,Npm,Yum Rpm 패키지등의 리소스를 
-넥서스 파트는 클라우드 플랫폼에서 Maven 및 Npm 빌드 될 때, 좀 더 빠른 빌드를 수행할 수 있도록  
+Nexus 는 maven 에서 사용할 수 있는 가장 널리 사용되는 무료 repository 중의 하나로, maven,npm,yum 등 다양한 repository 를 사용할 수 있습니다.
 
+Local 에 nexus 를 설치하게 되면, 외부로 부터 dependency 를 끌어 오는 수고를 덜고, local nexus 를 proxy (cache)로 사용함으로써 빠르게 라이브러리들을 끌어 올 수 도 있고, 
+반대로 개발팀내에서 사용하는 공통 라이브러리들을 local nexus 에 배포해서 팀간에 공유할 수 도 있습니다. 또한 사용자 계정 지정을 통해서 repository 에 대한 접근 정책을 정의할 수 도 있습니다.
+
+
+유엔진 클라우드에서 앱을 생성할 경우, 매우 작은 용량의 소스코드가 생성되는데, 이 앱은 CI 작업을 통해 필요한 디펜던시를 다운로드 받게 됩니다. 이 때 디펜던시를 다운받는 
+용도로 넥서스 서버가 필요합니다.  
+
+[Nexus 공식 사이트](http://www.sonatype.org/nexus/)
+
+---
+
+#### Use official nexus server
+
+가장 쉬운 설정으로는 유엔진 official nexus 레파지토리를 사용하는 것입니다.
+
+```
+# Nexus part
+nexus:
+  ip: 
+  username: 
+  password: 
+  mvn:
+    public: http://nexus.pas-mini.io/nexus/content/groups/public/
+    release: http://nexus.pas-mini.io/nexus/content/repositories/releases/
+    snapshot: http://nexus.pas-mini.io/nexus/content/repositories/snapshots/
+  npm:
+    public: http://nexus.pas-mini.io/nexus/content/groups/npm/
+    private: http://nexus.pas-mini.io/nexus/content/repositories/npm-private/
+```  
+
+#### Use own nexus server
+
+데이터 센터 등 인터넷이 격리된 공간에서는 넥서스 서버를 직접 구축하여야 합니다. 넥서스 서버는 유엔진 클라우드 플랫폼 내부에 Docker 로 구축하거나,  
+클라우드 플랫폼 외부에 설치할 수 도 있습니다.
+
+[Nexus](additional-nexus.md) 문서를 통해서 설치를 할 수 있도록 합니다.
+
+문서 튜토리얼에 따라 플랫폼 내부에 Docker 로 구축할 경우 Agent 노드 중 하나의 아이피를 입력하셔야 합니다.
+
+```
+# Nexus part
+nexus:
+  ip: 192.168.0.11
+  username: admin
+  password: admin123
+```
+
+플랫폼 외부에 별도로 설치할 경우 해당하는 서버의 넥서스 url 를 기입하도록 합니다. 아래 값은 사설 넥서스 서버의 세팅에 따라 변경될 수 있습니다.
+
+```
+# Nexus part
+nexus:
+  ip: 
+  username: 
+  password: 
+  mvn:
+    public: http://my-nexus-server/nexus/content/groups/public/
+    release: http://my-nexus-server/nexus/content/repositories/releases/
+    snapshot: http://my-nexus-server/nexus/content/repositories/snapshots/
+  npm:
+    public: http://my-nexus-server/nexus/content/groups/npm/
+    private: http://my-nexus-server/nexus/content/repositories/npm-private/
+```  
 
 
 ### Pinpoint part(Optional)
