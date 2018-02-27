@@ -247,22 +247,22 @@ check_interval = 0
 `runners.machine` 항목에는 이 도커 머신을 어떻게 띄울 것인가에 대한 기술인데, 도커 머신은 깃랩에 포함된 패키지가 아닌 도커 오피셜 클라이언트입니다.
 따라서, 이 항목에는 [공식 도커 머신](https://docs.docker.com/machine/) 을 참조하며 기술하면 됩니다. 지원되는 도커 머신 드라이버 리스트는 다음이 있습니다.
 
-[Amazon Web Services](https://docs.docker.com/machine/drivers/aws/)
-[Microsoft Azure](https://docs.docker.com/machine/drivers/azure/)
-[Digital Ocean](https://docs.docker.com/machine/drivers/digital-ocean/)
-[Exoscale](https://docs.docker.com/machine/drivers/exoscale/)
-[Google Compute Engine](https://docs.docker.com/machine/drivers/gce/)
-[Generic](https://docs.docker.com/machine/drivers/generic/)
-[Microsoft Hyper-V](https://docs.docker.com/machine/drivers/hyper-v/)
-[OpenStack](https://docs.docker.com/machine/drivers/openstack/)
-[Rackspace](https://docs.docker.com/machine/drivers/rackspace/)
-[IBM Softlayer](https://docs.docker.com/machine/drivers/soft-layer/)
-[Oracle VirtualBox](https://docs.docker.com/machine/drivers/virtualbox/)
-[VMware vCloud Air](https://docs.docker.com/machine/drivers/vm-cloud/)
-[VMware Fusion](https://docs.docker.com/machine/drivers/vm-fusion/)
-[VMware vSphere](https://docs.docker.com/machine/drivers/vsphere/)
-[VMware Workstation](https://github.com/pecigonzalo/docker-machine-vmwareworkstation) (unofficial plugin, not supported by Docker)
-[Grid 5000](https://github.com/Spirals-Team/docker-machine-driver-g5k) (unofficial plugin, not supported by Docker)
+- [Amazon Web Services](https://docs.docker.com/machine/drivers/aws/)
+- [Microsoft Azure](https://docs.docker.com/machine/drivers/azure/)
+- [Digital Ocean](https://docs.docker.com/machine/drivers/digital-ocean/)
+- [Exoscale](https://docs.docker.com/machine/drivers/exoscale/)
+- [Google Compute Engine](https://docs.docker.com/machine/drivers/gce/)
+- [Generic](https://docs.docker.com/machine/drivers/generic/)
+- [Microsoft Hyper-V](https://docs.docker.com/machine/drivers/hyper-v/)
+- [OpenStack](https://docs.docker.com/machine/drivers/openstack/)
+- [Rackspace](https://docs.docker.com/machine/drivers/rackspace/)
+- [IBM Softlayer](https://docs.docker.com/machine/drivers/soft-layer/)
+- [Oracle VirtualBox](https://docs.docker.com/machine/drivers/virtualbox/)
+- [VMware vCloud Air](https://docs.docker.com/machine/drivers/vm-cloud/)
+- [VMware Fusion](https://docs.docker.com/machine/drivers/vm-fusion/)
+- [VMware vSphere](https://docs.docker.com/machine/drivers/vsphere/)
+- [VMware Workstation](https://github.com/pecigonzalo/docker-machine-vmwareworkstation) (unofficial plugin, not supported by Docker)
+- [Grid 5000](https://github.com/Spirals-Team/docker-machine-driver-g5k) (unofficial plugin, not supported by Docker)
 
 
 설정이 종료된 후에는 다음 명령어로 러너를 재시작합니다.

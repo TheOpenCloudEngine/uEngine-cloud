@@ -1,3 +1,10 @@
+# First, Run marathon lb apps.
+dcos marathon app add marathon-lb.json
+dcos marathon app add marathon-lb-internal.json
+
+# If you use nexus, Run nexus app.
+dcos marathon app add nexus.json
+
 # Run these three apps.
 dcos marathon app add config.json
 dcos marathon app add eureka-server.json

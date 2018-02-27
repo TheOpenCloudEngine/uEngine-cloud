@@ -18,6 +18,7 @@
 | db       | pas-mini.io | 데이터베이스   | 52.79.51.79(public-agent) |
 | cloud-server  | pas-mini.io | 클라우드 플랫폼 서버   | 52.79.51.79(public-agent) |
 | cloud         | pas-mini.io | 클라우드 플랫폼 UI     | 52.79.51.79(public-agent) |
+| nexus         | pas-mini.io | 넥서스 서버     | 52.79.51.79(public-agent) |
 
 와일드카드(*) A_Mask 를 활용하실 경우, 다음과 같이 간략히 설정이 가능합니다.
 

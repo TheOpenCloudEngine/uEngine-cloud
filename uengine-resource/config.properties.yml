@@ -17,7 +17,7 @@ host.config: 172.31.5.136:10000
 host.eureka-server: eureka-server.pas-mini.io
 host.cloud-server: cloud-server.pas-mini.io
 host.cloud-ui: cloud.pas-mini.io
-host.nexus: 
+host.nexus: nexus.pas-mini.io
 
 iam.port: 80
 iam.client-key: my-client-key

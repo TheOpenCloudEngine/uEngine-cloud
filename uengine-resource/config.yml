@@ -63,6 +63,7 @@ host:
   eureka-server: eureka-server.pas-mini.io
   cloud-server: cloud-server.pas-mini.io
   cloud-ui: cloud.pas-mini.io
+  nexus: nexus.pas-mini.io
 
 # Security(IAM) part
 iam:

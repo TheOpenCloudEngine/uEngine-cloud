@@ -59,6 +59,7 @@ host:
   eureka-server: eureka-server.pasmini.io
   cloud-server: cloud-server.pasmini.io
   cloud-ui: cloud.pasmini.io
+  nexus: nexus.pasmini.io
 
 # Security(IAM) part
 iam:

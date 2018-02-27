@@ -4,7 +4,7 @@
 
 ## 설치파일 다운로드
 
-하기 진행순서부터는 root 계정이 아닌, 리눅스 사용자 계정으로 진행하시길 바랍니다 (ex. centos)
+하기 진행순서부터는 bootstrap 노드에서 진행되며, root 계정이 아닌 리눅스 사용자 계정으로 진행하시길 바랍니다 `ex) centos`
 
 설치에 필요한 파일을 다운로드 받습니다.
 
@@ -381,6 +381,8 @@ Pinpoint 는 대규모 분산 시스템의 성능을 분석하고 문제를 진�
 
 [GitHub의 Pinpoint 프로젝트](https://github.com/naver/pinpoint)
 
+![](image/pinpoint-1.png)
+
 Pinpoint 를 사용하게 되면 n계층 아키텍처를 추적해 대규모 분산 시스템의 성능을 분석하고 문제를 진단, 처리할 수 있습니다. 
 대규모의 n계층 아키텍처를 추적할 수 있는 Pinpoint 는 다음과 같은 특징이 있습니다.
 
@@ -617,23 +619,29 @@ $ mvn clean install exec:java package
 빌드가 성공적으로 진행되면, uEngine-cloud 폴더에 디렉토리들이 추가로 생성되어, 아래와 같은 모습이 됩니다.
 
 ```
--rw-rw-r--. 1 centos centos  1074  1월 17 16:53 LICENSE
--rw-rw-r--. 1 centos centos 22962  1월 17 16:53 README.md
-drwxrwxr-x. 5 centos centos   132  1월 17 17:01 cloud-config-repository
-drwxrwxr-x. 2 centos centos   185  1월 17 17:01 deploys
-drwxrwxr-x. 2 centos centos   145  1월 17 16:53 document
-drwxrwxr-x. 3 centos centos  4096  1월 17 17:09 install
--rwxrwxr-x. 1 centos centos  2463  1월 17 16:53 pom.xml
-drwxrwxr-x. 5 centos centos   140  1월 17 16:53 template-iam
-drwxrwxr-x. 4 centos centos   123  1월 17 16:53 template-springboot
-drwxrwxr-x. 8 centos centos  4096  1월 17 16:53 template-vuejs
-drwxrwxr-x. 4 centos centos   123  1월 17 16:53 template-zuul
-drwxrwxr-x. 3 centos centos    50  1월 17 16:53 uengine-cloud-config
-drwxrwxr-x. 5 centos centos   118  1월 17 16:53 uengine-cloud-iam
-drwxrwxr-x. 3 centos centos    50  1월 17 16:53 uengine-cloud-server
-drwxrwxr-x. 7 centos centos   259  1월 17 16:53 uengine-cloud-ui
-drwxrwxr-x. 3 centos centos    50  1월 17 16:53 uengine-eureka-server
-drwxrwxr-x. 8 centos centos   230  1월 17 17:01 uengine-resource
+.
+├── LICENSE
+├── README.md
+├── cloud-config-repository
+├── deploys
+├── docs
+├── install
+├── pom.xml
+├── template-iam
+├── template-springboot
+├── template-tomcat7
+├── template-tomcat7.iml
+├── template-vuejs
+├── template-zuul
+├── uengine-cloud-api
+├── uengine-cloud-config
+├── uengine-cloud-iam
+├── uengine-cloud-server
+├── uengine-cloud-ui
+├── uengine-cloud-zuul
+├── uengine-cloud.iml
+├── uengine-eureka-server
+└── uengine-resource
 ```
 
 ## DC/OS 클러스터 설치

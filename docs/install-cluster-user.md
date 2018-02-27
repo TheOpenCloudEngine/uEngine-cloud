@@ -51,8 +51,6 @@ If your browser didn't open, please go to the following link:
 Enter OpenID Connect ID Token: 
 ```
 
-![health](image/install-token.png)
-
 콘솔의 url 로 이동하여, 화면에 나오는 토큰값을 커맨드 프롬프트에 입력하면 CLI 를 사용가능 합니다.
 
 

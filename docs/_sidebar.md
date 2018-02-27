@@ -1,5 +1,7 @@
 - 유엔진 클라우드 운영 가이드
 
+- 작성자: 유엔진솔루션즈 박승필 (sppark@uengine.org)
+
 - 설치
   - [서버 준비](pre-server.md)
   - [도메인 && 네트워크 준비](pre-domain.md)
@@ -22,7 +24,7 @@
   - [설치 완전 삭제](op-uninstall.md)
   - [깃랩 백업](op-gitlab-backup.md)
   
-- [트러블 슈팅](trouble.md)
+- 트러블 슈팅
   - [컴포넌트 헬스 체크](trouble-component.md)
   - [네트워크](trouble-network.md)  
   
@@ -30,7 +32,6 @@
   - [VirtualBox](additional-virtualbox.md)
   - [Vagrant-kvm(Expert)](additional-vagrant.md)
   - [필수 도커 업로드](additional-docker-upload.md)
-  - [Nexus](additional-nexus.md)
   - [Pinpoint](additional-pinpoint.md)
   - [ELK](additional-elk.md)
   - [DNS Server(Expert)](additional-dns.md)

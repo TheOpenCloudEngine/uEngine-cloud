@@ -1,5 +1,8 @@
 # 유엔진 클라우드 운영 가이드
 
+**작성자: 유엔진솔루션즈 박승필 (sppark@uengine.org)**
+
+
 - 설치
   - [서버 준비](pre-server.md)
   - [도메인 && 네트워크 준비](pre-domain.md)

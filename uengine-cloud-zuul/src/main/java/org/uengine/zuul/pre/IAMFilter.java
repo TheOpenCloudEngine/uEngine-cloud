@@ -169,30 +169,30 @@ public class IAMFilter extends ZuulFilter {
                             }
                         }
 
-                        boolean scopeMath = false;
+                        boolean scopeMatch = false;
                         //모든 스코프 통과
                         if ("guest".equals(scope)) {
-                            scopeMath = true;
+                            scopeMatch = true;
                         }
                         //스코프 체크 필요
                         else {
                             //사용자 스코프 체크가 필요없는경우
                             if (clientScopes.contains(scope) && !iamUserScopesCheck) {
-                                scopeMath = true;
+                                scopeMatch = true;
                             }
 
                             //사용자 스코프 체크가 필요한 경우
                             else if (clientScopes.contains(scope) && iamUserScopesCheck) {
                                 if (userScopes.contains(scope)) {
-                                    scopeMath = true;
+                                    scopeMatch = true;
                                 }
                             }
                         }
 
-                        if (scopeMath && !"guest".equals(scope)) {
+                        if (scopeMatch && !"guest".equals(scope)) {
                             hasScope = true;
                         }
-                        if (methodMatch && scopeMath) {
+                        if (methodMatch && scopeMatch) {
                             passable = true;
                         }
                     }
