@@ -1,10 +1,10 @@
 # Virtual Box CentOS7
 
-### 이미지 다운로드
+## 이미지 다운로드
 
 [https://www.centos.org/download/](https://www.centos.org/download/) 에서 Minimal ISO 를 다운받습니다.
 
-### 설치
+## 설치
 
 Virtual Box 를 실행시킨 후, 다음 그림순서대로 설치를 진행하십시오.
 
@@ -82,7 +82,7 @@ root 패스워드를 설정합니다.
 centos 유저를 생성 후, 패스워드를 설정합니다.
 
 
-### VM 네트워크 고정아이피 설정
+## VM 네트워크 고정아이피 설정
 
 브리지 어댑터는 공유기에서 할당받은 아이피를 VM 에 할당하게 되는데, VM 을 재부팅 하거나 공유기가 재부팅 될 경우 IP 가 바뀔 소지가 있습니다.
 
@@ -91,7 +91,7 @@ centos 유저를 생성 후, 패스워드를 설정합니다.
 [네트워크 고정 아이피(옵셔널)](pre-static-ips.md) 섹션을 참조하여 각 VM 의 네트워크 스크립트를 수정하도록 합니다.
 
 
-### centos 유저 sudo 등록
+## centos 유저 sudo 등록
 
 다음은 centos 유저에 대해 sudo 실행시 패스워드 프롬프트를 생략하도록 설정합니다.
 

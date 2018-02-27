@@ -17,7 +17,7 @@ $ curl -L https://packages.gitlab.com/install/repositories/runner/gitlab-runner/
 $ sudo yum install gitlab-runner -y
 ```
 
-### CI 서버를 별도로 준비하는 이유
+## CI 서버를 별도로 준비하는 이유
 
 CI 서버는 고사양일 필요 없이, EC2 기준 `t2.micro (1cpu,1GB)` 로도 충분합니다.
 다만, 동시 다발적인 CI 작업이 이루어질 경우, 많은 양의 CI 캐쉬 데이터와 형상관리 코드가 오가게 됨으로, 원한할 네트워크 환경이 필요합니다.
