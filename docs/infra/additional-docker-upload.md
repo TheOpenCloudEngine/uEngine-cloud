@@ -5,10 +5,10 @@
 
 이 섹션은 프라이빗 도커 레지스트리 서버가 필요합니다. 따라서 아래 목록의 설치 절차가 끝난 후 진행할 수 있도록 합니다.
 
-- [유틸리티 설치](install-util.md)
-- [클러스터 설치](install-cluster.md)
-- [클러스터 계정 및 CLI](install-cluster-user.md)
-- [깃랩 && 도커 레지스트리 설치](install-gitlab.md)
+- [유틸리티 설치](infra/install-util.md)
+- [클러스터 설치](infra/install-cluster.md)
+- [클러스터 계정 및 CLI](infra/install-cluster-user.md)
+- [깃랩 && 도커 레지스트리 설치](infra/install-gitlab.md)
 
 ---
 ## 설정

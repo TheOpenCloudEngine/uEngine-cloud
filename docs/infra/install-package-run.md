@@ -45,9 +45,9 @@ dcos marathon app add cloud-server.json
 dcos marathon app add cloud-ui.json
 ```
 
-나머지 서비스도 모두 health 상태가 되었다면, [도메인 && 네트워크 준비](pre-domain.md) 에서 설정한 iam 호스트주소로 접속합니다. (ex. **http://iam.pas-mini.io**)
+나머지 서비스도 모두 health 상태가 되었다면, [도메인 && 네트워크 준비](infra/pre-domain.md) 에서 설정한 iam 호스트주소로 접속합니다. (ex. **http://iam.pas-mini.io**)
 
-인증 서버의 로그인 창 아이디, 패스워드는 [클러스터 설치 - Security part](install-cluster.md#security-part) 에서 설정한 정보입니다.
+인증 서버의 로그인 창 아이디, 패스워드는 [클러스터 설치 - Security part](infra/install-cluster.md#security-part) 에서 설정한 정보입니다.
  여기서 별다른 변경을 하지 않았다면, `admin` , `admin` 이 아이디, 패스워드 입니다. 로그인을 하시고 난 후 사용자 추가 버튼 클릭 후, 클라우드 플랫폼에 
  접속 가능한 인원을 편집하십시오.
  

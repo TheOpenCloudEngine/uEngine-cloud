@@ -241,10 +241,10 @@ iam:
 
 ### Cloud package part
 
-클라우드 패키지 파트는 [클러스터 설치](install-cluster.md) 와 [깃랩 && 도커 레지스트리 설치](install-gitlab.md) 
+클라우드 패키지 파트는 [클러스터 설치](infra/install-cluster.md) 와 [깃랩 && 도커 레지스트리 설치](infra/install-gitlab.md) 
 설치가 종료된 후, 클러스터 정보 및 깃랩 정보를 기입하는 곳입니다.
 
-이 곳의 설정에 관해서는 [클라우드 패키지 빌드](install-package.md) 에서 진행하게 됩니다.
+이 곳의 설정에 관해서는 [클라우드 패키지 빌드](infra/install-package.md) 에서 진행하게 됩니다.
 
 ```
 # Cloud package part
@@ -268,7 +268,7 @@ gitlab:
 
 ### Mandatory-docker part
 
-이 파트는 클라우드 플랫폼에서 사용될 도커 이미지 목록입니다. 이 파트에 기록된 도커 이미지 리스트들은 [필수 도커 업로드](additional-docker-upload.md) 섹션을 
+이 파트는 클라우드 플랫폼에서 사용될 도커 이미지 목록입니다. 이 파트에 기록된 도커 이미지 리스트들은 [필수 도커 업로드](infra/additional-docker-upload.md) 섹션을 
 진행 할 때 Docker hub 에서 필요한 도커 이미지들을 다운로드 받아 프라이빗 도커 레지스트리로 복사됩니다.
  
 ```
@@ -344,7 +344,7 @@ nexus:
 데이터 센터 등 인터넷이 격리된 공간에서는 넥서스 서버를 직접 구축하여야 합니다. 넥서스 서버는 유엔진 클라우드 플랫폼 내부에 Docker 로 구축하거나,  
 클라우드 플랫폼 외부에 설치할 수 도 있습니다.
 
-[Nexus 구축](additional-nexus.md) 문서를 통해서 설치를 할 수 있도록 합니다.
+[Nexus 구축](infra/additional-nexus.md) 문서를 통해서 설치를 할 수 있도록 합니다.
 
 문서 튜토리얼에 따라 플랫폼 내부에 Docker 로 구축할 경우 Agent 노드 중 하나의 아이피를 입력하셔야 합니다.
 
@@ -395,7 +395,7 @@ Pinpoint 를 사용하게 되면 n계층 아키텍처를 추적해 대규모 분
 
 유엔진 클라우드 플랫폼은 Java 계열의 앱 실행시 Pinpoint JVM agent 를 자동으로 앱에 mount 하여 분산 트랙잭션 모니터를 가능하게 합니다. 
 이 과정에서 기존 앱의 소스코드를 전혀 수정할 필요가 없습니다.
-Pinpoint 를 클라우드 플랫폼과 연동하기 위해서는 [Pinpoint](additional-pinpoint.md) 문서를 통해 설치를 진행하도록 합니다. 
+Pinpoint 를 클라우드 플랫폼과 연동하기 위해서는 [Pinpoint](infra/additional-pinpoint.md) 문서를 통해 설치를 진행하도록 합니다. 
 
 아래는 설치 후 알맞은 설정의 예입니다.
 
@@ -429,7 +429,7 @@ ELK Stack (Elasticsearch, Logstash 및 Kibana) 은 이러한 장애물 중 일�
 또한, 적재된 로그 및 메트릭스 데이터는 API 를 통해 APM 서버나 데이터 분석 솔루션 등에 정보를 제공할 수 있습니다.
 
 유엔진 클라우드 플랫폼은 Docker 를 통해 매우 빠르게 ELK 를 구축하고, 생성된 앱의 각종 정보를 저장합니다. 이 과정에서 기존 앱의 소스코드를 전혀 수정할 필요가 없습니다. 
-[ELK](additional-elk.md) 문서를 통해 설치를 진행 한 후, 올바른 설정 예는 다음과 같습니다.
+[ELK](infra/additional-elk.md) 문서를 통해 설치를 진행 한 후, 올바른 설정 예는 다음과 같습니다.
  
 ```
 # Elk part
@@ -690,7 +690,7 @@ Package filename: packages/dcos-metadata/dcos-metadata--setup_5a900644a2b78900d7
 Generating Bash configuration files for DC/OS
 ```
 
-preflight 는 사전 체크 단계입니다. 이 단계에서 모든 사항에 대해 pass 가 나오지 않는다면, [트러블 슈팅](trouble.md) 을 통해 해결하세요.
+preflight 는 사전 체크 단계입니다. 이 단계에서 모든 사항에 대해 pass 가 나오지 않는다면, [트러블 슈팅](infra/trouble.md) 을 통해 해결하세요.
 
 ```
 sudo bash dcos_generate_config.sh --preflight
@@ -803,10 +803,10 @@ DC/OS 웹 UI 에 로그인하기 위해서는 구글 계정이 필요합니다.
 
 ![health](infra/image/install-health.png)
 
-문제가 있는 컴포넌트가 있다면 원인분석을 위해 [컴포넌트 헬스 체크](trouble-component.md) 를 참조하기 바랍니다.
+문제가 있는 컴포넌트가 있다면 원인분석을 위해 [컴포넌트 헬스 체크](infra/trouble-component.md) 를 참조하기 바랍니다.
 
 잘못된 설정값으로 초기 설치를 진행하여, 다시 설치 시도시에 원할히 동작되지 않는 경우 초기 설치요소를 완전히 제거하고 재설치 할 필요가 있습니다. 
-[설치 완전 삭제](op-uninstall.md) 를 참조하여 진행하도록 하십시오.
+[설치 완전 삭제](infra/op-uninstall.md) 를 참조하여 진행하도록 하십시오.
 
 
 

@@ -3,7 +3,7 @@
 설치를 완전히 제거하는 것은 다음과 같은 경우에 해당합니다.
 
  - 일부 `private-agent` 또는 `public-agent` 에 대하여 설치요소를 완전히 삭제할 경우
- - [클러스터 인스톨](install-cluster.md) 과정에서 잘못된 설정값으로 초기 설치를 진행하여, 수정 후에도 실패를 경험하는 경우
+ - [클러스터 인스톨](infra/install-cluster.md) 과정에서 잘못된 설정값으로 초기 설치를 진행하여, 수정 후에도 실패를 경험하는 경우
  - 클러스터의 완전 삭제가 필요한 경우
 
 노드 완전 삭제가 진행되기 위해서, `uEngine-cloud/uengine-resource/config.yml` 파일의 `uninstall` 항목에, 제거할 노드 리스트를 기술합니다.
@@ -39,7 +39,7 @@ $ mvn clean install exec:java package
 ```
 
 이후, `uEngine-cloud/install` 폴더에서 변경 적용된 DC/OS 클러스터 배포파일을 생성합니다. 
-([노드 추가](op-add-node.md)와 다르게, 압축 파일을 생성하지 않아도 됩니다.)
+([노드 추가](infra/op-add-node.md)와 다르게, 압축 파일을 생성하지 않아도 됩니다.)
 
 ```
 # 앤시블 호스트 파일 재적용

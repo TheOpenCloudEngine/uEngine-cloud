@@ -1,6 +1,6 @@
 # Cadvisor Proxy Server
  
-[클러스터 설치](install-cluster.md) 과정에서 Google 의 `cadvisor` 도커가 함게 설치되게 되는데, 이는 도커 컨테이너 메트릭스를 
+[클러스터 설치](infra/install-cluster.md) 과정에서 Google 의 `cadvisor` 도커가 함게 설치되게 되는데, 이는 도커 컨테이너 메트릭스를 
 수집하여 APM , 모니터링 등에 이용할 수 있게 해주는 툴 입니다.
 
 cadvisor 는 각 에이전트 노드마다 설치되는데, 유엔진 클라우드 플랫폼은 에이전트 서버로의 직접적인 접근을 허용하지 않기 때문에 `public-agent` 

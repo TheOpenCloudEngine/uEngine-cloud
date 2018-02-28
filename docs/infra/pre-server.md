@@ -32,7 +32,7 @@
     - 깃랩 서버, 퍼블릭 에이전트 노드, 그리고 한개의 마스터 노드는 인터넷 환경에서 접속 가능한 퍼블릭 아이피를 가지고 있어야 합니다.
     
 - 데이터 센터가 보유한 네임서버에 `*.[ server ].[ domain ]`  형식으로, A MASK 가  `*`  로 설정된 도메인을 등록하셔야 합니다.
-- 데이터 센터가 보유한 네임서버가 없다면, [DNS Server(Expert)](additional-dns.md) 섹션을 참조하여 네임서버를 구축하도록 합니다.
+- 데이터 센터가 보유한 네임서버가 없다면, [DNS Server(Expert)](infra/additional-dns.md) 섹션을 참조하여 네임서버를 구축하도록 합니다.
 
 ### 서버 예시(데이터 센터 구성도)
 
@@ -75,7 +75,7 @@
 
 본 가이드에서는 개발기를 대상으로 한, vagrant 와 kvm 을 사용한 상대적으로 가벼운 가상화 솔루션을 사용한 설치법을 제공합니다.
 
-- [Vagrant-kvm(Expert)](additional-vagrant.md)
+- [Vagrant-kvm(Expert)](infra/additional-vagrant.md)
 
 개발기/운영기 동시 운영시에는 `opnestack` 또는 `xenserver` 등 운용관리에 더욱 이점이 많은 가상화 솔루션을 사용하실 것을 권장드립니다.
 
@@ -101,7 +101,7 @@
     - 6.구매한 도메인을 `*.[ server ].[ domain ]`  형식으로, A MASK 를  `*` 로 설정하도록 하십시오.
     - 7.구매한 도메인을 공유기의 외부 아이피로 연결하도록 설정하십시오.
     
-- 도메인 구매가 어려울 경우, `bootstrap` 노드에 [DNS Server(Expert)](additional-dns.md) 섹션을 참조하여 네임서버를 구축하도록 합니다.
+- 도메인 구매가 어려울 경우, `bootstrap` 노드에 [DNS Server(Expert)](infra/additional-dns.md) 섹션을 참조하여 네임서버를 구축하도록 합니다.
 - 유엔진 클라우드 플랫폼의 모든 서비스는 도메인을 기반으로 동작하므로 `도메인 구매` 또는 `사설 DNS 구축` 둘 중 하나는 진행되어야 합니다.
 - 고정아이피 할당이 어려울 경우, 공유기에 포트바인딩을 할 필요는 없으며, 대신 공유기 대역대 내에서만 플랫폼 사용이 가능해집니다.  
 
@@ -125,4 +125,4 @@
 
 본 가이드에서는 VirtualBox 가상화 솔루션을 사용한 설치법을 제공합니다.
 
-- [VirtualBox](additional-virtualbox.md)
+- [VirtualBox](infra/additional-virtualbox.md)

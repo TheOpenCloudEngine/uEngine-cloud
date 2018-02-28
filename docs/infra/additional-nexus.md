@@ -22,11 +22,11 @@ Nexus 는 repository 의 용도와 목적에 따라서 몇 가지로 나눌 수 
 
 클라우드 플랫폼 상에 Docker 로 넥서스를 구축하기 위해서, 아래 설치 젍차를 사전에 진행하도록 합니다.
 
-- [유틸리티 설치](install-util.md)
-- [클러스터 설치](install-cluster.md)
-- [클러스터 계정 및 CLI](install-cluster-user.md)
-- [깃랩 && 도커 레지스트리 설치](install-gitlab.md)
-- [필수 도커 업로드](additional-docker-upload.md)
+- [유틸리티 설치](infra/install-util.md)
+- [클러스터 설치](infra/install-cluster.md)
+- [클러스터 계정 및 CLI](infra/install-cluster-user.md)
+- [깃랩 && 도커 레지스트리 설치](infra/install-gitlab.md)
+- [필수 도커 업로드](infra/additional-docker-upload.md)
 
 ### Configuration Docker Nexus
 

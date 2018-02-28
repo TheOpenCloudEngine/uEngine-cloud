@@ -11,7 +11,7 @@
   
 ## Get admin token
 
-DC/OS 클러스터의 어드민 토큰 발급은 앞선 [사용자 생성](install-cluster-user.md) 에서 발급받은 토큰입니다. 
+DC/OS 클러스터의 어드민 토큰 발급은 앞선 [사용자 생성](infra/install-cluster-user.md) 에서 발급받은 토큰입니다. 
 깃랩 어드민 토큰은 깃랩 UI 로 접속하여 받을 수 있습니다. 먼저, 루트계정으로 깃랩으로 접속하도록 합니다. 초기 유저,패스워드는 `root` , `adminadmin` 입니다.
 
 ![token](infra/image/package1.png)
@@ -37,7 +37,7 @@ DC/OS 클러스터의 어드민 토큰 발급은 앞선 [사용자 생성](insta
 
 ## Fill out Cloud package part
 
-[클러스터 설치](install-cluster.md) 에서 진행하였던 `uEngine-cloud/uengine-resource/config.yml` 파일의 `Cloud package part`
+[클러스터 설치](infra/install-cluster.md) 에서 진행하였던 `uEngine-cloud/uengine-resource/config.yml` 파일의 `Cloud package part`
  설정을 마무리 지어야 합니다.
   
 본 파트에서 진행한 `dcos token` , `gitlab token` , `repository id` 를 사용하 다음 항목을들 채우도록 합니다.

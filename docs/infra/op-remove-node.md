@@ -23,7 +23,7 @@ $ mvn clean install exec:java package
 ```
 
 이후, `uEngine-cloud/install` 폴더에서 변경 적용된 DC/OS 클러스터 배포파일을 생성합니다. 
-([노드 추가](op-add-node.md)와 다르게, 압축 파일을 생성하지 않아도 됩니다.)
+([노드 추가](infra/op-add-node.md)와 다르게, 압축 파일을 생성하지 않아도 됩니다.)
 
 ```
 # 앤시블 호스트 파일 재적용
