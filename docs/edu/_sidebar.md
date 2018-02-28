@@ -6,9 +6,8 @@
   - [미터링 / 빌링](https://github.com/TheOpenCloudEngine/uEngine-bill)
   - [OCE BPM](https://github.com/TheOpenCloudEngine/uEngine5-base)
 
-- [마이크로 서비스 구현 전략](edu/구현-전략)
-
 - OCE MSA 플랫폼 사용
+  - [마이크로 서비스 구현 전략](edu/구현-전략)
   - [계정 생성과 클라우드 네이티브 애플리케이션 생성](edu/OCE-MSA-플랫폼의-사용.md)
   - [관련 도구 설치](edu/Httpie-설치)
 
