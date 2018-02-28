@@ -78,51 +78,11 @@ Jvm 트랜잭션 이벤트들을 핀포인트 콜렉터로 전송하게 됩니�
 
 **Agent-Architecture**
 
-![](image/pinpoint-2.png)
+![](infra/image/pinpoint-2.png)
 
 ### Copy agent to all nodes
 
- 
-
-
-플랫폼 도커 파일 변경
-
-```
-FROM openjdk:8u111-jdk-alpine
-VOLUME /tmp
-ADD *.jar app.jar
-ARG CI_PROJECT_NAME
-ARG CI_COMMIT_SHA
-ENV CI_PROJECT_NAME=$CI_PROJECT_NAME
-ENV CI_COMMIT_SHA=$CI_COMMIT_SHA
-RUN echo 'JAVA_OPTS=""' > launcher.sh && \
-    sed -i '$ a if [ "$AGENT_USE" == "true" ]; then' launcher.sh && \
-    sed -i '$ a   JAVA_OPTS="-javaagent:$AGENT_PATH/pinpoint-bootstrap-1.7.1.jar"' launcher.sh && \
-    sed -i '$ a   JAVA_OPTS="$JAVA_OPTS -Dpinpoint.agentId=${MESOS_TASK_ID##*-}"' launcher.sh && \
-    sed -i '$ a   JAVA_OPTS="$JAVA_OPTS -Dpinpoint.applicationName=$APP_NAME-$PROFILE"' launcher.sh && \
-    sed -i '$ a fi' launcher.sh && \
-    sed -i '$ a java -Xmx400M -Djava.security.egd=file:/dev/./urandom $JAVA_OPTS -jar /app.jar' launcher.sh
-EXPOSE 8080
-ENTRYPOINT ["sh","launcher.sh"]
-```
-
-실행 (AGENT_USE 가 ture 면 핀포인트 연결, 없다면 일반 부팅이 된다.)
-
-```
-docker build -t iam-agent:v1 ./
-
-export AGENT_PATH=/Users/uengine/docker/iam/pinpoint-agent
-
-docker run -p 8080:8080 -v $AGENT_PATH:$AGENT_PATH -e SPRING_DATASOURCE_URL="jdbc:mysql://db.pas-mini.io:10002/uengine" -e SPRING_DATASOURCE_PASSWORD=my-secret-pw -e PROFILE=dev -e APP_NAME=iam -e MESOS_TASK_ID=front-end-dev.2c5b445e-0ba8-11e8-a4db-0aef186e3436 -e AGENT_PATH=$AGENT_PATH iam-agent:v1
-```
-
-다음 파라미터가 앱 실행시 추가되야 한다.
- - AGENT_USE:  마라톤 json 의 env 로 추가.
- - AGENT_PATH : 마라톤 json 의 볼륨으로 추가.
- - AGENT_PATH : 마라톤 json 의 env 로 추가.
-
-
-config.yml pinpoint 관련 프로퍼티 추가.
+`config.yml` 파일을 다음과 같이 수정합니다. `collector.ip` 에 pinpoint 가 설치된 ip 주소를 넣고, `web` 에는 pinpoint 에 외부에서 접속 가능한 주소를 기입합니다.
 
 ```
 # Pinpoint part
@@ -136,7 +96,79 @@ pinpoint:
     stat-port: 9995
     span-port: 9996
 ```
- 
+
+**설정 파일 빌드**
+
+```
+$ cd uengine-resource
+$ mvn clean install exec:java package
+```
+
+**인스톨 폴더에 agent 압축풀기**
+
+```
+$ mkdir install/pinpoint-agent
+$ cd install/pinpoint-agent
+$ cp ~/pinpoint-agent-1.7.1.tar.gz ./
+$ tar xvf pinpoint-agent-1.7.1.tar.gz
+$ rm pinpoint-agent-1.7.1.tar.gz
+```
+
+**Setting pinpoint.config**
+
+`pinpoint.config` 파일의 `profiler.collector.ip` 의 아이피를 pinpoint 설치 주소로 변경합니다.
+
+```
+###########################################################
+# Collector server                                        #
+###########################################################
+profiler.collector.ip=172.31.1.228
+
+```
+
+몇변의 트랜잭션마다 분석을 실행 할 것인지 샘플링 비율을 결정합니다. 예를 들면 `1` 은 `100%` , `20` 은 `5%` 입니다.  
+
+```
+# 1 out of n transactions will be sampled where n is the rate. (20: 5%)
+profiler.sampling.rate=1
+```
+
+**publish all nodes**
+
+수정한 에이전트 파일을 모든 서버에 배포합니다.
+
+```
+$ cd install
+$ ansible-playbook ansible-pinpoint-agent.yml
+```
+
+### How does it work with apps
+
+아래 예제는 클라우드 플랫폼에서 Jvm 계열 앱 생성시 기본 `Dockerfile` 의 내용입니다. `launcher.sh` 파일을 임시생성하고, 만약 클라우드 플랫폼으로부터 
+`AGENT_USE` 여부가 확인된다면 Jvm 부팅시 에이전트를 구동시키도록 하는 내용을 포함하고 있습니다.
+
+Jvm 기반의 사용자 템플릿 프로젝트를 제작할 때 아래 예제를 참조하여 구성할 수 있도록 합니다.
+
+```
+FROM openjdk:8u111-jdk-alpine
+VOLUME /tmp
+ADD /target/*.jar app.jar
+ARG CI_PROJECT_NAME
+ARG CI_COMMIT_SHA
+ENV CI_PROJECT_NAME=$CI_PROJECT_NAME
+ENV CI_COMMIT_SHA=$CI_COMMIT_SHA
+RUN echo 'JAVA_OPTS=""' > launcher.sh && \
+    sed -i '$ a if [ "$AGENT_USE" == "true" ]; then' launcher.sh && \
+    sed -i '$ a   JAVA_OPTS="-javaagent:$AGENT_PATH/pinpoint-bootstrap-1.7.1.jar"' launcher.sh && \
+    sed -i '$ a   JAVA_OPTS="$JAVA_OPTS -Dpinpoint.agentId=${MESOS_CONTAINER_NAME##*-}"' launcher.sh && \
+    sed -i '$ a   JAVA_OPTS="$JAVA_OPTS -Dpinpoint.applicationName=$APP_NAME-$PROFILE"' launcher.sh && \
+    sed -i '$ a fi' launcher.sh && \
+    sed -i '$ a java -Xmx400M -Djava.security.egd=file:/dev/./urandom $JAVA_OPTS -jar /app.jar' launcher.sh
+EXPOSE 8080
+ENTRYPOINT ["sh","launcher.sh"]
+```
+
+
 
 
 

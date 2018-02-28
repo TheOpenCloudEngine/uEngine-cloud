@@ -381,7 +381,7 @@ Pinpoint 는 대규모 분산 시스템의 성능을 분석하고 문제를 진�
 
 [GitHub의 Pinpoint 프로젝트](https://github.com/naver/pinpoint)
 
-![](image/pinpoint-1.png)
+![](infra/image/pinpoint-1.png)
 
 Pinpoint 를 사용하게 되면 n계층 아키텍처를 추적해 대규모 분산 시스템의 성능을 분석하고 문제를 진단, 처리할 수 있습니다. 
 대규모의 n계층 아키텍처를 추적할 수 있는 Pinpoint 는 다음과 같은 특징이 있습니다.
@@ -797,11 +797,11 @@ DC/OS 의 웹 UI 를 통해 모든 컴포넌트들이 동작하고 있는지 확
 
 DC/OS 웹 UI 에 로그인하기 위해서는 구글 계정이 필요합니다.
 
-![login](image/install-login.png)
+![login](infra/image/install-login.png)
 
 그림과 같이 모든 컴포넌트와 노드들이 health 상태에 있는지 확인합니다.
 
-![health](image/install-health.png)
+![health](infra/image/install-health.png)
 
 문제가 있는 컴포넌트가 있다면 원인분석을 위해 [컴포넌트 헬스 체크](trouble-component.md) 를 참조하기 바랍니다.
 
