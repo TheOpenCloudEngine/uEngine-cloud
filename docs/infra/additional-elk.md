@@ -181,6 +181,28 @@ Kibana 화면의 검색창에 'uEngine' 으로 검색시 다음과 같은 검색
 ![](infra/image/elk-4.png)
 
 
+## Remove Old Data
+
+데이터 적재 용량은 앱의 규모에 따라 틀리지만, 10 개 이상의 `Agent` 노드 운영시 한달 기준 200G ~ 500G 가까이 디스크 용량이 필요합니다. 
+계속해서 적재되는 오래된 앱 데이터를 엘라스틱 서치의 Shard 에 남겨두는 것은 성능저하 및 TB ~ PB 단위의 디스크 마운트를 강제하므로, 지나간 날짜에 대한 인덱스를 삭제할 
+필요가 있습니다.
+
+**Filebeat remove index**
+
+`2018 년 3월` 에 해당하는 기록 삭제 예시 
+
+```
+$ curl -XDELETE localhost:9200/filebeat-6.2.1-2018.03.*
+```  
+
+**Metricbeat remove index**
+
+`2018 년 3월` 에 해당하는 기록 삭제 예시 
+
+```
+$ curl -XDELETE localhost:9200/metricbeat-6.2.1-2018.03.*
+```  
+
 
 
  
