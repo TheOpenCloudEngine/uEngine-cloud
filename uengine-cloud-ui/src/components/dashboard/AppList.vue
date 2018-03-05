@@ -133,10 +133,12 @@
 </template>
 <script>
   import DcosDataProvider from '../DcosDataProvider'
+
   export default {
     mixins: [DcosDataProvider],
     props: {
-      mode: String
+      mode: String,
+      search: String
     },
     data() {
       return {
@@ -148,7 +150,7 @@
         page: 1
       }
     },
-    mounted(){
+    mounted() {
       this.makeList();
     },
     watch: {
@@ -157,6 +159,9 @@
           this.makeList();
         },
         deep: true
+      },
+      search: function(newVal, oldVal){
+        this.makeList();
       }
     }
     ,
@@ -193,6 +198,12 @@
 
         if (me.mode == 'app') {
           for (var appId in me.dcosData.devopsApps) {
+
+            //search 적용
+            if (this.search && this.search.length > 0 && appId.indexOf(this.search) == -1) {
+              continue;
+            }
+
             var app = {
               tasksStaged: 0,
               instances: 0,
@@ -252,6 +263,12 @@
         } else if (me.mode == 'service') {
           $.each(me.dcosData.groups.apps, function (i, service) {
             if (excludeServiced.indexOf(service.id) == -1) {
+
+              //search 적용
+              if (me.search && me.search.length > 0 && service.id.indexOf(me.search) == -1) {
+                return;
+              }
+
               service.type = 'service';
               list.push(service);
             }

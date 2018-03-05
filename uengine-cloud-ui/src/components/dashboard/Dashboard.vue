@@ -6,7 +6,7 @@
       <md-input-container>
         <md-icon>search</md-icon>
         <label>항목 검색</label>
-        <md-input type="text"></md-input>
+        <md-input v-model="search" type="text"></md-input>
         <md-button class="md-raised">
           <md-icon>swap_vert</md-icon>
         </md-button>
@@ -35,7 +35,7 @@
         </md-button>
       </md-layout>
     </md-layout>
-    <app-list :mode="'app'"></app-list>
+    <app-list :mode="'app'" :search="search"></app-list>
 
     <br><br><br>
     <md-layout v-if="isAdmin">
@@ -53,7 +53,7 @@
 
     <div v-if="isAdmin">
       <new-service ref="new-service"></new-service>
-      <app-list :mode="'service'"></app-list>
+      <app-list :mode="'service'" :search="search"></app-list>
       <br><br><br>
     </div>
 
@@ -87,6 +87,7 @@
     data() {
       return {
         view: 'list',
+        search: '',
         isAdmin: false,
       }
     },

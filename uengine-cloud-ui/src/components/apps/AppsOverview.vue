@@ -24,7 +24,7 @@
       <md-input-container>
         <md-icon>search</md-icon>
         <label>항목 검색</label>
-        <md-input type="text"></md-input>
+        <md-input v-model="search" type="text"></md-input>
         <md-button class="md-raised">
           <md-icon>swap_vert</md-icon>
         </md-button>
@@ -34,7 +34,7 @@
         </md-button>
       </md-input-container>
     </md-layout>
-    <app-list :mode="'app'"></app-list>
+    <app-list :mode="'app'" :search="search"></app-list>
   </div>
 </template>
 <script>
@@ -44,6 +44,7 @@
     props: {},
     data() {
       return {
+        search: '',
         view: 'list'
       }
     },
