@@ -30,9 +30,10 @@
       </md-layout>
       <md-layout md-flex="70">
         <div class="bold">앱 이름:</div>
-        <md-input-container>
+        <md-input-container v-bind:class="{ 'md-input-invalid': invalidAppName }">
           <label>고유한 이름 입력</label>
           <md-input v-model="appName"></md-input>
+          <span class="md-error">'-' 를 제외한 공백,또는 특수문자를 허용하지 않습니다.</span>
         </md-input-container>
         <br><br>
         <md-layout md-flex="100" :md-gutter="16">
@@ -111,6 +112,7 @@
 <script>
   import DcosDataProvider from '../DcosDataProvider'
   import PathProvider from '../PathProvider'
+
   export default {
     mixins: [DcosDataProvider, PathProvider],
     props: {},
@@ -136,10 +138,11 @@
         internalDevDomain: null,
         prodPort: null,
         stgPort: null,
-        devPort: null
+        devPort: null,
+        invalidAppName: false
       }
     },
-    mounted(){
+    mounted() {
       var me = this;
       me.getGroupsIncludMe(localStorage['gitlab-id'], function (groups) {
         if (groups) {
@@ -190,6 +193,17 @@
         this.internalDevDomain = 'marathon-lb-internal.marathon.mesos:' + devPort;
 
         this.externalProdDomain = val + '.' + this.defaultHost;
+
+        var special_pattern = /[_`~!@#$%^&*|\\\'\";:\/?]/gi;
+        if (special_pattern.test(val) == true) {
+          this.invalidAppName = true;
+        }
+        else if (val.indexOf(' ') != -1) {
+          this.invalidAppName = true;
+        }
+        else {
+          this.invalidAppName = false;
+        }
       },
       externalProdDomain: function (val) {
         if (val) {

@@ -525,7 +525,10 @@ public class AppService {
         }
 
         //이름 강제 고정
-        appCreate.setAppName(appCreate.getAppName().toLowerCase().replaceAll(" ", "-"));
+        String appName = appCreate.getAppName().toLowerCase().replaceAll(" ", "-");
+        //remove all the special characters a part of alpha numeric characters, space and hyphen.
+        appName = appName.replaceAll("[^a-zA-Z0-9 -]", "");
+        appCreate.setAppName(appName);
 
         //appName 중복 체크
         AppEntity existEntity = appJpaRepository.findOne(appCreate.getAppName());

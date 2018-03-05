@@ -455,7 +455,7 @@
           .save({}, appCreate)
           .then(
             function (response) {
-              me.$root.$children[0].error('어플리케이션을 생성하였습니다.');
+              me.$root.$children[0].success('어플리케이션을 생성하였습니다.');
               if (cb) {
                 cb(response);
               }
@@ -463,7 +463,7 @@
             function (response) {
               me.$root.$children[0].error('어플리케이션을 생성할 수 없습니다.');
               if (cb) {
-                cb(response);
+                cb(null, response);
               }
             })
           .finally(function () {
