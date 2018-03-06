@@ -8,6 +8,7 @@ import org.apache.http.util.EntityUtils;
 import org.gitlab4j.api.GitLabApi;
 import org.gitlab4j.api.models.Project;
 import org.gitlab4j.api.models.User;
+import org.uengine.cloud.scheduler.CronTable;
 import org.uengine.iam.client.IamClient;
 import org.uengine.iam.client.ResourceOwnerPasswordCredentials;
 import org.uengine.iam.client.TokenType;
@@ -54,6 +55,9 @@ public class AppService {
 
     @Autowired
     private IamClient iamClient;
+
+    @Autowired
+    private CronTable cronTable;
 
     /**
      * 어플리케이션의 주어진 스테이지의 마라톤 서비스를 재기동한다.
@@ -279,6 +283,56 @@ public class AppService {
                     break;
             }
         }
+
+        //캐쉬에서 상태 가져와 매핑 => dev,stg,prod
+//        try {
+//            List<Map> list = (List) ((Map) cronTable.getDcosData().get("groups")).get("apps");
+//            for (int i = 0; i < list.size(); i++) {
+//                Map marathonApp = list.get(i);
+//                String marathonAppId = "";
+//                for (String stage : stages) {
+//                    switch (stage) {
+//                        case "dev":
+//                            marathonAppId = "/" + appName + "-dev";
+//                            break;
+//                        case "stg":
+//                            marathonAppId = "/" + appName + "-stg";
+//                            break;
+//                        case "prod":
+//                            marathonAppId = "/" + appName + "-dev";
+//                            break;
+//                    }
+//                }
+//            }
+//        } catch (Exception ex) {
+//            ex.printStackTrace();
+//        }
+
+//        Map deployingApp = dcosApi.getApp(newMarathonAppId);
+//
+//        //검증
+//        //앱 배포 중단으로 인해 삭제됨.
+//        if (deployingApp == null) {
+//            System.out.println("Not found deploying marathonApp.");
+//            break;
+//        }
+//
+//        Map appMap = (Map) deployingApp.get("app");
+//        Map container = (Map) appMap.get("container");
+//        String deployingDockerImage = ((Map) container.get("docker")).get("image").toString();
+//
+//        //앱 배포 중단으로 인해 이미지가 변경되지 않음.
+//        if (!deployingDockerImage.equals(dockerImage)) {
+//            System.out.println("Deploying marathonApp Docker image is " + deployingDockerImage + " , But expect image is " + dockerImage);
+//            break;
+//        }
+//        //중복 시도에 대해서는 로직이 같으므로 같은 결과.
+//
+//        //앱 배포 성공
+//        int TASKS_RUNNING = (int) appMap.get("tasksRunning");
+//        int TASKS_HEALTHY = (int) appMap.get("tasksHealthy");
+//        int DEPLOYMENTS_LENGTH = ((List) appMap.get("deployments")).size();
+
         return map;
     }
 

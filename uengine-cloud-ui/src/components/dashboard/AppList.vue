@@ -11,7 +11,7 @@
             <md-table-row>
               <md-table-head md-sort-by="name">이름</md-table-head>
               <md-table-head md-sort-by="appType">종류</md-table-head>
-              <md-table-head md-sort-by="instances">인스턴스</md-table-head>
+              <md-table-head md-sort-by="instancesLabel">인스턴스</md-table-head>
               <md-table-head md-sort-by="status">상태</md-table-head>
               <md-table-head md-sort-by="accessLevel">소유</md-table-head>
               <md-table-head md-sort-by="cpu" md-numeric style="text-align: left">CPU</md-table-head>
@@ -55,7 +55,7 @@
               </md-table-cell>
 
               <md-table-cell>
-                {{app.instances}}
+                {{app.instancesLabel || app.instances || 0}}
               </md-table-cell>
 
               <md-table-cell>
@@ -207,6 +207,7 @@
             var app = {
               tasksStaged: 0,
               instances: 0,
+              instancesLabel: '',
               tasksUnhealthy: 0,
               tasksHealthy: 0,
               tasksRunning: 0,
@@ -233,12 +234,10 @@
                   //스페이지별 인스턴스 수
                   else if (filed == 'instances') {
                     if (key == 'dev' || key == 'stg' || key == 'prod') {
-                      if (app[filed] == 0 || app[filed] == '0') {
-                        app[filed] = '';
-                      }
-                      app[filed] += key + '(' + appsMap[key]['instances'] + ') ';
+                      app['instancesLabel'] += key + '(' + appsMap[key][filed] + ') ';
                     }
-                  } else if (appsMap[key][filed]) {
+                    app[filed] = parseFloat((app[filed] + appsMap[key][filed]).toFixed(1));
+                  } else if (appsMap[key][filed] && filed != 'instancesLabel') {
                     app[filed] = parseFloat((app[filed] + appsMap[key][filed]).toFixed(1));
                   }
                 }
@@ -272,12 +271,10 @@
         } else if (me.mode == 'service') {
           $.each(me.dcosData.groups.apps, function (i, service) {
             if (excludeServiced.indexOf(service.id) == -1) {
-
               //search 적용
               if (me.search && me.search.length > 0 && service.id.indexOf(me.search) == -1) {
                 return;
               }
-
               service.type = 'service';
               list.push(service);
             }
