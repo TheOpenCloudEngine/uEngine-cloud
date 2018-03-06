@@ -160,7 +160,7 @@
         },
         deep: true
       },
-      search: function(newVal, oldVal){
+      search: function (newVal, oldVal) {
         this.makeList();
       }
     }
@@ -229,6 +229,15 @@
                 for (var filed in app) {
                   if (filed == 'deployments') {
                     app[filed] = app[filed].concat(appsMap[key][filed]);
+                  }
+                  //스페이지별 인스턴스 수
+                  else if (filed == 'instances') {
+                    if (key == 'dev' || key == 'stg' || key == 'prod') {
+                      if (app[filed] == 0 || app[filed] == '0') {
+                        app[filed] = '';
+                      }
+                      app[filed] += key + '(' + appsMap[key]['instances'] + ') ';
+                    }
                   } else if (appsMap[key][filed]) {
                     app[filed] = parseFloat((app[filed] + appsMap[key][filed]).toFixed(1));
                   }
