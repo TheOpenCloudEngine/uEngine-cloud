@@ -3,98 +3,29 @@
     md-open-from="#open" md-close-to="#open" ref="open" class="fullscreen">
     <md-dialog-title style="margin-bottom: 0px;">
       <md-layout md-gutter>
-        <md-layout md-flex="5">
-          <md-button class="md-primary" @click="back" v-if="containerView && !appId">BACK</md-button>
-          <md-button class="md-primary" @click="close" v-else>CANCEL</md-button>
+        <md-layout md-flex="10">
+          <md-button class="md-primary" @click="close">CANCEL</md-button>
         </md-layout>
-        <md-layout md-flex="60" style="text-align: center;display: inline-block;">
+        <md-layout md-flex="50" style="text-align: center;display: inline-block;">
           <span v-if="!appId">Run a Service</span>
           <span v-else>Edit "{{appId}}"</span>
         </md-layout>
-        <md-layout md-flex="15">
-          <md-switch id="my-test1" name="my-test1" class="md-primary" v-model="jsonEditor" @change="toggleRightSidenav"
-                     v-if="containerView"><span
+        <md-layout md-flex="40" md-align="end">
+          <md-switch id="my-test1" name="my-test1" class="md-primary" v-model="jsonEditor" @change="toggleRightSidenav"><span
             style="color: #aaaaaa;font-size:15px; align-items: right;">Json Editor</span></md-switch>
-        </md-layout>
-        <md-layout md-flex="20" v-if="containerView">
           <md-button class="md-primary" v-if="!reviewFlag" v-on:click="reviewService">REVIEW&RUN</md-button>
           <md-button class="md-primary" v-else v-on:click="runService">RUN SERVICE</md-button>
+          <md-button class="md-primary" v-if="reviewFlag" v-on:click="back">EDIT SERVICE</md-button>
         </md-layout>
       </md-layout>
     </md-dialog-title>
 
     <md-dialog-content ref="container" style="overflow-x: hidden;padding: inherit;overflow-y: hidden;">
-      <new-single-container v-if="containerView" :_service.sync="service" :jsonEditor.sync="jsonEditor"
-                            :editable.sync="editable"
-                            :newSingleContainer.sync="newSingleContainer"
-                            ref="rightSidenav"></new-single-container>
-      <div v-if="!containerView && !appId">
-        <md-layout md-gutter="16" style="margin-top: 20px;">
-          <md-layout>
-            <md-card md-with-hover>
-              <md-card-media-cover md-text-scrim>
-                <md-card-media md-ratio="1:1" style="width: 200px;">
-                  <img src="/static/image/container/con-1.png" alt="Skyscraper">
-                </md-card-media>
-
-                <md-card-area>
-                  <md-card-header>
-                    <div class="md-title" @click="changeView">Single Container</div>
-                  </md-card-header>
-                </md-card-area>
-              </md-card-media-cover>
-            </md-card>
-          </md-layout>
-          <md-layout>
-            <md-card md-with-hover>
-              <md-card-media-cover md-text-scrim>
-                <md-card-media md-ratio="1:1" style="width: 200px;">
-                  <img src="/static/image/container/con-1.png" alt="Skyscraper">
-                </md-card-media>
-
-                <md-card-area>
-                  <md-card-header>
-                    <div class="md-title">Multi-container (Pod)</div>
-                  </md-card-header>
-                </md-card-area>
-              </md-card-media-cover>
-            </md-card>
-          </md-layout>
-        </md-layout>
-        <br>
-        <md-layout md-gutter="16">
-          <md-layout>
-            <md-card md-with-hover>
-              <md-card-media-cover md-text-scrim>
-                <md-card-media md-ratio="1:1" style="width: 200px;">
-                  <img src="/static/image/container/con-2.png" alt="Skyscraper">
-                </md-card-media>
-
-                <md-card-area>
-                  <md-card-header>
-                    <div class="md-title">JSON Configuration</div>
-                  </md-card-header>
-                </md-card-area>
-              </md-card-media-cover>
-            </md-card>
-          </md-layout>
-          <md-layout>
-            <md-card md-with-hover>
-              <md-card-media-cover md-text-scrim>
-                <md-card-media md-ratio="1:1" style="width: 200px;">
-                  <img src="/static/image/container/con-3.png" alt="Skyscraper">
-                </md-card-media>
-
-                <md-card-area>
-                  <md-card-header>
-                    <div class="md-title">Devops Container</div>
-                  </md-card-header>
-                </md-card-area>
-              </md-card-media-cover>
-            </md-card>
-          </md-layout>
-        </md-layout>
-      </div>
+      <container-editor :_service.sync="service" :jsonEditor.sync="jsonEditor"
+                        :editable.sync="editable"
+                        ref="rightSidenav"
+                        style="height:87vh;"
+      ></container-editor>
     </md-dialog-content>
   </md-dialog>
 </template>
@@ -110,19 +41,15 @@
     data() {
       return {
         editable: true,
-        containerView: false,
         jsonEditor: false,
         reviewFlag: false,
-        newSingleContainer: false,
         service: undefined,
-        beforeService: {},
         appName: "",
         deployment: "",
       }
     },
     mounted() {
       this.bindService();
-      this.beforeService = this.service;
     },
     watch: {
       appId: function () {
@@ -136,7 +63,6 @@
         me.editable = true;
         me.service = undefined;
         if (this.appId) {
-          this.containerView = true;
           if (me.mode == 'app') {
             //this.appId 는 <appName>-dev,-stg,-blue,-green
 
@@ -182,27 +108,17 @@
         }
       },
       open(ref) {
+        this.editable = true;
+        this.jsonEditor = false;
+        this.reviewFlag = false;
+        this.service = undefined;
+        this.appName = null;
+        this.deployment = null;
         this.bindService();
         this.$refs['open'].open();
       },
       close(ref) {
         this.$refs['open'].close();
-        this.containerView = false;
-      },
-      back(ref) {
-        if (this.service != this.beforeService) {
-          if (!confirm("모든내용이 삭제됩니다. 뒤로가시겠습니까?")) {
-            return;
-          }
-          this.service = this.beforeService;
-        }
-        this.containerView = false;
-      },
-      changeView: function () {
-        this.containerView = true;
-        this.newSingleContainer = true;
-        this.jsonEditor = false;
-        this.service = undefined;
       },
       toggleRightSidenav() {
         this.$refs.rightSidenav.openSlideEditor();
@@ -212,8 +128,13 @@
       },
       reviewService: function () {
         if (!this.$refs.rightSidenav.validation()) {
-          this.reviewFlag = this.$refs.rightSidenav.changeView('reviewview');
+          this.$refs.rightSidenav.changeView('reviewview');
+          this.reviewFlag = true;
         }
+      },
+      back: function () {
+        this.$refs.rightSidenav.changeView('serviceview');
+        this.reviewFlag = false;
       },
       runService: function () {
         //앱일때
@@ -243,16 +164,17 @@
               });
             }
           })
-        } else {
-          //서비스일때
-          if (this.newSingleContainer) {
-            //new
-            me.createDcosApp(me.service, function (response) {
+        }
+        //서비스일때
+        else {
+          if (this.appId) {
+            //update
+            me.updateDcosApp(me.appId, me.service, true, function (response) {
               me.close();
             });
           } else {
-            //update
-            me.updateDcosApp(me.appId, me.service, true, function (response) {
+            //new
+            me.createDcosApp(me.service, function (response) {
               me.close();
             });
           }
@@ -265,7 +187,7 @@
 <style scoped lang="scss" rel="stylesheet/scss">
   .md-dialog-title {
     background-color: #f5f5f6;
-    height: 15%;
+    height: 12%;
     border-bottom: solid 1px #e6e6e6
   }
 

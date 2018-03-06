@@ -1,19 +1,19 @@
 <template xmlns:v-on="http://www.w3.org/1999/xhtml">
   <div>
-    <md-layout style="width:100%;height:83vh;" v-if="model">
+    <md-layout style="width:100%;height:100%" v-if="model">
       <md-layout class="list-link" md-flex="20">
         <div class="phone-viewport" style="width: 100%;">
           <md-list class="md-dense">
             <md-list-item>
-              <span class="listspan" @click="changeView('serviceview')">Service</span>
+              <span class="listspan" @click="changeView('serviceview')">서비스</span>
             </md-list-item>
 
             <md-list-item>
-              <span class="listspan" @click="changeView('networkingview')">Networking</span>
+              <span class="listspan" @click="changeView('networkingview')">네트워크</span>
             </md-list-item>
 
             <md-list-item>
-              <span class="listspan" @click="changeView('volumesview')">Volumes</span>
+              <span class="listspan" @click="changeView('volumesview')">볼륨</span>
             </md-list-item>
 
             <md-list-item>
@@ -21,26 +21,26 @@
             </md-list-item>
 
             <md-list-item>
-              <span class="listspan" @click="changeView('environmentview')">Environment</span>
+              <span class="listspan" @click="changeView('environmentview')">환경 변수</span>
             </md-list-item>
           </md-list>
         </div>
       </md-layout>
       <md-layout class="main-body" style="margin-left: 3%;overflow-y: scroll;">
-        <div id="errorForm" style="background-color: rgba(243,55,69,.1);width: 90%;margin-top:5%;" v-if="errorView">
+        <div id="errorForm" style="background-color: rgba(243,55,69,.1);width: 90%;margin-top:5%;max-height: 150px;" v-if="errorView">
           <h3 style="color:#f33745;
           background: url(' ../../../static/image/symbol/small_cancel_end.gif') left no-repeat;
           padding-left:20px; margin-left:10px;">
-            There is an error with your configuration</h3>
+            설정에 문제점이 있습니다.</h3>
           <ul style="color:#f33745;list-style: none;">
-            <li v-if="id == '/'">Service ID must be defined</li>
-            <li v-if="!cpus && cpus==0">CPUs must be bigger than or equal to 0.001</li>
-            <li v-if="!container.docker.image && !cmd">cmd: You must specify a command, an argument or a container</li>
-            <li v-if="!container.docker.image">args: You must specify a command, an argument or a container</li>
-            <li v-if="!container.docker.image">
-              container.docker.image: You must specify a command, an argument or a container
-            </li>
-            <li v-if="!container.docker.image">container.docker.image: Must be defined</li>
+            <li v-if="id == '/'">Service ID 가 필요합니다.</li>
+            <li v-if="!cpus && cpus==0">CPUs 는 0.001 보다 크거나 같아야 합니다.</li>
+            <div v-if="container.type == 'DOCKER'">
+              <li v-if="!container.docker.image">container.docker.image: 도커 이미지가 필요합니다.</li>
+            </div>
+            <div v-else>
+              <li v-if="!cmd">cmd: 커맨드 명령어가 필요합니다.</li>
+            </div>
           </ul>
         </div>
 
@@ -1070,7 +1070,7 @@
       </md-layout>
       <md-layout id="slideEditor" v-if="jsonEditor"
                  :class="{'md-layout':jsonEditor,'sideEditor':!jsonEditor, 'sideEditor-open':jsonEditor, 'md-flex-30':jsonEditor}">
-        <div class="md-right bgblack" ref="rightSidenav" style="width: 100%;">
+        <div class="md-right bgblack" ref="rightSidenav" style="width: 100%;font-size:12px">
           <codemirror v-if="opened"
                       :options="{
                                   theme: 'dracula',
@@ -1113,8 +1113,7 @@
         }
       },
       jsonEditor: Boolean,
-      editable: Boolean,
-      newSingleContainer: Boolean
+      editable: Boolean
     },
     data() {
       var me = this;
@@ -1489,13 +1488,6 @@
     compute: {}
     ,
     watch: {
-      _service: {
-        handler: function (newVal, oldVal) {
-          console.log(newVal);
-          this.serviceToModel();
-        },
-        deep: true
-      },
       id: function () {
         this.combination();
       },
@@ -1531,6 +1523,7 @@
       },
       container: {
         handler: function (newVal, oldVal) {
+          console.log('container change!!');
           this.combination();
         },
         deep: true
@@ -1584,6 +1577,13 @@
         },
         deep: true
       },
+      _service: {
+        handler: function (newVal, oldVal) {
+          console.log('_service change!!');
+          this.serviceToModel();
+        },
+        deep: true
+      }
     },
     methods: {
       /**
@@ -1741,7 +1741,6 @@
           me.menu[key] = false;
         })
         this.menu[viewname] = true;
-        return this.menu[viewname];
       }
       ,
 

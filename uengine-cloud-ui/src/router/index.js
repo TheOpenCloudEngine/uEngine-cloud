@@ -124,13 +124,13 @@ import Confirm from '../components/editor/Confirm'
 
 Vue.component('confirm', Confirm);
 
-import NewSingleContainer from '../components/editor/NewSingleContainer'
+import AppEditor from '../components/editor/AppEditor'
 
-Vue.component('new-single-container', NewSingleContainer);
+Vue.component('app-editor', AppEditor);
 
-import NewService from '../components/editor/NewService'
+import ContainerEditor from '../components/editor/ContainerEditor'
 
-Vue.component('new-service', NewService);
+Vue.component('container-editor', ContainerEditor);
 
 import ScaleApp from '../components/editor/ScaleApp'
 

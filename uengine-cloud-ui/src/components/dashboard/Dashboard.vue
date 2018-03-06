@@ -52,7 +52,7 @@
     </md-layout>
 
     <div v-if="isAdmin">
-      <new-service ref="new-service"></new-service>
+      <app-editor ref="app-editor"></app-editor>
       <app-list :mode="'service'" :search="search"></app-list>
       <br><br><br>
     </div>
@@ -110,7 +110,7 @@
 
       },
       openNewService: function () {
-        this.$refs['new-service'].open();
+        this.$refs['app-editor'].open();
       },
       changeView: function () {
         if (this.view == 'list') {

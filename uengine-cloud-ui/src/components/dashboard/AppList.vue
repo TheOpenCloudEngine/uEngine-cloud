@@ -2,7 +2,7 @@
   <div>
 
     <scale-app ref="scale-app"></scale-app>
-    <new-service ref="new-service" :appId="targetAppId" :mode="mode"></new-service>
+    <app-editor ref="app-editor" :appId="targetAppId" :mode="mode"></app-editor>
     <md-layout>
       <md-table-card style="width: 100%">
         <div class="header-top-line"></div>
@@ -324,7 +324,7 @@
       openEdit: function (appId) {
         var me = this;
         me.targetAppId = appId;
-        this.$refs['new-service'].open();
+        this.$refs['app-editor'].open();
       }
     }
   }

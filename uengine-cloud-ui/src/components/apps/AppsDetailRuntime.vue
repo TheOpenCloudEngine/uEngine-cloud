@@ -48,7 +48,7 @@
       </md-layout>
     </md-layout>
 
-    <new-service ref="new-service" :appId="targetAppId" :mode="'app'"></new-service>
+    <app-editor ref="app-editor" :appId="targetAppId" :mode="'app'"></app-editor>
 
     <br><br>
     <div v-if="menu == appType">
@@ -142,7 +142,7 @@
         var me = this;
         var marathonAppId = me.devApp[me.stage]['marathonAppId'];
         me.targetAppId = marathonAppId;
-        this.$refs['new-service'].open();
+        this.$refs['app-editor'].open();
       },
       changeMenu: function (menu) {
         this.menu = menu;
