@@ -77,7 +77,7 @@ Restarting rinetd (via systemctl):                         [  OK  ]
 이후, 깃랩 UI 의 `cloud-config-repository` 프로젝트의 `uengine-cloud-server.yml` 
 파일에 추가된 노드만큼 `<추가아이피>,http://<퍼블릭노드아이피>:91**` 형식으로 더해줍니다. 
 
-![token](infra/image/add-agent1.png)
+![token](image/add-agent1.png)
 
 ```
 cadvisor:

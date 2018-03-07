@@ -78,7 +78,7 @@ Jvm 트랜잭션 이벤트들을 핀포인트 콜렉터로 전송하게 됩니�
 
 **Agent-Architecture**
 
-![](infra/image/pinpoint-2.png)
+![](image/pinpoint-2.png)
 
 ### Copy agent to all nodes
 

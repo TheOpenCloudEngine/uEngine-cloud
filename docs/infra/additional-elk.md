@@ -4,7 +4,7 @@
 
 **ELK 를 활용한 Docker Log 수집**
 
-![](infra/image/elk-1.png)
+![](image/elk-1.png)
 
 유엔진 클라우드에서 지원하는 ELK Stack 의 구성요소는 다음과 같습니다. (Packetbeat 은 추후 예정입니다.)
 
@@ -144,7 +144,7 @@ $ ansible-playbook ansible-elk.yml
 
 `Metricbeat,Filebeat` 이 Agent 노드에서 실행이 되면, 키바나의 `Management > index Patterns` 메뉴에는 다음과 같은 index 가 자동으로 등록이 됩니다.
 
-![](infra/image/elk-2.png)
+![](image/elk-2.png)
 
 만일 자동으로 등록이 되지 않을 경우나, 운용중에 index 를 삭제한 경우, Agent 노드 중 하나에서 다음의 명령어로 `index Patterns` 및 `Saved Objects` 를 
 재생성 할 수 있습니다.
@@ -172,13 +172,13 @@ $ sudo metricbeat setup --dashboards
 
 키바나의 `Management > Saved Objects` 메뉴에 들어가, 우측 Import 버튼을 클릭합니다.
 
-![](infra/image/elk-3.png)
+![](image/elk-3.png)
 
 유엔진 클라우드 소스코드의 `install/kibana/objects.json` 파일을 선택하고, `Yes, overwrite all objects` 를 클릭합니다.
 
 Kibana 화면의 검색창에 'uEngine' 으로 검색시 다음과 같은 검색 결과가 나온다면 인스톨이 완료된 것입니다.
 
-![](infra/image/elk-4.png)
+![](image/elk-4.png)
 
 
 ## Remove Old Data

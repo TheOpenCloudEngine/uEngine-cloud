@@ -137,7 +137,7 @@ $ dcos marathon app add marathon-lb-internal.json
 $ dcos marathon app add nexus.json
 ```
 
-![](infra/image/nexus.png)  
+![](image/nexus.png)  
 
 
 ### Use manually setting nexus repository

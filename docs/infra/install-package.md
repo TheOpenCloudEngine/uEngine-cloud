@@ -14,7 +14,7 @@
 DC/OS 클러스터의 어드민 토큰 발급은 앞선 [사용자 생성](infra/install-cluster-user.md) 에서 발급받은 토큰입니다. 
 깃랩 어드민 토큰은 깃랩 UI 로 접속하여 받을 수 있습니다. 먼저, 루트계정으로 깃랩으로 접속하도록 합니다. 초기 유저,패스워드는 `root` , `adminadmin` 입니다.
 
-![token](infra/image/package1.png)
+![token](image/package1.png)
 
 
 ## Create Gitlab Projects
@@ -27,13 +27,13 @@ DC/OS 클러스터의 어드민 토큰 발급은 앞선 [사용자 생성](infra
 - template-vuejs
 - template-zuul
 
-![package2](infra/image/package2.png)
+![package2](image/package2.png)
 
 `cloud-config-repository` 프로젝트는 데이터베이스의 역할을 수행하므로, [Fill out Cloud package part](#fill-out-cloud-package-part) 
 에서 이 프로젝트의 아이디가 필요합니다. UI 에서 `cloud-config-repository` 프로젝트 화면의 `Settings => General project settings` 
  메뉴로 들어가면 프로젝트 아이디를 볼 수 있습니다.
 
-![package3](infra/image/package3.png)
+![package3](image/package3.png)
 
 ## Fill out Cloud package part
 

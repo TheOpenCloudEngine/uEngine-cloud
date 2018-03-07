@@ -51,7 +51,7 @@ dcos marathon app add cloud-ui.json
  여기서 별다른 변경을 하지 않았다면, `admin` , `admin` 이 아이디, 패스워드 입니다. 로그인을 하시고 난 후 사용자 추가 버튼 클릭 후, 클라우드 플랫폼에 
  접속 가능한 인원을 편집하십시오.
  
-![package4](infra/image/package4.png)
+![package4](image/package4.png)
 
 여기서, `metadata` 항목의 `acl` 은 `admin` , `user` 가 있습니다. `admin` 은 모든 앱 및 클라우드 패키지, 그리고 도커 서비스를 편집할 수 있는 권한이 있고,
  `user` 는 자신이 생성한 앱, 또는 같은 깃랩 그룹에 소속된 인원의 앱만을 편집할 수 있습니다.

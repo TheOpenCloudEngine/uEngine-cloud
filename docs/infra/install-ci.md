@@ -27,7 +27,7 @@ CI 캐쉬 데이터가 필요한 이유는 매번 빌드때마다 `maven, node i
     
 또한, CI 빌드의 각 스테이지는 독립된 컨테이너에서 실행되게 되는데, 캐쉬 데이터는 스테이지 사이의 빌드 결과물을 가지고 연속된 작업을 가능하게 합니다.
      
-![login](infra/image/ci3.png)
+![login](image/ci3.png)
     
  - CI 캐쉬 를 클라우드에 저장하지 않고 로컬에 저장할 경우, 충분한 디스크 스페이스를 확보하는걸 추천합니다. 
 
@@ -37,11 +37,11 @@ CI 캐쉬 데이터가 필요한 이유는 매번 빌드때마다 `maven, node i
 
 초기 접속 아이디/비밀번호는 `root` , `adminadmin` 입니다.
 
-![login](infra/image/ci1.png)
+![login](image/ci1.png)
 
 러너와 깃랩 연동에는 깃랩 서버에서 발급한 토큰이 필요한데, `Admin` 메뉴의 `Overview => Runners` 항목에서 볼 수 있습니다.
 
-![login](infra/image/ci2.png)
+![login](image/ci2.png)
 
 위의 그림의 우측 하단 빨간색 박스에 해당하는 것이 러너 등록 토큰입니다.
 
@@ -93,7 +93,7 @@ $ sudo gitlab-ci-multi-runner restart
 
 `Admin` 메뉴의 `Overview => Runners` 항목에서 다음과 같이 러너가 등록되었다면 절차를 마친 것입니다.
 
-![login](infra/image/ci4.png)
+![login](image/ci4.png)
 
 
 ## CI 오토스케일 설정
@@ -106,7 +106,7 @@ CI 작업을 단일 서버에서 수행하기에는 무리가 있습니다.
 
 **CI 작업 수와 Docker machine 수 의 관계**
 
-![login](infra/image/ci-auto-1.png)
+![login](image/ci-auto-1.png)
 
 이 환경에 대한 문서는 [Autoscale GitLab CI runners and save 90% on EC2 costs](https://about.gitlab.com/2017/11/23/autoscale-ci-runners/)
  과 [Runners autoscale configuration](https://docs.gitlab.com/runner/configuration/autoscale.html#distributed-runners-caching) 에서 
@@ -242,7 +242,7 @@ check_interval = 0
 먼저, `executor` 항목이 `"docker+machine"` 으로 설정한 것을 볼 수 있습니다. 이는 CI 서버에 설치된 도커 머신이 다른 기기에 설치된 도커로 명령을 대리 전달하고,
 대리 전달받은 기기의 도커가 부팅되면서 깃랩 소스코드, 캐쉬 데이터를 받아와 작업을 수행하게 됩니다.
 
-![login](infra/image/ci4.png)
+![login](image/ci4.png)
 
 `runners.machine` 항목에는 이 도커 머신을 어떻게 띄울 것인가에 대한 기술인데, 도커 머신은 깃랩에 포함된 패키지가 아닌 도커 오피셜 클라이언트입니다.
 따라서, 이 항목에는 [공식 도커 머신](https://docs.docker.com/machine/) 을 참조하며 기술하면 됩니다. 지원되는 도커 머신 드라이버 리스트는 다음이 있습니다.

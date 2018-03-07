@@ -13,7 +13,7 @@
 
 <서버 준비 개념도>
 
-![](infra/image/pre-server-2.png)
+![](image/pre-server-2.png)
  
 ## 서버 준비(데이터 센터 기준)
 
@@ -36,7 +36,7 @@
 
 ### 서버 예시(데이터 센터 구성도)
 
-![](infra/image/pre-server-1.png)
+![](image/pre-server-1.png)
 
 
 - 데이터 센터 - 클라우드 플랫폼 이용사간 포트포워딩 제약시

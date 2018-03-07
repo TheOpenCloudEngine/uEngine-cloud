@@ -9,18 +9,18 @@
 Virtual Box 를 실행시킨 후, 다음 그림순서대로 설치를 진행하십시오.
 
 ---
-![](infra/image/virtual0.png)
+![](image/virtual0.png)
 
 호스트 네트워크 관리자 선택 후, 호스트 네트워크를 하나 생성 한 후 `DHCP 사용 안함` 을 체크하세요.
 `수동으로 어댑터 설정` 선택 후 IPv4 주소를 기억하도록 합니다. 이 주소는 VM 들이 사용할 gateway 주소가 됩니다.
 
 ---
-![](infra/image/virtual1.png)
+![](image/virtual1.png)
 
 새로 만들기를 선택 후 서버 이름, 종류, 버젼을 선택 후 `지금 새 가상 하드 디스크 만들기` 를 선택하세요.
 
 ---
-![](infra/image/virtual2.png)
+![](image/virtual2.png)
 
 VDI 이미지를 선택하고, `동적 할당` 또는 `고정 크기` 를 선택합니다.
  
@@ -28,7 +28,7 @@ VDI 이미지를 선택하고, `동적 할당` 또는 `고정 크기` 를 선택
  - 고정 크기: 처음부터 가상머신에 지정된 파일시스템 디스크 공간을 할당합니다. 퍼포먼스에서 이득이 있습니다.
 
 ---
-![](infra/image/virtual3.png)
+![](image/virtual3.png)
 
 각 서버 요구사항에 맞는 cpu core 를 할당합니다.
 
@@ -38,8 +38,8 @@ VDI 이미지를 선택하고, `동적 할당` 또는 `고정 크기` 를 선택
   - `8core vm * 1ea && 4 core host => False!!`
 
 ---
-![](infra/image/virtual4-1.png)
-![](infra/image/virtual4-1.png)
+![](image/virtual4-1.png)
+![](image/virtual4-1.png)
 
 Nat 어댑터, 호스트 온리 어댑터를 선택 후 생성.
 
@@ -47,37 +47,37 @@ Nat 어댑터, 호스트 온리 어댑터를 선택 후 생성.
 - 호스트 온리 어댑터: VM 끼리의 통신을 가능하게 하는 호스트 머신의 가상 네트워크 어댑터입니다.
 
 ---
-![](infra/image/virtual5.png)
+![](image/virtual5.png)
 
 다운로드 받은 ISO 이미지 선택 후 시작버튼을 클릭합니다.
 
 ---
-![](infra/image/virtual6.png)
+![](image/virtual6.png)
 
 Install CentOS 7
 
 ---
-![](infra/image/virtual7.png)
+![](image/virtual7.png)
 
 언어 선택
 
 ---
-![](infra/image/virtual8.png)
+![](image/virtual8.png)
 
 인터넷 카드 모두 선택 후 우측 상단에  `on` 체크 후, `Done` 클릭
 
 ---
-![](infra/image/virtual9.png)
+![](image/virtual9.png)
 
 디스크 선택 후 `Done` 클릭
 
 ---
-![](infra/image/virtual10.png)
+![](image/virtual10.png)
 
 root 패스워드를 설정합니다.
 
 ---
-![](infra/image/virtual11.png)
+![](image/virtual11.png)
 
 centos 유저를 생성 후, 패스워드를 설정합니다.
 
