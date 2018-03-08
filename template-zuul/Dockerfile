@@ -12,5 +12,5 @@ RUN echo 'JAVA_OPTS=""' > launcher.sh && \
     sed -i '$ a   JAVA_OPTS="$JAVA_OPTS -Dpinpoint.applicationName=$APP_NAME-$PROFILE"' launcher.sh && \
     sed -i '$ a fi' launcher.sh && \
     sed -i '$ a java -Xmx400M -Djava.security.egd=file:/dev/./urandom $JAVA_OPTS -jar /app.jar' launcher.sh
-EXPOSE 4000
+EXPOSE 8080
 ENTRYPOINT ["sh","launcher.sh"]

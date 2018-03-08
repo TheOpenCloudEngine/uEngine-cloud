@@ -261,16 +261,13 @@ public class DeployAppJob implements Job {
                     //ci-deploy-rollback.json 을 생성(ci-deploy-production.json 카피)
                     appService.copyDeployJson(appName, stage, "rollback");
 
-                    //라우터 리프레쉬
+                    //zuul 라우터 리프레쉬
                     dcosApi.refreshRoute();
 
-                    //springboot 가 아닌경우 이전 버젼 삭제
-                    if (!appType.equals("springboot")) {
-                        dcosApi.deleteApp(oldMarathonAppId);
-                    }
+                    //TODO blue/green 스위치를 LB 에서 해결하기. 현재는 일단 롤백용 앱을 남기지 않도록 한다.
+                    dcosApi.deleteApp(oldMarathonAppId);
 
                     logService.addHistory(appName, AppLogAction.RUN_DEPLOYED_APP, AppLogStatus.SUCCESS, log);
-
                 } else {
                     System.out.println("Deployment failed by cancel.");
 

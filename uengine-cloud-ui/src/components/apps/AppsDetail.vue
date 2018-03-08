@@ -365,6 +365,7 @@
       onDeploymentRows: function (rowNumbers) {
         this.deploymentsRowNumber = rowNumbers;
       },
+      //백엔드로 가져갈 필요성 있음.
       updateCIInfo: function () {
         var me = this;
         var projectId = me.devApp.projectId;

@@ -284,6 +284,7 @@ public class AppService {
             }
         }
 
+
         //캐쉬에서 상태 가져와 매핑 => dev,stg,prod
 //        try {
 //            List<Map> list = (List) ((Map) cronTable.getDcosData().get("groups")).get("apps");
@@ -334,6 +335,14 @@ public class AppService {
 //        int DEPLOYMENTS_LENGTH = ((List) appMap.get("deployments")).size();
 
         return map;
+    }
+
+    public Map getAppSummaryStatusFromCache(String appName) {
+        //앱과 관련한 dev,stg,blue,green 의 총 타스크 관련 합과 deployment length, short state.
+        //앱과 관련한 dev,stg,blue,green 의 deployment length, task numbers, short state.
+        //last pipeline
+
+        return null;
     }
 
     /**

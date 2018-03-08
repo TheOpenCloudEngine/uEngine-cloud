@@ -19,7 +19,7 @@
     "volumes": [],
     "portMappings": [
       {
-        "containerPort": 4000,
+        "containerPort": 8080,
         "hostPort": 0,
         "labels": {},
         "protocol": "tcp",

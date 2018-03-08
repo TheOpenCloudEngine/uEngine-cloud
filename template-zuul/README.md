@@ -90,7 +90,7 @@ You can switch the BLUE and GREEN status of eureka service through the following
 
 ```
 curl -X POST \
-  http://localhost:4000/service \
+  http://localhost:8080/service \
   -H 'cache-control: no-cache' \
   -H 'content-type: application/json' \
   -d '{
@@ -118,9 +118,9 @@ I am GREEN,   instanceId:bagseunpiluimbp:uengine-eureka-client:9092
 
 ## Test Circuit - Trubine Monitor
 
-Checkout [http://localhost:4000/hystrix](http://localhost:4000/hystrix)
+Checkout [http://localhost:8080/hystrix](http://localhost:8080/hystrix)
 
-Insert "http://localhost:4000/turbine.stream" at stream url, and click "Monitor stream"
+Insert "http://localhost:8080/turbine.stream" at stream url, and click "Monitor stream"
 
 You can see circuit monitoring dashboard per each hystrix command method.
 

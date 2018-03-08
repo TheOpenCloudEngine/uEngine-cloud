@@ -19,7 +19,7 @@ spring:
 
 dcos:
   deployment:
-    role: local
+    role: dev
 
 eureka:
   client:
@@ -162,25 +162,25 @@ ribbon:
   #listOfServers: www.microsoft.com:80,www.yahoo.com:80,www.google.com:80
 
 
-# When your api call is over than timeoutInMilliseconds, api would be fallback.
-hystrix:
-  command:
-    default:
-      execution:
-        isolation:
-          thread:
-            timeoutInMilliseconds: 5000
-
-turbine:
-  # set appConfig as services which registered in eureka server.
-  appConfig: service-A,service-B
-
-  # You can monitor by application profile.
-  # stream url is hosted on zuul server, with parameter "cluster=[profile]"
-  # ex) http://localhost:4000/turbine.stream?cluster=local
-  aggregator:
-      clusterConfig: local,dev,stg,prod
-  clusterNameExpression: metadata['profile']
+## When your api call is over than timeoutInMilliseconds, api would be fallback.
+#hystrix:
+#  command:
+#    default:
+#      execution:
+#        isolation:
+#          thread:
+#            timeoutInMilliseconds: 5000
+#
+#turbine:
+#  # set appConfig as services which registered in eureka server.
+#  appConfig: service-A,service-B
+#
+#  # You can monitor by application profile.
+#  # stream url is hosted on zuul server, with parameter "cluster=[profile]"
+#  # ex) http://localhost:8080/turbine.stream?cluster=local
+#  aggregator:
+#      clusterConfig: local,dev,stg,prod
+#  clusterNameExpression: metadata['profile']
 
 ---
 spring:
