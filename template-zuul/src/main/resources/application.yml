@@ -19,7 +19,7 @@ spring:
 
 dcos:
   deployment:
-    role: dev
+    role: local
 
 eureka:
   client:
