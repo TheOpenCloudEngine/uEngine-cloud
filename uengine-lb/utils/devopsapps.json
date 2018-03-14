@@ -219,7 +219,8 @@
       "marathonAppId": "/feign-a-green",
       "servicePort": 10044,
       "deployJson": null,
-      "configChanged": false
+      "configChanged": false,
+      "weight": 70
     },
     "dev": {
       "deployment": "dev",

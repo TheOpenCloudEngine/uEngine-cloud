@@ -356,6 +356,13 @@ def get_devopsAppId_byAppId(appId, devopsapps):
         return (devopsAppId, isDevApp, None)
 
 
+def calculateWeight(weight, serverCount):
+    _weight = int((weight * 2.56) / serverCount)
+    if _weight == 0:
+        _weight = 1
+    return _weight
+
+
 def config(apps, groups, bind_http_https, ssl_certs, templater,
            haproxy_map=False, domain_map_array=[], app_map_array=[],
            config_file="/etc/haproxy/haproxy.cfg", devopsapps={}):
@@ -406,9 +413,65 @@ def config(apps, groups, bind_http_https, ssl_certs, templater,
                          " backend without any server entries!", app.appId)
             continue
 
-        backend = app.appId[1:].replace('/', '_') + '_' + str(app.servicePort)
+        # Check isDevopsApp
+        devopsAppId, isDevApp, devopsApp = get_devopsAppId_byAppId(app.appId, devopsapps)
 
-        logger.debug(app)
+        logger.info('isDevApp %s', isDevApp)
+        logger.info('devopsAppId %s', devopsAppId)
+
+        app.sticky = False
+
+        # TODO weight value 사전 계산.
+        # if production
+        currentDeployment = ''
+        stage = ''
+        isNewProd = False
+        isOldProd = False
+        newProdAppId = None
+        newProdWeight = None
+        oldProdWeight = None
+        if isDevApp:
+            if app.appId.endswith('-dev'):
+                stage = 'dev'
+                currentDeployment = 'dev'
+                app.servicePort = devopsApp['prod']['servicePort']
+            elif app.appId.endswith('-stg'):
+                stage = 'stg'
+                currentDeployment = 'stg'
+                app.servicePort = devopsApp['stg']['servicePort']
+            elif app.appId.endswith('-blue') or app.appId.endswith('-green'):
+                stage = 'prod'
+                currentDeployment = devopsApp['prod']['deployment']
+                if 'weight' in devopsApp['prod']:
+                    oldProdWeight = devopsApp['prod']['weight']
+                if oldProdWeight is None:
+                    oldProdWeight = 100
+                newProdWeight = 100 - oldProdWeight
+
+                if app.appId.endswith(currentDeployment):
+                    isNewProd = False
+                    isOldProd = True
+                    if currentDeployment == 'blue':
+                        newProdAppId = '/' + devopsAppId + '-green'
+                    else:
+                        newProdAppId = '/' + devopsAppId + '-blue'
+
+                    app.servicePort = devopsApp['prod']['servicePort']
+                else:
+                    isNewProd = True
+                    isOldProd = False
+                    app.servicePort = devopsApp['prod']['servicePort'] + 10000
+
+        logger.info('isNewProd %s', isNewProd)
+
+        # If oldApp, get newApp for aggregate servers
+        newProdMarathonApp = None
+        if isOldProd:
+            for _app in sorted(apps, key=attrgetter('appId', 'servicePort')):
+                if _app.appId == newProdAppId:
+                    newProdMarathonApp = _app
+
+        backend = app.appId[1:].replace('/', '_') + '_' + str(app.servicePort)
         logger.debug("frontend at %s:%d with backend %s",
                      app.bindAddr, app.servicePort, backend)
 
@@ -419,18 +482,6 @@ def config(apps, groups, bind_http_https, ssl_certs, templater,
                 app.mode = 'http'
             else:
                 app.mode = 'tcp'
-
-        # Check isDevopsApp
-        devopsAppId, isDevApp, devopsApp = get_devopsAppId_byAppId(app.appId, devopsapps)
-
-        logger.info('isDevApp %s', isDevApp)
-        logger.info('devopsAppId %s', devopsAppId)
-        logger.info('devopsApp %s', devopsApp)
-
-        # if production
-        currentDeployment = ''
-        if isDevApp and (app.appId.endswith('-blue') or app.appId.endswith('-green')):
-            currentDeployment = devopsApp['prod']['deployment']
 
         if app.authUser:
             userlist_head = templater.haproxy_userlist_head(app)
@@ -461,17 +512,21 @@ def config(apps, groups, bind_http_https, ssl_certs, templater,
         # of our haproxy config
         # TODO(lloesche): Check if the hostname is already defined by another
         # service
-        if bind_http_https and app.hostname:
-            backend_weight, p_fe, s_fe = \
-                generateHttpVhostAcl(templater,
-                                     app,
-                                     backend,
-                                     haproxy_map,
-                                     domain_map_array,
-                                     haproxy_dir,
-                                     duplicate_map)
-            http_frontend_list.append((backend_weight, p_fe))
-            https_frontend_list.append((backend_weight, s_fe))
+
+        # exclude vhostmap new production application
+        if isNewProd is False:
+            if bind_http_https and app.hostname:
+                backend_weight, p_fe, s_fe = \
+                    generateHttpVhostAcl(templater,
+                                         app,
+                                         backend,
+                                         haproxy_map,
+                                         domain_map_array,
+                                         haproxy_dir,
+                                         duplicate_map)
+
+                http_frontend_list.append((backend_weight, p_fe))
+                https_frontend_list.append((backend_weight, s_fe))
 
         # if app mode is http, we add the app to the second http frontend
         # selecting apps by http header X-Marathon-App-Id
@@ -555,6 +610,7 @@ def config(apps, groups, bind_http_https, ssl_certs, templater,
         key_func = attrgetter('host', 'port')
         for backend_service_idx, backendServer \
                 in enumerate(sorted(app.backends, key=key_func)):
+
             if do_backend_healthcheck_options_once:
                 if app.healthCheck:
                     template_backend_health_check = None
@@ -618,19 +674,76 @@ def config(apps, groups, bind_http_https, ssl_certs, templater,
                         template_server_healthcheck_options,
                         app.healthCheck,
                         health_check_port)
-            backend_server_options = templater \
-                .haproxy_backend_server_options(app)
-            backends += backend_server_options.format(
-                host=backendServer.host,
-                host_ipv4=backendServer.ip,
-                port=backendServer.port,
-                serverName=serverName,
-                cookieOptions=' check cookie ' +
-                              shortHashedServerName if app.sticky else '',
-                healthCheckOptions=server_health_check_options
-                if server_health_check_options else '',
-                otherOptions=' disabled' if backendServer.draining else ''
-            )
+
+            backend_server_options = templater.haproxy_backend_server_options(app)
+
+            # aggregation servers for old production route
+            if isOldProd:
+                # oldProdWeight calculation
+
+                backends += backend_server_options.format(
+                    host=backendServer.host,
+                    host_ipv4=backendServer.ip,
+                    port=backendServer.port,
+                    serverName=serverName,
+                    cookieOptions=' check cookie ' +
+                                  shortHashedServerName if app.sticky else '',
+                    healthCheckOptions=server_health_check_options
+                    if server_health_check_options else '',
+                    otherOptions=' disabled' if backendServer.draining else '',
+                    weightOptions=' weight ' + str(
+                        calculateWeight(oldProdWeight, len(app.backends))) if isOldProd else ''
+                )
+
+            else:
+                backends += backend_server_options.format(
+                    host=backendServer.host,
+                    host_ipv4=backendServer.ip,
+                    port=backendServer.port,
+                    serverName=serverName,
+                    cookieOptions=' check cookie ' +
+                                  shortHashedServerName if app.sticky else '',
+                    healthCheckOptions=server_health_check_options
+                    if server_health_check_options else '',
+                    otherOptions=' disabled' if backendServer.draining else '',
+                    weightOptions=' weight 1'
+                )
+
+        if isOldProd and newProdMarathonApp is not None:
+            logger.debug('newProdMarathonApp %s', newProdMarathonApp)
+            for new_backend_service_idx, newBackendServer \
+                    in enumerate(sorted(newProdMarathonApp.backends, key=key_func)):
+                # Create a unique, friendly name for the backend server.  We concat
+                # the host, task IP and task port together.  If the host and task
+                # IP are actually the same then omit one for clarity.
+                if newBackendServer.host != newBackendServer.ip:
+                    newServerName = re.sub(
+                        r'[^a-zA-Z0-9\-]', '_',
+                        (newBackendServer.host + '_' +
+                         newBackendServer.ip + '_' +
+                         str(newBackendServer.port)))
+                else:
+                    newServerName = re.sub(
+                        r'[^a-zA-Z0-9\-]', '_',
+                        (newBackendServer.ip + '_' +
+                         str(newBackendServer.port)))
+                newShortHashedServerName = hashlib.sha1(newServerName.encode()) \
+                                               .hexdigest()[:10]
+
+                new_backend_server_options = templater.haproxy_backend_server_options(newProdMarathonApp)
+                backends += new_backend_server_options.format(
+                    host=newBackendServer.host,
+                    host_ipv4=newBackendServer.ip,
+                    port=newBackendServer.port,
+                    serverName=newServerName,
+                    cookieOptions=' check cookie ' +
+                                  newShortHashedServerName if newProdMarathonApp.sticky else '',
+                    healthCheckOptions=server_health_check_options
+                    if server_health_check_options else '',
+                    otherOptions=' disabled' if newBackendServer.draining else '',
+                    weightOptions=' weight ' + str(
+                        calculateWeight(newProdWeight, len(newProdMarathonApp.backends))) if isOldProd else ''
+                )
 
     http_frontend_list.sort(key=lambda x: x[0], reverse=True)
     https_frontend_list.sort(key=lambda x: x[0], reverse=True)
@@ -1680,7 +1793,6 @@ class MarathonEventProcessor(object):
         self.__isLoaded = False
         self.__lastFile = None
 
-
         # Fetch the base data
         self.reset_from_tasks()
 
@@ -1697,7 +1809,7 @@ class MarathonEventProcessor(object):
 
                     newFile = getDevopsJson()
                     if self.__lastFile != newFile:
-                        logger.info('Devops File Updated')
+                        logger.info('Devops File Updated!!')
                         self.__lastFile = newFile
                         self.do_reset()
 
@@ -1718,7 +1830,6 @@ class MarathonEventProcessor(object):
 
         self.__thread2 = threading.Thread(target=self.fileCheck)
         self.__thread2.start()
-
 
     def try_reset(self):
         logger.info('try_reset')
@@ -1781,7 +1892,6 @@ class MarathonEventProcessor(object):
                 threading.get_ident(), e.errno, e.strerror))
         except Exception:
             logger.exception("Unexpected error!")
-
 
     def do_reload(self):
         logger.info('do_reload')

@@ -643,7 +643,7 @@ Sets a cookie for services where `HAPROXY_{n}_STICKY` is true.
             ConfigTemplate(name='BACKEND_SERVER_OPTIONS',
                            value='''\
   server {serverName} {host_ipv4}:{port}{cookieOptions}\
-{healthCheckOptions}{otherOptions}
+{healthCheckOptions}{otherOptions}{weightOptions}
 ''',
                            overridable=True,
                            description='''\
