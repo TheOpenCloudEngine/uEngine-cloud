@@ -62,6 +62,18 @@ public class Application {
     private MigrationService migrationService;
 
     //findAll
+    @RequestMapping(value = "/fetchLBData", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+    public Map fetchLBData(HttpServletRequest request,
+                         HttpServletResponse response
+    ) throws Exception {
+
+        List<AppEntity> appEntityList = cronTable.getAppEntityList();
+        Map apps = new HashMap();
+        for (int i = 0; i < appEntityList.size(); i++) {
+            apps.put(appEntityList.get(i).getName(), appEntityList.get(i));
+        }
+        return apps;
+    }
 
     @RequestMapping(value = "/fetchData", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public Map fetchData(HttpServletRequest request,

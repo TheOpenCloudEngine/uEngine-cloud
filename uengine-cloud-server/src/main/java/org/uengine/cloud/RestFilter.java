@@ -35,7 +35,7 @@ public class RestFilter extends GenericFilterBean {
         HttpServletResponse response = (HttpServletResponse) res;
         HttpServletRequest request = (HttpServletRequest) req;
         String requestURI = request.getRequestURI();
-        String[] guestPaths = new String[]{"/info", "/", "/health", "/refreshRoute", "/hook", "/migration"};
+        String[] guestPaths = new String[]{"/info", "/", "/health", "/refreshRoute", "/hook", "/migration", "/fetchLBData"};
 
         if (request.getMethod().equals(HttpMethod.OPTIONS.toString())) {
             chain.doFilter(req, res);

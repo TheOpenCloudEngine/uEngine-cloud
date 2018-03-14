@@ -419,9 +419,6 @@ def config(apps, groups, bind_http_https, ssl_certs, templater,
         logger.info('isDevApp %s', isDevApp)
         logger.info('devopsAppId %s', devopsAppId)
 
-        app.sticky = False
-
-        # TODO weight value 사전 계산.
         # if production
         currentDeployment = ''
         stage = ''
@@ -434,14 +431,22 @@ def config(apps, groups, bind_http_https, ssl_certs, templater,
             if app.appId.endswith('-dev'):
                 stage = 'dev'
                 currentDeployment = 'dev'
-                app.servicePort = devopsApp['prod']['servicePort']
+                app.servicePort = devopsApp['dev']['servicePort']
+                if 'sticky' in devopsApp['dev']:
+                    app.sticky = devopsApp['dev']['sticky']
+
             elif app.appId.endswith('-stg'):
                 stage = 'stg'
                 currentDeployment = 'stg'
                 app.servicePort = devopsApp['stg']['servicePort']
+                if 'sticky' in devopsApp['stg']:
+                    app.sticky = devopsApp['stg']['sticky']
             elif app.appId.endswith('-blue') or app.appId.endswith('-green'):
                 stage = 'prod'
                 currentDeployment = devopsApp['prod']['deployment']
+                if 'sticky' in devopsApp['prod']:
+                    app.sticky = devopsApp['prod']['sticky']
+
                 if 'weight' in devopsApp['prod']:
                     oldProdWeight = devopsApp['prod']['weight']
                 if oldProdWeight is None:
@@ -470,6 +475,10 @@ def config(apps, groups, bind_http_https, ssl_certs, templater,
             for _app in sorted(apps, key=attrgetter('appId', 'servicePort')):
                 if _app.appId == newProdAppId:
                     newProdMarathonApp = _app
+
+        # If oldprod and newProdMarathonApp is None, all traffic go to oldprod
+        if isOldProd and newProdMarathonApp is None:
+            oldProdWeight = 100
 
         backend = app.appId[1:].replace('/', '_') + '_' + str(app.servicePort)
         logger.debug("frontend at %s:%d with backend %s",
@@ -1790,6 +1799,7 @@ class MarathonEventProcessor(object):
 
         self.__thread = None
         self.__thread2 = None
+        self.__thread3 = None
         self.__isLoaded = False
         self.__lastFile = None
 
@@ -1801,7 +1811,6 @@ class MarathonEventProcessor(object):
         waitSeconds = 1
         while True:
             try:
-
                 if self.__lastFile is None or self.__lastFile == '{}':
                     self.__lastFile = getDevopsJson()
 
@@ -1820,6 +1829,27 @@ class MarathonEventProcessor(object):
 
             time.sleep(waitSeconds)
 
+    # Devpos App request thread
+    def appsCheck(self):
+        waitSeconds = 1
+        while True:
+            try:
+                #cloud_server
+                file_path = 'utils/devopsapps.json'
+                r = requests.get(args.cloud_server + '/fetchLBData')
+                if r.status_code == 200:
+
+                    with io.open(file_path, 'w', encoding='utf8') as f:
+                        f.write(str(r.content, 'utf8'))
+                        f.close()
+
+            except Exception:
+                logger.exception("Caught exception")
+                logger.error("Re request devops apps in {}s...".format(
+                    waitSeconds))
+
+            time.sleep(waitSeconds)
+
     def start(self):
         self.__stop = False
         if self.__thread is not None and self.__thread.is_alive():
@@ -1830,6 +1860,9 @@ class MarathonEventProcessor(object):
 
         self.__thread2 = threading.Thread(target=self.fileCheck)
         self.__thread2.start()
+
+        self.__thread3 = threading.Thread(target=self.appsCheck)
+        self.__thread3.start()
 
     def try_reset(self):
         logger.info('try_reset')
@@ -1957,6 +1990,11 @@ def get_arg_parser():
                         help="[required] Marathon endpoint, eg. " +
                              "-m http://marathon1:8080 http://marathon2:8080",
                         default=["http://master.mesos:8080"]
+                        )
+    parser.add_argument("--cloud-server",
+                        help="[required] Cloud server endpoint, eg. " +
+                             "--cloud-server http://marathon-lb-internal.marathon.mesos:10005",
+                        default="http://marathon-lb-internal.marathon.mesos:10005"
                         )
     parser.add_argument("--haproxy-config",
                         help="Location of haproxy configuration",
