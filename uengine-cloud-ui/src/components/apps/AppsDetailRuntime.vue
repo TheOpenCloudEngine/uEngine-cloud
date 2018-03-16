@@ -116,8 +116,8 @@
       var me = this;
       me.getDevAppByName(me.appName, function (response) {
         var devops = response.data;
-        if (devops[me.stage]['config-changed']) {
-          me.configChanged = devops[me.stage]['config-changed'];
+        if (devops[me.stage]['configChanged']) {
+          me.configChanged = devops[me.stage]['configChanged'];
         }
 //        console.log("devops", devops);
       });
@@ -132,7 +132,7 @@
       dcosData: {
         handler: function (newVal, oldVal) {
           var copy = newVal;
-          this.configChanged = copy.devopsApps[this.appName][this.stage]['config-changed'] ? copy.devopsApps[this.appName][this.stage]['config-changed'] : false;
+          this.configChanged = copy.devopsApps[this.appName][this.stage]['configChanged'] ? copy.devopsApps[this.appName][this.stage]['configChanged'] : false;
         },
         deep: true
       }

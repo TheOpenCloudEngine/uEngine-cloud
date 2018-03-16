@@ -12,7 +12,10 @@ public class AppStage {
     private String marathonAppId;
     private int servicePort;
     private Map deployJson;
+    private Map mesos;
     private boolean configChanged;
+    private boolean sticky;
+    private int weight;
 
     public String getDeployment() {
         return deployment;
@@ -68,5 +71,29 @@ public class AppStage {
 
     public void setConfigChanged(boolean configChanged) {
         this.configChanged = configChanged;
+    }
+
+    public boolean getSticky() {
+        return sticky;
+    }
+
+    public void setSticky(boolean sticky) {
+        this.sticky = sticky;
+    }
+
+    public int getWeight() {
+        return weight;
+    }
+
+    public void setWeight(int weight) {
+        this.weight = weight;
+    }
+
+    public Map getMesos() {
+        return mesos;
+    }
+
+    public void setMesos(Map mesos) {
+        this.mesos = mesos;
     }
 }

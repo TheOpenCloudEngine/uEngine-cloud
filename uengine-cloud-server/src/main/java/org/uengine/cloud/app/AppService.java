@@ -264,85 +264,77 @@ public class AppService {
      * @return
      * @throws Exception
      */
-    public Map getAppIncludeDeployJson(String appName) throws Exception {
+    public AppEntity getAppIncludeDeployJson(String appName) throws Exception {
         AppEntity appEntity = appAccessLevelRepository.findByName(appName);
-        Map<String, Object> map = JsonUtils.convertClassToMap(appEntity);
         String[] stages = new String[]{"prod", "stg", "dev"};
         for (String stage : stages) {
             Map deployJson = this.getDeployJson(appName, stage);
 
             switch (stage) {
                 case "dev":
-                    ((Map) map.get("dev")).put("deployJson", deployJson);
+                    AppStage dev = appEntity.getDev();
+                    dev.setDeployJson(deployJson);
+                    appEntity.setDev(dev);
                     break;
                 case "stg":
-                    ((Map) map.get("stg")).put("deployJson", deployJson);
+                    AppStage stg = appEntity.getStg();
+                    stg.setDeployJson(deployJson);
+                    appEntity.setStg(stg);
                     break;
                 case "prod":
-                    ((Map) map.get("prod")).put("deployJson", deployJson);
+                    AppStage prod = appEntity.getProd();
+                    prod.setDeployJson(deployJson);
+                    appEntity.setProd(prod);
                     break;
             }
         }
 
+        //메소스 상태 첨부
+        try {
+            String prodDeployment = appEntity.getProd().getDeployment();
+            String[] deployments = new String[]{"blue", "green", "stg", "dev"};
+            String[] expectMarathonIds = new String[]{
+                    "/" + appName + "-dev",
+                    "/" + appName + "-stg",
+                    "/" + appName + "-" + prodDeployment
+            };
+            List<Map> list = (List) ((Map) cronTable.getDcosData().get("groups")).get("apps");
+            for (int i = 0; i < list.size(); i++) {
+                Map marathonApp = list.get(i);
+                String marathonAppId = marathonApp.get("id").toString();
+                if (Arrays.asList(expectMarathonIds).contains(marathonAppId)) {
 
-        //캐쉬에서 상태 가져와 매핑 => dev,stg,prod
-//        try {
-//            List<Map> list = (List) ((Map) cronTable.getDcosData().get("groups")).get("apps");
-//            for (int i = 0; i < list.size(); i++) {
-//                Map marathonApp = list.get(i);
-//                String marathonAppId = "";
-//                for (String stage : stages) {
-//                    switch (stage) {
-//                        case "dev":
-//                            marathonAppId = "/" + appName + "-dev";
-//                            break;
-//                        case "stg":
-//                            marathonAppId = "/" + appName + "-stg";
-//                            break;
-//                        case "prod":
-//                            marathonAppId = "/" + appName + "-dev";
-//                            break;
-//                    }
-//                }
-//            }
-//        } catch (Exception ex) {
-//            ex.printStackTrace();
-//        }
+                    //타스트 관련 항목을 추가
+                    Map mesos = new HashMap();
+                    Set<String> keySet = marathonApp.keySet();
+                    for (String key : keySet) {
+                        if (key.startsWith("task") || key.startsWith("container")) {
+                            mesos.put(key, marathonApp.get(key));
+                        }
+                    }
 
-//        Map deployingApp = dcosApi.getApp(newMarathonAppId);
-//
-//        //검증
-//        //앱 배포 중단으로 인해 삭제됨.
-//        if (deployingApp == null) {
-//            System.out.println("Not found deploying marathonApp.");
-//            break;
-//        }
-//
-//        Map appMap = (Map) deployingApp.get("app");
-//        Map container = (Map) appMap.get("container");
-//        String deployingDockerImage = ((Map) container.get("docker")).get("image").toString();
-//
-//        //앱 배포 중단으로 인해 이미지가 변경되지 않음.
-//        if (!deployingDockerImage.equals(dockerImage)) {
-//            System.out.println("Deploying marathonApp Docker image is " + deployingDockerImage + " , But expect image is " + dockerImage);
-//            break;
-//        }
-//        //중복 시도에 대해서는 로직이 같으므로 같은 결과.
-//
-//        //앱 배포 성공
-//        int TASKS_RUNNING = (int) appMap.get("tasksRunning");
-//        int TASKS_HEALTHY = (int) appMap.get("tasksHealthy");
-//        int DEPLOYMENTS_LENGTH = ((List) appMap.get("deployments")).size();
-
-        return map;
-    }
-
-    public Map getAppSummaryStatusFromCache(String appName) {
-        //앱과 관련한 dev,stg,blue,green 의 총 타스크 관련 합과 deployment length, short state.
-        //앱과 관련한 dev,stg,blue,green 의 deployment length, task numbers, short state.
-        //last pipeline
-
-        return null;
+                    AppStage appStage = null;
+                    if(marathonAppId.endsWith("-dev")){
+                        appStage = appEntity.getDev();
+                        appStage.setMesos(mesos);
+                        appEntity.setDev(appStage);
+                    }
+                    else if(marathonAppId.endsWith("-stg")){
+                        appStage = appEntity.getStg();
+                        appStage.setMesos(mesos);
+                        appEntity.setStg(appStage);
+                    }
+                    else if(marathonAppId.endsWith("-green") || marathonAppId.endsWith("-blue")){
+                        appStage = appEntity.getProd();
+                        appStage.setMesos(mesos);
+                        appEntity.setProd(appStage);
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return appEntity;
     }
 
     /**
@@ -678,6 +670,8 @@ public class AppService {
         prod.setExternal(appCreate.getExternalProdDomain());
         prod.setInternal(appCreate.getInternalProdDomain());
         prod.setDeployment("green");
+        prod.setSticky(false);
+        prod.setWeight(100);
         appEntity.setProd(prod);
 
         AppStage stg = new AppStage();
@@ -686,6 +680,8 @@ public class AppService {
         stg.setExternal(appCreate.getExternalStgDomain());
         stg.setInternal(appCreate.getInternalStgDomain());
         stg.setDeployment("stg");
+        stg.setSticky(false);
+        stg.setWeight(100);
         appEntity.setStg(stg);
 
 
@@ -695,6 +691,8 @@ public class AppService {
         dev.setExternal(appCreate.getExternalDevDomain());
         dev.setInternal(appCreate.getInternalDevDomain());
         dev.setDeployment("dev");
+        dev.setSticky(false);
+        dev.setWeight(100);
         appEntity.setDev(dev);
 
         //생성 상태 저장
@@ -832,30 +830,51 @@ public class AppService {
 
 
     public void updateAppConfigChanged(String appName, String stage, boolean isChanged) throws Exception {
-        //TODO 스테이지가 없으면 모든 스테이지가 변화된 것.
+        //스테이지가 없으면 모든 스테이지가 변화된 것.
         AppEntity appEntity = appJpaRepository.findOne(appName);
         if (StringUtils.isEmpty(stage)) {
-            appEntity.getDev().setConfigChanged(true);
-            appEntity.getStg().setConfigChanged(true);
-            appEntity.getProd().setConfigChanged(true);
+            AppStage dev = appEntity.getDev();
+            dev.setConfigChanged(true);
+
+            AppStage stg = appEntity.getStg();
+            stg.setConfigChanged(true);
+
+            AppStage prod = appEntity.getProd();
+            prod.setConfigChanged(true);
+
+            appEntity.setDev(dev);
+            appEntity.setStg(stg);
+            appEntity.setProd(prod);
         } else {
             AppStage appStage = null;
             switch (stage) {
                 case "dev":
                     appStage = appEntity.getDev();
+                    if (isChanged) {
+                        appStage.setConfigChanged(true);
+                    } else {
+                        appStage.setConfigChanged(false);
+                    }
+                    appEntity.setDev(appStage);
                     break;
                 case "stg":
                     appStage = appEntity.getStg();
+                    if (isChanged) {
+                        appStage.setConfigChanged(true);
+                    } else {
+                        appStage.setConfigChanged(false);
+                    }
+                    appEntity.setStg(appStage);
                     break;
                 case "prod":
                     appStage = appEntity.getProd();
+                    if (isChanged) {
+                        appStage.setConfigChanged(true);
+                    } else {
+                        appStage.setConfigChanged(false);
+                    }
+                    appEntity.setProd(appStage);
                     break;
-            }
-
-            if (isChanged) {
-                appStage.setConfigChanged(true);
-            } else {
-                appStage.setConfigChanged(false);
             }
         }
         this.updateAppExcludeDeployJson(appName, appEntity);

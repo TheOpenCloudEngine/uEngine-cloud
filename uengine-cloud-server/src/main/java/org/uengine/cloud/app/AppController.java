@@ -236,7 +236,7 @@ public class AppController {
      * @throws Exception
      */
     @RequestMapping(value = "/{appName}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
-    public Map getApp(HttpServletRequest request,
+    public AppEntity getApp(HttpServletRequest request,
                       HttpServletResponse response,
                       @PathVariable("appName") String appName
     ) throws Exception {
@@ -313,7 +313,6 @@ public class AppController {
      * @return
      * @throws Exception
      */
-    // deployment/<appName> 삭제. 이때 모든 파일들을 다 지워야 한다. => 삭제 api 에서 하기.
     @RequestMapping(value = "", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
     public AppEntity createApp(HttpServletRequest request,
                                HttpServletResponse response,

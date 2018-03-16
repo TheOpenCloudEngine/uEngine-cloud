@@ -358,8 +358,6 @@ def get_devopsAppId_byAppId(appId, devopsapps):
 
 def calculateWeight(weight, serverCount):
     _weight = int((weight * 2.56) / serverCount)
-    if _weight == 0:
-        _weight = 1
     return _weight
 
 
@@ -740,6 +738,9 @@ def config(apps, groups, bind_http_https, ssl_certs, templater,
                                                .hexdigest()[:10]
 
                 new_backend_server_options = templater.haproxy_backend_server_options(newProdMarathonApp)
+
+                aaa = str(calculateWeight(newProdWeight, len(newProdMarathonApp.backends)))
+                logger.debug(newProdWeight)
                 backends += new_backend_server_options.format(
                     host=newBackendServer.host,
                     host_ipv4=newBackendServer.ip,

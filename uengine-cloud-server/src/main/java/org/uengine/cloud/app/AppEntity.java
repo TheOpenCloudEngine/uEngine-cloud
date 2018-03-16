@@ -2,14 +2,17 @@ package org.uengine.cloud.app;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.gitlab4j.api.models.Member;
+import org.uengine.cloud.group.AppGroup;
 import org.uengine.iam.util.JsonUtils;
 
 import javax.persistence.*;
-import java.io.IOException;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
+@Table(name = "app_entity")
 public class AppEntity {
 
     @Id
@@ -192,5 +195,16 @@ public class AppEntity {
 
     public void setConfigPassword(String configPassword) {
         this.configPassword = configPassword;
+    }
+
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "apps")
+    private Set<AppGroup> groups = new HashSet<>();
+
+    public Set<AppGroup> getGroups() {
+        return groups;
+    }
+
+    public void setGroups(Set<AppGroup> groups) {
+        this.groups = groups;
     }
 }
