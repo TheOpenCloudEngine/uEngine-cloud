@@ -6,10 +6,7 @@ import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.*;
-import org.uengine.cloud.app.AppAccessLevelRepository;
-import org.uengine.cloud.app.AppCreate;
-import org.uengine.cloud.app.AppEntity;
-import org.uengine.cloud.app.AppService;
+import org.uengine.cloud.app.*;
 import org.uengine.cloud.log.AppLogAction;
 import org.uengine.cloud.log.AppLogService;
 import org.uengine.cloud.log.AppLogStatus;
@@ -19,6 +16,7 @@ import org.uengine.iam.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -62,6 +60,40 @@ public class AppSnapshotController {
             return snapshot;
         } catch (Exception ex) {
             logService.addHistory(appName, AppLogAction.CREATE_APP_REQUEST, AppLogStatus.FAILED, new HashMap());
+            throw ex;
+        }
+    }
+
+    /**
+     * 앱의 주어진 스테이지에 스냅샷을 복원한다.
+     *
+     * @param request
+     * @param response
+     * @param appName
+     * @param snapshotId
+     * @param stages
+     * @param overrideResource
+     * @throws Exception
+     */
+    @RequestMapping(value = "/{appName}/snapshot/{snapshotId}/deploy", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    public void restoreSnapshot(HttpServletRequest request,
+                               HttpServletResponse response,
+                               @PathVariable("appName") String appName,
+                               @PathVariable("snapshotId") Long snapshotId,
+                               @RequestParam(value = "stages") String stages,
+                               @RequestBody(required = false) AppConfigYmlResource overrideResource
+    ) throws Exception {
+        Map log = new HashMap();
+        log.put("snapshotId", snapshotId);
+        log.put("stages", stages);
+        try {
+            String[] split = stages.split(",");
+            snapshotService.restoreSnapshot(snapshotId, Arrays.asList(split), overrideResource);
+            response.setStatus(200);
+
+            logService.addHistory(appName, AppLogAction.RESTORE_APP_SNAPSHOT, AppLogStatus.SUCCESS, log);
+        } catch (Exception ex) {
+            logService.addHistory(appName, AppLogAction.RESTORE_APP_SNAPSHOT, AppLogStatus.FAILED, log);
             throw ex;
         }
     }

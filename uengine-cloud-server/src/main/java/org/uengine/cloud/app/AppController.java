@@ -55,18 +55,7 @@ public class AppController {
                                   HttpServletResponse response,
                                   @PathVariable("appName") String appName
     ) throws Exception {
-        String registryHost = environment.getProperty("registry.public-host");
-        if (StringUtils.isEmpty(registryHost)) {
-            registryHost = environment.getProperty("registry.host");
-        }
-        HttpResponse res = new HttpUtils().makeRequest("GET",
-                "http://" + registryHost + "/v2/" + appName + "/tags/list",
-                null,
-                new HashMap<>()
-        );
-        HttpEntity entity = res.getEntity();
-        String json = EntityUtils.toString(entity);
-        return JsonUtils.unmarshal(json);
+        return appService.getAppRegistryTags(appName);
     }
 
     /**
@@ -236,11 +225,11 @@ public class AppController {
      * @throws Exception
      */
     @RequestMapping(value = "/{appName}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
-    public AppEntity getApp(HttpServletRequest request,
-                      HttpServletResponse response,
-                      @PathVariable("appName") String appName
+    public Map getApp(HttpServletRequest request,
+                            HttpServletResponse response,
+                            @PathVariable("appName") String appName
     ) throws Exception {
-        return appService.getAppIncludeDeployJson(appName);
+        return JsonUtils.convertClassToMap(appService.getAppIncludeDeployJson(appName));
     }
 
     /**
@@ -254,21 +243,21 @@ public class AppController {
      * @throws Exception
      */
     @RequestMapping(value = "/{appName}", method = RequestMethod.PUT, produces = "application/json;charset=UTF-8")
-    public AppEntity updateApp(HttpServletRequest request,
+    public Map updateApp(HttpServletRequest request,
                                HttpServletResponse response,
                                @PathVariable("appName") String appName,
-                               @RequestBody AppEntity appEntity,
+                               @RequestBody Map appEntity,
                                @RequestParam(value = "excludeDeploy", defaultValue = "false") boolean excludeDeploy
     ) throws Exception {
         try {
-            AppEntity entity = null;
+            AppEntity entity = JsonUtils.convertValue(appEntity, AppEntity.class);
             if (excludeDeploy) {
-                entity = appService.updateAppExcludeDeployJson(appName, appEntity);
+                entity = appService.updateAppExcludeDeployJson(appName, entity);
             } else {
-                entity = appService.updateAppIncludeDeployJson(appName, appEntity);
+                entity = appService.updateAppIncludeDeployJson(appName, entity);
             }
             logService.addHistory(appName, AppLogAction.UPDATE_APP, AppLogStatus.SUCCESS, null);
-            return entity;
+            return JsonUtils.convertClassToMap(entity);
         } catch (Exception ex) {
             logService.addHistory(appName, AppLogAction.UPDATE_APP, AppLogStatus.FAILED, null);
             throw ex;
@@ -314,7 +303,7 @@ public class AppController {
      * @throws Exception
      */
     @RequestMapping(value = "", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
-    public AppEntity createApp(HttpServletRequest request,
+    public Map createApp(HttpServletRequest request,
                                HttpServletResponse response,
                                @RequestBody AppCreate appCreate) throws Exception {
 
@@ -322,7 +311,7 @@ public class AppController {
         try {
             AppEntity appEntity = appService.createApp(appCreate);
             logService.addHistory(appCreate.getAppName(), AppLogAction.CREATE_APP_REQUEST, AppLogStatus.SUCCESS, log);
-            return appEntity;
+            return JsonUtils.convertClassToMap(appEntity);
         } catch (Exception ex) {
             logService.addHistory(appCreate.getAppName(), AppLogAction.CREATE_APP_REQUEST, AppLogStatus.FAILED, log);
             throw ex;

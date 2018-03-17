@@ -165,7 +165,7 @@
           //console.log(task.id);
         });
         if (rollbackMarathonApp) {
-          console.log(rollbackMarathonApp.id);
+
         }
 
         var metronomeId;

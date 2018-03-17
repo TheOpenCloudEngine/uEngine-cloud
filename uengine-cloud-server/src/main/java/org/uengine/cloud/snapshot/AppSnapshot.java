@@ -22,7 +22,9 @@ public class AppSnapshot {
 
     private String iam;
 
-    @Column(name="app_group_snapshot_id")
+    private String activeStages;
+
+    @Column(name = "app_group_snapshot_id")
     private Long appGroupSnapshotId;
 
     @JsonIgnore
@@ -119,5 +121,13 @@ public class AppSnapshot {
 
     public void setAppGroupSnapshotId(Long appGroupSnapshotId) {
         this.appGroupSnapshotId = appGroupSnapshotId;
+    }
+
+    public String getActiveStages() {
+        return activeStages;
+    }
+
+    public void setActiveStages(String activeStages) {
+        this.activeStages = activeStages;
     }
 }

@@ -2,6 +2,7 @@ package org.uengine.cloud.snapshot;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.google.common.base.Joiner;
 import freemarker.template.SimpleDate;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -39,25 +40,178 @@ public class AppSnapshotService {
     @Autowired
     private AppSnapshotRepository snapshotRepository;
 
-    public boolean restoreSnapshot(Long snapshotId, String stage) throws Exception {
+    @Autowired
+    private AppJpaRepository appJpaRepository;
+
+    /**
+     * 스냅샷으로부터 요청된 스테이지에 한해 앱을 복원한다.
+     *
+     * @param snapshotId
+     * @param stages
+     * @param overrideResource
+     * @return
+     * @throws Exception
+     */
+    public boolean restoreSnapshot(Long snapshotId, List<String> stages, AppConfigYmlResource overrideResource) throws Exception {
+
+        //스냅샷 복원 검증
+        AppSnapshot appSnapshot = this.validateRestoreSnapshot(snapshotId, stages);
+
+        String appName = appSnapshot.getAppName();
+
+        //vcap 서비스를 적용한다.
+        appService.addAppToVcapService(appSnapshot.getApp(), stages);
+
+        //리소스 수정: overrideResource 존재시 덮어씀.
+        AppConfigYmlResource configYmlResource = overrideResource == null ? appSnapshot.getAppConfigYmlResource() : overrideResource;
+
+        //변경할 스테이지가 있다면 common 콘피그를 바꾼다.
+        if (!stages.isEmpty()) {
+            appService.updateAppConfigYml(appSnapshot.getAppName(), configYmlResource.getCommonYml(), null);
+        }
+
+        for (String stage : stages) {
+            switch (stage) {
+                case "dev":
+                    appService.updateAppConfigYml(appSnapshot.getAppName(), configYmlResource.getDevYml(), stage);
+                    appService.updateDeployJson(appSnapshot.getAppName(), stage, configYmlResource.getMesosDev());
+                case "stg":
+                    appService.updateAppConfigYml(appSnapshot.getAppName(), configYmlResource.getStgYml(), stage);
+                    appService.updateDeployJson(appSnapshot.getAppName(), stage, configYmlResource.getMesosStg());
+                case "prod":
+                    appService.updateAppConfigYml(appSnapshot.getAppName(), configYmlResource.getProdYml(), stage);
+                    appService.updateDeployJson(appSnapshot.getAppName(), stage, configYmlResource.getMesosProd());
+            }
+
+            //과거에 활성화 가능했던 스테이지인지 확인한다.
+            String commit = this.getCommitRefFromSnapshot(appSnapshot, stage);
+
+            //커밋이 없다면 현재 앱을 삭제하도록 한다.
+            if (StringUtils.isEmpty(commit)) {
+                appService.removeDeployedApp(appName, stage);
+            }
+
+            //커밋이 있다면 앱을 배포한다.
+            else {
+                appService.runDeployedApp(appName, stage, commit);
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 스냅샷으로부터 주어진 스테이지에 해당하는 커밋 레퍼런스를 가져온다.
+     *
+     * @param appSnapshot
+     * @param stage
+     * @return
+     * @throws Exception
+     */
+    public String getCommitRefFromSnapshot(AppSnapshot appSnapshot, String stage) throws Exception {
+        AppEntity app = appSnapshot.getApp();
+        AppStage appStage = null;
+        switch (stage) {
+            case "dev":
+                appStage = app.getDev();
+                break;
+            case "stg":
+                appStage = app.getStg();
+                break;
+            case "prod":
+                appStage = app.getProd();
+                break;
+        }
+        Map mesos = appStage.getMesos();
+
+        //mesos 가 null 이면 스냅샷 당시 배포된 어플리케이션이 없다.
+        if (mesos == null) {
+            return null;
+        }
+        Map docker = (Map) ((Map) mesos.get("container")).get("docker");
+        String image = docker.get("image").toString();
+        return image.substring(image.lastIndexOf(":") + 1);
+    }
+
+    /**
+     * 스냅샷 복원을 검증한다.
+     *
+     * @param snapshotId
+     * @param stages     복원할 스테이지 목록
+     * @return
+     * @throws Exception
+     */
+    public AppSnapshot validateRestoreSnapshot(Long snapshotId, List<String> stages) throws Exception {
+
+        //config 파일, mesos 설정 diff 확인.
+        //공통 config 파일 바뀜 확인 - 그룹 스냅샷 복원인 경우 공통파일은 동일하므로 한번만 바꾸면 된다.
+
+        //스냅샷 설정과 현재 설정이 바뀐점 확인시킴.
+        //스냡샷 설정 <= 현재 설정 머지시키는 UI
+        //결과물은 최종 스냅샷 리소스. - 이하 리소스 오버라이드라 칭함.
+        //리소스 오버라이드가 없다면 모두 덮어쓰고, 따로 리소스 오버라이드가 있다면 제공된 오버라이드로 덮어쓴다.
+
+        //스냡샷을 가져온다.
         AppSnapshot appSnapshot = snapshotRepository.findOne(snapshotId);
         if (appSnapshot == null) {
-            throw new Exception(String.format("Not Found appSnapshot %s", snapshotId));
+            throw new Exception(String.format("Not Found appSnapshot, %s", snapshotId));
         }
-        return false;
+
+        //앱이 존재하는지 확인한다.
+        String appName = appSnapshot.getApp().getName();
+        AppEntity existApp = appJpaRepository.findOne(appName);
+        if (existApp == null) {
+            throw new Exception(String.format("Not Found application %s in appSnapshot, %s", appName, snapshotId));
+        }
+
+        //스테이지 String 이 맞는지 확인한다.
+        String[] correctStages = new String[]{"dev", "stg", "prod"};
+        for (String stage : stages) {
+            if (!Arrays.asList(correctStages).contains(stage)) {
+                throw new Exception(String.format("invalid restore stage , snapshot %s, stage %s", snapshotId, stage));
+            }
+        }
+
+        //요청된 스테이지마다, 스냅샷에 저장된 활성 상태의 도커 이미지가 있다면, 이미지가 존재하는지 검증한다.
+        String s = appSnapshot.getActiveStages() != null ? appSnapshot.getActiveStages() : "";
+        String[] activeStages = s.split(",");
+        for (String stage : stages) {
+
+            //요청된 스테이지의 스냅샷이 과거에 활성화된 상태였다면 이미지 검색
+            if (Arrays.asList(activeStages).contains(stage)) {
+                try {
+                    String commit = this.getCommitRefFromSnapshot(appSnapshot, stage);
+                    Map tagMap = appService.getAppRegistryTags(appSnapshot.getAppName());
+                    List<String> tags = (List<String>) tagMap.get("tags");
+                    if (!tags.contains(commit)) {
+                        throw new Exception(String.format("Not Found docker image for " +
+                                "commit %s, snapshotId %s, appName %s, stage %s", commit, snapshotId, appSnapshot.getAppName(), stage));
+                    }
+                } catch (Exception ex) {
+                    throw new Exception(String.format("Not Found docker image for " +
+                            "snapshotId %s, appName %s, stage %s", snapshotId, appSnapshot.getAppName(), stage));
+                }
+            }
+        }
+
+        //TODO 리소스 가용성 확인
+        return appSnapshot;
     }
 
-    public boolean validateSnapshot(AppSnapshot appSnapshot) throws Exception {
-        //스냅샷을 점검한다.
-        return false;
-    }
-
+    /**
+     * 스냅샷을 생선한다.
+     *
+     * @param appName
+     * @param snapshotName
+     * @param appGroupSnapshotId
+     * @return
+     * @throws Exception
+     */
     public AppSnapshot createSnapshot(String appName, String snapshotName, Long appGroupSnapshotId) throws Exception {
         //deployJson 을 포함한 app 정보를 가져온다.
         AppEntity appEntity = appService.getAppIncludeDeployJson(appName);
 
         //리소스를 가져온다.
-        AppConfigYmlResource configYmlResource = this.createAppConfigSnapshot(appName);
+        AppConfigYmlResource configYmlResource = this.createAppConfigSnapshot(appName, appEntity);
 
         AppSnapshot snapshot = new AppSnapshot();
         snapshot.setApp(appEntity);
@@ -77,17 +231,41 @@ public class AppSnapshotService {
         }
         snapshot.setName(snapshotName);
 
+        //액티브 스테이지를 기록한다.
+        ArrayList<String> activeStages = new ArrayList<>();
+        if (this.getCommitRefFromSnapshot(snapshot, "dev") != null) {
+            activeStages.add("dev");
+        }
+        if (this.getCommitRefFromSnapshot(snapshot, "stg") != null) {
+            activeStages.add("stg");
+        }
+        if (this.getCommitRefFromSnapshot(snapshot, "prod") != null) {
+            activeStages.add("prod");
+        }
+        if (activeStages.size() > 0) {
+            snapshot.setActiveStages(Joiner.on(",").join(activeStages));
+        }
+
         return snapshotRepository.save(snapshot);
     }
 
-    public AppConfigYmlResource createAppConfigSnapshot(String appName) throws Exception {
+    public AppConfigYmlResource createAppConfigSnapshot(String appName, AppEntity appEntity) throws Exception {
         AppConfigYmlResource configYmlResource = new AppConfigYmlResource();
 
         configYmlResource.setApplication(appService.getApplicationYml());
-        configYmlResource.setCommon(appService.getAppConfigYml(appName, null));
-        configYmlResource.setDev(appService.getAppConfigYml(appName, "dev"));
-        configYmlResource.setStg(appService.getAppConfigYml(appName, "stg"));
-        configYmlResource.setProd(appService.getAppConfigYml(appName, "prod"));
+        configYmlResource.setCommonYml(appService.getAppConfigYml(appName, null));
+        configYmlResource.setDevYml(appService.getAppConfigYml(appName, "dev"));
+        configYmlResource.setStgYml(appService.getAppConfigYml(appName, "stg"));
+        configYmlResource.setProdYml(appService.getAppConfigYml(appName, "prod"));
+
+        AppStage dev = appEntity.getDev();
+        configYmlResource.setMesosDev(dev.getDeployJson());
+
+        AppStage stg = appEntity.getStg();
+        configYmlResource.setMesosStg(stg.getDeployJson());
+
+        AppStage prod = appEntity.getProd();
+        configYmlResource.setMesosProd(prod.getDeployJson());
 
         return configYmlResource;
     }

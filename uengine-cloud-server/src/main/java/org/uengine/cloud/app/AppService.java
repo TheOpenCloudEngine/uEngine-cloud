@@ -314,17 +314,15 @@ public class AppService {
                     }
 
                     AppStage appStage = null;
-                    if(marathonAppId.endsWith("-dev")){
+                    if (marathonAppId.endsWith("-dev")) {
                         appStage = appEntity.getDev();
                         appStage.setMesos(mesos);
                         appEntity.setDev(appStage);
-                    }
-                    else if(marathonAppId.endsWith("-stg")){
+                    } else if (marathonAppId.endsWith("-stg")) {
                         appStage = appEntity.getStg();
                         appStage.setMesos(mesos);
                         appEntity.setStg(appStage);
-                    }
-                    else if(marathonAppId.endsWith("-green") || marathonAppId.endsWith("-blue")){
+                    } else if (marathonAppId.endsWith("-green") || marathonAppId.endsWith("-blue")) {
                         appStage = appEntity.getProd();
                         appStage.setMesos(mesos);
                         appEntity.setProd(appStage);
@@ -378,6 +376,9 @@ public class AppService {
         appEntity.setProd(prod);
         appJpaRepository.save(appEntity);
 
+        //vcap 서비스 업데이트
+        this.addAppToVcapService(appName);
+
         return appEntity;
     }
 
@@ -407,6 +408,10 @@ public class AppService {
         appEntity.setProd(prod);
 
         appJpaRepository.save(appEntity);
+
+        //vcap 서비스 업데이트
+        this.addAppToVcapService(appName);
+
         return appEntity;
     }
 
@@ -454,10 +459,25 @@ public class AppService {
         appJpaRepository.delete(appEntity);
     }
 
-    public void addAppToVcapService(String appName) throws Exception {
-        AppEntity appEntity = appJpaRepository.findOne(appName);
-        String[] stages = new String[]{"prod", "stg", "dev"};
+    /**
+     * vcap 서비스에 앱의 주소를 등록한다. 요청된 스테이지에 한해 수행한다.
+     *
+     * @param appEntity
+     * @param stages
+     * @throws Exception
+     */
+    public void addAppToVcapService(AppEntity appEntity, List<String> stages) throws Exception {
+        String applicationYml = this.getApplicationYml();
+        ObjectMapper yamlReader = new ObjectMapper(new YAMLFactory());
+        Map vcapMap = yamlReader.readValue(applicationYml, Map.class);
+        Map vcaps = (Map) ((Map) vcapMap.get("vcap")).get("services");
         Map service = new HashMap();
+
+        //기존 vcap 서비스에 서비스가 있다면, 기존 서비스맵으로 대체한다.
+        if (vcaps.containsKey(appEntity.getName())) {
+            service = (Map) vcaps.get(appEntity.getName());
+        }
+
         for (String stage : stages) {
             Map map = new HashMap();
             switch (stage) {
@@ -477,16 +497,17 @@ public class AppService {
             service.put(stage, map);
         }
 
-        String applicationYml = this.getApplicationYml();
-        ObjectMapper yamlReader = new ObjectMapper(new YAMLFactory());
-        Map vcapMap = yamlReader.readValue(applicationYml, Map.class);
-        Map vcaps = (Map) ((Map) vcapMap.get("vcap")).get("services");
-        vcaps.put(appName, service);
+        vcaps.put(appEntity.getName(), service);
 
         applicationYml = yamlReader.writeValueAsString(vcapMap);
         gitlabExtentApi.updateOrCraeteRepositoryFile(
                 Integer.parseInt(environment.getProperty("gitlab.config-repo.projectId")),
                 "master", "application.yml", applicationYml);
+    }
+
+    public void addAppToVcapService(String appName) throws Exception {
+        String[] stages = {"dev", "stg", "prod"};
+        this.addAppToVcapService(appJpaRepository.findOne(appName), Arrays.asList(stages));
     }
 
     public void removeAppToVcapService(String appName) throws Exception {
@@ -887,6 +908,21 @@ public class AppService {
                 new HashMap<>()
         );
         HttpEntity entity = response.getEntity();
+        String json = EntityUtils.toString(entity);
+        return JsonUtils.unmarshal(json);
+    }
+
+    public Map getAppRegistryTags(String appName) throws Exception {
+        String registryHost = environment.getProperty("registry.public-host");
+        if (StringUtils.isEmpty(registryHost)) {
+            registryHost = environment.getProperty("registry.host");
+        }
+        HttpResponse res = new HttpUtils().makeRequest("GET",
+                "http://" + registryHost + "/v2/" + appName + "/tags/list",
+                null,
+                new HashMap<>()
+        );
+        HttpEntity entity = res.getEntity();
         String json = EntityUtils.toString(entity);
         return JsonUtils.unmarshal(json);
     }

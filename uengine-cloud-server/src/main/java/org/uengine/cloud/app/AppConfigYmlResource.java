@@ -1,16 +1,24 @@
 package org.uengine.cloud.app;
 
+import java.util.Map;
+
 public class AppConfigYmlResource {
+
+    private Map mesosDev;
+
+    private Map mesosStg;
+
+    private Map mesosProd;
 
     private String application;
 
-    private String common;
+    private String commonYml;
 
-    private String dev;
+    private String devYml;
 
-    private String stg;
+    private String stgYml;
 
-    private String prod;
+    private String prodYml;
 
     public String getApplication() {
         return application;
@@ -20,35 +28,59 @@ public class AppConfigYmlResource {
         this.application = application;
     }
 
-    public String getCommon() {
-        return common;
+    public String getCommonYml() {
+        return commonYml;
     }
 
-    public void setCommon(String common) {
-        this.common = common;
+    public void setCommonYml(String commonYml) {
+        this.commonYml = commonYml;
     }
 
-    public String getDev() {
-        return dev;
+    public String getDevYml() {
+        return devYml;
     }
 
-    public void setDev(String dev) {
-        this.dev = dev;
+    public void setDevYml(String devYml) {
+        this.devYml = devYml;
     }
 
-    public String getStg() {
-        return stg;
+    public String getStgYml() {
+        return stgYml;
     }
 
-    public void setStg(String stg) {
-        this.stg = stg;
+    public void setStgYml(String stgYml) {
+        this.stgYml = stgYml;
     }
 
-    public String getProd() {
-        return prod;
+    public String getProdYml() {
+        return prodYml;
     }
 
-    public void setProd(String prod) {
-        this.prod = prod;
+    public void setProdYml(String prodYml) {
+        this.prodYml = prodYml;
+    }
+
+    public Map getMesosDev() {
+        return mesosDev;
+    }
+
+    public void setMesosDev(Map mesosDev) {
+        this.mesosDev = mesosDev;
+    }
+
+    public Map getMesosStg() {
+        return mesosStg;
+    }
+
+    public void setMesosStg(Map mesosStg) {
+        this.mesosStg = mesosStg;
+    }
+
+    public Map getMesosProd() {
+        return mesosProd;
+    }
+
+    public void setMesosProd(Map mesosProd) {
+        this.mesosProd = mesosProd;
     }
 }
