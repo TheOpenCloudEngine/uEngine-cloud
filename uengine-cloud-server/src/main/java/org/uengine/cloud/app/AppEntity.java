@@ -32,8 +32,7 @@ public class AppEntity {
 
     private String configPassword;
 
-    //클라우드 콘피그 서버에서 dcos 로 앱정보 받으려면...? 마스터 키가 필요...?
-    //마스터키는 dcos 서버 프리패스 토큰
+    private Long groupId;
 
     @JsonIgnore
     @Column(columnDefinition = "TEXT")
@@ -197,15 +196,11 @@ public class AppEntity {
         this.configPassword = configPassword;
     }
 
-    @JsonIgnore
-    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "apps")
-    private Set<AppGroup> groups = new HashSet<>();
-
-    public Set<AppGroup> getGroups() {
-        return groups;
+    public Long getGroupId() {
+        return groupId;
     }
 
-    public void setGroups(Set<AppGroup> groups) {
-        this.groups = groups;
+    public void setGroupId(Long groupId) {
+        this.groupId = groupId;
     }
 }

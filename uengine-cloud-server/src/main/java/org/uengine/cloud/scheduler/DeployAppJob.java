@@ -154,7 +154,7 @@ public class DeployAppJob implements Job {
                 }
 
                 //도커 이미지 이름 가져오기
-                String dockerImage = this.getDockerImage(commit, appName, null);
+                String dockerImage = this.getDockerImage(commit, appName, oldMarathonApp);
                 String deployJson = this.createDeployJson(
                         appName,
                         stage,

@@ -62,30 +62,4 @@ public class AppGroup {
     public void setRegDate(long regDate) {
         this.regDate = regDate;
     }
-
-    @JsonIgnore
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "app_entity_group",
-            joinColumns = {@JoinColumn(name = "app_group_id")},
-            inverseJoinColumns = {@JoinColumn(name = "app_name")})
-    private Set<AppEntity> apps = new HashSet<>();
-    public Set<AppEntity> getApps() {
-        return apps;
-    }
-
-    public void setApps(Set<AppEntity> apps) {
-        this.apps = apps;
-    }
-
-    @Transient
-    private Set<String> appNames = new HashSet<>();
-
-    public Set<String> getAppNames() {
-        if(!this.apps.isEmpty()){
-            for (AppEntity app : this.apps) {
-                appNames.add(app.getName());
-            }
-        }
-        return appNames;
-    }
 }
