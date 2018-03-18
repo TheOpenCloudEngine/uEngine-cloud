@@ -1,11 +1,15 @@
 package org.uengine.cloud.app;
 
+import org.uengine.cloud.strategies.DeploymentStrategy;
+import org.uengine.cloud.strategies.InstanceStrategy;
+
 import java.util.Map;
 
 /**
  * Created by uengine on 2018. 1. 23..
  */
 public class AppStage {
+    private Long snapshot;
     private String deployment;
     private String external;
     private String internal;
@@ -14,8 +18,17 @@ public class AppStage {
     private Map deployJson;
     private Map mesos;
     private boolean configChanged;
-    private boolean sticky;
-    private int weight;
+    private DeploymentStrategy deploymentStrategy;
+
+    private Long snapshotOld;
+    private String deploymentOld;
+    private String marathonAppIdOld;
+
+    public AppStage() {
+        this.snapshot = new Long(0);
+        this.snapshotOld = new Long(0);
+        this.deploymentStrategy = new DeploymentStrategy();
+    }
 
     public String getDeployment() {
         return deployment;
@@ -73,20 +86,15 @@ public class AppStage {
         this.configChanged = configChanged;
     }
 
-    public boolean getSticky() {
-        return sticky;
+    public DeploymentStrategy getDeploymentStrategy() {
+        if (deploymentStrategy == null) {
+            deploymentStrategy = new DeploymentStrategy();
+        }
+        return deploymentStrategy;
     }
 
-    public void setSticky(boolean sticky) {
-        this.sticky = sticky;
-    }
-
-    public int getWeight() {
-        return weight;
-    }
-
-    public void setWeight(int weight) {
-        this.weight = weight;
+    public void setDeploymentStrategy(DeploymentStrategy deploymentStrategy) {
+        this.deploymentStrategy = deploymentStrategy;
     }
 
     public Map getMesos() {
@@ -95,5 +103,43 @@ public class AppStage {
 
     public void setMesos(Map mesos) {
         this.mesos = mesos;
+    }
+
+    public Long getSnapshot() {
+        if(snapshot == null){
+            snapshot = new Long(0);
+        }
+        return snapshot;
+    }
+
+    public void setSnapshot(Long snapshot) {
+        this.snapshot = snapshot;
+    }
+
+    public Long getSnapshotOld() {
+        if(snapshotOld == null){
+            snapshotOld = new Long(0);
+        }
+        return snapshotOld;
+    }
+
+    public void setSnapshotOld(Long snapshotOld) {
+        this.snapshotOld = snapshotOld;
+    }
+
+    public String getDeploymentOld() {
+        return deploymentOld;
+    }
+
+    public void setDeploymentOld(String deploymentOld) {
+        this.deploymentOld = deploymentOld;
+    }
+
+    public String getMarathonAppIdOld() {
+        return marathonAppIdOld;
+    }
+
+    public void setMarathonAppIdOld(String marathonAppIdOld) {
+        this.marathonAppIdOld = marathonAppIdOld;
     }
 }

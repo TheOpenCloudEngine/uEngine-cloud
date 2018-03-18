@@ -199,13 +199,15 @@ public class AppController {
                                HttpServletResponse response,
                                @PathVariable("appName") String appName,
                                @RequestParam(value = "stage") String stage,
+                               @RequestParam(defaultValue = "true", value = "exchange") boolean exchange,
                                @RequestParam(value = "commit", required = false) String commit
     ) throws Exception {
         Map log = new HashMap();
         log.put("commit", commit);
         log.put("stage", stage);
+        log.put("exchange", exchange);
         try {
-            appService.runDeployedApp(appName, stage, commit);
+            appService.runDeployedApp(appName, stage, commit, null, exchange);
             response.setStatus(200);
 
             logService.addHistory(appName, AppLogAction.RUN_DEPLOYED_APP_REQUEST, AppLogStatus.SUCCESS, log);
@@ -226,8 +228,8 @@ public class AppController {
      */
     @RequestMapping(value = "/{appName}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public Map getApp(HttpServletRequest request,
-                            HttpServletResponse response,
-                            @PathVariable("appName") String appName
+                      HttpServletResponse response,
+                      @PathVariable("appName") String appName
     ) throws Exception {
         return JsonUtils.convertClassToMap(appService.getAppIncludeDeployJson(appName));
     }
@@ -244,10 +246,10 @@ public class AppController {
      */
     @RequestMapping(value = "/{appName}", method = RequestMethod.PUT, produces = "application/json;charset=UTF-8")
     public Map updateApp(HttpServletRequest request,
-                               HttpServletResponse response,
-                               @PathVariable("appName") String appName,
-                               @RequestBody Map appEntity,
-                               @RequestParam(value = "excludeDeploy", defaultValue = "false") boolean excludeDeploy
+                         HttpServletResponse response,
+                         @PathVariable("appName") String appName,
+                         @RequestBody Map appEntity,
+                         @RequestParam(value = "excludeDeploy", defaultValue = "false") boolean excludeDeploy
     ) throws Exception {
         try {
             AppEntity entity = JsonUtils.convertValue(appEntity, AppEntity.class);
@@ -304,8 +306,8 @@ public class AppController {
      */
     @RequestMapping(value = "", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
     public Map createApp(HttpServletRequest request,
-                               HttpServletResponse response,
-                               @RequestBody AppCreate appCreate) throws Exception {
+                         HttpServletResponse response,
+                         @RequestBody AppCreate appCreate) throws Exception {
 
         Map<String, Object> log = JsonUtils.convertClassToMap(appCreate);
         try {

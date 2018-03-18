@@ -77,18 +77,19 @@ public class AppSnapshotController {
      */
     @RequestMapping(value = "/{appName}/snapshot/{snapshotId}/deploy", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
     public void restoreSnapshot(HttpServletRequest request,
-                               HttpServletResponse response,
-                               @PathVariable("appName") String appName,
-                               @PathVariable("snapshotId") Long snapshotId,
-                               @RequestParam(value = "stages") String stages,
-                               @RequestBody(required = false) AppConfigYmlResource overrideResource
+                                HttpServletResponse response,
+                                @PathVariable("appName") String appName,
+                                @PathVariable("snapshotId") Long snapshotId,
+                                @RequestParam(value = "stages") String stages,
+                                @RequestParam(defaultValue = "true", value = "stages") boolean redeploy,
+                                @RequestBody(required = false) AppConfigYmlResource overrideResource
     ) throws Exception {
         Map log = new HashMap();
         log.put("snapshotId", snapshotId);
         log.put("stages", stages);
         try {
             String[] split = stages.split(",");
-            snapshotService.restoreSnapshot(snapshotId, Arrays.asList(split), overrideResource);
+            snapshotService.restoreSnapshot(snapshotId, Arrays.asList(split), overrideResource, redeploy);
             response.setStatus(200);
 
             logService.addHistory(appName, AppLogAction.RESTORE_APP_SNAPSHOT, AppLogStatus.SUCCESS, log);

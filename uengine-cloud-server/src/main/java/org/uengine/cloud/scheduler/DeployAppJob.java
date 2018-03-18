@@ -22,6 +22,10 @@ import org.uengine.cloud.app.*;
 import org.uengine.cloud.log.AppLogAction;
 import org.uengine.cloud.log.AppLogService;
 import org.uengine.cloud.log.AppLogStatus;
+import org.uengine.cloud.snapshot.AppSnapshot;
+import org.uengine.cloud.snapshot.AppSnapshotService;
+import org.uengine.cloud.strategies.DeploymentStrategy;
+import org.uengine.cloud.strategies.InstanceStrategy;
 import org.uengine.iam.util.ApplicationContextRegistry;
 import org.uengine.iam.util.JsonUtils;
 import org.uengine.iam.util.StringUtils;
@@ -35,18 +39,20 @@ import org.uengine.cloud.templates.MustacheTemplateEngine;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class DeployAppJob implements Job {
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-        //TODO 스크립트를 그냥 이 메소드를 실행하는 로직으로 바꾸자.
 
         // 클라이언트 잡 실행시 필요한 정보를 가져온다.
         JobDataMap map = jobExecutionContext.getMergedJobDataMap();
         String appName = map.get("appName").toString();
         String stage = map.get("stage").toString();
+        Long snapshotId = (Long) map.get("snapshotId");
+        boolean exchange = (boolean) map.get("exchange");
         String commit = null;
         if (map.get("commit") != null) {
             commit = map.get("commit").toString();
@@ -62,6 +68,7 @@ public class DeployAppJob implements Job {
         DcosApi dcosApi = ApplicationContextRegistry.getApplicationContext().getBean(DcosApi.class);
         AppLogService logService = ApplicationContextRegistry.getApplicationContext().getBean(AppLogService.class);
         AppJpaRepository appJpaRepository = ApplicationContextRegistry.getApplicationContext().getBean(AppJpaRepository.class);
+        AppSnapshotService snapshotService = ApplicationContextRegistry.getApplicationContext().getBean(AppSnapshotService.class);
         try {
 
             //deployApp 는 마라톤 어플리케이션이 존재하는 경우만 사용가능하다. 단, 커밋을 전달받을 경우는 존재하지 않아도 가능.
@@ -93,25 +100,24 @@ public class DeployAppJob implements Job {
             String deployment = appStage.getDeployment();
 
 
-            //커밋이 있고 프로덕션인 경우, 기존 프로덕션 이미지와 커밋이미지가 동일할 경우 blue,green 을 바꾸지 않는다.
+            /**
+             * check if blue-green
+             * 1. DeploymentStrategy bluegreen equal true
+             * 2. Prod stage && Current Production App is exist.
+             * 3. exchange is true
+             */
             boolean bluegreenDeployment = false;
-            if (!StringUtils.isEmpty(commit) && stage.equals("prod")) {
-                String expectDockerImage = environment.getProperty("registry.host") + "/" + appName + ":" + commit;
+            if (appStage.getDeploymentStrategy().getBluegreen()
+                    && stage.equals("prod") && exchange) {
                 String currentDeployment = deployment;
                 String currentMarathonAppId = appName + "-" + currentDeployment;
-                Map marathonApp = null;
                 try {
-                    marathonApp = dcosApi.getApp(currentMarathonAppId);
-                } catch (Exception ex) {
-
-                }
-                if (marathonApp != null) {
-                    Map container = (Map) ((Map) marathonApp.get("app")).get("container");
-                    String currentDockerImage = ((Map) container.get("docker")).get("image").toString();
-                    //이미지 배포버젼이 달라졌을 경우 블루 그린 디플로이먼트를 한다.
-                    if (!expectDockerImage.equals(currentDockerImage)) {
+                    Map marathonApp = dcosApi.getApp(currentMarathonAppId);
+                    if (marathonApp != null) {
                         bluegreenDeployment = true;
                     }
+                } catch (Exception ex) {
+
                 }
             }
 
@@ -139,7 +145,7 @@ public class DeployAppJob implements Job {
                 } catch (Exception ex) {
 
                 }
-                //신규 마라톤 앱 가져오기(롤백 프로덕션)
+                //신규 마라톤 앱 가져오기
                 Map newMarathonApp = null;
                 try {
                     newMarathonApp = dcosApi.getApp(newMarathonAppId);
@@ -147,9 +153,8 @@ public class DeployAppJob implements Job {
 
                 }
 
-
-                //도커 이미지 가져오기 (현재 프로덕션 참조)
-                String dockerImage = this.getDockerImage(commit, appName, oldMarathonApp);
+                //도커 이미지 이름 가져오기
+                String dockerImage = this.getDockerImage(commit, appName, null);
                 String deployJson = this.createDeployJson(
                         appName,
                         stage,
@@ -158,8 +163,47 @@ public class DeployAppJob implements Job {
                         servicePort,
                         newDeployment,
                         externalUrl,
-                        appEntity
+                        appEntity,
+                        appStage.getDeploymentStrategy()
                 );
+
+                /**
+                 * create new snapshot
+                 */
+                //기존 프로덕션 신규 스냅샷 생성
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                String dateString = dateFormat.format(new Date());
+                String snapshotName = String.format("Auto saved %s %s Snapshot", dateString, appName);
+                AppSnapshot snapshot = snapshotService.createSnapshot(appName, snapshotName, null);
+
+                /**
+                 * move field
+                 1)created snapshot number => snapshotOld
+                 2)if from snapshot, given snapshot => snapshot.
+                 if not, snapshot is 0
+                 */
+                appStage.setSnapshotOld(snapshot.getId());
+                if (snapshotId == null) {
+                    appStage.setSnapshot(new Long(0));
+                } else {
+                    appStage.setSnapshot(snapshotId);
+                }
+
+                /**
+                 * 3)deployment => deploymentOld
+                 4)marathonAppId => marathonAppIdOld
+                 5)weight => 0
+                 */
+                appStage.setDeployment(newDeployment);
+                appStage.setDeploymentOld(oldDeployment);
+                appStage.setMarathonAppId("/" + newMarathonAppId);
+                appStage.setMarathonAppIdOld("/" + oldMarathonAppId);
+                appStage.getDeploymentStrategy().getCanary().setWeight(0);
+
+
+                /**
+                 * 6) create or update app with current env resources.
+                 */
                 //신규 앱이 있을 경우 업데이트 디플로이
                 if (newMarathonApp != null) {
                     dcosApi.updateApp(newMarathonAppId, deployJson);
@@ -168,112 +212,8 @@ public class DeployAppJob implements Job {
                 else {
                     dcosApi.createApp(deployJson);
                 }
-
-                //신규 앱 디플로이 종료 대기
-                //10분동안 기다리기. 120 * 5s = 300s = 10min
-                int MAX_COUNT = 120;
-                int CURRENT_COUNT = 0;
-                boolean deploySuccess = false;
-                while (true) {
-                    try {
-                        Map deployingApp = dcosApi.getApp(newMarathonAppId);
-
-                        //검증
-                        //앱 배포 중단으로 인해 삭제됨.
-                        if (deployingApp == null) {
-                            System.out.println("Not found deploying marathonApp.");
-                            break;
-                        }
-
-                        Map appMap = (Map) deployingApp.get("app");
-                        Map container = (Map) appMap.get("container");
-                        String deployingDockerImage = ((Map) container.get("docker")).get("image").toString();
-
-                        //앱 배포 중단으로 인해 이미지가 변경되지 않음.
-                        if (!deployingDockerImage.equals(dockerImage)) {
-                            System.out.println("Deploying marathonApp Docker image is " + deployingDockerImage + " , But expect image is " + dockerImage);
-                            break;
-                        }
-                        //중복 시도에 대해서는 로직이 같으므로 같은 결과.
-
-                        //앱 배포 성공
-                        int TASKS_RUNNING = (int) appMap.get("tasksRunning");
-                        int TASKS_HEALTHY = (int) appMap.get("tasksHealthy");
-                        int DEPLOYMENTS_LENGTH = ((List) appMap.get("deployments")).size();
-
-                        if (TASKS_RUNNING == TASKS_HEALTHY && DEPLOYMENTS_LENGTH == 0) {
-                            System.out.println("Deploy completed!!");
-                            deploySuccess = true;
-                            break;
-                        }
-
-                        CURRENT_COUNT++;
-                        if (CURRENT_COUNT > MAX_COUNT) {
-                            System.out.println("Time out. deployment will cancel.");
-                            try {
-                                //블루 그린에서는 삭제하는 것이 맞다.
-                                dcosApi.deleteApp(newMarathonAppId);
-                            } catch (Exception e) {
-
-                            }
-                            break;
-                        } else {
-                            System.out.println("Running deployment..");
-                            Thread.sleep(5000);
-                        }
-                    } catch (Exception ex) {
-                        CURRENT_COUNT++;
-                        if (CURRENT_COUNT > MAX_COUNT) {
-                            System.out.println("Time out. deployment will cancel.");
-                            try {
-                                //블루 그린에서는 삭제하는 것이 맞다.
-                                dcosApi.deleteApp(newMarathonAppId);
-                            } catch (Exception e) {
-
-                            }
-                            break;
-                        } else {
-                            System.out.println("Exception while get deployment app. Running deployment..");
-                            Thread.sleep(5000);
-                        }
-                    }
-                }
-
-
-                //디플로이 성공하였을 경우
-                if (deploySuccess) {
-                    //dcosApp 에 디플로이먼트, 마라톤 아이디 업데이트
-                    appStage.setDeployment(newDeployment);
-                    appStage.setMarathonAppId("/" + newMarathonAppId);
-                    switch (stage) {
-                        case "dev":
-                            appEntity.setDev(appStage);
-                            break;
-                        case "stg":
-                            appEntity.setStg(appStage);
-                            break;
-                        case "prod":
-                            appEntity.setProd(appStage);
-                            break;
-                    }
-                    appJpaRepository.save(appEntity);
-
-                    //ci-deploy-rollback.json 을 생성(ci-deploy-production.json 카피)
-                    appService.copyDeployJson(appName, stage, "rollback");
-
-                    //zuul 라우터 리프레쉬
-                    dcosApi.refreshRoute();
-
-                    //TODO blue/green 스위치를 LB 에서 해결하기. 현재는 일단 롤백용 앱을 남기지 않도록 한다.
-                    dcosApi.deleteApp(oldMarathonAppId);
-
-                    logService.addHistory(appName, AppLogAction.RUN_DEPLOYED_APP, AppLogStatus.SUCCESS, log);
-                } else {
-                    System.out.println("Deployment failed by cancel.");
-
-                    logService.addHistory(appName, AppLogAction.RUN_DEPLOYED_APP, AppLogStatus.FAILED, log);
-                }
             }
+
             //일반 배포인 경우
             else {
                 String marathonAppId = appName + "-" + deployment;
@@ -292,8 +232,21 @@ public class DeployAppJob implements Job {
                         servicePort,
                         deployment,
                         externalUrl,
-                        appEntity
+                        appEntity,
+                        appStage.getDeploymentStrategy()
                 );
+
+                /**
+                 * move field
+                 1)if from snapshot, given snapshot => snapshot.
+                 if not, snapshot is 0
+                 */
+                if (snapshotId == null) {
+                    appStage.setSnapshot(new Long(0));
+                } else {
+                    appStage.setSnapshot(snapshotId);
+                }
+
                 //기존 앱이 있을 경우 업데이트 디플로이
                 if (marathonApp != null) {
                     dcosApi.updateApp(marathonAppId, deployJson);
@@ -302,11 +255,25 @@ public class DeployAppJob implements Job {
                 else {
                     dcosApi.createApp(deployJson);
                 }
-                //라우터 리프레쉬
-                dcosApi.refreshRoute();
-
-                logService.addHistory(appName, AppLogAction.RUN_DEPLOYED_APP, AppLogStatus.SUCCESS, log);
             }
+
+            /**
+             * 7) save app if success
+             */
+            switch (stage) {
+                case "dev":
+                    appEntity.setDev(appStage);
+                    break;
+                case "stg":
+                    appEntity.setStg(appStage);
+                    break;
+                case "prod":
+                    appEntity.setProd(appStage);
+                    break;
+            }
+            appJpaRepository.save(appEntity);
+
+            logService.addHistory(appName, AppLogAction.RUN_DEPLOYED_APP, AppLogStatus.SUCCESS, log);
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -353,7 +320,8 @@ public class DeployAppJob implements Job {
             int servicePort,
             String deployment,
             String externalUrl,
-            AppEntity appEntity
+            AppEntity appEntity,
+            DeploymentStrategy deploymentStrategy
     ) throws Exception {
         AppService appService = ApplicationContextRegistry.getApplicationContext().getBean(AppService.class);
         Map deployJson = appService.getDeployJson(appName, stage);
@@ -427,6 +395,18 @@ public class DeployAppJob implements Job {
             keyMap.put("value", key + "=" + labels.get(key));
             parameters.add(keyMap);
         }
+
+        //DeploymentStrategy
+        Map upgradeStrategy = new HashMap();
+        InstanceStrategy instanceStrategy = deploymentStrategy.getInstanceStrategy();
+        if (InstanceStrategy.RAMP.equals(instanceStrategy)) {
+            upgradeStrategy.put("maximumOverCapacity", deploymentStrategy.getRamp().getMaximumOverCapacity());
+            upgradeStrategy.put("minimumHealthCapacity", 1);
+        } else {
+            upgradeStrategy.put("maximumOverCapacity", 1);
+            upgradeStrategy.put("minimumHealthCapacity", 0);
+        }
+        unmarshal.put("upgradeStrategy", upgradeStrategy);
 
         return JsonUtils.marshal(unmarshal);
     }

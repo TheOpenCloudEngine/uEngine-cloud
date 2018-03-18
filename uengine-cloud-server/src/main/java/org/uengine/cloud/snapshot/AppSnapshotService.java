@@ -52,11 +52,10 @@ public class AppSnapshotService {
      * @return
      * @throws Exception
      */
-    public boolean restoreSnapshot(Long snapshotId, List<String> stages, AppConfigYmlResource overrideResource) throws Exception {
+    public boolean restoreSnapshot(Long snapshotId, List<String> stages, AppConfigYmlResource overrideResource, boolean redeploy) throws Exception {
 
         //스냅샷 복원 검증
         AppSnapshot appSnapshot = this.validateRestoreSnapshot(snapshotId, stages);
-
         String appName = appSnapshot.getAppName();
 
         //vcap 서비스를 적용한다.
@@ -70,30 +69,35 @@ public class AppSnapshotService {
             appService.updateAppConfigYml(appSnapshot.getAppName(), configYmlResource.getCommonYml(), null);
         }
 
+        //스냡샷으로부터 리소스를 복원하고, appEntity 의 snapshot 번호를 업데이트한다. vcap 서비스를 적용한다.
         for (String stage : stages) {
             switch (stage) {
                 case "dev":
                     appService.updateAppConfigYml(appSnapshot.getAppName(), configYmlResource.getDevYml(), stage);
                     appService.updateDeployJson(appSnapshot.getAppName(), stage, configYmlResource.getMesosDev());
+                    break;
                 case "stg":
                     appService.updateAppConfigYml(appSnapshot.getAppName(), configYmlResource.getStgYml(), stage);
                     appService.updateDeployJson(appSnapshot.getAppName(), stage, configYmlResource.getMesosStg());
+                    break;
                 case "prod":
                     appService.updateAppConfigYml(appSnapshot.getAppName(), configYmlResource.getProdYml(), stage);
                     appService.updateDeployJson(appSnapshot.getAppName(), stage, configYmlResource.getMesosProd());
+                    break;
             }
 
             //과거에 활성화 가능했던 스테이지인지 확인한다.
             String commit = this.getCommitRefFromSnapshot(appSnapshot, stage);
+            if (redeploy) {
+                //커밋이 없다면 현재 앱을 삭제하도록 한다.
+                if (StringUtils.isEmpty(commit)) {
+                    appService.removeDeployedApp(appName, stage);
+                }
 
-            //커밋이 없다면 현재 앱을 삭제하도록 한다.
-            if (StringUtils.isEmpty(commit)) {
-                appService.removeDeployedApp(appName, stage);
-            }
-
-            //커밋이 있다면 앱을 배포한다.
-            else {
-                appService.runDeployedApp(appName, stage, commit);
+                //커밋이 있다면 앱을 배포한다.
+                else {
+                    appService.runDeployedApp(appName, stage, commit, appSnapshot.getId(), true);
+                }
             }
         }
         return true;
@@ -225,7 +229,7 @@ public class AppSnapshotService {
 
         //name 생성
         if (StringUtils.isEmpty(snapshotName)) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             String dateString = dateFormat.format(new Date());
             snapshotName = String.format("%s %s Snapshot", dateString, appName);
         }

@@ -67,12 +67,14 @@ public class AppService {
      * @return
      * @throws Exception
      */
-    public void runDeployedApp(String appName, String stage, String commit) throws Exception {
+    public void runDeployedApp(String appName, String stage, String commit, Long snapshotId, boolean exchange) throws Exception {
 
         Map data = new HashMap();
         data.put("appName", appName);
         data.put("stage", stage);
         data.put("commit", commit);
+        data.put("snapshotId", snapshotId);
+        data.put("exchange", exchange);
 
         //디플로이 백그라운드 작업 시작.
         jobScheduler.startJobImmediatly(UUID.randomUUID().toString(), "deployedApp", data);
@@ -691,8 +693,6 @@ public class AppService {
         prod.setExternal(appCreate.getExternalProdDomain());
         prod.setInternal(appCreate.getInternalProdDomain());
         prod.setDeployment("green");
-        prod.setSticky(false);
-        prod.setWeight(100);
         appEntity.setProd(prod);
 
         AppStage stg = new AppStage();
@@ -701,8 +701,6 @@ public class AppService {
         stg.setExternal(appCreate.getExternalStgDomain());
         stg.setInternal(appCreate.getInternalStgDomain());
         stg.setDeployment("stg");
-        stg.setSticky(false);
-        stg.setWeight(100);
         appEntity.setStg(stg);
 
 
@@ -712,8 +710,6 @@ public class AppService {
         dev.setExternal(appCreate.getExternalDevDomain());
         dev.setInternal(appCreate.getInternalDevDomain());
         dev.setDeployment("dev");
-        dev.setSticky(false);
-        dev.setWeight(100);
         appEntity.setDev(dev);
 
         //생성 상태 저장
