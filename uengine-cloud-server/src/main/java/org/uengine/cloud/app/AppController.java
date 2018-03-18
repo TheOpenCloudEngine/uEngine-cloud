@@ -161,14 +161,14 @@ public class AppController {
     }
 
     /**
-     * 앱을 롤백한다.
+     * Remove current production. (rollback old production)
      *
      * @param request
      * @param response
      * @param appName  앱 이름
      * @throws Exception
      */
-    @RequestMapping(value = "/{appName}/rollback", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    @RequestMapping(value = "/{appName}/rollback", method = RequestMethod.DELETE, produces = "application/json;charset=UTF-8")
     public void rollbackDeployedApp(HttpServletRequest request,
                                     HttpServletResponse response,
                                     @PathVariable("appName") String appName
@@ -180,6 +180,30 @@ public class AppController {
             logService.addHistory(appName, AppLogAction.ROLLBACK_DEPLOYED_APP, AppLogStatus.SUCCESS, null);
         } catch (Exception ex) {
             logService.addHistory(appName, AppLogAction.ROLLBACK_DEPLOYED_APP, AppLogStatus.FAILED, null);
+            throw ex;
+        }
+    }
+
+    /**
+     * Remove old production. (remove rollback)
+     *
+     * @param request
+     * @param response
+     * @param appName  앱 이름
+     * @throws Exception
+     */
+    @RequestMapping(value = "/{appName}/removeRollback", method = RequestMethod.DELETE, produces = "application/json;charset=UTF-8")
+    public void removeRollbackDeployedApp(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    @PathVariable("appName") String appName
+    ) throws Exception {
+        try {
+            appService.removeRollbackDeployedApp(appName);
+            response.setStatus(200);
+
+            logService.addHistory(appName, AppLogAction.REMOVE_ROLLBACK_DEPLOYED_APP, AppLogStatus.SUCCESS, null);
+        } catch (Exception ex) {
+            logService.addHistory(appName, AppLogAction.REMOVE_ROLLBACK_DEPLOYED_APP, AppLogStatus.FAILED, null);
             throw ex;
         }
     }

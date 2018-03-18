@@ -37,26 +37,44 @@ public class DeploymentStrategy {
     }
 
     public Ramp getRamp() {
+        if(ramp == null){
+            ramp = new Ramp();
+        }
         return ramp;
     }
 
     public void setRamp(Ramp ramp) {
+        if(ramp == null){
+            ramp = new Ramp();
+        }
         this.ramp = ramp;
     }
 
     public Canary getCanary() {
+        if(canary == null){
+            canary = new Canary();
+        }
         return canary;
     }
 
     public void setCanary(Canary canary) {
+        if(canary == null){
+            canary = new Canary();
+        }
         this.canary = canary;
     }
 
     public AbTest getAbtest() {
+        if(abtest == null){
+            abtest = new AbTest();
+        }
         return abtest;
     }
 
     public void setAbtest(AbTest abtest) {
+        if(abtest == null){
+            abtest = new AbTest();
+        }
         this.abtest = abtest;
     }
 }

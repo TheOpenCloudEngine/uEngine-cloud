@@ -57,9 +57,30 @@ public class AppSnapshotService {
         //스냅샷 복원 검증
         AppSnapshot appSnapshot = this.validateRestoreSnapshot(snapshotId, stages);
         String appName = appSnapshot.getAppName();
+        AppEntity appEntity = appJpaRepository.findOne(appName);
 
-        //vcap 서비스를 적용한다.
-        appService.addAppToVcapService(appSnapshot.getApp(), stages);
+        //스냅샷으로부터 external 호스트를 가져와 vcap 서비스로 적용한다.
+        for (String stage : stages) {
+            AppStage appStage = null;
+            switch (stage) {
+                case "dev":
+                    appStage = appEntity.getDev();
+                    appStage.setExternal(appSnapshot.getApp().getDev().getExternal());
+                    appEntity.setDev(appStage);
+                    break;
+                case "stg":
+                    appStage = appEntity.getStg();
+                    appStage.setExternal(appSnapshot.getApp().getStg().getExternal());
+                    appEntity.setStg(appStage);
+                    break;
+                case "prod":
+                    appStage = appEntity.getProd();
+                    appStage.setExternal(appSnapshot.getApp().getProd().getExternal());
+                    appEntity.setProd(appStage);
+                    break;
+            }
+        }
+        appService.updateAppExcludeDeployJson(appName, appEntity);
 
         //리소스 수정: overrideResource 존재시 덮어씀.
         AppConfigYmlResource configYmlResource = overrideResource == null ? appSnapshot.getAppConfigYmlResource() : overrideResource;
@@ -69,7 +90,7 @@ public class AppSnapshotService {
             appService.updateAppConfigYml(appSnapshot.getAppName(), configYmlResource.getCommonYml(), null);
         }
 
-        //스냡샷으로부터 리소스를 복원하고, appEntity 의 snapshot 번호를 업데이트한다. vcap 서비스를 적용한다.
+        //스냡샷으로부터 리소스를 복원한다.
         for (String stage : stages) {
             switch (stage) {
                 case "dev":

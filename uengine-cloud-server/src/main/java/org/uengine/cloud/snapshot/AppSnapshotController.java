@@ -81,7 +81,7 @@ public class AppSnapshotController {
                                 @PathVariable("appName") String appName,
                                 @PathVariable("snapshotId") Long snapshotId,
                                 @RequestParam(value = "stages") String stages,
-                                @RequestParam(defaultValue = "true", value = "stages") boolean redeploy,
+                                @RequestParam(defaultValue = "true", value = "redeploy") boolean redeploy,
                                 @RequestBody(required = false) AppConfigYmlResource overrideResource
     ) throws Exception {
         Map log = new HashMap();

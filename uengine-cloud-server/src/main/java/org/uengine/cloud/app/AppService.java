@@ -9,6 +9,7 @@ import org.gitlab4j.api.GitLabApi;
 import org.gitlab4j.api.models.Project;
 import org.gitlab4j.api.models.User;
 import org.uengine.cloud.scheduler.CronTable;
+import org.uengine.cloud.snapshot.AppSnapshotService;
 import org.uengine.iam.client.IamClient;
 import org.uengine.iam.client.ResourceOwnerPasswordCredentials;
 import org.uengine.iam.client.TokenType;
@@ -59,6 +60,9 @@ public class AppService {
     @Autowired
     private CronTable cronTable;
 
+    @Autowired
+    private AppSnapshotService snapshotService;
+
     /**
      * 어플리케이션의 주어진 스테이지의 마라톤 서비스를 재기동한다.
      *
@@ -84,7 +88,16 @@ public class AppService {
     }
 
     /**
-     * 프로덕션 환경의 blue,green 을 변경한다.
+     * Case. Remove current production. (old rollback)
+     * <p>
+     * 1.move field (set old production to current production)
+     * 1)snapshotOld => snapshot
+     * 2)deploymentOld => deployment
+     * 3)marathonAppIdOld => marathonAppId
+     * 4)weight => 100
+     * <p>
+     * 2.load old production snapshot, and restoreSnapshot without redeployment.
+     * 3.remove current production.
      *
      * @param appName
      * @throws Exception
@@ -113,25 +126,80 @@ public class AppService {
         }
 
         //dcosApp 에 롤백을 프로덕션으로 등록한다.
+        Long snapshotOld = prod.getSnapshotOld();
+        prod.setSnapshot(snapshotOld);
         prod.setDeployment(rollbackDeployment);
         prod.setMarathonAppId(rollbackMarathonAppId);
+
+        prod.setSnapshotOld(null);
+        prod.setMarathonAppIdOld(null);
+        prod.setDeploymentOld(deployment);
+
+        prod.getDeploymentStrategy().getCanary().setWeight(100);
         appEntity.setProd(prod);
 
         appJpaRepository.save(appEntity);
 
-        //ci-deploy-rollback.json 을  ci-deploy-production.json 으로.
+        //load old production snapshot, and restoreSnapshot without redeployment.
+        List<String> stages = new ArrayList<>();
+        stages.add("prod");
+        snapshotService.restoreSnapshot(snapshotOld, stages, null, false);
+
+        //remove current production.
         try {
-            this.copyDeployJson(appName, "rollback", "prod");
+            dcosApi.deleteApp(currentMarathonAppId);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
 
-        //라우터 리프레쉬
-        dcosApi.refreshRoute();
+    /**
+     * Case. Remove old production.
+     * <p>
+     * 1.move field
+     * 1)snapshotOld => 0
+     * 2)weight => 100
+     * <p>
+     * 2.remove old app
+     *
+     * @param appName
+     * @throws Exception
+     */
+    public void removeRollbackDeployedApp(String appName) throws Exception {
+        AppEntity appEntity = appJpaRepository.findOne(appName);
 
-        //기존 프로덕션은 삭제한다.
+        AppStage prod = appEntity.getProd();
+        String deployment = prod.getDeployment();
+
+        //삭제할 롤백 마라톤 앱이 있는지 확인한다.
+        String rollbackDeployment = null;
+        String rollbackMarathonAppId = null;
+        if (deployment.equals("blue")) {
+            rollbackDeployment = "green";
+            rollbackMarathonAppId = "/" + appName + "-green";
+        } else {
+            rollbackDeployment = "blue";
+            rollbackMarathonAppId = "/" + appName + "-blue";
+        }
+
+        Map marathonApp = dcosApi.getApp(rollbackMarathonAppId);
+        if (marathonApp == null) {
+            throw new Exception("Not found marathon app to remove rollback, " + rollbackMarathonAppId);
+        }
+
+        //1.move field
+        prod.setSnapshotOld(null);
+        prod.setMarathonAppIdOld(null);
+        prod.setDeploymentOld(rollbackDeployment);
+
+        prod.getDeploymentStrategy().getCanary().setWeight(100);
+        appEntity.setProd(prod);
+
+        appJpaRepository.save(appEntity);
+
+        //remove old app
         try {
-            dcosApi.deleteApp(currentMarathonAppId);
+            dcosApi.deleteApp(rollbackMarathonAppId);
         } catch (Exception ex) {
             ex.printStackTrace();
         }

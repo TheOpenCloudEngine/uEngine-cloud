@@ -197,6 +197,7 @@ public class AppEntity {
         this.configPassword = configPassword;
     }
 
+    @JsonIgnore
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "apps")
     private Set<AppGroup> groups = new HashSet<>();
 
