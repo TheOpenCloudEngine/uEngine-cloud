@@ -435,14 +435,17 @@ public class AppService {
         //appMap 최종 업로드
         AppStage dev = appEntity.getDev();
         dev.setDeployJson(null);
+        dev.setMesos(null);
         appEntity.setDev(dev);
 
         AppStage stg = appEntity.getStg();
         stg.setDeployJson(null);
+        stg.setMesos(null);
         appEntity.setStg(stg);
 
         AppStage prod = appEntity.getProd();
         prod.setDeployJson(null);
+        prod.setMesos(null);
         appEntity.setProd(prod);
         appJpaRepository.save(appEntity);
 
@@ -467,14 +470,17 @@ public class AppService {
         //appMap 최종 업로드
         AppStage dev = appEntity.getDev();
         dev.setDeployJson(null);
+        dev.setMesos(null);
         appEntity.setDev(dev);
 
         AppStage stg = appEntity.getStg();
         stg.setDeployJson(null);
+        stg.setMesos(null);
         appEntity.setStg(stg);
 
         AppStage prod = appEntity.getProd();
         prod.setDeployJson(null);
+        prod.setMesos(null);
         appEntity.setProd(prod);
 
         appJpaRepository.save(appEntity);

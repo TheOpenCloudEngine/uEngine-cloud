@@ -35,6 +35,7 @@ import time
 import datetime
 import io
 import os.path
+import difflib
 
 from itertools import cycle
 from operator import attrgetter
@@ -365,7 +366,6 @@ def config(apps, groups, bind_http_https, ssl_certs, templater,
            haproxy_map=False, domain_map_array=[], app_map_array=[],
            config_file="/etc/haproxy/haproxy.cfg", devopsapps={}):
     logger.info("config")
-    logger.info(devopsapps)
 
     config = templater.haproxy_head
     groups = frozenset(groups)
@@ -423,60 +423,80 @@ def config(apps, groups, bind_http_https, ssl_certs, templater,
         isNewProd = False
         isOldProd = False
         newProdAppId = None
+        oldProdAppId = None
         newProdWeight = None
         oldProdWeight = None
+        useCanary = False
         if isDevApp:
             if app.appId.endswith('-dev'):
                 stage = 'dev'
                 currentDeployment = 'dev'
                 app.servicePort = devopsApp['dev']['servicePort']
-                if 'sticky' in devopsApp['dev']:
-                    app.sticky = devopsApp['dev']['sticky']
+
+                if 'deploymentStrategy' in devopsApp['dev']:
+                    app.sticky = devopsApp['dev']['deploymentStrategy']['sticky']
 
             elif app.appId.endswith('-stg'):
                 stage = 'stg'
                 currentDeployment = 'stg'
                 app.servicePort = devopsApp['stg']['servicePort']
-                if 'sticky' in devopsApp['stg']:
-                    app.sticky = devopsApp['stg']['sticky']
+
+                if 'deploymentStrategy' in devopsApp['stg']:
+                    app.sticky = devopsApp['stg']['deploymentStrategy']['sticky']
+
             elif app.appId.endswith('-blue') or app.appId.endswith('-green'):
                 stage = 'prod'
                 currentDeployment = devopsApp['prod']['deployment']
-                if 'sticky' in devopsApp['prod']:
-                    app.sticky = devopsApp['prod']['sticky']
 
-                if 'weight' in devopsApp['prod']:
-                    oldProdWeight = devopsApp['prod']['weight']
-                if oldProdWeight is None:
-                    oldProdWeight = 100
-                newProdWeight = 100 - oldProdWeight
+                if 'deploymentStrategy' in devopsApp['prod']:
+                    app.sticky = devopsApp['prod']['deploymentStrategy']['sticky']
 
-                if app.appId.endswith(currentDeployment):
-                    isNewProd = False
-                    isOldProd = True
-                    if currentDeployment == 'blue':
-                        newProdAppId = '/' + devopsAppId + '-green'
+                    useCanary = devopsApp['prod']['deploymentStrategy']['canary']['active']
+                    if useCanary is False:
+                        newProdWeight = 100
+                        oldProdWeight = 0
                     else:
-                        newProdAppId = '/' + devopsAppId + '-blue'
+                        newProdWeight = devopsApp['prod']['deploymentStrategy']['canary']['weight']
+                        oldProdWeight = 100 - newProdWeight
 
-                    app.servicePort = devopsApp['prod']['servicePort']
+
+                if currentDeployment == 'blue':
+                    newProdAppId = '/' + devopsAppId + '-blue'
+                    oldProdAppId = '/' + devopsAppId + '-green'
                 else:
+                    newProdAppId = '/' + devopsAppId + '-green'
+                    oldProdAppId = '/' + devopsAppId + '-blue'
+                if app.appId.endswith(currentDeployment):
                     isNewProd = True
                     isOldProd = False
-                    app.servicePort = devopsApp['prod']['servicePort'] + 10000
+
+                else:
+                    isNewProd = False
+                    isOldProd = True
 
         logger.info('isNewProd %s', isNewProd)
 
-        # If oldApp, get newApp for aggregate servers
+        # Get oldProdMarathonApp and newProdMarathonApp
+        oldProdMarathonApp = None
         newProdMarathonApp = None
-        if isOldProd:
+        if isNewProd or isOldProd:
             for _app in sorted(apps, key=attrgetter('appId', 'servicePort')):
+                if _app.appId == oldProdAppId:
+                    oldProdMarathonApp = _app
                 if _app.appId == newProdAppId:
                     newProdMarathonApp = _app
 
-        # If oldprod and newProdMarathonApp is None, all traffic go to oldprod
-        if isOldProd and newProdMarathonApp is None:
-            oldProdWeight = 100
+        # If newApp exist and oldProdMarathonApp is None, all traffic go to newApp && servicePort use
+        # else oldProdMarathonApp exist, servicePort +10000 used to newApp, servicePort uses to oldProdMarathonApp
+        if isNewProd:
+            if oldProdMarathonApp is None:
+                newProdWeight = 100
+                app.servicePort = devopsApp['prod']['servicePort']
+            else:
+                app.servicePort = devopsApp['prod']['servicePort'] + 10000
+        if isOldProd:
+            app.servicePort = devopsApp['prod']['servicePort']
+
 
         backend = app.appId[1:].replace('/', '_') + '_' + str(app.servicePort)
         logger.debug("frontend at %s:%d with backend %s",
@@ -520,8 +540,13 @@ def config(apps, groups, bind_http_https, ssl_certs, templater,
         # TODO(lloesche): Check if the hostname is already defined by another
         # service
 
-        # exclude vhostmap new production application
-        if isNewProd is False:
+
+        # if isNewProd and old exist, vhost to should old.
+        enalbleVhost = True
+        if isNewProd and oldProdMarathonApp is not None:
+            enalbleVhost = False
+
+        if enalbleVhost:
             if bind_http_https and app.hostname:
                 backend_weight, p_fe, s_fe = \
                     generateHttpVhostAcl(templater,
@@ -716,7 +741,7 @@ def config(apps, groups, bind_http_https, ssl_certs, templater,
                     weightOptions=' weight 1'
                 )
 
-        if isOldProd and newProdMarathonApp is not None:
+        if isOldProd:
             logger.debug('newProdMarathonApp %s', newProdMarathonApp)
             for new_backend_service_idx, newBackendServer \
                     in enumerate(sorted(newProdMarathonApp.backends, key=key_func)):
@@ -739,7 +764,6 @@ def config(apps, groups, bind_http_https, ssl_certs, templater,
 
                 new_backend_server_options = templater.haproxy_backend_server_options(newProdMarathonApp)
 
-                aaa = str(calculateWeight(newProdWeight, len(newProdMarathonApp.backends)))
                 logger.debug(newProdWeight)
                 backends += new_backend_server_options.format(
                     host=newBackendServer.host,
@@ -1807,18 +1831,33 @@ class MarathonEventProcessor(object):
         # Fetch the base data
         self.reset_from_tasks()
 
+    # def show_diff(text, n_text):
+    #     """
+    #     http://stackoverflow.com/a/788780
+    #     Unify operations between two compared strings seqm is a difflib.
+    #     SequenceMatcher instance whose a & b are strings
+    #     """
+    #     for diff in difflib.context_diff(text, n_text):
+    #         sys.stdout.write(diff)
+    #     return ''
+
     # Devpos App file check thread
     def fileCheck(self):
-        waitSeconds = 1
+        waitSeconds = 2
         while True:
             try:
                 if self.__lastFile is None or self.__lastFile == '{}':
+                    logger.info('First load devopsJson')
                     self.__lastFile = getDevopsJson()
 
                 elif self.__isLoaded:
 
                     newFile = getDevopsJson()
                     if self.__lastFile != newFile:
+
+                        for diff in difflib.context_diff(self.__lastFile, newFile):
+                            logger.info(diff)
+
                         logger.info('Devops File Updated!!')
                         self.__lastFile = newFile
                         self.do_reset()
@@ -1835,11 +1874,10 @@ class MarathonEventProcessor(object):
         waitSeconds = 1
         while True:
             try:
-                #cloud_server
+                # cloud_server
                 file_path = 'utils/devopsapps.json'
                 r = requests.get(args.cloud_server + '/fetchLBData')
                 if r.status_code == 200:
-
                     with io.open(file_path, 'w', encoding='utf8') as f:
                         f.write(str(r.content, 'utf8'))
                         f.close()

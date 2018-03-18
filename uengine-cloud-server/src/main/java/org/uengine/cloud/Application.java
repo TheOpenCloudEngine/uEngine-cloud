@@ -70,6 +70,9 @@ public class Application {
         List<AppEntity> appEntityList = cronTable.getAppEntityList();
         Map apps = new HashMap();
         for (int i = 0; i < appEntityList.size(); i++) {
+            appEntityList.get(i).setMembers(null);
+            appEntityList.get(i).setAccessLevel(0);
+            appEntityList.get(i).setGroups(null);
             apps.put(appEntityList.get(i).getName(), appEntityList.get(i));
         }
         return apps;

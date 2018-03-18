@@ -14,7 +14,8 @@
     "--reload-interval",
     "10",
     "--group",
-    "external"
+    "external",
+    "--cloud-server http://marathon-lb-internal.marathon.mesos:10005"
   ],
   "backoffFactor": 1.15,
   "backoffSeconds": 1,
@@ -22,7 +23,7 @@
     "type": "DOCKER",
     "volumes": [],
     "docker": {
-      "image": "@host.registry.package@/marathon-lb:v1.11.2",
+      "image": "@host.registry.package@/uengine-lb:v1",
       "forcePullImage": false,
       "privileged": true,
       "parameters": [
