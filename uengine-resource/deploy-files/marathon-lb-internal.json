@@ -13,7 +13,8 @@
     "10",
     "--group",
     "internal",
-    "--cloud-server http://marathon-lb-internal.marathon.mesos:10005"
+    "--cloud-server",
+    "http://marathon-lb-internal.marathon.mesos:10005"
   ],
   "backoffFactor": 1.15,
   "backoffSeconds": 1,
