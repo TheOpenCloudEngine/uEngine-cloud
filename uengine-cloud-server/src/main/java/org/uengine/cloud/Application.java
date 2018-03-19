@@ -64,15 +64,16 @@ public class Application {
     //findAll
     @RequestMapping(value = "/fetchLBData", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public Map fetchLBData(HttpServletRequest request,
-                         HttpServletResponse response
+                           HttpServletResponse response
     ) throws Exception {
 
         List<AppEntity> appEntityList = cronTable.getAppEntityList();
         Map apps = new HashMap();
         for (int i = 0; i < appEntityList.size(); i++) {
-            appEntityList.get(i).setMembers(null);
-            appEntityList.get(i).setAccessLevel(0);
-            apps.put(appEntityList.get(i).getName(), appEntityList.get(i));
+            Map<String, Object> map = JsonUtils.convertClassToMap(appEntityList.get(i));
+            map.put("members", null);
+            map.put("accessLevel", 0);
+            apps.put(appEntityList.get(i).getName(), map);
         }
         return apps;
     }
@@ -90,8 +91,9 @@ public class Application {
         //어드민일 경우 전부 리턴, 아닐 경우 어세스레벨 별로 리턴
         if (oauthUser == null) {
             appEntityList = new ArrayList<>();
+            System.out.println(String.format("fetchData oauthUser %s", "None"));
         } else if ("admin".equals(oauthUser.getMetaData().get("acl"))) {
-
+            System.out.println(String.format("fetchData oauthUser %s, acl %s", oauthUser.getUserName(), "admin"));
         } else {
             List<AppEntity> list = new ArrayList<>();
             for (int i = 0; i < appEntityList.size(); i++) {
@@ -99,6 +101,8 @@ public class Application {
                     list.add(appEntityList.get(i));
                 }
             }
+            System.out.println(String.format("fetchData oauthUser %s, acl %s, avail size %s"
+                    , oauthUser.getUserName(), oauthUser.getMetaData().get("acl"), list.size()));
             appEntityList = list;
         }
 
@@ -135,7 +139,6 @@ public class Application {
         System.setProperty("org.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH", "true");
         new SpringApplicationBuilder(Application.class).web(true).run(args);
     }
-
 
 
 }

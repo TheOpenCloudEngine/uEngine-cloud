@@ -26,13 +26,10 @@
               <md-table-cell>
                 <a v-if="app.role" v-on:click="moveService(app.id)" style="cursor: pointer;margin-left: 30px">
                 <span v-if="app.role == 'prod'">
-                  프로덕션
-                </span>
-                  <span v-if="app.role == 'newProd' && app.deployments.length">
                   프로덕션(신규)
                 </span>
-                  <span v-if="app.role == 'newProd' && !app.deployments.length">
-                  프로덕션(롤백)
+                  <span v-if="app.role == 'oldProd'">
+                  프로덕션(이전)
                 </span>
                   <span v-if="app.role == 'stg'">
                   스테이징

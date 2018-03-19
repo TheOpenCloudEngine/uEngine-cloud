@@ -377,19 +377,19 @@
       getAppsByDevopsId: function (appName) {
         var devApp = this.getDevopsAppById(appName);
         if (devApp) {
-          var newProd;
+          var oldProd;
           if (devApp.prod.deployment == 'green') {
-            newProd = this.getDcosAppById('/' + appName + '-blue');
+            oldProd = this.getDcosAppById('/' + appName + '-blue');
           } else {
-            newProd = this.getDcosAppById('/' + appName + '-green');
+            oldProd = this.getDcosAppById('/' + appName + '-green');
           }
           var data = {
             prod: this.getDcosAppById(devApp.prod['marathonAppId']),
             stg: this.getDcosAppById(devApp.stg['marathonAppId']),
             dev: this.getDcosAppById(devApp.dev['marathonAppId'])
           };
-          if (newProd) {
-            data.newProd = newProd;
+          if (oldProd) {
+            data.oldProd = oldProd;
           }
           return data;
         } else {
@@ -422,7 +422,7 @@
         var me = this;
         me.$root.$children[0].block();
         this.$root.backend('app/' + appName + '/rollback')
-          .save({})
+          .remove({})
           .then(
             function (response) {
               me.$root.$children[0].success('어플리케이션을 롤백 하였습니다.');
@@ -432,6 +432,28 @@
             },
             function (response) {
               me.$root.$children[0].error('어플리케이션을 롤백 할 수 없습니다.');
+              if (cb) {
+                cb(response);
+              }
+            })
+          .finally(function () {
+            me.$root.$children[0].unblock();
+          });
+      },
+      removeRollbackDevApp: function (appName, cb) {
+        var me = this;
+        me.$root.$children[0].block();
+        this.$root.backend('app/' + appName + '/removeRollback')
+          .remove({})
+          .then(
+            function (response) {
+              me.$root.$children[0].success('앱의 이전 버전을 삭제하였습니다.');
+              if (cb) {
+                cb(response);
+              }
+            },
+            function (response) {
+              me.$root.$children[0].error('앱의 이전 버전을 삭제 할 수 없습니다.');
               if (cb) {
                 cb(response);
               }
@@ -545,30 +567,63 @@
           });
       },
       runDeployedApp: function (appName, stage, commit, cb) {
+        //프로덕션을 배포할 경우 override confirm
         var me = this;
-        var url = 'app/' + appName + '/deploy?stage=' + stage;
-        if (commit) {
-          url = url + '&commit=' + commit;
+        var run = function (exchange) {
+          var url = 'app/' + appName + '/deploy?stage=' + stage + '&exchange=' + exchange;
+          if (commit) {
+            url = url + '&commit=' + commit;
+          }
+          me.$root.$children[0].block();
+          me.$root.backend(url)
+            .save({})
+            .then(
+              function (response) {
+                me.$root.$children[0].success("앱 배포를 시작하였습니다.");
+                if (cb) {
+                  cb(response);
+                }
+              },
+              function (response) {
+                me.$root.$children[0].error("앱 배포 요청에 실패하였습니다.");
+                if (cb) {
+                  cb(response);
+                }
+              })
+            .finally(function () {
+              me.$root.$children[0].unblock();
+            });
         }
-        me.$root.$children[0].block();
-        this.$root.backend(url)
-          .save({})
-          .then(
-            function (response) {
-              me.$root.$children[0].success("앱 배포를 시작하였습니다.");
-              if (cb) {
-                cb(response);
-              }
-            },
-            function (response) {
-              me.$root.$children[0].error("앱 배포 요청에 실패하였습니다.");
-              if (cb) {
-                cb(response);
-              }
-            })
-          .finally(function () {
-            me.$root.$children[0].unblock();
-          });
+
+        var appsByDevopsId = me.getAppsByDevopsId(appName);
+        if (stage == 'prod' && appsByDevopsId.prod) {
+          me.getDevAppByName(appName, function (response, error) {
+            if (response && response.data.prod.deploymentStrategy.bluegreen) {
+              me.$root.$children[0].confirm2(
+                {
+                  title: 'Caution!!',
+                  contentHtml: appName + ' 의 프로덕션 앱이 이미 존재합니다. 어떤 방법으로 진행하겠습니까?',
+                  okText: '진행하기',
+                  cancelText: '취소',
+                  choice: [
+                    'exchange blue/green',
+                    'override current production. used to just compute resource upgrade, or redistribute instances that are not exposed to user traffic.'
+                  ],
+                  callback: function (selected) {
+                    if (selected == 0) {
+                      run(true);
+                    } else {
+                      run(false);
+                    }
+                  }
+                });
+            } else {
+              run(false);
+            }
+          })
+        } else {
+          run(false);
+        }
       },
       removeDevAppByName: function (appName, cb) {
         var me = this;
@@ -657,7 +712,6 @@
               me.$root.$children[0].success('어플리케이션 환경 정보를 저장하였습니다.');
 
               me.runDeployedAppByExistStages(appName, stage);
-
               if (cb) {
                 cb(response);
               }
@@ -809,6 +863,34 @@
             cb(selected, null);
           }, function (response) {
             cb(null, response);
+          });
+      },
+      getSnapshotById: function (snapshotId, cb) {
+        this.$root.backend('snapshots/' + snapshotId).get()
+          .then(function (response) {
+            cb(response);
+          }, function (response) {
+            cb(null, response);
+          })
+      },
+      createSnapshot: function (appName, snapshotName, cb) {
+        var me = this;
+        me.$root.$children[0].block();
+        var url = 'app/' + appName + '/snapshot';
+        if (snapshotName) {
+          url = url + '?name=' + encodeURI(snapshotName);
+        }
+        this.$root.backend(url)
+          .save({})
+          .then(function (response) {
+            me.$root.$children[0].success('스냅샷을 생성하였습니다.');
+            cb(response);
+          }, function (response) {
+            me.$root.$children[0].error('스냅샷을 생성할 수 없습니다.');
+            cb(null, response);
+          })
+          .finally(function () {
+            me.$root.$children[0].unblock();
           });
       }
     }

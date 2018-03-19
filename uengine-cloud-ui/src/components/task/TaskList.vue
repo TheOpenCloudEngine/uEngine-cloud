@@ -33,7 +33,7 @@
           <md-table-body>
             <md-table-row v-for="(task, index) in list">
               <md-table-cell>
-                <a v-on:click="moveDetail(task)" style="cursor: pointer">{{task.id}} {{task.rollback}}</a>
+                <a v-on:click="moveDetail(task)" style="cursor: pointer">{{task.id}}</a>
               </md-table-cell>
               <md-table-cell v-if="!simple">{{task.name}}</md-table-cell>
               <md-table-cell v-if="!simple">{{task.host}}</md-table-cell>
@@ -118,14 +118,6 @@
         var list = [];
         me.list = [];
 
-        var rollbackMarathonApp = null;
-        if (me.appName) {
-          var apps = me.getAppsByDevopsId(me.appName);
-          if (apps && apps.newProd) {
-            rollbackMarathonApp = apps.newProd;
-          }
-        }
-
         if (this.appId) {
           list = me.getTasksByAppId(me.appId);
         } else if (this.nodeId) {
@@ -134,38 +126,13 @@
           $.each(me.appIds, function (i, id) {
             var temp = me.getTasksByAppId(id);
             if (temp != null) {
-              //롤백용 마라톤 어플인 경우
-              if (rollbackMarathonApp && rollbackMarathonApp.id == id) {
-                $.each(temp, function (t, task) {
-                  //타스크 동작중인 것에만 해당함.
-                  if (task.state == 'TASK_RUNNING') {
-                    //디픞로이중이면 신규, 아니면 롤백
-                    if (rollbackMarathonApp.deployments.length) {
-                      task.rollback = '(신규)';
-                    } else {
-                      task.rollback = '(롤백)';
-                    }
-                  }
-                });
-              }
               list = list.concat(temp);
             }
           });
         }
-        //dev,stg,prod => prod 는 블루,그린 모두
+
         if (list == null) {
           return;
-        }
-
-        //rollbackMarathonApp 인 경우 롤백, 신규 구분
-        $.each(list, function (i, task) {
-//          if(task.state == 'TASK_RUNNING' && task.id.indexOf()){
-//
-//          }
-          //console.log(task.id);
-        });
-        if (rollbackMarathonApp) {
-
         }
 
         var metronomeId;

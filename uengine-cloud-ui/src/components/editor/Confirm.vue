@@ -4,6 +4,19 @@
     <md-dialog-title>{{title}}</md-dialog-title>
     <md-dialog-content>
       <span>{{contentHtml}}</span>
+      <div v-if="choice">
+        <div v-for="(item,index) in choice">
+          <md-radio v-model="choiceValue" :mdValue="index">
+            <span>{{item}}</span>
+          </md-radio>
+        </div>
+      </div>
+      <div v-if="prompt" style="width: 400px">
+        <md-input-container>
+          <label>{{promptLabel}}</label>
+          <md-input v-model="promptValue" type="text"></md-input>
+        </md-input-container>
+      </div>
     </md-dialog-content>
     <md-dialog-actions>
       <md-button class="md-primary" @click="action">{{okText}}</md-button>
@@ -16,8 +29,13 @@
     props: {},
     data() {
       return {
+        choiceValue: 0,
         title: '',
         contentHtml: '',
+        choice: null,
+        prompt: false,
+        promptValue: '',
+        promptLabel: '',
         okText: '',
         cancelText: '',
         callback: function () {
@@ -25,17 +43,27 @@
         }
       }
     },
-    mounted(){
+    mounted() {
 
     }
     ,
     methods: {
       action: function () {
         this.close();
-        this.callback();
+        if(this.choice){
+          this.callback(this.choiceValue);
+        }else if(this.prompt){
+          this.callback(this.promptValue);
+        }else{
+          this.callback();
+        }
       },
       open(options) {
         var me = this;
+        me.promptLabel = me.promptLabel || '';
+        me.promptValue = options.promptValue || '';
+        me.prompt = options.prompt || false;
+        me.choice = options.choice || null;
         me.title = options.title || 'Are you sure?';
         me.contentHtml = options.contentHtml || '진행하시겠습니까?';
         me.okText = options.okText || '수락';

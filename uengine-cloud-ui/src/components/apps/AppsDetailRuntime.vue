@@ -33,7 +33,7 @@
           </md-button>
         </md-layout>
         <md-layout>
-          <md-button class="md-raised"
+          <md-button v-if="!isRollback" class="md-raised"
                      v-on:click="openEdit">
             <md-tooltip md-direction="bottom">보다 자세히 앱의 구동 설정을 꾸밀 수 있습니다.</md-tooltip>
             고급 설정
@@ -51,8 +51,7 @@
     <app-editor ref="app-editor" :appId="targetAppId" :mode="'app'"></app-editor>
 
     <br><br>
-    <div v-if="menu == appType">
-
+    <div v-if="menu == appType && !isRollback">
       <extension-menu
         ref="extension-menu"
         :appType="appType"
@@ -66,18 +65,22 @@
         :stage="stage"
         :devApp="devApp"
         :categoryItem="categoryItem"
+        :isRollback="isRollback"
       ></app-runtime-card>
 
       <br><br>
       <span class="md-subheading">인스턴스</span>
       <task-list
-        :appIds="stage == 'prod' ? ['/'+ appName + '-blue', '/'+ appName + '-green'] : [devApp[stage]['marathonAppId']]"></task-list>
+        simple
+        :appIds="stage == 'prod' && isRollback ? [devApp[stage]['marathonAppIdOld']] : [devApp[stage]['marathonAppId']]">
+      </task-list>
     </div>
     <div v-if="menu == 'config'">
       <app-cloud-config
         :stage="stage"
         :devApp="devApp"
         :categoryItem="categoryItem"
+        :isRollback="isRollback"
       >
       </app-cloud-config>
     </div>
@@ -102,7 +105,8 @@
     props: {
       stage: String,
       devApp: Object,
-      categoryItem: Object
+      categoryItem: Object,
+      isRollback: Boolean
     },
     data() {
       return {

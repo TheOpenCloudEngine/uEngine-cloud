@@ -43,7 +43,7 @@
           <div style="width: 100%;padding: 16px" v-if="categoryItem">
             <div>
               <md-layout>
-                <md-layout md-flex="40">
+                <md-layout md-flex="20">
                   <div>
                     <md-avatar>
                       <img :src="categoryItem.logoSrc" alt="categoryItem.title">
@@ -51,7 +51,7 @@
                     <span class="md-subheading">{{appName}}</span>
                   </div>
                 </md-layout>
-                <md-layout md-flex="60" md-align="end">
+                <md-layout md-flex="80" md-align="end">
 
                   <!--배포-->
                   <md-button class="md-raised"
@@ -64,10 +64,22 @@
                   </md-button>
 
                   <!--롤백-->
-                  <md-button v-if="hasRollback" v-on:click="rollbackApp" class="md-raised md-primary">
-                    <md-tooltip md-direction="bottom">프로덕션 앱을 이전 버젼으로 되돌립니다.</md-tooltip>
-                    롤백
-                  </md-button>
+                  <md-menu v-if="hasRollback" md-size="4" md-direction="bottom left">
+                    <md-button class="md-raised md-primary" md-menu-trigger>롤백
+                      <md-tooltip md-direction="bottom">프로덕션 앱의 New/Old 버전을 관리합니다.</md-tooltip>
+                      <md-icon>arrow_drop_down</md-icon>
+                    </md-button>
+                    <md-menu-content style="width: 400px">
+                      <md-menu-item v-if="devApp.accessLevel >= 40 || isAdmin"
+                                    v-on:click="rollbackApp(appName)">
+                        <span>신규 버젼을 삭제합니다. (이전 버전이 신규 버젼으로 대체됩니다.)</span>
+                      </md-menu-item>
+                      <md-menu-item v-if="devApp.accessLevel >= 40 || isAdmin"
+                                    v-on:click="removeRollbackApp(appName)">
+                        <span>이전 버전을 삭제합니다. (더이상 유지할 필요가 없습니다.)</span>
+                      </md-menu-item>
+                    </md-menu-content>
+                  </md-menu>
 
                   <!--라우트-->
                   <md-button v-on:click="$refs['app-route'].open()" class="md-raised md-primary">라우트
@@ -75,6 +87,13 @@
                     <md-icon>arrow_drop_down</md-icon>
                   </md-button>
                   <app-route ref="app-route" :app="devApp"></app-route>
+
+                  <!--스냅샷-->
+                  <md-button :disabled="devApp.accessLevel < 30 && !isAdmin"
+                             v-on:click="createAppSnapshot" class="md-raised md-primary">
+                    <md-tooltip md-direction="bottom">앱의 스냅샷을 생성합니다..</md-tooltip>
+                    <md-icon>add_a_photo</md-icon>
+                  </md-button>
 
                   <!--재시작-->
                   <md-button :disabled="devApp.accessLevel < 30 && !isAdmin"
@@ -120,7 +139,7 @@
                 </md-layout>
               </md-layout>
             </div>
-            <div v-if="currentRoute != 'appsDetailDeployment'">
+            <div>
               <md-layout>
                 <md-layout md-flex="50">
                   <div style="width: 100%">
@@ -166,18 +185,32 @@
                         </div>
                       </md-layout>
                       <md-layout>
-                        <md-radio v-model="stage" :mdValue="'dev'" :disabled="devApp.accessLevel < 30 && !isAdmin">
-                          <md-tooltip md-direction="bottom">Developer 부터 사용가능합니다.</md-tooltip>
-                          <span class="md-caption">개발</span>
-                        </md-radio>
-                        <md-radio v-model="stage" :mdValue="'stg'" :disabled="devApp.accessLevel < 40 && !isAdmin">
-                          <md-tooltip md-direction="bottom">Master, Owner 부터 사용가능합니다.</md-tooltip>
-                          <span class="md-caption">스테이징</span>
-                        </md-radio>
-                        <md-radio v-model="stage" :mdValue="'prod'" :disabled="devApp.accessLevel < 40 && !isAdmin">
-                          <md-tooltip md-direction="bottom">Master, Owner 부터 사용가능합니다.</md-tooltip>
-                          <span class="md-caption">프로덕션</span>
-                        </md-radio>
+                        <div style="margin-top: -10px">
+                          <md-radio v-model="stage" :mdValue="'dev'" :disabled="devApp.accessLevel < 30 && !isAdmin">
+                            <md-tooltip md-direction="bottom">Developer 부터 사용가능합니다.</md-tooltip>
+                            <span class="md-caption">개발</span>
+                          </md-radio>
+                          <md-radio v-model="stage" :mdValue="'stg'" :disabled="devApp.accessLevel < 40 && !isAdmin">
+                            <md-tooltip md-direction="bottom">Master, Owner 부터 사용가능합니다.</md-tooltip>
+                            <span class="md-caption">스테이징</span>
+                          </md-radio>
+                          <md-radio v-model="stage" :mdValue="'prod'" :disabled="devApp.accessLevel < 40 && !isAdmin">
+                            <md-tooltip md-direction="bottom">Master, Owner 부터 사용가능합니다.</md-tooltip>
+                            <span class="md-caption">프로덕션</span>
+                          </md-radio>
+                        </div>
+                        <div
+                          v-if="hasRollback && (currentRoute == 'appsDetailRuntime' || currentRoute == 'appsDetailDashboard')"
+                          style="text-align: center;margin-top: -15px">
+                          <md-switch v-model="isRollback" name="my-test1" class="md-primary">
+                            <span v-if="isRollback">
+                              이전 버전
+                            </span>
+                            <span v-else>
+                              신규 버전
+                            </span>
+                          </md-switch>
+                        </div>
                       </md-layout>
                     </md-layout>
                   </div>
@@ -217,6 +250,8 @@
               :stage="stage"
               :devApp="devApp"
               :categoryItem="categoryItem"
+              :isRollback="isRollback"
+              :hasRollback="hasRollback"
               style="width: 100%"></router-view>
 
             <md-layout v-else class="bg-white">
@@ -267,6 +302,7 @@
 <script>
   import DcosDataProvider from '../DcosDataProvider'
   import PathProvider from '../PathProvider'
+
   export default {
     mixins: [DcosDataProvider, PathProvider],
     props: {},
@@ -275,6 +311,7 @@
         isAdmin: false,
         pipeline: null,
         hasRollback: false,
+        isRollback: false,
         tagList: [],
         commitInfo: null,
         currentRoute: 'appsDetailDashboard',
@@ -379,11 +416,25 @@
         var me = this;
         me.$root.$children[0].confirm(
           {
-            contentHtml: '롤백용으로 보관된 프로덕션 앱이 있습니다. 프로덕션 앱을 교체하시겠습니까?',
+            contentHtml: '신규 프로덕션 앱 버전을 삭제합니다. 진행하시겠습니까?',
             okText: '진행하기',
             cancelText: '취소',
             callback: function () {
               me.rollbackDevApp(me.appName, function (response) {
+
+              })
+            }
+          });
+      },
+      removeRollbackApp: function () {
+        var me = this;
+        me.$root.$children[0].confirm(
+          {
+            contentHtml: '이전 버전의 앱을 삭제합니다. 진행하시겠습니까?',
+            okText: '진행하기',
+            cancelText: '취소',
+            callback: function () {
+              me.removeRollbackDevApp(me.appName, function (response) {
 
               })
             }
@@ -396,7 +447,7 @@
         var me = this;
         var marathonApps = me.getAppsByDevopsId(me.appName);
         me.hasRollback = false;
-        if (me.stage == 'prod' && marathonApps && marathonApps.newProd && marathonApps.newProd.deployments.length == 0) {
+        if (me.stage == 'prod' && marathonApps && marathonApps.oldProd) {
           me.hasRollback = true;
         }
       },
@@ -452,14 +503,13 @@
       },
       restartAppStage: function () {
         var me = this;
-        var marathonAppId = me.devApp[me.stage]['marathonAppId'];
         me.$root.$children[0].confirm(
           {
-            contentHtml: '앱을 재시작합니다. 재시작된 앱이 실행될 때 까지 이전의 앱의 삭제되지 않습니다.',
+            contentHtml: '앱을 재시작합니다.',
             okText: '진행하기',
             cancelText: '취소',
             callback: function () {
-              me.restartDcosApp(marathonAppId, true, function (response) {
+              me.runDeployedApp(me.appName, me.stage, null, function (response) {
 
               });
             }
@@ -515,6 +565,27 @@
                   }
                 )
               });
+            }
+          });
+      },
+      createAppSnapshot: function () {
+        //createSnapshot
+        var me = this;
+        var today = new Date();
+        var defaultSnapshotName = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate()
+          + ' ' + me.appName + ' Snapshot';
+        me.$root.$children[0].confirm(
+          {
+            contentHtml: '스냅샷을 생성합니다.',
+            okText: '진행하기',
+            cancelText: '취소',
+            prompt: true,
+            promptValue: defaultSnapshotName,
+            promptLabel: '스냅샷',
+            callback: function (snapshotName) {
+              me.createSnapshot(me.appName, snapshotName, function (response) {
+
+              })
             }
           });
       },

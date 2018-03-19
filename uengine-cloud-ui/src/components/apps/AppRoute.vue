@@ -136,6 +136,14 @@
           {
             'text': '프로덕션 내부 주소',
             'href': 'http://' + this.app.prod.internal
+          },
+          {
+            'text': '신규 프로덕션 외부 테스트 주소',
+            'href': 'http://' + this.app.prod.external + ':' + (this.app.prod.servicePort + 10000)
+          },
+          {
+            'text': '신규 프로덕션 내부 테스트 주소',
+            'href': 'http://marathon-lb-internal.marathon.mesos:' + (this.app.prod.servicePort + 10000)
           }
         ];
       },

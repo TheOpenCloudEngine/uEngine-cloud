@@ -41,13 +41,14 @@
             </md-radio>
             <md-radio v-model="menu" :mdValue="'config'">
               <span class="md-caption">
-                <md-tooltip md-direction="bottom">특정한 서버 환경에서만 적용되는 환경 변수입니다. 공통 환경변수와 겹칠 경우 이곳의 환경 변수가 우선시 됩니다.</md-tooltip>
+                <md-tooltip
+                  md-direction="bottom">특정한 서버 환경에서만 적용되는 환경 변수입니다. 공통 환경변수와 겹칠 경우 이곳의 환경 변수가 우선시 됩니다.</md-tooltip>
                 <span v-if="stage == 'dev'">개발</span>
                 <span v-if="stage == 'stg'">스테이징</span>
                 <span v-if="stage == 'prod'">프로덕션</span>
                 설정 파일</span>
             </md-radio>
-            <md-radio v-model="menu" :mdValue="'url'">
+            <md-radio v-if="!isRollback" v-model="menu" :mdValue="'url'">
               <md-tooltip md-direction="bottom">앱 구동시 제공되는 환경 변수의 최종 모습을 살펴봅니다.</md-tooltip>
               <span class="md-caption">설정 파일 미리보기</span>
             </md-radio>
@@ -67,8 +68,11 @@
             :value="vcapCode"></codemirror>
         </div>
         <div v-show="menu == 'common'">
-          <md-button v-if="commonChanged" class="md-primary md-raised"
+          <md-button v-if="commonChanged && !isRollback" class="md-primary md-raised"
                      v-on:click="saveCommon">저장
+          </md-button>
+          <md-button v-if="commonChanged && !isRollback" class="md-primary md-raised"
+                     v-on:click="saveCancel">취소
           </md-button>
           <codemirror v-if="commonToggled"
                       ref="commonRef"
@@ -78,14 +82,17 @@
               extraKeys: {'Ctrl-Space': 'autocomplete'},
               lineNumbers: true,
               lineWrapping: true,
-              readOnly: false
+              readOnly: isRollback
             }"
                       v-on:change="onCommonChange"
                       :value="commonCode"></codemirror>
         </div>
         <div v-show="menu == 'config'">
-          <md-button v-if="codeChanged" class="md-primary md-raised"
+          <md-button v-if="codeChanged && !isRollback" class="md-primary md-raised"
                      v-on:click="saveConfig">저장
+          </md-button>
+          <md-button v-if="codeChanged && !isRollback" class="md-primary md-raised"
+                     v-on:click="saveCancel">취소
           </md-button>
           <codemirror v-if="configToggled"
                       ref="configRef"
@@ -95,7 +102,7 @@
               extraKeys: {'Ctrl-Space': 'autocomplete'},
               lineNumbers: true,
               lineWrapping: true,
-              readOnly: false
+              readOnly: isRollback
             }"
                       v-on:change="onCodeChange"
                       :value="configCode"></codemirror>
@@ -134,7 +141,8 @@
     props: {
       stage: String,
       devApp: Object,
-      categoryItem: Object
+      categoryItem: Object,
+      isRollback: Boolean
     },
     data() {
       return {
@@ -174,9 +182,19 @@
         this.$nextTick(function () {
           $(me.$el).find('.CodeMirror').height(600);
         })
+      },
+      isRollback: function (val) {
+        this.getCodes();
+        this.getConfigUrlList();
       }
     },
     methods: {
+      saveCancel: function(){
+        var me = this;
+        me.codeChanged = false;
+        me.commonChanged = false;
+        me.getCodes();
+      },
       openConfigUrl: function (path) {
         var me = this;
         this.$root.backend('config/' + path).get()
@@ -215,15 +233,30 @@
       },
       getCodes: function () {
         var me = this;
-        me.getDevAppVcapYml(me.appName, function (response) {
-          me.vcapCode = response.data;
-        });
-        me.getDevAppConfigYml(me.appName, '', function (response) {
-          me.commonCode = response.data;
-        });
-        me.getDevAppConfigYml(me.appName, me.stage, function (response) {
-          me.configCode = response.data;
-        });
+        if (!me.isRollback) {
+          me.getDevAppVcapYml(me.appName, function (response) {
+            me.vcapCode = response.data;
+          });
+          me.getDevAppConfigYml(me.appName, '', function (response) {
+            me.commonCode = response.data;
+          });
+          me.getDevAppConfigYml(me.appName, me.stage, function (response) {
+            me.configCode = response.data;
+          });
+        } else {
+          var snapshotId = me.devApp[me.stage]['snapshotOld'];
+          me.getSnapshotById(snapshotId, function (response) {
+            if (response) {
+              me.vcapCode = response.data.appConfigYmlResource.application;
+              me.commonCode = response.data.appConfigYmlResource.commonYml;
+              me.configCode = response.data.appConfigYmlResource.prodYml;
+            } else {
+              me.vcapCode = ''
+              me.commonCode = ''
+              me.configCode = ''
+            }
+          })
+        }
       },
       onCodeChange: function (val) {
         this.codeChanged = true;

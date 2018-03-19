@@ -33,6 +33,13 @@
       cancel-text="취소"
       ref="confirm"
     ></confirm>
+    <confirm
+      title="Are you sure?"
+      content-html="현재 배포가 중단되고, 서비스를 이전 버전으로 되돌리기 위해 새 배포가 시작될 것입니다."
+      ok-text="배포 중단 하기"
+      cancel-text="취소"
+      ref="confirm2"
+    ></confirm>
   </div>
 </template>
 <script>
@@ -113,6 +120,9 @@
       },
       confirm: function (options) {
         this.$refs.confirm.open(options);
+      },
+      confirm2: function (options) {
+        this.$refs.confirm2.open(options);
       },
       block: function(){
         this.isBlock = true;

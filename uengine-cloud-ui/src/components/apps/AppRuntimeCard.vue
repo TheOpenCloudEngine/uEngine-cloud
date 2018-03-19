@@ -15,15 +15,17 @@
                   </md-avatar>
                   <md-avatar v-else v-bind:class="{ 'diff': item.diff }" style="overflow: visible;">
                     <div style="position: relative;width: 100%;height: 100%;">
-                      <div class="avatar-circle left-circle" v-on:click="updateResource(item, 'up')">
-                        <md-icon>
-                          add_circle_outline
-                        </md-icon>
-                      </div>
-                      <div class="avatar-circle right-circle" v-on:click="updateResource(item, 'down')">
-                        <md-icon>
-                          remove_circle_outline
-                        </md-icon>
+                      <div v-if="!isRollback">
+                        <div class="avatar-circle left-circle" v-on:click="updateResource(item, 'up')">
+                          <md-icon>
+                            add_circle_outline
+                          </md-icon>
+                        </div>
+                        <div class="avatar-circle right-circle" v-on:click="updateResource(item, 'down')">
+                          <md-icon>
+                            remove_circle_outline
+                          </md-icon>
+                        </div>
                       </div>
                       <div class="sizing">{{item.size}}</div>
                     </div>
@@ -31,20 +33,13 @@
                 </md-layout>
 
                 <!--디스크립션 부분-->
-                <div style="text-align: center" v-if="!item.diff">
+                <div v-if="!item.diff" style="text-align: center">
                   <span class="md-caption" style="font-weight: bold">{{item.title}}</span>
                   <br>
                   <span v-if="item.type != 'instances' || gitlabDeploy" class="md-caption">{{item.subTitle}}</span>
                   <div v-else>
                     <service-progress fullWidth :app="marathonApp"></service-progress>
-
-                    <!--app.deployments-->
-                    <service-progress v-if="rollbackMarathonApp" fullWidth
-                                      :app="rollbackMarathonApp"
-                                      :rollback="true"
-                    ></service-progress>
                   </div>
-
                 </div>
                 <div v-else>
                   <md-layout md-align="center">
@@ -81,6 +76,7 @@
 <script>
   import DcosDataProvider from '../DcosDataProvider'
   import PathProvider from '../PathProvider'
+
   export default {
     mixins: [DcosDataProvider, PathProvider],
     props: {
@@ -92,14 +88,14 @@
         default: function () {
           return false;
         }
-      }
+      },
+      isRollback: Boolean
     },
     data() {
       return {
         isLoaded: false,
         stageApp: null,
         marathonApp: null,
-        rollbackMarathonApp: null,
         isActive: false,
         items: [],
         resourceUpdated: false,
@@ -116,6 +112,9 @@
       });
     },
     watch: {
+      isRollback: function (val) {
+        this.makeItems();
+      },
       stage: function () {
         this.resourceUpdated = false;
         this.makeItems();
@@ -202,24 +201,15 @@
         if (!me.categoryItem || !me.devApp) {
           return;
         }
-        //isActive
-        me.stageApp = me.devApp[me.stage];
-        var marathonAppId = me.stageApp['marathonAppId'];
-        me.marathonApp = me.getDcosAppById(marathonAppId);
 
-        //프로덕션인 경우 배포중 표기
-        if (me.stage == 'prod') {
-          var rollbackDeployment;
-          var rollbackMarathonAppId;
-          var deployment = me.stageApp['deployment'];
-          if (deployment == 'blue') {
-            rollbackMarathonAppId = '/' + me.appName + '-green';
-          } else {
-            rollbackMarathonAppId = '/' + me.appName + '-blue';
-          }
-          me.rollbackMarathonApp = me.getDcosAppById(rollbackMarathonAppId);
+        me.stageApp = me.devApp[me.stage];
+        var appsByDevopsId = this.getAppsByDevopsId(me.devApp.name);
+
+        var marathonAppId;
+        if (this.isRollback) {
+          me.marathonApp = appsByDevopsId.oldProd;
         } else {
-          me.rollbackMarathonApp = null;
+          me.marathonApp = appsByDevopsId[me.stage];
         }
 
         if (me.marathonApp) {
@@ -227,6 +217,7 @@
         } else {
           me.isActive = false;
         }
+
         //최초 리소스 로딩인경우 값 배정
         if (!me.resourceUpdated) {
           me.instances = me.stageApp['deployJson'].instances;
@@ -248,24 +239,24 @@
             title: '인스턴스',
             subTitle: '',
             type: 'instances',
-            size: me.instances,
-            diff: me.stageApp['deployJson'].instances != me.instances
+            size: me.isRollback ? me.marathonApp.instances : me.instances,
+            diff: me.isRollback ? false : me.stageApp['deployJson'].instances != me.instances
           },
           {
             image: me.categoryItem.logoSrc,
             title: '인스턴스당 메모리(MB)',
             subTitle: '',
             type: 'mem',
-            size: me.mem,
-            diff: me.stageApp['deployJson'].mem != me.mem
+            size: me.isRollback ? me.marathonApp.mem : me.mem,
+            diff: me.isRollback ? false : me.stageApp['deployJson'].mem != me.mem
           },
           {
             image: me.categoryItem.logoSrc,
             title: '인스턴스당 CPU',
             subTitle: '',
             type: 'cpus',
-            size: me.cpus,
-            diff: me.stageApp['deployJson'].cpus != me.cpus
+            size: me.isRollback ? me.marathonApp.cpus : me.cpus,
+            diff: me.isRollback ? false : me.stageApp['deployJson'].cpus != me.cpus
           }
         ]
       }
