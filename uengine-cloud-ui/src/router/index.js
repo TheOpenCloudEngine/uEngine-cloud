@@ -221,6 +221,10 @@ import AppLogsList from '../components/apps/AppLogsList'
 
 Vue.component('apps-logs-list', AppLogsList);
 
+import AppsDetailSnapshot from '../components/apps/AppsDetailSnapshot'
+
+Vue.component('apps-detail-snapshot', AppsDetailSnapshot);
+
 /**
  * 조직
  */
@@ -549,6 +553,12 @@ export default new Router({
                   path: 'deployment',
                   name: 'appsDetailDeployment',
                   component: AppsDetailDeployment,
+                  beforeEnter: RouterGuard.requireUser,
+                },
+                {
+                  path: 'snapshot',
+                  name: 'appsDetailSnapshot',
+                  component: AppsDetailSnapshot,
                   beforeEnter: RouterGuard.requireUser,
                 },
                 {

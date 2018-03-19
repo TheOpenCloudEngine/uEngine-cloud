@@ -328,6 +328,7 @@
           {title: '런타임 및 환경', icon: 'question_answer', routerName: 'appsDetailRuntime'},
           {title: '소스코드', icon: 'question_answer', routerName: 'gitlab'},
           {title: '빌드 및 배포', icon: 'question_answer', routerName: 'appsDetailDeployment'},
+          {title: '스냅샷', icon: 'question_answer', routerName: 'appsDetailSnapshot'},
           {title: '로그', icon: 'question_answer', routerName: 'appsDetailLog'},
           {title: '모니터링', icon: 'question_answer', routerName: 'appsDetailMonitor'},
           {title: '레지스트리', icon: 'question_answer', routerName: 'registry'},
@@ -584,7 +585,7 @@
             promptLabel: '스냅샷',
             callback: function (snapshotName) {
               me.createSnapshot(me.appName, snapshotName, function (response) {
-
+                window.busVue.$emit('snapshotCreated', true);
               })
             }
           });

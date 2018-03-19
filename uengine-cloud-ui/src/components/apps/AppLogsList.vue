@@ -109,7 +109,6 @@
 
       this.$root.backend('appLogs/search/findByAppName?appName=' + this.appName + '&sort=regDate,desc' + '&size=' + this.size).get()
         .then(function (response) {
-          console.log(response);
           me.appLogsData = response.data['_embedded'].appLogs;
           me.total = response.data.page.totalElements;
         });
@@ -136,7 +135,6 @@
               copy[i].timecompare = Math.floor(diffTime) + "년 전";
             }
           }
-          console.log(copy);
           me.appLogs = copy;
         },
         deep: true
