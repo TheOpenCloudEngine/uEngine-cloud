@@ -1,23 +1,23 @@
 title: 
-server.public.master: 52.79.125.242
-server.public.public: 52.79.51.79
+server.public.master: 58.140.91.67:8081
+server.public.public: 58.140.91.67
 
-db.ip: 172.31.6.35
+db.ip: 192.168.0.13
 db.database: uengine
 db.password: my-secret-pw
 
-host.default: pas-mini.io
-host.registry.package: sppark
-host.registry.private: gitlab.pas-mini.io:5000
-host.registry.public: gitlab.pas-mini.io:5000
-host.db: db.pas-mini.io
-host.gitlab: gitlab.pas-mini.io
-host.iam: iam.pas-mini.io
-host.config: 172.31.5.136:10000
-host.eureka-server: eureka-server.pas-mini.io
-host.cloud-server: cloud-server.pas-mini.io
-host.cloud-ui: cloud.pas-mini.io
-host.nexus: nexus.pas-mini.io
+host.default: pasmini.io
+host.registry.package: darkgodarkgo
+host.registry.private: gitlab.pasmini.io:5000
+host.registry.public: gitlab.pasmini.io:5000
+host.db: db.pasmini.io
+host.gitlab: gitlab.pasmini.io
+host.iam: iam.pasmini.io
+host.config: 192.168.0.11:10000
+host.eureka-server: eureka-server.pasmini.io
+host.cloud-server: cloud-server.pasmini.io
+host.cloud-ui: cloud.pasmini.io
+host.nexus: nexus.pasmini.io
 
 iam.port: 80
 iam.client-key: my-client-key
@@ -27,43 +27,43 @@ iam.admin.password: admin
 iam.access-token-lifetime: 7200
 iam.mail.host: smtp.gmail.com
 iam.mail.username: sppark@uengine.org
-iam.mail.password: !gosu23546
+iam.mail.password: 
 iam.mail.port: 587
 iam.mail.smtp-auth: true
 iam.mail.smtp-starttls-enable: true
 iam.mail.from-address: sppark@uengine.org
 iam.mail.from-name: uengine
 
-dcos.token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJkYXJrZ29kYXJrZ29AZ21haWwuY29tIiwiZXhwIjozMTI1NTU5MDY0MzkuODk0MX0.aHgH_M-g-n-WlnPg_CorMGYEprULPSeUTIGu3GyZQ-U
+dcos.token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJkYXJrZ29kYXJrZ29AZ21haWwuY29tIiwiZXhwIjozMTI1NTQ4ODM3MTEuNzkzOX0.NCDPD4HuR8SLMw8T_6lr2QTQ75_E7ppvYIqgaPeWX4s
 
 gitlab.root.username: root
 gitlab.root.password: adminadmin
 gitlab.root.token: -arWnfRY7S4h6oyRthNy
-gitlab.config-repo.projectId: 47
+gitlab.config-repo.projectId: 94
 gitlab.config-repo.deployment-path: /deployment
 gitlab.config-repo.template-path: /template
 
-nexus.ip: 172.31.10.202
+nexus.ip: 192.168.0.13
 nexus.username: admin
 nexus.password: admin123
-nexus.mvn.public: http://nexus.pas-mini.io/nexus/content/groups/public/
-nexus.mvn.release: http://nexus.pas-mini.io/nexus/content/repositories/releases/
-nexus.mvn.snapshot: http://nexus.pas-mini.io/nexus/content/repositories/snapshots/
-nexus.npm.public: http://nexus.pas-mini.io/nexus/content/groups/npm/
-nexus.npm.private: http://nexus.pas-mini.io/nexus/content/repositories/npm-private/
+nexus.mvn.public: http://nexus.pasmini.io/nexus/content/groups/public/
+nexus.mvn.release: http://nexus.pasmini.io/nexus/content/repositories/releases/
+nexus.mvn.snapshot: http://nexus.pasmini.io/nexus/content/repositories/snapshots/
+nexus.npm.public: http://nexus.pasmini.io/nexus/content/groups/npm/
+nexus.npm.private: http://nexus.pasmini.io/nexus/content/repositories/npm-private/
 
-pinpoint.use: true
-pinpoint.agent-path: /pinpoint-agent
-pinpoint.web: http://pinpoint.pas-mini.io
-pinpoint.collector.ip: 172.31.1.228
-pinpoint.collector.tcp-port: 9994
-pinpoint.collector.stat-port: 9995
-pinpoint.collector.span-port: 9996
+pinpoint.use: false
+pinpoint.agent-path: 
+pinpoint.web: 
+pinpoint.collector.ip: 
+pinpoint.collector.tcp-port: 
+pinpoint.collector.stat-port: 
+pinpoint.collector.span-port: 
 
-elk.elasticsearch.private: 172.31.11.218:9200
-elk.elasticsearch.web: http://13.125.185.128:9200
-elk.kibana.private: 172.31.11.218:5601
-elk.kibana.web: http://13.125.185.128:5601
+elk.elasticsearch.private: 
+elk.elasticsearch.web: 
+elk.kibana.private: 
+elk.kibana.web: 
 elk.kibana.dashboard-id.app-log: uengine-app-log
 elk.kibana.dashboard-id.docker-metric: uengine-doker-metric
 elk.kibana.dashboard-id.system-metric: Metricbeat-system-overview

@@ -35,6 +35,11 @@ server:
       agent12: 172.31.8.5
 
     add-agent:
+      agent13: 172.31.16.180
+      agent14: 172.31.28.163
+      agent15: 172.31.17.109
+      agent16: 172.31.24.25
+      agent17: 172.31.25.39
     gracefully-remove-agent:
     uninstall:
 
@@ -86,7 +91,7 @@ iam:
 
 # Mandatory-docker part
 mandatory-docker:
-  - mesosphere/marathon-lb:v1.11.2
+  - sppark/uengine-lb:v1
   - mysql:5.7
   - docker:latest
   - node:latest
