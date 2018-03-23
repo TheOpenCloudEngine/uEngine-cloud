@@ -11,6 +11,6 @@ RUN echo 'JAVA_OPTS=""' > launcher.sh && \
     sed -i '$ a   JAVA_OPTS="$JAVA_OPTS -Dpinpoint.agentId=${MESOS_CONTAINER_NAME##*-}"' launcher.sh && \
     sed -i '$ a   JAVA_OPTS="$JAVA_OPTS -Dpinpoint.applicationName=$APP_NAME-$PROFILE"' launcher.sh && \
     sed -i '$ a fi' launcher.sh && \
-    sed -i '$ a java -Xmx400M -Djava.security.egd=file:/dev/./urandom $JAVA_OPTS -jar /app.jar' launcher.sh
-EXPOSE 8080
+    sed -i '$ a java -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8001 -Xmx400M -Djava.security.egd=file:/dev/./urandom $JAVA_OPTS -jar /app.jar' launcher.sh
+EXPOSE 8080 8001
 ENTRYPOINT ["sh","launcher.sh"]

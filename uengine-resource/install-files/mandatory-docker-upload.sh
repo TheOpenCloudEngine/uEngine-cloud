@@ -4,11 +4,11 @@
 # Untag this, if you need sudo
 # sudo su
 
-docker pull sppark/uengine-lb:v1
-docker tag sppark/uengine-lb:v1 darkgodarkgo/uengine-lb:v1
-docker push darkgodarkgo/uengine-lb:v1
-docker rmi darkgodarkgo/uengine-lb:v1
-docker rmi sppark/uengine-lb:v1
+docker pull mesosphere/marathon-lb:v1.11.2
+docker tag mesosphere/marathon-lb:v1.11.2 darkgodarkgo/marathon-lb:v1.11.2
+docker push darkgodarkgo/marathon-lb:v1.11.2
+docker rmi darkgodarkgo/marathon-lb:v1.11.2
+docker rmi mesosphere/marathon-lb:v1.11.2
 
 
 docker pull mysql:5.7

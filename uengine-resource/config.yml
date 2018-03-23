@@ -28,6 +28,7 @@ server:
       agent4: 192.168.0.17
       agent5: 192.168.0.18
       agent6: 192.168.0.21
+      agent7: 192.168.0.42
 
     add-agent:
     gracefully-remove-agent:
@@ -81,7 +82,7 @@ iam:
 
 # Mandatory-docker part
 mandatory-docker:
-  - sppark/uengine-lb:v1
+  - mesosphere/marathon-lb:v1.11.2
   - mysql:5.7
   - docker:latest
   - node:latest

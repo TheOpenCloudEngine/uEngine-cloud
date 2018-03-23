@@ -347,12 +347,41 @@ public class DeployAppJob implements Job {
         String deployJsonString = JsonUtils.marshal(deployJson);
         MustacheTemplateEngine templateEngine = new MustacheTemplateEngine();
         Map unmarshal = JsonUtils.unmarshal(templateEngine.executeTemplateText(deployJsonString, data));
-        List<Map> portMappings = (List<Map>) ((Map) unmarshal.get("container")).get("portMappings");
+
+        //port mapping
+        List<Map> existPortMappings = (List<Map>) ((Map) unmarshal.get("container")).get("portMappings");
+        List<Map> portMappings = new ArrayList<>();
+
+        //main port
+        Map mainPortMapping = new HashMap();
+        if(existPortMappings.size() > 0){
+            mainPortMapping = JsonUtils.convertClassToMap(existPortMappings.get(0));
+            mainPortMapping.put("servicePort", servicePort);
+        }else{
+            mainPortMapping.put("containerPort", 8080);
+            mainPortMapping.put("hostPort", 0);
+            mainPortMapping.put("servicePort", servicePort);
+            mainPortMapping.put("protocol", "tcp");
+        }
         for (int i = 0; i < portMappings.size(); i++) {
             if (portMappings.get(i).containsKey("servicePort")) {
                 portMappings.get(i).put("servicePort", servicePort);
             }
         }
+
+        //debug port
+        Map debugPortMapping = new HashMap();
+        debugPortMapping.put("containerPort", 8001);
+        debugPortMapping.put("hostPort", 0);
+        //Not important
+        debugPortMapping.put("servicePort", servicePort + 20000);
+        debugPortMapping.put("protocol", "tcp");
+
+        existPortMappings.clear();
+        existPortMappings.add(mainPortMapping);
+        existPortMappings.add(debugPortMapping);
+
+        //config json
         Map env = (Map) unmarshal.get("env");
         env.put("CONFIG_JSON", configJson);
 

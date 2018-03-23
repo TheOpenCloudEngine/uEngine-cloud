@@ -427,18 +427,29 @@ def config(apps, groups, bind_http_https, ssl_certs, templater,
         newProdWeight = None
         oldProdWeight = None
         useCanary = False
+
         if isDevApp:
             if app.appId.endswith('-dev'):
                 stage = 'dev'
                 currentDeployment = 'dev'
-                app.servicePort = devopsApp['dev']['servicePort']
 
+                # Not AllowPort
+                if app.servicePort != devopsApp['dev']['servicePort']:
+                    logger.info('port %s %s', app.servicePort, devopsApp['dev']['servicePort'])
+                    continue
+
+                app.servicePort = devopsApp['dev']['servicePort']
                 if 'deploymentStrategy' in devopsApp['dev']:
                     app.sticky = devopsApp['dev']['deploymentStrategy']['sticky']
 
             elif app.appId.endswith('-stg'):
                 stage = 'stg'
                 currentDeployment = 'stg'
+
+                # Not AllowPort
+                if app.servicePort != devopsApp['stg']['servicePort']:
+                    continue
+
                 app.servicePort = devopsApp['stg']['servicePort']
 
                 if 'deploymentStrategy' in devopsApp['stg']:
@@ -447,6 +458,10 @@ def config(apps, groups, bind_http_https, ssl_certs, templater,
             elif app.appId.endswith('-blue') or app.appId.endswith('-green'):
                 stage = 'prod'
                 currentDeployment = devopsApp['prod']['deployment']
+
+                # Not AllowPort
+                if app.servicePort != devopsApp['prod']['servicePort']:
+                    continue
 
                 if 'deploymentStrategy' in devopsApp['prod']:
                     app.sticky = devopsApp['prod']['deploymentStrategy']['sticky']
@@ -795,6 +810,18 @@ def config(apps, groups, bind_http_https, ssl_certs, templater,
         config += https_frontends
     config += frontends
     config += backends
+
+    config += '\n'
+    config += 'frontend debug_14682\n'
+    config += '  bind *:14682\n'
+    config += '  mode tcp\n'
+    config += '  use_backend debug_14682\n'
+
+    config += '\n'
+    config += 'backend debug_14682\n'
+    config += '  balance roundrobin\n'
+    config += '  mode tcp\n'
+    config += '  server 13_124_23_22_14682 13.124.23.22:20348 weight 1\n'
 
     # logger.debug('http_frontends %s', http_frontends)
     # logger.debug('https_frontends %s', https_frontends)

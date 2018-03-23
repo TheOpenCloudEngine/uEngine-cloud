@@ -2,11 +2,6 @@
 ::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
 
 
-192.168.0.31 gitlab
-192.168.0.10 master3
-192.168.0.21 agent6
-192.168.0.11 public
-192.168.0.13 agent1
 192.168.0.9 master2
 192.168.0.15 agent2
 192.168.0.16 agent3
@@ -14,3 +9,9 @@
 192.168.0.18 agent5
 192.168.0.19 bootstrap
 192.168.0.8 master1
+192.168.0.31 gitlab
+192.168.0.42 agent7
+192.168.0.10 master3
+192.168.0.21 agent6
+192.168.0.11 public
+192.168.0.13 agent1

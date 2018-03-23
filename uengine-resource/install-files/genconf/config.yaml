@@ -20,6 +20,7 @@ agent_list:
 - "192.168.0.17"
 - "192.168.0.18"
 - "192.168.0.21"
+- "192.168.0.42"
 telemetry_enabled: true
 ssh_key_path: "genconf/ssh_key"
 master_list:
