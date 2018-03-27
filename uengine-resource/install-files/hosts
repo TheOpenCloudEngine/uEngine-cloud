@@ -2,16 +2,27 @@
 ::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
 
 
-192.168.0.9 master2
-192.168.0.15 agent2
-192.168.0.16 agent3
-192.168.0.17 agent4
-192.168.0.18 agent5
-192.168.0.19 bootstrap
-192.168.0.8 master1
-192.168.0.31 gitlab
-192.168.0.42 agent7
-192.168.0.10 master3
-192.168.0.21 agent6
-192.168.0.11 public
-192.168.0.13 agent1
+172.31.11.70 agent6
+172.31.28.163 agent14
+172.31.4.125 master2
+172.31.13.131 agent10
+172.31.16.180 agent13
+172.31.24.25 agent16
+172.31.0.164 agent7
+172.31.15.249 gitlab
+172.31.25.39 agent17
+172.31.17.109 agent15
+172.31.8.143 bootstrap
+172.31.1.235 agent2
+172.31.14.197 agent9
+172.31.6.35 agent1
+172.31.7.160 agent5
+172.31.3.61 ci
+172.31.8.5 agent12
+172.31.12.143 master1
+172.31.1.166 agent11
+172.31.5.136 public
+172.31.1.198 master3
+172.31.14.247 agent4
+172.31.10.202 agent8
+172.31.5.245 agent3

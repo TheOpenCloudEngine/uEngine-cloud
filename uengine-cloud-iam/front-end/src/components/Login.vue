@@ -7,8 +7,6 @@
 
         <md-card-area>
           <md-card-header>
-            <!--<div class="md-title"><span style="font-weight: bold">유엔진</span> 솔루션즈</div>-->
-            <!--<br>-->
             <div class="md-subhead">Log in to your account</div>
             <div v-if="status == 'fail'" style="color: red">
               Invalid Account
@@ -17,6 +15,21 @@
             </div>
             <div v-for="(oauthScope, index) in oauthScopes">
               {{oauthScope.name}}
+            </div>
+
+            <div v-if="status == 'fail' && missingScopes && userScopeCheckAll" style="color: red">
+              <br>
+              <div class="md-subhead">사용자에게 다음의 권한이 없습니다.
+              </div>
+              <div v-for="(missingScope, index) in missingScopes">
+                {{missingScope.name}}
+              </div>
+            </div>
+
+            <div v-if="status == 'fail' && missingScopes && !userScopeCheckAll" style="color: red">
+              <br>
+              <div class="md-subhead">요청된 권한이 사용자에게 없습니다.</div>
+              <div class="md-caption">최소 하나 이상의 권한이 필요합니다.</div>
             </div>
 
           </md-card-header>
@@ -34,7 +47,7 @@
               <label>패스워드</label>
               <md-input name="userPassword"
                         v-model="userPassword"
-                        label="Enter your password (more than 8 characters)"
+                        label="Enter your password"
                         type="password"
                         required></md-input>
             </md-input-container>
@@ -55,13 +68,10 @@
 
     <form v-if="command === 'signup'" @submit.prevent="signup">
       <md-card class="login-box">
-        <!--<img class="logo" src="/static/logo/logo_bright.png">-->
         <img class="logo" src="/static/logo/main.png">
 
         <md-card-area>
           <md-card-header>
-            <!--<div class="md-title"><span style="font-weight: bold">유엔진</span> 솔루션즈</div>-->
-            <!--<br>-->
             <div class="md-subhead">회원 가입</div>
           </md-card-header>
 
@@ -102,13 +112,10 @@
 
     <form v-if="command === 'forgot'" @submit.prevent="forgot">
       <md-card class="login-box">
-        <!--<img class="logo" src="/static/logo/logo_bright.png">-->
         <img class="logo" src="/static/logo/main.png">
 
         <md-card-area>
           <md-card-header>
-            <!--<div class="md-title"><span style="font-weight: bold">유엔진</span> 솔루션즈</div>-->
-            <!--<br>-->
             <div class="md-subhead">비밀번호 분실</div>
             <div class="md-subhead">회원가입시 등록한 이메일을 입력하세요</div>
           </md-card-header>
@@ -135,13 +142,10 @@
     <!--패스워드 분실 후 재설정 화면-->
     <form v-if="command === 'edit-password'" @submit.prevent="editPassword">
       <md-card class="login-box">
-        <!--<img class="logo" src="/static/logo/logo_bright.png">-->
         <img class="logo" src="/static/logo/main.png">
 
         <md-card-area>
           <md-card-header>
-            <!--<div class="md-title"><span style="font-weight: bold">유엔진</span> 솔루션즈</div>-->
-            <!--<br>-->
             <div class="md-subhead">새로운 비밀번호를 입력하십시오.</div>
           </md-card-header>
 
@@ -165,24 +169,25 @@
 
     <form v-if="command === 'error'">
       <md-card class="login-box">
-        <!--<img class="logo" src="/static/logo/logo_bright.png">-->
-        <img class="logo" src="/static/logo/main.png">
+        <img class="logo" src="/static/logo/logo_bright.png">
 
         <md-card-area>
           <md-card-header>
-            <!--<div class="md-title"><span style="font-weight: bold">유엔진</span> 솔루션즈</div>-->
-            <!--<br>-->
+            <div class="md-title"><span style="font-weight: bold">유엔진</span> 솔루션즈</div>
+            <br>
             <div class="md-subhead">잘못된 요청입니다.</div>
           </md-card-header>
         </md-card-area>
       </md-card>
     </form>
 
-
-    <img src="http://iam.pas-mini.io/static/logo/logo_bright.png" height="50" style="
-    height: 20px;
-    margin-left: 50px;
-    margin-right: auto;">
+    <div align="center">
+      <img src="http://iam.pas-mini.io/static/logo/logo_bright.png" height="50" style="
+        height: 20px;
+        margin-top: 20px;
+        margin-left: auto;
+        margin-right: auto;">
+    </div>
   </div>
 </template>
 
@@ -201,6 +206,8 @@
         oauthClient: null,
         oauthScopes: [],
         status: null,
+        missingScopes: null,
+        userScopeCheckAll: false,
         token: null,
         backendUrl: window.backendUrl,
         browserUrl: window.browserUrl
@@ -222,6 +229,12 @@
           this.userPassword = null;
           this.command = this.$route.params.command;
           me.status = this.$route.query['status'];
+          me.userScopeCheckAll = this.$route.query['userScopeCheckAll'] == 'true' ? true : false;
+
+          var missingScopes = this.$route.query['missingScopes'];
+          if (missingScopes && missingScopes.length > 0) {
+            me.missingScopes = JSON.parse(missingScopes);
+          }
 
           var authorizeResponse = this.$route.query['authorizeResponse'];
           if (authorizeResponse && authorizeResponse.length > 0) {
@@ -382,7 +395,7 @@
     overflow-y: hidden;
     overflow-x: hidden;
     width: 100%;
-    background: #2a3e52;
+    background: #242A37;
     font-family: "open sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
   }
 
@@ -392,7 +405,7 @@
     max-width: 350px;
     margin-left: auto;
     margin-right: auto;
-    margin-top: 150px;
+    margin-top: 180px;
     text-align: center;
     overflow: visible;
 

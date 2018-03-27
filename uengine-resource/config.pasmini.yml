@@ -82,7 +82,7 @@ iam:
 
 # Mandatory-docker part
 mandatory-docker:
-  - mesosphere/marathon-lb:v1.11.2
+  - sppark/uengine-lb:v1
   - mysql:5.7
   - docker:latest
   - node:latest
@@ -99,7 +99,7 @@ mandatory-docker:
 # Fill out those properties after install DC/OS cluster && Gitlab
 # Then, you should re-command "mvn clean install exec:java package"
 dcos:
-  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJkYXJrZ29kYXJrZ29AZ21haWwuY29tIiwiZXhwIjozMTI1NTQ4ODM3MTEuNzkzOX0.NCDPD4HuR8SLMw8T_6lr2QTQ75_E7ppvYIqgaPeWX4s
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJkYXJrZ29kYXJrZ29AZ21haWwuY29tIiwiZXhwIjozMTI1NjE3ODkwNzcuMTcwOTZ9.Ii0VaA8h6_T1xcvoSegvX2KiN5SnwoB6KY5Wob8SPEs
 
 gitlab:
   root:
@@ -107,7 +107,7 @@ gitlab:
     password: adminadmin
     token: -arWnfRY7S4h6oyRthNy
   config-repo:
-    projectId: 94
+    projectId: 121
     deployment-path: /deployment
     template-path: /template
 

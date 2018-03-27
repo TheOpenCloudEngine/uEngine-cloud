@@ -84,6 +84,7 @@ public class JPAUserEntity {
 
 
     @JsonIgnore
+    @Column(columnDefinition = "TEXT")
     private String metaDataString;
 
     public String getMetaDataString() {

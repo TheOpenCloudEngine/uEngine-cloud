@@ -1,17 +1,27 @@
 <template xmlns:v-bind="http://www.w3.org/1999/xhtml">
   <div>
     <md-toolbar class="fixed-toolbar">
-      <md-button class="md-icon-button">
+      <md-button class="md-icon-button" @click="toggleLeftSidenav">
         <md-icon>menu</md-icon>
       </md-button>
-
-      <md-button class="md-raised md-primary" @click="logout">로그 아웃</md-button>
-
       <!--<span>Hanhwa S&C</span>-->
       <span>Open Cloud Engine</span>
-
     </md-toolbar>
 
+    <md-sidenav class="md-left" ref="leftSidenav">
+      <md-toolbar class="md-account-header">
+        <md-layout>
+          <md-button class="md-raised md-primary" @click="logout">로그 아웃</md-button>
+        </md-layout>
+      </md-toolbar>
+
+      <md-list>
+        <md-list-item v-for="item in items" v-on:click="move(item.routerPath)" class="md-primary">
+          <md-icon>{{ item.icon }}</md-icon>
+          <span>{{ item.title }}</span>
+        </md-list-item>
+      </md-list>
+    </md-sidenav>
     <div class="fluid">
       <md-layout md-align="center">
         <router-view class="width-95"></router-view>
@@ -27,7 +37,8 @@
         drawer: null,
         items: [
           {title: 'Dashboard', icon: 'dashboard', routerPath: '/dashboard'},
-          {title: 'Users', icon: 'dashboard', routerPath: '/users'}
+          {title: 'System', icon: 'dashboard', routerPath: '/system'},
+          {title: 'Clients', icon: 'dashboard', routerPath: '/clients'}
         ],
         mini: false
       }

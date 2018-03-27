@@ -71,7 +71,6 @@
             }
           })
           .fail(function () {
-            console.log('fail');
             //로그인 실패 후 알림
             me.$root.$children[0].error('로그인을 할 수 없습니다.');
           });

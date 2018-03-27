@@ -51,8 +51,6 @@ public class AddingCustomHeaderFilter extends ZuulFilter {
         RequestContext ctx = RequestContext.getCurrentContext();
         HttpServletRequest request = ctx.getRequest();
 
-
-
         String requestedUrl = request.getRequestURL().toString();
         try {
             URL url = new URL(requestedUrl);

@@ -7,40 +7,50 @@
 
 [all:vars]
 ansible_user=centos
-ansible_ssh_private_key_file=/home/centos/dcos-key.pem
-registry_host=gitlab.pasmini.io:5000
-pinpoint_agent_path=
+ansible_ssh_private_key_file=/home/centos/belugarKey.pem
+registry_host=gitlab.pas-mini.io:5000
+pinpoint_agent_path=/pinpoint-agent
 
 [bootstrap]
-192.168.0.19
+172.31.8.143
 
 [gitlab]
-192.168.0.31
+172.31.15.249
 
 # If you want auto-scale gitlab ci runner
 [ci]
-
+172.31.3.61
 
 [master]
-192.168.0.8
-192.168.0.9
-192.168.0.10
+172.31.12.143
+172.31.4.125
+172.31.1.198
 
 
 [public]
-192.168.0.11
+172.31.5.136
 
 [agent]
-192.168.0.13
-192.168.0.15
-192.168.0.16
-192.168.0.17
-192.168.0.18
-192.168.0.21
-192.168.0.42
+172.31.6.35
+172.31.1.235
+172.31.5.245
+172.31.14.247
+172.31.7.160
+172.31.11.70
+172.31.0.164
+172.31.10.202
+172.31.14.197
+172.31.13.131
+172.31.1.166
+172.31.8.5
 
 
 [add-agent]
+172.31.16.180
+172.31.28.163
+172.31.17.109
+172.31.24.25
+172.31.25.39
 
 
 [gracefully-remove-agent]
