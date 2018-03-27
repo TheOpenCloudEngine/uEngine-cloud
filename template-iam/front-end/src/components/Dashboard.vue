@@ -8,43 +8,6 @@
 
     <span class="md-title">유저 현황</span>
     <user-list></user-list>
-    <br><br>
-
-    <span class="md-title">시스템 스테이터스</span>
-    <md-layout>
-      <md-layout>
-        <div style="width: 100%;padding: 5px">
-          <span class="md-subheading">시스템</span>
-          <key-value-table :data="systemData"></key-value-table>
-        </div>
-      </md-layout>
-      <md-layout>
-        <div style="width: 100%;padding: 5px">
-          <span class="md-subheading">스코프</span>
-          <key-value-table :data="scopesData"></key-value-table>
-        </div>
-      </md-layout>
-      <md-layout>
-        <div style="width: 100%;padding: 5px">
-          <span class="md-subheading">이메일</span>
-          <key-value-table :data="emailData"></key-value-table>
-        </div>
-      </md-layout>
-    </md-layout>
-    <br><br>
-
-    <templates ref="templates"></templates>
-    <span class="md-title">클라이언트</span>
-    <br><br>
-    <md-layout>
-      <md-layout md-flex="50" v-for="(client, index) in clients">
-        <div style="width: 100%;padding: 5px">
-          <span class="md-subheading">{{client.name}}</span>
-          <md-button class="md-primary md-raised" @click="showTemplate(client.clientKey)">템플릿 보기</md-button>
-          <key-value-table :data="client"></key-value-table>
-        </div>
-      </md-layout>
-    </md-layout>
   </div>
 </template>
 <script>
@@ -71,31 +34,12 @@
     watch: {
       iamData: {
         handler: function (newVal, oldVal) {
-          this.createSystemData(newVal);
           this.createTokenData(newVal);
         },
         deep: true
       }
     },
     methods: {
-      showTemplate: function (clientKey) {
-        this.$refs['templates'].open(clientKey);
-      },
-      getData: function () {
-        var me = this;
-        window.iam.getAllClient()
-          .done(function (clients) {
-            me.clients = clients;
-          });
-        window.iam.getAllScope()
-          .done(function (scopes) {
-            var scopesData = {};
-            $.each(scopes, function (i, scope) {
-              scopesData[scope.name] = scope.description;
-            });
-            me.scopesData = scopesData;
-          })
-      },
       /**
        * 2초에 한번 전체 데이터를 갱신하도록 조정.
        */
@@ -118,30 +62,17 @@
             }
           });
       },
-      createSystemData: function (data) {
-        var systemData = {};
-        var emailData = {};
-        for (var key in data) {
-          if (key != 'currentTime' && key != 'token') {
-            for (var secondKey in data[key]) {
-              if (key == 'mail') {
-                emailData[key + '.' + secondKey] = data[key][secondKey];
-              } else {
-                systemData[key + '.' + secondKey] = data[key][secondKey];
-              }
-            }
-          }
-        }
-        this.systemData = systemData;
-        this.emailData = emailData;
+      getData: function () {
+        var me = this;
+        window.iam.getAllClient()
+          .done(function (clients) {
+            me.clients = clients;
+          });
       },
       createTokenData: function (data) {
         var list = [];
         for (var clientKey in data.token) {
           var client = this.getClientByKey(clientKey);
-          if (client) {
-
-          }
           list.push({
             client: clientKey,
             active: data.token[clientKey].active,

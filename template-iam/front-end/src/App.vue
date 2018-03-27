@@ -10,6 +10,14 @@
       <span class="md-primary">{{snackbar.text}}</span>
       <md-button class="md-accent" md-theme="light-blue" @click="$refs.snackbar.close()">Close</md-button>
     </md-snackbar>
+
+    <confirm
+      title="Are you sure?"
+      content-html="사용자를 삭제합니다."
+      ok-text="사용자 삭제"
+      cancel-text="취소"
+      ref="confirm"
+    ></confirm>
   </div>
 </template>
 <script>
@@ -52,6 +60,9 @@
         this.snackbar.context = 'success';
         this.snackbar.text = msg;
         this.$refs.snackbar.open();
+      },
+      confirm: function (options) {
+        this.$refs.confirm.open(options);
       }
     }
   }
