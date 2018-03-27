@@ -1,5 +1,7 @@
 package org.uengine.zuul.pre;
 
+import com.jayway.jsonpath.Configuration;
+import com.jayway.jsonpath.JsonPath;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.exception.ZuulException;
@@ -14,15 +16,15 @@ import org.uengine.iam.client.model.OauthUser;
 import org.uengine.iam.util.ApplicationContextRegistry;
 import org.uengine.iam.util.JsonUtils;
 import org.uengine.iam.util.JwtUtils;
+import org.uengine.iam.util.StringUtils;
 import org.uengine.zuul.RuleService;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.text.ParseException;
+import java.util.*;
 
 public class AddingCustomHeaderFilter extends ZuulFilter {
 
@@ -53,6 +55,29 @@ public class AddingCustomHeaderFilter extends ZuulFilter {
 
         String requestedUrl = request.getRequestURL().toString();
         try {
+
+            //If token exist, get metadata
+            Map metaData = new HashMap();
+            String token = request.getHeader("access_token");
+            if (!StringUtils.isEmpty(token)) {
+                try {
+                    JWSObject jwsObject = JWSObject.parse(token);
+
+                    //파싱 부분
+                    JSONObject jsonPayload = jwsObject.getPayload().toJSONObject();
+                    JWTClaimsSet jwtClaimsSet = JWTClaimsSet.parse(jsonPayload);
+                    JSONObject contexts = (JSONObject) jwtClaimsSet.getClaim("context");
+                    OauthUser user = JsonUtils.convertValue(contexts.get("user"), OauthUser.class);
+                    metaData = JwtUtils.decodeMetadata(
+                            user.getMetaData(),
+                            ruleService.getSecureMetadataFields(),
+                            ruleService.getMetadataEncoderSecret1(),
+                            ruleService.getMetadataEncoderSecret2());
+                } catch (ParseException ex) {
+                    ex.printStackTrace();
+                }
+            }
+
             URL url = new URL(requestedUrl);
             String path = url.getPath();
 
@@ -62,7 +87,7 @@ public class AddingCustomHeaderFilter extends ZuulFilter {
 
                 String routePath = key;
 
-                if(routeValueMap.containsKey("path")){
+                if (routeValueMap.containsKey("path")) {
 
                     routePath = (String) routeValueMap.get("path");
 
@@ -79,22 +104,25 @@ public class AddingCustomHeaderFilter extends ZuulFilter {
                         headerToBeAdded = (Map<String, String>) routeValueMap.get(ADD_HEADER);
                     }
 
-                    if(headerToBeAdded!=null){
+                    if (headerToBeAdded != null) {
+                        for (String headerName : headerToBeAdded.keySet()) {
+                            String headerValue = headerToBeAdded.get(headerName);
 
-                        for(String headerName: headerToBeAdded.keySet()){
+                            //is JsonPath?
+                            if (headerValue.startsWith("$")) {
+                                Object json = Configuration.defaultConfiguration().jsonProvider().parse(JsonUtils.marshal(metaData));
+                                headerValue = JsonPath.read(json, headerValue);
+                            }
 
-                            ctx.addZuulRequestHeader(headerName, headerToBeAdded.get(headerName));
-
+                            ctx.addZuulRequestHeader(headerName, headerValue);
                         }
-
-
                     }
 
 
                 }
             }
 
-        } catch (MalformedURLException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         log.info(String.format("%s request to %s", request.getMethod(), request.getRequestURL().toString()));

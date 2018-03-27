@@ -52,10 +52,8 @@ public class IAMFilter extends ZuulFilter {
 
         //java 처리
         List<String> clientScopes = new ArrayList<>();
-        List<String> userScopes = new ArrayList<>();
         boolean iamAuthentication = ruleService.getIamAuthentication();
         String iamJwtKey = ruleService.getIamJwtKey();
-        String userName = null;
 
         if (!iamAuthentication) {
             return null;
@@ -68,14 +66,8 @@ public class IAMFilter extends ZuulFilter {
             JSONObject jsonPayload = jwsObject.getPayload().toJSONObject();
             JWTClaimsSet jwtClaimsSet = JWTClaimsSet.parse(jsonPayload);
             JSONObject contexts = (JSONObject) jwtClaimsSet.getClaim("context");
-            OauthUser user = JsonUtils.convertValue((Map) contexts.get("user"), OauthUser.class);
-            userName = user.getUserName();
-
             clientScopes = (List<String>) contexts.get("scopes");
 
-            if (user.getMetaData().containsKey("scopes")) {
-                userScopes = (List<String>) user.getMetaData().get("scopes");
-            }
 
             //만료 시간 체크
             Date expirationTime = jwtClaimsSet.getExpirationTime();
@@ -108,7 +100,7 @@ public class IAMFilter extends ZuulFilter {
 
                 String routePath = key;
 
-                if(routeValueMap.containsKey("path")){
+                if (routeValueMap.containsKey("path")) {
 
                     routePath = (String) routeValueMap.get("path");
 
@@ -116,19 +108,12 @@ public class IAMFilter extends ZuulFilter {
                     if (routePath.endsWith("/**")) {
                         routePath = routePath.substring(0, routePath.length() - 3);
                     }
-
                 }
 
                 //라우터 스코프
                 Map<String, String> iamScopes = null;
                 if (routeValueMap.containsKey("iam-scopes")) {
                     iamScopes = (Map<String, String>) routeValueMap.get("iam-scopes");
-                }
-
-                //라우터 유저 스코프 체크 여부
-                boolean iamUserScopesCheck = false;
-                if (routeValueMap.containsKey("iam-user-scopes-check")) {
-                    iamUserScopesCheck = (boolean) routeValueMap.get("iam-user-scopes-check");
                 }
 
                 /*
@@ -175,18 +160,8 @@ public class IAMFilter extends ZuulFilter {
                             scopeMatch = true;
                         }
                         //스코프 체크 필요
-                        else {
-                            //사용자 스코프 체크가 필요없는경우
-                            if (clientScopes.contains(scope) && !iamUserScopesCheck) {
-                                scopeMatch = true;
-                            }
-
-                            //사용자 스코프 체크가 필요한 경우
-                            else if (clientScopes.contains(scope) && iamUserScopesCheck) {
-                                if (userScopes.contains(scope)) {
-                                    scopeMatch = true;
-                                }
-                            }
+                        else if (clientScopes.contains(scope)) {
+                            scopeMatch = true;
                         }
 
                         if (scopeMatch && !"guest".equals(scope)) {

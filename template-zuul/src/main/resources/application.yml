@@ -47,13 +47,19 @@ zuul:
   # Copy and paste from your IAM's iam.jwt.key
   iam-jwt-key: my-jwt-encrypt-key-my-jwt-encrypt-key
 
+  # 메타데이터 암호화 키
+  metadata-encoder-secret1: Bar12345Bar12345
+  metadata-encoder-secret2: ThisIsASecretKet
+
+  # 복호화 할 메타데이터 필드.
+  secure-metadata-fields:
+    - "$.gitlabToken"
+
   routes:
 #    order:
 #      path: /orders/**
 #      serviceId: order-service
 #      stripPrefix: false
-#      # Check whether the user's metadata also has a scope.
-#      iam-user-scopes-check: false
 #      # List of scopes needed for this path
 #      iam-scopes:
 #        - guest/GET
@@ -70,7 +76,6 @@ zuul:
 #      path: /items/**
 #      serviceId: order-service
 #      stripPrefix: false
-#      iam-user-scopes-check: false
 #      iam-scopes:
 #        - guest/GET
 #        - catalog-manage/PUT-PATCH-POST-DELETE
@@ -135,7 +140,7 @@ zuul:
       url: http://gitlab.pas-mini.io/api/v4/
       stripPrefix: true
       addHeader:
-        PRIVATE-TOKEN: EBXSvH425E3MzB2sc9Qz
+        PRIVATE-TOKEN: "$.gitlabToken"
 
 ###########################################
 
