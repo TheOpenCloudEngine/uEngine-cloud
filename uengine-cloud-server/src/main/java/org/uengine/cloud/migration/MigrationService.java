@@ -88,17 +88,7 @@ public class MigrationService {
                 appStage.setMarathonAppId(stageMap.get("marathonAppId").toString());
                 appStage.setServicePort((int) stageMap.get("service-port"));
 
-                switch (stage) {
-                    case "dev":
-                        entity.setDev(appStage);
-                        break;
-                    case "stg":
-                        entity.setStg(appStage);
-                        break;
-                    case "prod":
-                        entity.setProd(appStage);
-                        break;
-                }
+                appService.setAppStage(entity, appStage, stage);
             }
 
             //앱 저장

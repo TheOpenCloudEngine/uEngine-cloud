@@ -117,7 +117,10 @@ public class AppSnapshotService {
 
                 //커밋이 있다면 앱을 배포한다.
                 else {
-                    appService.runDeployedApp(appName, stage, commit, appSnapshot.getId(), true);
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                    String dateString = dateFormat.format(new Date());
+                    String name = String.format("%s Auto deployment from Snapshot %s, %s %s", dateString, appSnapshot.getId(), appName, stage);
+                    appService.runDeployedApp(appName, stage, commit, appSnapshot.getId(), true, name, null);
                 }
             }
         }
@@ -134,18 +137,8 @@ public class AppSnapshotService {
      */
     public String getCommitRefFromSnapshot(AppSnapshot appSnapshot, String stage) throws Exception {
         AppEntity app = appSnapshot.getApp();
-        AppStage appStage = null;
-        switch (stage) {
-            case "dev":
-                appStage = app.getDev();
-                break;
-            case "stg":
-                appStage = app.getStg();
-                break;
-            case "prod":
-                appStage = app.getProd();
-                break;
-        }
+        AppStage appStage = appService.getAppStage(app, stage);
+
         Map mesos = appStage.getMesos();
 
         //mesos 가 null 이면 스냅샷 당시 배포된 어플리케이션이 없다.

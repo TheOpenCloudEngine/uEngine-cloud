@@ -56,12 +56,19 @@ public class DcosApi implements InitializingBean {
     //service/marathon/v2/deployments/
 
 
-    public void deleteDeployment(String deploymentId) throws Exception {
+    public Map deleteDeployment(String deploymentId) throws Exception {
         HttpResponse response = new HttpUtils().makeRequest("DELETE",
                 host + "/service/marathon/v2/deployments/" + deploymentId,
                 null,
                 this.addHeaders()
         );
+        if (response.getStatusLine().getStatusCode() == 200) {
+            HttpEntity entity = response.getEntity();
+            String json = EntityUtils.toString(entity);
+            return JsonUtils.unmarshal(json);
+        } else {
+            return null;
+        }
     }
 
     public void deleteApp(String appId) throws Exception {

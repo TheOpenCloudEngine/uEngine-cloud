@@ -19,6 +19,10 @@ package org.uengine.cloud.scheduler;
 import org.apache.commons.io.IOUtils;
 import org.gitlab4j.api.GitLabApi;
 import org.uengine.cloud.app.*;
+import org.uengine.cloud.deployment.DeploymentHistoryEntity;
+import org.uengine.cloud.deployment.DeploymentHistoryRepository;
+import org.uengine.cloud.deployment.DeploymentStatus;
+import org.uengine.cloud.deployment.TempDeployment;
 import org.uengine.cloud.log.AppLogAction;
 import org.uengine.cloud.log.AppLogService;
 import org.uengine.cloud.log.AppLogStatus;
@@ -57,6 +61,17 @@ public class DeployAppJob implements Job {
         if (map.get("commit") != null) {
             commit = map.get("commit").toString();
         }
+        String name = map.get("name") != null ? map.get("name").toString() : null;
+        String description = map.get("description") != null ? map.get("description").toString() : null;
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String dateString = dateFormat.format(new Date());
+        if (StringUtils.isEmpty(name)) {
+            name = String.format("%s %s %s Deployment", dateString, appName, stage);
+        }
+
+        Map marathonDeploymentReponse = null;
+
         Map log = new HashMap();
         log.put("stage", stage);
         log.put("commit", commit);
@@ -69,36 +84,29 @@ public class DeployAppJob implements Job {
         AppLogService logService = ApplicationContextRegistry.getApplicationContext().getBean(AppLogService.class);
         AppJpaRepository appJpaRepository = ApplicationContextRegistry.getApplicationContext().getBean(AppJpaRepository.class);
         AppSnapshotService snapshotService = ApplicationContextRegistry.getApplicationContext().getBean(AppSnapshotService.class);
+        DeploymentHistoryRepository historyRepository = ApplicationContextRegistry.getApplicationContext().getBean(DeploymentHistoryRepository.class);
         try {
-
-            //deployApp 는 마라톤 어플리케이션이 존재하는 경우만 사용가능하다. 단, 커밋을 전달받을 경우는 존재하지 않아도 가능.
-            //이미지를 마라톤 어플리케이션의 이미지로 가져오도록 한다. 그리고 아래의 값을 치환하여 마라톤을 업데이트시킨다.
-            //        {{APP_ID}}
-            //        {{IMAGE}} => 마라톤 이미지
-            //        {{SERVICE_PORT}}
-            //        {{DEPLOYMENT}}
-            //        {{EXTERNAL_URL}}
-            //나머지는 dcosApp 정보에서 가져오도록.
 
             //앱 정보.
             AppEntity appEntity = appJpaRepository.findOne(appName);
-            AppStage appStage = null;
             String appType = appEntity.getAppType();
-            switch (stage) {
-                case "dev":
-                    appStage = appEntity.getDev();
-                    break;
-                case "stg":
-                    appStage = appEntity.getStg();
-                    break;
-                case "prod":
-                    appStage = appEntity.getProd();
-                    break;
-            }
+            AppStage appStage = appService.getAppStage(appEntity, stage);
             int servicePort = appStage.getServicePort();
             String externalUrl = appStage.getExternal();
             String deployment = appStage.getDeployment();
 
+            /**
+             * check if pre-deployment is running. If running, cancel deployment.
+             */
+            DeploymentStatus preStatus = appStage.getTempDeployment().getStatus();
+            if (DeploymentStatus.RUNNING.equals(preStatus) || DeploymentStatus.RUNNING_ROLLBACK.equals(preStatus)) {
+                DeploymentHistoryEntity historyEntity = new DeploymentHistoryEntity(
+                        appEntity,
+                        stage,
+                        DeploymentStatus.RUNNING.equals(preStatus) ? DeploymentStatus.CANCELED : DeploymentStatus.RUNNING_ROLLBACK
+                );
+                historyRepository.save(historyEntity);
+            }
 
             /**
              * check if blue-green
@@ -168,31 +176,17 @@ public class DeployAppJob implements Job {
                 );
 
                 /**
-                 * create new snapshot
-                 */
-                //기존 프로덕션 신규 스냅샷 생성
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                String dateString = dateFormat.format(new Date());
-                String snapshotName = String.format("Auto saved %s %s Snapshot", dateString, appName);
-                AppSnapshot snapshot = snapshotService.createSnapshot(appName, snapshotName, null);
-
-                /**
                  * move field
-                 1)created snapshot number => snapshotOld
-                 2)if from snapshot, given snapshot => snapshot.
-                 if not, snapshot is 0
+                 1)snapshot number => snapshotOld
                  */
-                appStage.setSnapshotOld(snapshot.getId());
-                if (snapshotId == null) {
-                    appStage.setSnapshot(new Long(0));
-                } else {
-                    appStage.setSnapshot(snapshotId);
-                }
+                appStage.setSnapshotOld(appStage.getSnapshot());
+
 
                 /**
                  * 3)deployment => deploymentOld
                  4)marathonAppId => marathonAppIdOld
                  5)weight => 0
+                 commit = > commitOld
                  */
                 appStage.setDeployment(newDeployment);
                 appStage.setDeploymentOld(oldDeployment);
@@ -200,17 +194,24 @@ public class DeployAppJob implements Job {
                 appStage.setMarathonAppIdOld("/" + oldMarathonAppId);
                 appStage.getDeploymentStrategy().getCanary().setWeight(0);
 
+                if (oldMarathonApp != null) {
+                    appStage.setCommitOld(this.getCommitRefFromMarathonApp(oldMarathonApp));
+                } else {
+                    appStage.setCommitOld(appStage.getCommit());
+                }
+
+                appStage.setCommit(dockerImage.split(":")[2]);
 
                 /**
                  * 6) create or update app with current env resources.
                  */
                 //신규 앱이 있을 경우 업데이트 디플로이
                 if (newMarathonApp != null) {
-                    dcosApi.updateApp(newMarathonAppId, deployJson);
+                    marathonDeploymentReponse = dcosApi.updateApp(newMarathonAppId, deployJson);
                 }
                 //신규 앱이 없을 경우 신규 디플로이
                 else {
-                    dcosApi.createApp(deployJson);
+                    marathonDeploymentReponse = dcosApi.createApp(deployJson);
                 }
             }
 
@@ -238,40 +239,60 @@ public class DeployAppJob implements Job {
 
                 /**
                  * move field
-                 1)if from snapshot, given snapshot => snapshot.
-                 if not, snapshot is 0
+                 1) snapshot number => snapshotOld
                  */
-                if (snapshotId == null) {
-                    appStage.setSnapshot(new Long(0));
+                appStage.setSnapshotOld(appStage.getSnapshot());
+
+
+                /**
+                 * move field
+                 1)commit => commitOld
+                 */
+                appStage.setDeploymentOld(appStage.getDeployment());
+                appStage.setMarathonAppIdOld(appStage.getMarathonAppId());
+                if (marathonApp != null) {
+                    appStage.setCommitOld(this.getCommitRefFromMarathonApp(marathonApp));
                 } else {
-                    appStage.setSnapshot(snapshotId);
+                    appStage.setCommitOld(appStage.getCommit());
                 }
 
                 //기존 앱이 있을 경우 업데이트 디플로이
                 if (marathonApp != null) {
-                    dcosApi.updateApp(marathonAppId, deployJson);
+                    marathonDeploymentReponse = dcosApi.updateApp(marathonAppId, deployJson);
                 }
                 //기존 앱이 없을 경우 신규 디플로이
                 else {
-                    dcosApi.createApp(deployJson);
+                    marathonDeploymentReponse = dcosApi.createApp(deployJson);
                 }
             }
 
             /**
              * 7) save app if success
              */
-            switch (stage) {
-                case "dev":
-                    appEntity.setDev(appStage);
-                    break;
-                case "stg":
-                    appEntity.setStg(appStage);
-                    break;
-                case "prod":
-                    appEntity.setProd(appStage);
-                    break;
+            //create tempDeployment
+            String deploymentId = marathonDeploymentReponse.get("deploymentId").toString();
+            TempDeployment tempDeployment = new TempDeployment();
+            tempDeployment.setDeploymentId(deploymentId);
+            tempDeployment.setName(name);
+            tempDeployment.setDescription(description);
+            tempDeployment.setStartTime(new Date().getTime());
+            tempDeployment.setStatus(DeploymentStatus.RUNNING);
+            appStage.setTempDeployment(tempDeployment);
+
+            appEntity = appService.setAppStage(appEntity, appStage, stage);
+            appEntity = appJpaRepository.save(appEntity);
+
+            /**
+             * create new snapshot
+             */
+            //신규 스냅샷 생성
+            String snapshotName = String.format("Auto saved %s %s Snapshot", dateString, appName);
+            AppSnapshot snapshot = snapshotService.createSnapshot(appName, snapshotName, null);
+            if (snapshot != null) {
+                appStage.setSnapshot(snapshot.getId());
+                appEntity = appService.setAppStage(appEntity, appStage, stage);
+                appJpaRepository.save(appEntity);
             }
-            appJpaRepository.save(appEntity);
 
             logService.addHistory(appName, AppLogAction.RUN_DEPLOYED_APP, AppLogStatus.SUCCESS, log);
 
@@ -297,6 +318,12 @@ public class DeployAppJob implements Job {
             dockerImage = environment.getProperty("registry.host") + "/" + appName + ":" + commit;
         }
         return dockerImage;
+    }
+
+    public String getCommitRefFromMarathonApp(Map marathonApp) throws Exception {
+        Map container = (Map) ((Map) marathonApp.get("app")).get("container");
+        String dockerImage = ((Map) container.get("docker")).get("image").toString();
+        return dockerImage.split(":")[2];
     }
 
     /**
@@ -354,10 +381,10 @@ public class DeployAppJob implements Job {
 
         //main port
         Map mainPortMapping = new HashMap();
-        if(existPortMappings.size() > 0){
+        if (existPortMappings.size() > 0) {
             mainPortMapping = JsonUtils.convertClassToMap(existPortMappings.get(0));
             mainPortMapping.put("servicePort", servicePort);
-        }else{
+        } else {
             mainPortMapping.put("containerPort", 8080);
             mainPortMapping.put("hostPort", 0);
             mainPortMapping.put("servicePort", servicePort);

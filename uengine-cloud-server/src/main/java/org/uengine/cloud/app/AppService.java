@@ -8,8 +8,14 @@ import org.apache.http.util.EntityUtils;
 import org.gitlab4j.api.GitLabApi;
 import org.gitlab4j.api.models.Project;
 import org.gitlab4j.api.models.User;
+import org.uengine.cloud.deployment.DeploymentHistoryEntity;
+import org.uengine.cloud.deployment.DeploymentHistoryRepository;
+import org.uengine.cloud.deployment.DeploymentStatus;
+import org.uengine.cloud.deployment.TempDeployment;
 import org.uengine.cloud.scheduler.CronTable;
 import org.uengine.cloud.snapshot.AppSnapshotService;
+import org.uengine.cloud.strategies.DeploymentStrategy;
+import org.uengine.cloud.strategies.InstanceStrategy;
 import org.uengine.iam.client.IamClient;
 import org.uengine.iam.client.ResourceOwnerPasswordCredentials;
 import org.uengine.iam.client.TokenType;
@@ -63,6 +69,9 @@ public class AppService {
     @Autowired
     private AppSnapshotService snapshotService;
 
+    @Autowired
+    private DeploymentHistoryRepository historyRepository;
+
     /**
      * 어플리케이션의 주어진 스테이지의 마라톤 서비스를 재기동한다.
      *
@@ -71,7 +80,15 @@ public class AppService {
      * @return
      * @throws Exception
      */
-    public void runDeployedApp(String appName, String stage, String commit, Long snapshotId, boolean exchange) throws Exception {
+    public void runDeployedApp(
+            String appName,
+            String stage,
+            String commit,
+            Long snapshotId,
+            boolean exchange,
+            String name,
+            String description
+    ) throws Exception {
 
         Map data = new HashMap();
         data.put("appName", appName);
@@ -79,6 +96,8 @@ public class AppService {
         data.put("commit", commit);
         data.put("snapshotId", snapshotId);
         data.put("exchange", exchange);
+        data.put("name", name);
+        data.put("description", description);
 
         //디플로이 백그라운드 작업 시작.
         jobScheduler.startJobImmediatly(UUID.randomUUID().toString(), "deployedApp", data);
@@ -88,7 +107,7 @@ public class AppService {
     }
 
     /**
-     * Case. Remove current production. (old rollback)
+     * Case. Rollback App which is on deployment.
      * <p>
      * 1.move field (set old production to current production)
      * 1)snapshotOld => snapshot
@@ -102,59 +121,123 @@ public class AppService {
      * @param appName
      * @throws Exception
      */
-    public void rollbackDeployedApp(String appName) throws Exception {
+    public void rollbackApp(String appName, String stage) throws Exception {
         AppEntity appEntity = appJpaRepository.findOne(appName);
 
-        AppStage prod = appEntity.getProd();
-        String deployment = prod.getDeployment();
+        AppStage appStage = this.getAppStage(appEntity, stage);
 
-        //롤백을 할 수 있는 마라톤 어플이 있는지 확인한다.
-        String rollbackDeployment = null;
-        String rollbackMarathonAppId = null;
-        String currentMarathonAppId = prod.getMarathonAppId();
-        if (deployment.equals("blue")) {
-            rollbackDeployment = "green";
-            rollbackMarathonAppId = "/" + appName + "-green";
+        boolean isBlueGreen = false;
+        String currentMarathonAppId = null;
+        String deploymentId = null;
+        if (appStage.getDeploymentStrategy().getBluegreen()) {
+            if (!DeploymentStatus.RUNNING.equals(appStage.getTempDeployment().getStatus())) {
+                throw new Exception(String.format("Not RUNNING deployment to rollback, %s, %s", appName, stage));
+            }
+            isBlueGreen = true;
+            String deployment = appStage.getDeployment();
+
+            //롤백을 할 수 있는 마라톤 어플이 있는지 확인한다.
+            String rollbackMarathonAppId = null;
+            currentMarathonAppId = appStage.getMarathonAppId();
+            if (deployment.equals("blue")) {
+                rollbackMarathonAppId = "/" + appName + "-green";
+            } else {
+                rollbackMarathonAppId = "/" + appName + "-blue";
+            }
+
+            Map marathonApp = dcosApi.getApp(rollbackMarathonAppId);
+            if (marathonApp == null) {
+                throw new Exception("Not found marathon app to rollback, " + rollbackMarathonAppId);
+            }
         } else {
-            rollbackDeployment = "blue";
-            rollbackMarathonAppId = "/" + appName + "-blue";
+            if (!DeploymentStatus.RUNNING.equals(appStage.getTempDeployment().getStatus())) {
+                throw new Exception(String.format("Not RUNNING deployment to rollback, %s, %s", appName, stage));
+            }
+
+            deploymentId = appStage.getTempDeployment().getDeploymentId();
+            if (this.getMarathonDeploymentById(deploymentId) == null) {
+                throw new Exception(String.format(
+                        "Not found marathon deployment to rollback, %s, %s, %s", appName, stage, deploymentId));
+            }
+
+            Map marathonApp = dcosApi.getApp(appStage.getMarathonAppId());
+            if (marathonApp == null) {
+                throw new Exception("Not found marathon app to rollback, " + appStage.getMarathonAppId());
+            }
         }
 
-        Map marathonApp = dcosApi.getApp(rollbackMarathonAppId);
-        if (marathonApp == null) {
-            throw new Exception("Not found marathon app to rollback, " + rollbackMarathonAppId);
-        }
+        //앱의 Old 영역을 롤백을 프로덕션으로 등록한다.
+        Long snapshotOld = appStage.getSnapshotOld();
+        appStage.setSnapshot(snapshotOld);
+        appStage.setDeployment(appStage.getDeploymentOld());
+        appStage.setMarathonAppId(appStage.getMarathonAppIdOld());
+        appStage.setCommit(appStage.getCommitOld());
 
-        //dcosApp 에 롤백을 프로덕션으로 등록한다.
-        Long snapshotOld = prod.getSnapshotOld();
-        prod.setSnapshot(snapshotOld);
-        prod.setDeployment(rollbackDeployment);
-        prod.setMarathonAppId(rollbackMarathonAppId);
+        appStage.setSnapshotOld(null);
+        appStage.setMarathonAppIdOld(null);
+        appStage.setDeploymentOld(null);
+        appStage.setCommitOld(null);
 
-        prod.setSnapshotOld(null);
-        prod.setMarathonAppIdOld(null);
-        prod.setDeploymentOld(deployment);
+        //set weight as 100
+        appStage.getDeploymentStrategy().getCanary().setWeight(100);
+        this.setAppStage(appEntity, appStage, stage);
 
-        prod.getDeploymentStrategy().getCanary().setWeight(100);
-        appEntity.setProd(prod);
-
-        appJpaRepository.save(appEntity);
+        //first save for snapshot restore.
+        appEntity = appJpaRepository.save(appEntity);
 
         //load old production snapshot, and restoreSnapshot without redeployment.
         List<String> stages = new ArrayList<>();
         stages.add("prod");
         snapshotService.restoreSnapshot(snapshotOld, stages, null, false);
 
+
+        //블루그린은 그냥 히스토리를 롤백 성공으로 빼고 삭제시켜버린다.
         //remove current production.
-        try {
-            dcosApi.deleteApp(currentMarathonAppId);
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        if (isBlueGreen) {
+            try {
+                dcosApi.deleteApp(currentMarathonAppId);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+
+            //save history and finish deployment
+            this.finishDeployment(appEntity, appStage, stage, DeploymentStatus.ROLLBACK_SUCCEED);
+        }
+
+
+        //일반 롤백시, appStage.getTempDeployment().getDeploymentId() 로 롤백을 한다.
+        //  성공시 deploymentId 및 ROLLBACK_RUNNING 업데이트 하고 종료.
+        //  실패시 히스토리를 실패 처리한다.
+        else {
+            String rollbackDeploymentId = null;
+            try {
+                Map deployment = dcosApi.deleteDeployment(deploymentId);
+                rollbackDeploymentId = deployment.get("deploymentId").toString();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+
+            //Rollback failed.
+            if (StringUtils.isEmpty(rollbackDeploymentId)) {
+
+                //save history and finish deployment
+                this.finishDeployment(appEntity, appStage, stage, DeploymentStatus.ROLLBACK_FAILED);
+            }
+            //Rollback Success.
+            else {
+                //update tempDeployment for app and save.
+                TempDeployment tempDeployment = appStage.getTempDeployment();
+                tempDeployment.setStatus(DeploymentStatus.RUNNING_ROLLBACK);
+                tempDeployment.setDeploymentId(rollbackDeploymentId);
+                appStage.setTempDeployment(tempDeployment);
+                this.setAppStage(appEntity, appStage, stage);
+                appJpaRepository.save(appEntity);
+            }
         }
     }
 
     /**
-     * Case. Remove old production.
+     * Case. Finish app deployment which is on manual canary deployment.
      * <p>
      * 1.move field
      * 1)snapshotOld => 0
@@ -163,13 +246,27 @@ public class AppService {
      * 2.remove old app
      *
      * @param appName
+     * @param stage
      * @throws Exception
      */
-    public void removeRollbackDeployedApp(String appName) throws Exception {
+    public void finishManualCanaryDeployment(String appName, String stage) throws Exception {
         AppEntity appEntity = appJpaRepository.findOne(appName);
 
-        AppStage prod = appEntity.getProd();
-        String deployment = prod.getDeployment();
+        AppStage appStage = this.getAppStage(appEntity, stage);
+
+        boolean isBlueGreen = false;
+        String currentMarathonAppId = null;
+        String deploymentId = null;
+
+        if (appStage.getDeploymentStrategy().getBluegreen()) {
+            throw new Exception(String.format("Not BLUE/GREEN deployment to finish, %s, %s", appName, stage));
+        }
+
+        if (!DeploymentStatus.RUNNING.equals(appStage.getTempDeployment().getStatus())) {
+            throw new Exception(String.format("Not RUNNING deployment to finish, %s, %s", appName, stage));
+        }
+
+        String deployment = appStage.getDeployment();
 
         //삭제할 롤백 마라톤 앱이 있는지 확인한다.
         String rollbackDeployment = null;
@@ -184,17 +281,18 @@ public class AppService {
 
         Map marathonApp = dcosApi.getApp(rollbackMarathonAppId);
         if (marathonApp == null) {
-            throw new Exception("Not found marathon app to remove rollback, " + rollbackMarathonAppId);
+            throw new Exception("Not found marathon app to finish, " + rollbackMarathonAppId);
         }
 
         //1.move field
-        prod.setSnapshotOld(null);
-        prod.setMarathonAppIdOld(null);
-        prod.setDeploymentOld(rollbackDeployment);
+        appStage.setSnapshotOld(null);
+        appStage.setMarathonAppIdOld(null);
+        appStage.setDeploymentOld(null);
+        appStage.setCommitOld(null);
 
-        prod.getDeploymentStrategy().getCanary().setWeight(100);
-        appEntity.setProd(prod);
-
+        //weight 100
+        appStage.getDeploymentStrategy().getCanary().setWeight(100);
+        this.setAppStage(appEntity, appStage, stage);
         appJpaRepository.save(appEntity);
 
         //remove old app
@@ -203,6 +301,9 @@ public class AppService {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+
+        //save history and finish deployment
+        this.finishDeployment(appEntity, appStage, stage, DeploymentStatus.SUCCEED);
     }
 
     /**
@@ -433,17 +534,17 @@ public class AppService {
         }
 
         //appMap 최종 업로드
-        AppStage dev = appEntity.getDev();
+        AppStage dev = this.adjustmentStage(appEntity.getDev());
         dev.setDeployJson(null);
         dev.setMesos(null);
         appEntity.setDev(dev);
 
-        AppStage stg = appEntity.getStg();
+        AppStage stg = this.adjustmentStage(appEntity.getStg());
         stg.setDeployJson(null);
         stg.setMesos(null);
         appEntity.setStg(stg);
 
-        AppStage prod = appEntity.getProd();
+        AppStage prod = this.adjustmentStage(appEntity.getProd());
         prod.setDeployJson(null);
         prod.setMesos(null);
         appEntity.setProd(prod);
@@ -468,17 +569,17 @@ public class AppService {
         appEntity.setName(appName);
 
         //appMap 최종 업로드
-        AppStage dev = appEntity.getDev();
+        AppStage dev = this.adjustmentStage(appEntity.getDev());
         dev.setDeployJson(null);
         dev.setMesos(null);
         appEntity.setDev(dev);
 
-        AppStage stg = appEntity.getStg();
+        AppStage stg = this.adjustmentStage(appEntity.getStg());
         stg.setDeployJson(null);
         stg.setMesos(null);
         appEntity.setStg(stg);
 
-        AppStage prod = appEntity.getProd();
+        AppStage prod = this.adjustmentStage(appEntity.getProd());
         prod.setDeployJson(null);
         prod.setMesos(null);
         appEntity.setProd(prod);
@@ -995,5 +1096,95 @@ public class AppService {
         HttpEntity entity = res.getEntity();
         String json = EntityUtils.toString(entity);
         return JsonUtils.unmarshal(json);
+    }
+
+    /**
+     * appStage 를 룰에 마추어 저장한다.
+     * 룰 - 배포전략
+     *
+     * @param appStage
+     * @return
+     */
+    public AppStage adjustmentStage(AppStage appStage) {
+        DeploymentStrategy deploymentStrategy = appStage.getDeploymentStrategy();
+        InstanceStrategy instanceStrategy = deploymentStrategy.getInstanceStrategy();
+        if (InstanceStrategy.RECREATE.equals(instanceStrategy)) {
+            deploymentStrategy.setBluegreen(false);
+            deploymentStrategy.getCanary().setActive(false);
+            deploymentStrategy.getAbtest().setActive(false);
+        } else if (InstanceStrategy.RAMP.equals(instanceStrategy)) {
+            deploymentStrategy.setBluegreen(false);
+            deploymentStrategy.getCanary().setActive(false);
+            deploymentStrategy.getAbtest().setActive(false);
+        } else if (InstanceStrategy.CANARY.equals(instanceStrategy)) {
+            deploymentStrategy.setBluegreen(true);
+            deploymentStrategy.getCanary().setActive(true);
+            deploymentStrategy.getAbtest().setActive(false);
+        } else if (InstanceStrategy.ABTEST.equals(instanceStrategy)) {
+            deploymentStrategy.setBluegreen(true);
+            deploymentStrategy.getCanary().setActive(true);
+            deploymentStrategy.getAbtest().setActive(true);
+        }
+        return appStage;
+    }
+
+    public AppStage getAppStage(AppEntity appEntity, String stage) {
+        AppStage appStage = null;
+        switch (stage) {
+            case "dev":
+                appStage = appEntity.getDev();
+                break;
+            case "stg":
+                appStage = appEntity.getStg();
+                break;
+            case "prod":
+                appStage = appEntity.getProd();
+                break;
+        }
+        return appStage;
+    }
+
+    public AppEntity setAppStage(AppEntity appEntity, AppStage appStage, String stage) {
+        switch (stage) {
+            case "dev":
+                appEntity.setDev(appStage);
+                break;
+            case "stg":
+                appEntity.setStg(appStage);
+                break;
+            case "prod":
+                appEntity.setProd(appStage);
+                break;
+        }
+        return appEntity;
+    }
+
+    public Map getMarathonDeploymentById(String deploymentId) {
+        if (cronTable.getDcosData().get("deployments") == null) {
+            return null;
+        }
+        List<Map> deployments = (List<Map>) cronTable.getDcosData().get("deployments");
+
+        for (Map deployment : deployments) {
+            if (deployment.get("id").toString().equals(deploymentId)) {
+                return deployment;
+            }
+        }
+        return null;
+    }
+
+    public void finishDeployment(AppEntity appEntity, AppStage appStage, String stage, DeploymentStatus status) {
+
+        DeploymentHistoryEntity historyEntity = new DeploymentHistoryEntity(
+                appEntity,
+                stage,
+                status
+        );
+        historyRepository.save(historyEntity);
+
+        //remove tempDeployment for app and save.
+        appStage.setTempDeployment(null);
+        this.setAppStage(appEntity, appStage, stage);
+        appJpaRepository.save(appEntity);
     }
 }

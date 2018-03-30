@@ -1,5 +1,6 @@
 package org.uengine.cloud.app;
 
+import org.uengine.cloud.deployment.TempDeployment;
 import org.uengine.cloud.strategies.DeploymentStrategy;
 import org.uengine.cloud.strategies.InstanceStrategy;
 
@@ -14,6 +15,7 @@ public class AppStage {
     private String external;
     private String internal;
     private String marathonAppId;
+    private String commit;
     private int servicePort;
     private Map deployJson;
     private Map mesos;
@@ -23,11 +25,15 @@ public class AppStage {
     private Long snapshotOld;
     private String deploymentOld;
     private String marathonAppIdOld;
+    private String commitOld;
+
+    private TempDeployment tempDeployment;
 
     public AppStage() {
         this.snapshot = new Long(0);
         this.snapshotOld = new Long(0);
         this.deploymentStrategy = new DeploymentStrategy();
+        this.tempDeployment = new TempDeployment();
     }
 
     public String getDeployment() {
@@ -106,7 +112,7 @@ public class AppStage {
     }
 
     public Long getSnapshot() {
-        if(snapshot == null){
+        if (snapshot == null) {
             snapshot = new Long(0);
         }
         return snapshot;
@@ -117,7 +123,7 @@ public class AppStage {
     }
 
     public Long getSnapshotOld() {
-        if(snapshotOld == null){
+        if (snapshotOld == null) {
             snapshotOld = new Long(0);
         }
         return snapshotOld;
@@ -141,5 +147,32 @@ public class AppStage {
 
     public void setMarathonAppIdOld(String marathonAppIdOld) {
         this.marathonAppIdOld = marathonAppIdOld;
+    }
+
+    public String getCommit() {
+        return commit;
+    }
+
+    public void setCommit(String commit) {
+        this.commit = commit;
+    }
+
+    public String getCommitOld() {
+        return commitOld;
+    }
+
+    public void setCommitOld(String commitOld) {
+        this.commitOld = commitOld;
+    }
+
+    public TempDeployment getTempDeployment() {
+        if (tempDeployment == null) {
+            tempDeployment = new TempDeployment();
+        }
+        return tempDeployment;
+    }
+
+    public void setTempDeployment(TempDeployment tempDeployment) {
+        this.tempDeployment = tempDeployment;
     }
 }

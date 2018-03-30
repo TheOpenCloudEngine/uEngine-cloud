@@ -161,7 +161,7 @@ public class AppController {
     }
 
     /**
-     * Remove current production. (rollback old production)
+     * Rollback App which is on deployment.
      *
      * @param request
      * @param response
@@ -169,41 +169,43 @@ public class AppController {
      * @throws Exception
      */
     @RequestMapping(value = "/{appName}/rollback", method = RequestMethod.DELETE, produces = "application/json;charset=UTF-8")
-    public void rollbackDeployedApp(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    @PathVariable("appName") String appName
+    public void rollbackApp(HttpServletRequest request,
+                            HttpServletResponse response,
+                            @PathVariable("appName") String appName,
+                            @RequestParam(value = "stage") String stage
     ) throws Exception {
         try {
-            appService.rollbackDeployedApp(appName);
+            appService.rollbackApp(appName, stage);
             response.setStatus(200);
 
-            logService.addHistory(appName, AppLogAction.ROLLBACK_DEPLOYED_APP, AppLogStatus.SUCCESS, null);
+            logService.addHistory(appName, AppLogAction.ROLLBACK_APP, AppLogStatus.SUCCESS, null);
         } catch (Exception ex) {
-            logService.addHistory(appName, AppLogAction.ROLLBACK_DEPLOYED_APP, AppLogStatus.FAILED, null);
+            logService.addHistory(appName, AppLogAction.ROLLBACK_APP, AppLogStatus.FAILED, null);
             throw ex;
         }
     }
 
     /**
-     * Remove old production. (remove rollback)
+     * Finish app deployment which is on manual canary deployment.
      *
      * @param request
      * @param response
      * @param appName  앱 이름
      * @throws Exception
      */
-    @RequestMapping(value = "/{appName}/removeRollback", method = RequestMethod.DELETE, produces = "application/json;charset=UTF-8")
-    public void removeRollbackDeployedApp(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    @PathVariable("appName") String appName
+    @RequestMapping(value = "/{appName}/finishManualCanaryDeployment", method = RequestMethod.DELETE, produces = "application/json;charset=UTF-8")
+    public void finishManualCanaryDeployment(HttpServletRequest request,
+                                             HttpServletResponse response,
+                                             @PathVariable("appName") String appName,
+                                             @RequestParam(value = "stage") String stage
     ) throws Exception {
         try {
-            appService.removeRollbackDeployedApp(appName);
+            appService.finishManualCanaryDeployment(appName, stage);
             response.setStatus(200);
 
-            logService.addHistory(appName, AppLogAction.REMOVE_ROLLBACK_DEPLOYED_APP, AppLogStatus.SUCCESS, null);
+            logService.addHistory(appName, AppLogAction.FINISH_MANUAL_CANARY_DEPLOYMENT, AppLogStatus.SUCCESS, null);
         } catch (Exception ex) {
-            logService.addHistory(appName, AppLogAction.REMOVE_ROLLBACK_DEPLOYED_APP, AppLogStatus.FAILED, null);
+            logService.addHistory(appName, AppLogAction.FINISH_MANUAL_CANARY_DEPLOYMENT, AppLogStatus.FAILED, null);
             throw ex;
         }
     }
@@ -224,14 +226,21 @@ public class AppController {
                                @PathVariable("appName") String appName,
                                @RequestParam(value = "stage") String stage,
                                @RequestParam(defaultValue = "true", value = "exchange") boolean exchange,
-                               @RequestParam(value = "commit", required = false) String commit
+                               @RequestParam(value = "commit", required = false) String commit,
+                               @RequestBody(required = false) Map params
     ) throws Exception {
         Map log = new HashMap();
         log.put("commit", commit);
         log.put("stage", stage);
         log.put("exchange", exchange);
         try {
-            appService.runDeployedApp(appName, stage, commit, null, exchange);
+            String name = null;
+            String description = null;
+            if (params != null) {
+                name = params.containsKey("name") ? params.get("name").toString() : null;
+                description = params.containsKey("description") ? params.get("description").toString() : null;
+            }
+            appService.runDeployedApp(appName, stage, commit, null, exchange, name, description);
             response.setStatus(200);
 
             logService.addHistory(appName, AppLogAction.RUN_DEPLOYED_APP_REQUEST, AppLogStatus.SUCCESS, log);

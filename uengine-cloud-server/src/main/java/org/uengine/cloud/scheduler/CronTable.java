@@ -4,6 +4,10 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
 import org.uengine.cloud.app.*;
+import org.uengine.cloud.deployment.DeploymentHistoryEntity;
+import org.uengine.cloud.deployment.DeploymentHistoryRepository;
+import org.uengine.cloud.deployment.DeploymentStatus;
+import org.uengine.cloud.strategies.Canary;
 import org.uengine.iam.util.HttpUtils;
 import org.uengine.iam.util.JsonUtils;
 import org.springframework.beans.factory.InitializingBean;
@@ -12,6 +16,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.uengine.cloud.ssh.SshService;
+import org.uengine.iam.util.StringUtils;
 
 import java.util.*;
 
@@ -39,8 +44,12 @@ public class CronTable implements InitializingBean {
     @Autowired
     private AppAccessLevelRepository appAccessLevelRepository;
 
+    @Autowired
+    private DeploymentHistoryRepository historyRepository;
+
     private String host;
     private String token;
+    private Long lastDeploymentsReadSuccessTime;
 
     public Map<String, Object> dcosData;
 
@@ -52,6 +61,15 @@ public class CronTable implements InitializingBean {
 
     public List<AppEntity> getAppEntityList() {
         return appEntityList;
+    }
+
+
+    public Long getLastDeploymentsReadSuccessTime() {
+        return lastDeploymentsReadSuccessTime;
+    }
+
+    public void setLastDeploymentsReadSuccessTime(Long lastDeploymentsReadSuccessTime) {
+        this.lastDeploymentsReadSuccessTime = lastDeploymentsReadSuccessTime;
     }
 
     @Override
@@ -111,6 +129,7 @@ public class CronTable implements InitializingBean {
             String json = EntityUtils.toString(entity);
             dcosData.put("groups", JsonUtils.unmarshal(json));
         } catch (Exception e) {
+            dcosData.put("groups", null);
             e.printStackTrace();
         }
 
@@ -138,7 +157,11 @@ public class CronTable implements InitializingBean {
             HttpEntity entity = response.getEntity();
             String json = EntityUtils.toString(entity);
             dcosData.put("deployments", JsonUtils.unmarshalToList(json));
+
+            this.setLastDeploymentsReadSuccessTime(new Date().getTime());
         } catch (Exception e) {
+            //이상일 경우 null
+            dcosData.put("deployments", null);
             e.printStackTrace();
         }
 
@@ -210,6 +233,171 @@ public class CronTable implements InitializingBean {
                     }
                 }
             }
+        }
+    }
+
+    // 애플리케이션 시작 후 10초 후에 첫 실행, 그 후 매 2초마다 주기적으로 실행한다.
+    @Scheduled(initialDelay = 10000, fixedDelay = 10000)
+    public void checkDeploymentComplete() throws Exception {
+        if (this.getDcosData().get("deployments") == null ||
+                this.getDcosData().get("groups") == null) {
+            return;
+        }
+
+        List<Map> deployments = (List<Map>) this.getDcosData().get("deployments");
+        List<Map> apps = (List<Map>) ((Map) this.getDcosData().get("groups")).get("apps");
+
+        List<AppEntity> appEntityList = this.getAppEntityList();
+
+        String[] stages = new String[]{"dev", "stg", "prod"};
+
+        //for appEntity,
+        for (AppEntity appEntity : appEntityList) {
+            for (String stage : stages) {
+                AppStage appStage = appService.getAppStage(appEntity, stage);
+
+                DeploymentStatus status = appStage.getTempDeployment().getStatus();
+
+                //Time check. LastDeploymentsReadSuccessTime should more than start time + 2s.
+                if (DeploymentStatus.RUNNING_ROLLBACK.equals(status) || DeploymentStatus.RUNNING.equals(status)) {
+                    boolean enableCheckDeployment = false;
+                    Long startTime = appStage.getTempDeployment().getStartTime();
+                    if (this.getLastDeploymentsReadSuccessTime() != null) {
+                        if (this.getLastDeploymentsReadSuccessTime() > (startTime + 2000)) {
+                            enableCheckDeployment = true;
+                        }
+                    }
+                    if (!enableCheckDeployment) {
+                        continue;
+                    }
+                }
+
+                //if RUNNING_ROLLBACK
+                if (DeploymentStatus.RUNNING_ROLLBACK.equals(status)) {
+
+                    //finish deployment if deployment end.
+                    if (this.isDeploymentFinished(appStage, deployments)) {
+                        //save history and finish deployment
+                        appService.finishDeployment(
+                                appEntity,
+                                appStage,
+                                stage,
+                                DeploymentStatus.ROLLBACK_SUCCEED);
+                    }
+
+                }
+                //if RUNNING
+                else if (DeploymentStatus.RUNNING.equals(status)) {
+
+                    boolean bluegreen = appStage.getDeploymentStrategy().getBluegreen();
+                    boolean auto = appStage.getDeploymentStrategy().getCanary().getAuto();
+                    Long deploymentEndTime = appStage.getTempDeployment().getDeploymentEndTime();
+
+                    //if not auto canary mode
+                    if (bluegreen && !auto) {
+                        //Nothing to do (By user Handle).
+                    }
+                    //if auto canary mode
+                    else if (bluegreen && auto) {
+
+                        //if deployment is finished && not has deploymentEndTime, record deploymentEndTime
+                        if (this.isDeploymentFinished(appStage, deployments) && deploymentEndTime == null) {
+
+                            //update Deployment End Time.
+                            appStage.getTempDeployment().setDeploymentEndTime(new Date().getTime());
+                            appService.setAppStage(appEntity, appStage, stage);
+                            appEntityRepository.save(appEntity);
+                        }
+                        //if has deploymentEndTime , (timer started)
+                        else if (deploymentEndTime != null) {
+                            int increase = appStage.getDeploymentStrategy().getCanary().getIncrease();
+                            int test = appStage.getDeploymentStrategy().getCanary().getTest();
+                            int decrease = appStage.getDeploymentStrategy().getCanary().getDecrease();
+
+                            long totalTime = Long.valueOf((increase + test + decrease)) * 60 * 1000;
+                            long increaseTime = Long.valueOf((increase)) * 60 * 1000;
+                            long testTime = Long.valueOf((test)) * 60 * 1000;
+                            long decreaseTime = Long.valueOf((decrease)) * 60 * 1000;
+
+                            long currentTime = new Date().getTime();
+                            int currentWeight = appStage.getDeploymentStrategy().getCanary().getWeight();
+
+                            //Update weight if time is not over (all is minute base)
+                            if ((deploymentEndTime + totalTime) > currentTime) {
+
+                                Long newWeight = new Long(0);
+
+                                //it is increase time
+                                if ((deploymentEndTime + increaseTime) > currentTime) {
+                                    long diff = currentTime - deploymentEndTime;
+                                    newWeight = 50 * (diff / increaseTime);
+                                }
+
+                                //it is test time
+                                else if ((deploymentEndTime + increaseTime + testTime) > currentTime) {
+                                    newWeight = new Long(50);
+                                }
+
+                                //it is decrease time
+                                else {
+                                    long diff = currentTime - deploymentEndTime - increaseTime - testTime;
+                                    newWeight = 50 * (diff / decreaseTime);
+                                }
+
+                                //save if newWeight is diff currentWeight
+                                if (newWeight.intValue() != currentWeight) {
+                                    appStage.getDeploymentStrategy().getCanary().setWeight(newWeight.intValue());
+                                    appEntity = appService.setAppStage(appEntity, appStage, stage);
+                                    appEntityRepository.save(appEntity);
+                                }
+                            }
+                            //finishManualCanaryDeployment if time is over
+                            else {
+                                appService.finishManualCanaryDeployment(appEntity.getName(), stage);
+                            }
+                        }
+
+                    }
+                    //else
+                    else {
+                        //finish deployment if deployment end.
+                        if (this.isDeploymentFinished(appStage, deployments)) {
+                            //save history and finish deployment
+                            appService.finishDeployment(
+                                    appEntity,
+                                    appStage,
+                                    stage,
+                                    DeploymentStatus.SUCCEED);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean isDeploymentFinished(AppStage appStage, List<Map> deployments) {
+        String deploymentId = appStage.getTempDeployment().getDeploymentId();
+
+        if (!StringUtils.isEmpty(deploymentId)) {
+            boolean isRunning = false;
+            for (Map deployment : deployments) {
+                String marathonDeploymentId = deployment.get("id").toString();
+
+                //마라톤에 디플로이먼트가 진행중이다.
+                if (marathonDeploymentId.equals(deploymentId)) {
+                    isRunning = true;
+                }
+            }
+
+            //if deployment finish
+            if (!isRunning) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            //Undefined deploymentId, we can't know isFinished.
+            return false;
         }
     }
 }
