@@ -22,6 +22,10 @@ public interface JPAUserRepository extends PagingAndSortingRepository<JPAUserEnt
     Page<JPAUserEntity> findLikeUserName(@Param("userName") String userName, Pageable pageable);
 
 
+    @Query("select u from JPAUserEntity u where u.userName like CONCAT('%@',:tenantId,'%') and u.metaDataString like CONCAT('%', :scope, '%')")
+    Page<JPAUserEntity> findLikeTenantIdAndScope(@Param("tenantId") String tenantId, @Param("scope") String scope, Pageable pageable);
+
+
     JPAUserEntity findByUserNameAndUserPassword(@Param("userName") String userName, @Param("userPassword") String userPassword);
 
 }

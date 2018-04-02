@@ -49,7 +49,6 @@ public class MyUserRepositoryImpl implements OauthUserRepository {
             throw new RuntimeException("password is too short. more than 8 characters required.");
         }
 
-
         try {
 
             //==========깃랩 유저 생성====================
