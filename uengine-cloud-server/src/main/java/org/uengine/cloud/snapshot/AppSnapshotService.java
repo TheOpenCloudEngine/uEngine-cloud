@@ -120,7 +120,7 @@ public class AppSnapshotService {
                     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
                     String dateString = dateFormat.format(new Date());
                     String name = String.format("%s Auto deployment from Snapshot %s, %s %s", dateString, appSnapshot.getId(), appName, stage);
-                    appService.runDeployedApp(appName, stage, commit, appSnapshot.getId(), true, name, null);
+                    appService.runDeployedApp(appName, stage, commit, appSnapshot.getId(), name, null);
                 }
             }
         }

@@ -225,14 +225,12 @@ public class AppController {
                                HttpServletResponse response,
                                @PathVariable("appName") String appName,
                                @RequestParam(value = "stage") String stage,
-                               @RequestParam(defaultValue = "true", value = "exchange") boolean exchange,
                                @RequestParam(value = "commit", required = false) String commit,
                                @RequestBody(required = false) Map params
     ) throws Exception {
         Map log = new HashMap();
         log.put("commit", commit);
         log.put("stage", stage);
-        log.put("exchange", exchange);
         try {
             String name = null;
             String description = null;
@@ -240,7 +238,7 @@ public class AppController {
                 name = params.containsKey("name") ? params.get("name").toString() : null;
                 description = params.containsKey("description") ? params.get("description").toString() : null;
             }
-            appService.runDeployedApp(appName, stage, commit, null, exchange, name, description);
+            appService.runDeployedApp(appName, stage, commit, null, name, description);
             response.setStatus(200);
 
             logService.addHistory(appName, AppLogAction.RUN_DEPLOYED_APP_REQUEST, AppLogStatus.SUCCESS, log);

@@ -56,7 +56,6 @@ public class DeployAppJob implements Job {
         String appName = map.get("appName").toString();
         String stage = map.get("stage").toString();
         Long snapshotId = (Long) map.get("snapshotId");
-        boolean exchange = (boolean) map.get("exchange");
         String commit = null;
         if (map.get("commit") != null) {
             commit = map.get("commit").toString();
@@ -103,7 +102,7 @@ public class DeployAppJob implements Job {
                 DeploymentHistoryEntity historyEntity = new DeploymentHistoryEntity(
                         appEntity,
                         stage,
-                        DeploymentStatus.RUNNING.equals(preStatus) ? DeploymentStatus.CANCELED : DeploymentStatus.RUNNING_ROLLBACK
+                        DeploymentStatus.CANCELED
                 );
                 historyRepository.save(historyEntity);
             }
@@ -112,11 +111,9 @@ public class DeployAppJob implements Job {
              * check if blue-green
              * 1. DeploymentStrategy bluegreen equal true
              * 2. Prod stage && Current Production App is exist.
-             * 3. exchange is true
              */
             boolean bluegreenDeployment = false;
-            if (appStage.getDeploymentStrategy().getBluegreen()
-                    && stage.equals("prod") && exchange) {
+            if (appStage.getDeploymentStrategy().getBluegreen()) {
                 String currentDeployment = deployment;
                 String currentMarathonAppId = appName + "-" + currentDeployment;
                 try {
@@ -192,7 +189,11 @@ public class DeployAppJob implements Job {
                 appStage.setDeploymentOld(oldDeployment);
                 appStage.setMarathonAppId("/" + newMarathonAppId);
                 appStage.setMarathonAppIdOld("/" + oldMarathonAppId);
-                appStage.getDeploymentStrategy().getCanary().setWeight(0);
+
+                //if auto, set weight 0
+                if (appStage.getDeploymentStrategy().getCanary().getAuto()) {
+                    appStage.getDeploymentStrategy().getCanary().setWeight(0);
+                }
 
                 if (oldMarathonApp != null) {
                     appStage.setCommitOld(this.getCommitRefFromMarathonApp(oldMarathonApp));
@@ -256,6 +257,8 @@ public class DeployAppJob implements Job {
                     appStage.setCommitOld(appStage.getCommit());
                 }
 
+                appStage.setCommit(dockerImage.split(":")[2]);
+
                 //기존 앱이 있을 경우 업데이트 디플로이
                 if (marathonApp != null) {
                     marathonDeploymentReponse = dcosApi.updateApp(marathonAppId, deployJson);
@@ -270,14 +273,35 @@ public class DeployAppJob implements Job {
              * 7) save app if success
              */
             //create tempDeployment
-            String deploymentId = marathonDeploymentReponse.get("deploymentId").toString();
+
+            String deploymentId = null;
+            //new app create;
+            if (marathonDeploymentReponse.containsKey("deployments")) {
+                List<Map> deployments = (List<Map>) marathonDeploymentReponse.get("deployments");
+                deploymentId = deployments.get(0).get("id").toString();
+            } else {
+                deploymentId = marathonDeploymentReponse.get("deploymentId").toString();
+            }
             TempDeployment tempDeployment = new TempDeployment();
             tempDeployment.setDeploymentId(deploymentId);
             tempDeployment.setName(name);
             tempDeployment.setDescription(description);
             tempDeployment.setStartTime(new Date().getTime());
             tempDeployment.setStatus(DeploymentStatus.RUNNING);
+            tempDeployment.setCommit(appStage.getCommit());
+            tempDeployment.setCommitOld(appStage.getCommitOld());
             appStage.setTempDeployment(tempDeployment);
+
+            /**
+             * if not bluegreen, and strategy is CANARY or ABTEST, force set RECREATE.
+             */
+            if (!bluegreenDeployment) {
+                InstanceStrategy strategy = appStage.getDeploymentStrategy().getInstanceStrategy();
+                if (InstanceStrategy.CANARY.equals(strategy) || InstanceStrategy.ABTEST.equals(strategy)) {
+                    appStage.getDeploymentStrategy().setInstanceStrategy(InstanceStrategy.RECREATE);
+                    appService.adjustmentStage(appStage);
+                }
+            }
 
             appEntity = appService.setAppStage(appEntity, appStage, stage);
             appEntity = appJpaRepository.save(appEntity);

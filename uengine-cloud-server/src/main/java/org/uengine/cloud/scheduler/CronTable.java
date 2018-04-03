@@ -237,7 +237,7 @@ public class CronTable implements InitializingBean {
     }
 
     // 애플리케이션 시작 후 10초 후에 첫 실행, 그 후 매 2초마다 주기적으로 실행한다.
-    @Scheduled(initialDelay = 10000, fixedDelay = 10000)
+    @Scheduled(initialDelay = 2000, fixedDelay = 2000)
     public void checkDeploymentComplete() throws Exception {
         if (this.getDcosData().get("deployments") == null ||
                 this.getDcosData().get("groups") == null) {
@@ -261,8 +261,14 @@ public class CronTable implements InitializingBean {
                 //Time check. LastDeploymentsReadSuccessTime should more than start time + 2s.
                 if (DeploymentStatus.RUNNING_ROLLBACK.equals(status) || DeploymentStatus.RUNNING.equals(status)) {
                     boolean enableCheckDeployment = false;
-                    Long startTime = appStage.getTempDeployment().getStartTime();
-                    if (this.getLastDeploymentsReadSuccessTime() != null) {
+
+                    Long startTime = null;
+                    if (DeploymentStatus.RUNNING_ROLLBACK.equals(status)) {
+                        startTime = appStage.getTempDeployment().getRollbackStartTime();
+                    } else if (DeploymentStatus.RUNNING.equals(status)) {
+                        startTime = appStage.getTempDeployment().getStartTime();
+                    }
+                    if (startTime != null && this.getLastDeploymentsReadSuccessTime() != null) {
                         if (this.getLastDeploymentsReadSuccessTime() > (startTime + 2000)) {
                             enableCheckDeployment = true;
                         }
@@ -278,13 +284,15 @@ public class CronTable implements InitializingBean {
                     //finish deployment if deployment end.
                     if (this.isDeploymentFinished(appStage, deployments)) {
                         //save history and finish deployment
-                        appService.finishDeployment(
-                                appEntity,
-                                appStage,
-                                stage,
-                                DeploymentStatus.ROLLBACK_SUCCEED);
+                        if (this.enableOverrideAppStage(appEntity, stage)) {
+                            //save history and finish deployment
+                            appService.finishDeployment(
+                                    appEntity,
+                                    appStage,
+                                    stage,
+                                    DeploymentStatus.ROLLBACK_SUCCEED);
+                        }
                     }
-
                 }
                 //if RUNNING
                 else if (DeploymentStatus.RUNNING.equals(status)) {
@@ -293,23 +301,28 @@ public class CronTable implements InitializingBean {
                     boolean auto = appStage.getDeploymentStrategy().getCanary().getAuto();
                     Long deploymentEndTime = appStage.getTempDeployment().getDeploymentEndTime();
 
+                    //if deployment is finished && not has deploymentEndTime, record deploymentEndTime
+                    if (this.isDeploymentFinished(appStage, deployments) && deploymentEndTime == null) {
+
+                        //update Deployment End Time.
+                        long nowTime = new Date().getTime();
+                        appStage.getTempDeployment().setDeploymentEndTime(nowTime);
+                        appService.setAppStage(appEntity, appStage, stage);
+
+                        if (this.enableOverrideAppStage(appEntity, stage)) {
+                            appEntityRepository.save(appEntity);
+                        }
+                    }
+
                     //if not auto canary mode
-                    if (bluegreen && !auto) {
+                    else if (bluegreen && !auto) {
                         //Nothing to do (By user Handle).
                     }
                     //if auto canary mode
                     else if (bluegreen && auto) {
 
-                        //if deployment is finished && not has deploymentEndTime, record deploymentEndTime
-                        if (this.isDeploymentFinished(appStage, deployments) && deploymentEndTime == null) {
-
-                            //update Deployment End Time.
-                            appStage.getTempDeployment().setDeploymentEndTime(new Date().getTime());
-                            appService.setAppStage(appEntity, appStage, stage);
-                            appEntityRepository.save(appEntity);
-                        }
                         //if has deploymentEndTime , (timer started)
-                        else if (deploymentEndTime != null) {
+                        if (deploymentEndTime != null) {
                             int increase = appStage.getDeploymentStrategy().getCanary().getIncrease();
                             int test = appStage.getDeploymentStrategy().getCanary().getTest();
                             int decrease = appStage.getDeploymentStrategy().getCanary().getDecrease();
@@ -326,53 +339,77 @@ public class CronTable implements InitializingBean {
                             if ((deploymentEndTime + totalTime) > currentTime) {
 
                                 Long newWeight = new Long(0);
+                                String currentStep = null;
 
                                 //it is increase time
                                 if ((deploymentEndTime + increaseTime) > currentTime) {
                                     long diff = currentTime - deploymentEndTime;
-                                    newWeight = 50 * (diff / increaseTime);
+                                    newWeight = (long) (50 * ((double) diff / (double) decreaseTime));
+                                    currentStep = "increase";
                                 }
 
                                 //it is test time
                                 else if ((deploymentEndTime + increaseTime + testTime) > currentTime) {
                                     newWeight = new Long(50);
+                                    currentStep = "test";
                                 }
 
                                 //it is decrease time
                                 else {
                                     long diff = currentTime - deploymentEndTime - increaseTime - testTime;
-                                    newWeight = 50 * (diff / decreaseTime);
+                                    newWeight = 50 + (long) (50 * ((double) diff / (double) decreaseTime));
+                                    currentStep = "decrease";
                                 }
 
                                 //save if newWeight is diff currentWeight
                                 if (newWeight.intValue() != currentWeight) {
+                                    appStage.getTempDeployment().setCurrentStep(currentStep);
+                                    Long minuteFromDeployment = (currentTime - deploymentEndTime) / (1000 * 60);
+                                    appStage.getTempDeployment().setMinuteFromDeployment(minuteFromDeployment.intValue());
                                     appStage.getDeploymentStrategy().getCanary().setWeight(newWeight.intValue());
                                     appEntity = appService.setAppStage(appEntity, appStage, stage);
-                                    appEntityRepository.save(appEntity);
+                                    if (this.enableOverrideAppStage(appEntity, stage)) {
+                                        appEntityRepository.save(appEntity);
+                                    }
                                 }
                             }
                             //finishManualCanaryDeployment if time is over
                             else {
-                                appService.finishManualCanaryDeployment(appEntity.getName(), stage);
+                                if (this.enableOverrideAppStage(appEntity, stage)) {
+                                    appService.finishManualCanaryDeployment(appEntity.getName(), stage);
+                                }
                             }
                         }
-
                     }
                     //else
                     else {
                         //finish deployment if deployment end.
                         if (this.isDeploymentFinished(appStage, deployments)) {
-                            //save history and finish deployment
-                            appService.finishDeployment(
-                                    appEntity,
-                                    appStage,
-                                    stage,
-                                    DeploymentStatus.SUCCEED);
+                            if (this.enableOverrideAppStage(appEntity, stage)) {
+                                //save history and finish deployment
+                                appService.finishDeployment(
+                                        appEntity,
+                                        appStage,
+                                        stage,
+                                        DeploymentStatus.SUCCEED);
+                            }
                         }
                     }
                 }
             }
         }
+    }
+
+    private boolean enableOverrideAppStage(AppEntity entity, String stage) {
+        AppEntity existEntity = appEntityRepository.findOne(entity.getName());
+        if (existEntity == null) {
+            return false;
+        }
+        AppStage appStage = appService.getAppStage(existEntity, stage);
+        if (appStage.getTempDeployment().getStatus() == null) {
+            return false;
+        }
+        return true;
     }
 
     private boolean isDeploymentFinished(AppStage appStage, List<Map> deployments) {
