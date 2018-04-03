@@ -211,6 +211,28 @@ public class AppController {
     }
 
     /**
+     * Convert manual canary deployment which is on auto canary deployment.
+     *
+     * @param request
+     * @param response
+     * @param appName  앱 이름
+     * @throws Exception
+     */
+    @RequestMapping(value = "/{appName}/convertManualCanaryDeployment", method = RequestMethod.PUT, produces = "application/json;charset=UTF-8")
+    public void convertManualCanaryDeployment(HttpServletRequest request,
+                                              HttpServletResponse response,
+                                              @PathVariable("appName") String appName,
+                                              @RequestParam(value = "stage") String stage
+    ) throws Exception {
+        try {
+            appService.convertManualCanaryDeployment(appName, stage);
+            response.setStatus(200);
+        } catch (Exception ex) {
+            throw ex;
+        }
+    }
+
+    /**
      * 앱의 주어진 스테이지에 인스턴스를 생성한다.
      *
      * @param request

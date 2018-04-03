@@ -1,15 +1,5 @@
 <template xmlns:v-on="http://www.w3.org/1999/xhtml" xmlns:v-bind="http://www.w3.org/1999/xhtml">
   <div v-if="appName">
-    <gitlab-deploy
-      v-if="devApp && categoryItem"
-      ref="gitlab-deploy"
-      :stage="stage"
-      :devApp="devApp"
-      :categoryItem="categoryItem"
-      :appName="appName"
-      :role="'deploy'"
-    ></gitlab-deploy>
-
     <service-deployments
       v-on:rows="onDeploymentRows"
       :appIds="['/'+ appName + '-blue', '/'+ appName + '-green', '/'+ appName + '-dev', '/'+ appName + '-stg']"
@@ -24,7 +14,7 @@
                  v-on:click="move(item.routerName)">
                 {{item.title}}
               </a>
-              <span v-if="pipeline && item.routerName == 'appsDetailDeployment'">
+              <span v-if="pipeline && item.routerName == 'appsDetailBuild'">
                 <md-tooltip md-direction="right">Last CI is {{pipeline.status}}</md-tooltip>
                 <md-spinner v-if="pipeline.status == 'running'" :md-size="20" md-indeterminate
                             class="md-accent"></md-spinner>
@@ -216,30 +206,7 @@
                   </div>
                 </md-layout>
                 <md-layout md-flex="50">
-                  <div v-if="commitInfo">
-                    <span
-                      class="md-caption">
-                      커미터: {{commitInfo.committer_name}} | 날짜: {{commitInfo.committed_date}}</span><br>
-                    <span class="md-caption">
-                      커밋:
-                      <a v-on:click="moveGitlab('commit',commitInfo.id)">
-                        <md-tooltip md-direction="bottom">커밋 이력으로 이동합니다.</md-tooltip>
-                        {{commitInfo.id}}
-                      </a>
-                    </span><br>
-                    <span class="md-caption">
-                      태그:
-                      <a v-if="commitInfo.tag" v-on:click="moveGitlab('tag',commitInfo.tag)">
-                        <md-tooltip md-direction="bottom">태그 보기로 이동합니다.</md-tooltip>
-                        {{commitInfo.tag}}
-                      </a>
-                    <span v-else>없음</span> |
-                      <a v-on:click="openGitlabDeploy">
-                        <md-tooltip md-direction="bottom">새 버전의 앱 배포합니다.</md-tooltip>
-                        태그 또는 브랜치 선택하여 배포하기
-                      </a>
-                    </span><br>
-                  </div>
+                  <commit-info :project-id="projectId" :commit-ref="commitRef"></commit-info>
                 </md-layout>
               </md-layout>
             </div>
@@ -313,7 +280,8 @@
         hasRollback: false,
         isRollback: false,
         tagList: [],
-        commitInfo: null,
+        commitRef: null,
+        projectId: null,
         currentRoute: 'appsDetailDashboard',
         interval: true,
         appRoutes: [],
@@ -327,7 +295,8 @@
           {title: '개요', icon: 'question_answer', routerName: 'appsDetailDashboard'},
           {title: '런타임 및 환경', icon: 'question_answer', routerName: 'appsDetailRuntime'},
           {title: '소스코드', icon: 'question_answer', routerName: 'gitlab'},
-          {title: '빌드 및 배포', icon: 'question_answer', routerName: 'appsDetailDeployment'},
+          {title: '빌드', icon: 'question_answer', routerName: 'appsDetailBuild'},
+          {title: '배포', icon: 'question_answer', routerName: 'appsDetailDeployment'},
           {title: '스냅샷', icon: 'question_answer', routerName: 'appsDetailSnapshot'},
           {title: '로그', icon: 'question_answer', routerName: 'appsDetailLog'},
           {title: '모니터링', icon: 'question_answer', routerName: 'appsDetailMonitor'},
@@ -340,10 +309,6 @@
       var me = this;
       me.isAdmin = window.localStorage['acl'] == 'admin' ? true : false;
       me.categoryItem = null;
-
-      window.busVue.$on('openGitlabDeploy', function (val) {
-        me.openGitlabDeploy();
-      });
 
       this.updateActive();
 
@@ -441,9 +406,6 @@
             }
           });
       },
-      openGitlabDeploy: function () {
-        this.$refs['gitlab-deploy'].open();
-      },
       updateRollbackInfo: function () {
         var me = this;
         var marathonApps = me.getAppsByDevopsId(me.appName);
@@ -454,39 +416,18 @@
       },
       updateCommitInfo: function () {
         var me = this;
-        if (!me.devApp) {
-          me.commitInfo = null;
-          return;
-        }
-        var projectId = me.devApp.projectId;
-        var marathonAppId = me.devApp[me.stage]['marathonAppId'];
-        var marathonApp = me.getDcosAppById(marathonAppId);
-        if (!marathonApp) {
-          me.commitInfo = null;
-          return;
-        }
-        var dockerImage = marathonApp.container.docker.image;
-        var split = dockerImage.split(':');
-        var commitId = split[split.length - 1];
-        me.tagList = [];
-        var commitInfo;
+        me.commitRef = null;
+        me.projectId = null;
 
-        me.$root.gitlab('api/v4//projects/' + projectId + '/repository/commits/' + commitId).get()
-          .then(function (response) {
-            commitInfo = response.data;
-            me.$root.gitlab('api/v4//projects/' + projectId + '/repository/tags').get()
-              .then(function (response) {
-                me.tagList = response.data;
-                $.each(me.tagList, function (i, tag) {
-                  if (tag.commit.id == commitInfo.id) {
-                    commitInfo.tag = tag.name;
-                  }
-                });
-                me.commitInfo = commitInfo;
-              });
-          }, function () {
-            me.commitInfo = null;
-          });
+        if (!me.devApp) {
+          return;
+        }
+        me.projectId = me.devApp.projectId;
+        var marathonApp = me.getDcosAppById(me.devApp[me.stage]['marathonAppId']);
+        if (!marathonApp) {
+          return;
+        }
+        me.commitRef = me.getCommitRefFromMarathonApp(marathonApp);
       },
       updateActive: function () {
         var me = this;

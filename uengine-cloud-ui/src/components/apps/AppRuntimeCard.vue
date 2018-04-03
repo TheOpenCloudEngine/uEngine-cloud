@@ -1,7 +1,7 @@
 <template xmlns:v-on="http://www.w3.org/1999/xhtml">
   <md-layout v-if="categoryItem && devApp" class="bg-white">
     <div class="header-top-line"></div>
-    <div v-if="isActive || gitlabDeploy" style="width: 100%">
+    <div v-if="isActive || !deploy" style="width: 100%">
       <md-layout>
         <md-layout v-for="(item, key) in items">
           <md-card md-with-hover style="width: 100%;">
@@ -36,9 +36,11 @@
                 <div v-if="!item.diff" style="text-align: center">
                   <span class="md-caption" style="font-weight: bold">{{item.title}}</span>
                   <br>
-                  <span v-if="item.type != 'instances' || gitlabDeploy" class="md-caption">{{item.subTitle}}</span>
-                  <div v-else>
+                  <div v-if="item.type == 'instances' && deploy">
                     <service-progress fullWidth :app="marathonApp"></service-progress>
+                  </div>
+                  <div v-else>
+                    <span class="md-caption">{{item.subTitle}}</span>
                   </div>
                 </div>
                 <div v-else>
@@ -83,10 +85,10 @@
       stage: String,
       devApp: Object,
       categoryItem: Object,
-      gitlabDeploy: {
+      deploy: {
         type: Boolean,
         default: function () {
-          return false;
+          return true;
         }
       },
       isRollback: Boolean
@@ -134,7 +136,7 @@
       updateApp: function (data) {
         //어플리케이션 업데이트
         var me = this;
-        if (me.gitlabDeploy) {
+        if (!me.deploy) {
           me.resourceUpdated = false;
           me.$emit('update:devApp', data);
         } else {

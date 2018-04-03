@@ -305,6 +305,35 @@ public class AppService {
     }
 
     /**
+     * Convert manual canary deployment which is on auto canary deployment.
+     *
+     * @param appName
+     * @param stage
+     * @throws Exception
+     */
+    public void convertManualCanaryDeployment(String appName, String stage) throws Exception {
+        AppEntity appEntity = appJpaRepository.findOne(appName);
+
+        AppStage appStage = this.getAppStage(appEntity, stage);
+
+        if (!appStage.getDeploymentStrategy().getCanary().getActive()) {
+            throw new Exception(String.format("Not Canary deployment to convert manually, %s, %s", appName, stage));
+        }
+
+        if (!DeploymentStatus.RUNNING.equals(appStage.getTempDeployment().getStatus())) {
+            throw new Exception(String.format("Not RUNNING deployment to convert manually, %s, %s", appName, stage));
+        }
+
+        if (!appStage.getDeploymentStrategy().getCanary().getAuto()) {
+            throw new Exception(String.format("Not Auto configuration to convert manually, %s, %s", appName, stage));
+        }
+
+        appStage.getDeploymentStrategy().getCanary().setAuto(false);
+        this.setAppStage(appEntity, appStage, stage);
+        appJpaRepository.save(appEntity);
+    }
+
+    /**
      * 어플리케이션의 주어진 스테이지의 마라톤 서비스를 삭제한다.
      *
      * @param appName

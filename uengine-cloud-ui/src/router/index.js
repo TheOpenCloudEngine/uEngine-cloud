@@ -7,6 +7,9 @@ import AvatarUploader from '../components/AvatarUploader'
 
 Vue.component('avatar-uploader', AvatarUploader);
 
+import VueSlider from 'vue-slider-component'
+Vue.component('vue-slider', VueSlider);
+
 import DcosDataProvider from '../components/DcosDataProvider'
 
 Vue.component('dcos-data-provider', DcosDataProvider);
@@ -177,6 +180,10 @@ import AppsDetailDeployment from '../components/apps/AppsDetailDeployment'
 
 Vue.component('apps-detail-deployment', AppsDetailDeployment);
 
+import AppsDetailBuild from '../components/apps/AppsDetailBuild'
+
+Vue.component('apps-detail-build', AppsDetailBuild);
+
 import AppsDetailLog from '../components/apps/AppsDetailLog'
 
 Vue.component('apps-detail-log', AppsDetailLog);
@@ -224,6 +231,35 @@ Vue.component('apps-logs-list', AppLogsList);
 import AppsDetailSnapshot from '../components/apps/AppsDetailSnapshot'
 
 Vue.component('apps-detail-snapshot', AppsDetailSnapshot);
+
+import DeploymentCurrent from '../components/apps/DeploymentCurrent'
+
+Vue.component('deployment-current', DeploymentCurrent);
+
+import DeploymentDetail from '../components/apps/DeploymentDetail'
+
+Vue.component('deployment-detail', DeploymentDetail);
+
+import DeploymentHistory from '../components/apps/DeploymentHistory'
+
+Vue.component('deployment-history', DeploymentHistory);
+
+import DeploymentNew from '../components/apps/DeploymentNew'
+
+Vue.component('deployment-new', DeploymentNew);
+
+import CommitInfo from '../components/apps/CommitInfo'
+
+Vue.component('commit-info', CommitInfo);
+
+import InfoBox from '../components/editor/InfoBox'
+
+Vue.component('info-box', InfoBox);
+
+import TrafficProgress from '../components/editor/TrafficProgress'
+
+Vue.component('traffic-progress', TrafficProgress);
+
 
 /**
  * 조직
@@ -547,6 +583,12 @@ export default new Router({
                   path: 'runtime',
                   name: 'appsDetailRuntime',
                   component: AppsDetailRuntime,
+                  beforeEnter: RouterGuard.requireUser,
+                },
+                {
+                  path: 'build',
+                  name: 'appsDetailBuild',
+                  component: AppsDetailBuild,
                   beforeEnter: RouterGuard.requireUser,
                 },
                 {

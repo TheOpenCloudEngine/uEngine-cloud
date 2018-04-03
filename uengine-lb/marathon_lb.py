@@ -497,9 +497,11 @@ def config(apps, groups, bind_http_https, ssl_certs, templater,
         if isNewProd or isOldProd:
             for _app in sorted(apps, key=attrgetter('appId', 'servicePort')):
                 if _app.appId == oldProdAppId:
-                    oldProdMarathonApp = _app
+                    if oldProdMarathonApp is None:
+                        oldProdMarathonApp = _app
                 if _app.appId == newProdAppId:
-                    newProdMarathonApp = _app
+                    if newProdMarathonApp is None:
+                        newProdMarathonApp = _app
 
         # If newApp exist and oldProdMarathonApp is None, all traffic go to newApp && servicePort use
         # else oldProdMarathonApp exist, servicePort +10000 used to newApp, servicePort uses to oldProdMarathonApp

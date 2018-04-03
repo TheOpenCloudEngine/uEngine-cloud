@@ -1,3 +1,11 @@
+# Testing
+
+```
+docker run -v /Users/uengine/IdeaProjects/uEngine-cloud/uengine-lb/utils:/marathon-lb/utils -v /Users/uengine/IdeaProjects/uEngine-cloud/uengine-lb/marathon_lb.py:/marathon-lb/marathon_lb.py --privileged --net="host" -e PORTS=80,443,9090,9091,10000,10001,10002,10003 -e HAPROXY_SYSCTL_PARAMS="net.ipv4.tcp_tw_reuse=1 net.ipv4.tcp_fin_timeout=30 net.ipv4.tcp_max_syn_backlog=10240 net.ipv4.tcp_max_tw_buckets=400000 net.ipv4.tcp_max_orphans=60000 net.core.somaxconn=10000" -e HAPROXY_GLOBAL_DEFAULT_OPTIONS="redispatch,http-server-close,dontlognull" sppark/uengine-lb:v1 sse -m http://52.79.51.79:9201 --health-check --haproxy-map --max-reload-retries 10 --reload-interval 10 --group external --cloud-server http://192.168.0.36:8080
+```
+
+
+
 # marathon-lb [![Build Status](https://jenkins.mesosphere.com/service/jenkins/buildStatus/icon?job=public-marathon-lb-master)](https://jenkins.mesosphere.com/service/jenkins/job/public-marathon-lb-master/)
 
 Marathon-lb is a tool for managing HAProxy, by consuming

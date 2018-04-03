@@ -29,10 +29,6 @@ body.md-theme-default {
   padding-top: 0px;
 }
 
-.md-input-container .md-icon:not(.md-icon-delete) {
-
-}
-
 .md-input-container .md-button {
   min-width: 0px;
 }

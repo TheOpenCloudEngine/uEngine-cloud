@@ -78,7 +78,7 @@
             function (response) {
               me.$root.$children[0].error('배포를 중단할 수 없습니다.');
               if (cb) {
-                cb(response);
+                cb(null, response);
               }
             })
           .finally(function () {
@@ -103,7 +103,7 @@
               function (response) {
                 me.$root.$children[0].error('어플리케이션을 삭제할 수 없습니다.');
                 if (cb) {
-                  cb(response);
+                  cb(null, response);
                 }
               })
             .finally(function () {
@@ -129,7 +129,7 @@
               function (response, a, b) {
                 me.$root.$children[0].error('어플리케이션을 재시작 할 수 없습니다.');
                 if (cb) {
-                  cb(response);
+                  cb(null, response);
                 }
               })
             .finally(function () {
@@ -153,7 +153,7 @@
             function (response) {
               me.$root.$children[0].error("서비스를 생성할 수 없습니다.");
               if (cb) {
-                cb(response);
+                cb(null, response);
               }
             })
           .finally(function () {
@@ -179,7 +179,7 @@
               function (response) {
                 me.$root.$children[0].error("서비스 수정에 실패하였습니다.");
                 if (cb) {
-                  cb(response);
+                  cb(null, response);
                 }
               })
             .finally(function () {
@@ -207,7 +207,7 @@
               function (response, a, b) {
                 me.$root.$children[0].error('인스턴스 개수를 변경할 수 없습니다.');
                 if (cb) {
-                  cb(response);
+                  cb(null, response);
                 }
               })
             .finally(function () {
@@ -235,7 +235,7 @@
               function (response) {
                 me.$root.$children[0].error('어플리케이션을 정지할 수 없습니다.');
                 if (cb) {
-                  cb(response);
+                  cb(null, response);
                 }
               })
             .finally(function () {
@@ -411,17 +411,17 @@
             function (response) {
               me.$root.$children[0].error('어플리케이션을 저장할 수 없습니다.');
               if (cb) {
-                cb(response);
+                cb(null, response);
               }
             })
           .finally(function () {
             me.$root.$children[0].unblock();
           });
       },
-      rollbackDevApp: function (appName, cb) {
+      rollbackDevApp: function (appName, stage, cb) {
         var me = this;
         me.$root.$children[0].block();
-        this.$root.backend('app/' + appName + '/rollback')
+        this.$root.backend('app/' + appName + '/rollback?stage=' + stage)
           .remove({})
           .then(
             function (response) {
@@ -433,29 +433,7 @@
             function (response) {
               me.$root.$children[0].error('어플리케이션을 롤백 할 수 없습니다.');
               if (cb) {
-                cb(response);
-              }
-            })
-          .finally(function () {
-            me.$root.$children[0].unblock();
-          });
-      },
-      removeRollbackDevApp: function (appName, cb) {
-        var me = this;
-        me.$root.$children[0].block();
-        this.$root.backend('app/' + appName + '/removeRollback')
-          .remove({})
-          .then(
-            function (response) {
-              me.$root.$children[0].success('앱의 이전 버전을 삭제하였습니다.');
-              if (cb) {
-                cb(response);
-              }
-            },
-            function (response) {
-              me.$root.$children[0].error('앱의 이전 버전을 삭제 할 수 없습니다.');
-              if (cb) {
-                cb(response);
+                cb(null, response);
               }
             })
           .finally(function () {
@@ -559,7 +537,7 @@
             function (response) {
               if (cb) {
                 me.$root.$children[0].error('어플리케이션을 빌드를 시작할 수 없습니다.');
-                cb(response);
+                cb(null, response);
               }
             })
           .finally(function () {
@@ -569,61 +547,29 @@
       runDeployedApp: function (appName, stage, commit, cb) {
         //프로덕션을 배포할 경우 override confirm
         var me = this;
-        var run = function (exchange) {
-          var url = 'app/' + appName + '/deploy?stage=' + stage + '&exchange=' + exchange;
-          if (commit) {
-            url = url + '&commit=' + commit;
-          }
-          me.$root.$children[0].block();
-          me.$root.backend(url)
-            .save({})
-            .then(
-              function (response) {
-                me.$root.$children[0].success("앱 배포를 시작하였습니다.");
-                if (cb) {
-                  cb(response);
-                }
-              },
-              function (response) {
-                me.$root.$children[0].error("앱 배포 요청에 실패하였습니다.");
-                if (cb) {
-                  cb(response);
-                }
-              })
-            .finally(function () {
-              me.$root.$children[0].unblock();
-            });
+        var url = 'app/' + appName + '/deploy?stage=' + stage;
+        if (commit) {
+          url = url + '&commit=' + commit;
         }
-
-        var appsByDevopsId = me.getAppsByDevopsId(appName);
-        if (stage == 'prod' && appsByDevopsId.prod) {
-          me.getDevAppByName(appName, function (response, error) {
-            if (response && response.data.prod.deploymentStrategy.bluegreen) {
-              me.$root.$children[0].confirm2(
-                {
-                  title: 'Caution!!',
-                  contentHtml: appName + ' 의 프로덕션 앱이 이미 존재합니다. 어떤 방법으로 진행하겠습니까?',
-                  okText: '진행하기',
-                  cancelText: '취소',
-                  choice: [
-                    'exchange blue/green',
-                    'override current production. used to just compute resource upgrade, or redistribute instances that are not exposed to user traffic.'
-                  ],
-                  callback: function (selected) {
-                    if (selected == 0) {
-                      run(true);
-                    } else {
-                      run(false);
-                    }
-                  }
-                });
-            } else {
-              run(false);
-            }
-          })
-        } else {
-          run(false);
-        }
+        me.$root.$children[0].block();
+        me.$root.backend(url)
+          .save({})
+          .then(
+            function (response) {
+              me.$root.$children[0].success("앱 배포를 시작하였습니다.");
+              if (cb) {
+                cb(response);
+              }
+            },
+            function (response) {
+              me.$root.$children[0].error("앱 배포 요청에 실패하였습니다.");
+              if (cb) {
+                cb(null, response);
+              }
+            })
+          .finally(function () {
+            me.$root.$children[0].unblock();
+          });
       },
       removeDevAppByName: function (appName, cb) {
         var me = this;
@@ -640,7 +586,7 @@
             function (response) {
               me.$root.$children[0].error('어플리케이션을 삭제할 수 없습니다.');
               if (cb) {
-                cb(response);
+                cb(null, response);
               }
             })
           .finally(function () {
@@ -662,7 +608,7 @@
             function (response) {
               me.$root.$children[0].error('어플리케이션 ' + stage + ' 영역을 삭제할 수 없습니다.');
               if (cb) {
-                cb(response);
+                cb(null, response);
               }
             })
           .finally(function () {
@@ -719,7 +665,7 @@
             function (response) {
               me.$root.$children[0].error('어플리케이션을 환경 정보를 저장할 수 없습니다.');
               if (cb) {
-                cb(response);
+                cb(null, response);
               }
             })
           .finally(function () {
@@ -892,7 +838,131 @@
           .finally(function () {
             me.$root.$children[0].unblock();
           });
-      }
+      },
+      getCommitRefFromMarathonApp: function (marathonApp) {
+        if (!marathonApp) {
+          return null;
+        }
+        var image = marathonApp.container.docker.image;
+        return image.substring(image.lastIndexOf(":") + 1);
+      },
+      getCommitInfo: function (projectId, commitRef, cb) {
+        var me = this;
+        var commitInfo = null;
+        var tagList = [];
+        this.$root.gitlab('api/v4//projects/' + projectId + '/repository/commits/' + commitRef).get()
+          .then(function (response) {
+            commitInfo = response.data;
+            me.$root.gitlab('api/v4//projects/' + projectId + '/repository/tags').get()
+              .then(function (response) {
+                tagList = response.data;
+                $.each(tagList, function (i, tag) {
+                  if (tag.commit.id == commitInfo.id) {
+                    commitInfo.tag = tag.name;
+                  }
+                });
+                cb(commitInfo);
+              }, function () {
+                cb(commitInfo);
+              });
+          }, function (response) {
+            cb(null, response);
+          })
+      },
+      openGitlab: function (projectId, type, objectId) {
+        this.getProject(projectId, function (response, err) {
+          var url = response.data.web_url;
+          if (type == 'project') {
+            window.open(url);
+          } else if (type == 'commit') {
+            url = url + '/commit/' + objectId;
+            window.open(url);
+          } else if (type == 'tag') {
+            url = url + '/tags/' + objectId;
+            window.open(url);
+          }
+        });
+      },
+      rollback: function (appName, stage, cb) {
+        var me = this;
+        me.$root.$children[0].confirm(
+          {
+            contentHtml: '배포중인 작업을 취소합니다. 진행하시겠습니까?',
+            okText: '진행하기',
+            cancelText: '취소',
+            callback: function () {
+              me.rollbackDevApp(appName, stage, cb);
+            }
+          });
+      },
+      convertManualCanaryDeployment: function (appName, stage, cb) {
+        var me = this;
+        me.$root.$children[0].block();
+        this.$root.backend('app/' + appName + '/convertManualCanaryDeployment?stage=' + stage)
+          .update({})
+          .then(
+            function (response) {
+              me.$root.$children[0].success('어플리케이션을 배포를 수동 전환 하였습니다.');
+              if (cb) {
+                cb(response);
+              }
+            },
+            function (response) {
+              me.$root.$children[0].error('어플리케이션을 배포를 수동 전환 할 수 없습니다.');
+              if (cb) {
+                cb(null, response);
+              }
+            })
+          .finally(function () {
+            me.$root.$children[0].unblock();
+          });
+      },
+      convertManual: function (appName, stage, cb) {
+        var me = this;
+        me.$root.$children[0].confirm(
+          {
+            contentHtml: '배포중인 작업을 수동 전환합니다. 진행하시겠습니까?',
+            okText: '진행하기',
+            cancelText: '취소',
+            callback: function () {
+              me.convertManualCanaryDeployment(appName, stage, cb);
+            }
+          });
+      },
+      finishManualCanaryDeployment: function (appName, stage, cb) {
+        var me = this;
+        me.$root.$children[0].block();
+        this.$root.backend('app/' + appName + '/finishManualCanaryDeployment?stage=' + stage)
+          .remove({})
+          .then(
+            function (response) {
+              me.$root.$children[0].success('어플리케이션을 배포를 수동 종료 하였습니다.');
+              if (cb) {
+                cb(response);
+              }
+            },
+            function (response) {
+              me.$root.$children[0].error('어플리케이션을 배포를 수동 종료 할 수 없습니다.');
+              if (cb) {
+                cb(null, response);
+              }
+            })
+          .finally(function () {
+            me.$root.$children[0].unblock();
+          });
+      },
+      finishManual: function (appName, stage, cb) {
+        var me = this;
+        me.$root.$children[0].confirm(
+          {
+            contentHtml: '배포를 완료합니다. 진행하시겠습니까?',
+            okText: '진행하기',
+            cancelText: '취소',
+            callback: function () {
+              me.finishManualCanaryDeployment(appName, stage, cb);
+            }
+          });
+      },
     }
   }
 </script>
