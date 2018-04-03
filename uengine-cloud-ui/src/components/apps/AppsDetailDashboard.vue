@@ -1,12 +1,5 @@
 <template>
   <div v-if="devApp">
-    <app-canary-card
-      v-if="hasRollback && devApp.prod.deploymentStrategy.canary.active"
-      :stage="stage"
-      :devApp="devApp"
-      :categoryItem="categoryItem"
-    ></app-canary-card>
-
     <span class="md-subheading">런타임</span>
     <app-runtime-card
       :stage="stage"

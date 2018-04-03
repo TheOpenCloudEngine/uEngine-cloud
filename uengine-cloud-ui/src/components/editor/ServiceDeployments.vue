@@ -12,7 +12,7 @@
             <md-table-head>Action</md-table-head>
             <md-table-head>Started</md-table-head>
             <md-table-head>Status</md-table-head>
-            <md-table-head></md-table-head>
+            <!--<md-table-head></md-table-head>-->
           </md-table-row>
         </md-table-header>
 
@@ -36,20 +36,20 @@
               </div>
             </md-table-cell>
 
-            <md-table-cell>
-              <md-menu md-size="4" md-direction="bottom left">
-                <md-button :disabled="row.accessLevel < 30 && !isAdmin"
-                           class="md-icon-button" md-menu-trigger>
-                  <md-icon>more_vert</md-icon>
-                </md-button>
+            <!--<md-table-cell>-->
+              <!--<md-menu md-size="4" md-direction="bottom left">-->
+                <!--<md-button :disabled="row.accessLevel < 30 && !isAdmin"-->
+                           <!--class="md-icon-button" md-menu-trigger>-->
+                  <!--<md-icon>more_vert</md-icon>-->
+                <!--</md-button>-->
 
-                <md-menu-content>
-                  <md-menu-item v-on:click="action(row.id)">
-                    <span>배포 중단</span>
-                  </md-menu-item>
-                </md-menu-content>
-              </md-menu>
-            </md-table-cell>
+                <!--<md-menu-content>-->
+                  <!--<md-menu-item v-on:click="action(row.id)">-->
+                    <!--<span>배포 중단</span>-->
+                  <!--</md-menu-item>-->
+                <!--</md-menu-content>-->
+              <!--</md-menu>-->
+            <!--</md-table-cell>-->
           </md-table-row>
         </md-table-body>
       </md-table>

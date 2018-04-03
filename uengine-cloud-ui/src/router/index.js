@@ -204,10 +204,6 @@ import AppRuntimeCard from '../components/apps/AppRuntimeCard'
 
 Vue.component('app-runtime-card', AppRuntimeCard);
 
-import AppCanaryCard from '../components/apps/AppCanaryCard'
-
-Vue.component('app-canary-card', AppCanaryCard);
-
 import AppCloudConfig from '../components/apps/AppCloudConfig'
 
 Vue.component('app-cloud-config', AppCloudConfig);

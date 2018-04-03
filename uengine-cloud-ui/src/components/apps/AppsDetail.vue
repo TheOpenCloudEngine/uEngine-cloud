@@ -23,6 +23,12 @@
                 <md-icon v-else-if="pipeline.status == 'failed'" class="md-accent">cancel</md-icon>
                 <md-icon v-else class="md-warn">info</md-icon>
               </span>
+              <span v-if="isDeploying && item.routerName == 'appsDetailDeployment'">
+                <md-spinner :md-size="20" md-indeterminate class="md-accent"></md-spinner>
+                <span class="md-caption">
+                  ({{deployingStageText}})
+                </span>
+              </span>
             </div>
             <br>
           </div>
@@ -50,26 +56,8 @@
                                 style="margin-top: 5px"
                     ></md-spinner>
                     ({{deploymentsRowNumber}}) 배포중
-                    <md-tooltip md-direction="bottom">배포중인 앱을 복원할 수 있습니다.</md-tooltip>
+                    <md-tooltip md-direction="bottom">배포중인 앱을 확인할 수 있습니다.</md-tooltip>
                   </md-button>
-
-                  <!--롤백-->
-                  <md-menu v-if="hasRollback" md-size="4" md-direction="bottom left">
-                    <md-button class="md-raised md-primary" md-menu-trigger>롤백
-                      <md-tooltip md-direction="bottom">프로덕션 앱의 New/Old 버전을 관리합니다.</md-tooltip>
-                      <md-icon>arrow_drop_down</md-icon>
-                    </md-button>
-                    <md-menu-content style="width: 400px">
-                      <md-menu-item v-if="devApp.accessLevel >= 40 || isAdmin"
-                                    v-on:click="rollbackApp(appName)">
-                        <span>신규 버젼을 삭제합니다. (이전 버전이 신규 버젼으로 대체됩니다.)</span>
-                      </md-menu-item>
-                      <md-menu-item v-if="devApp.accessLevel >= 40 || isAdmin"
-                                    v-on:click="removeRollbackApp(appName)">
-                        <span>이전 버전을 삭제합니다. (더이상 유지할 필요가 없습니다.)</span>
-                      </md-menu-item>
-                    </md-menu-content>
-                  </md-menu>
 
                   <!--라우트-->
                   <md-button v-on:click="$refs['app-route'].open()" class="md-raised md-primary">라우트
@@ -134,7 +122,7 @@
                 <md-layout md-flex="50">
                   <div style="width: 100%">
                     <md-layout>
-                      <md-layout>
+                      <md-layout md-flex="40">
                         <div>
                           <span class="md-caption">
                             <md-tooltip md-direction="bottom">앱의 소유자 입니다.</md-tooltip>
@@ -174,7 +162,7 @@
                           </span>
                         </div>
                       </md-layout>
-                      <md-layout>
+                      <md-layout md-flex="60" md-align="center">
                         <div style="margin-top: -10px">
                           <md-radio v-model="stage" :mdValue="'dev'" :disabled="devApp.accessLevel < 30 && !isAdmin">
                             <md-tooltip md-direction="bottom">Developer 부터 사용가능합니다.</md-tooltip>
@@ -275,6 +263,9 @@
     props: {},
     data() {
       return {
+        deployingStageText: '',
+        deployingStage: [],
+        isDeploying: false,
         isAdmin: false,
         pipeline: null,
         hasRollback: false,
@@ -356,6 +347,7 @@
           this.updateCommitInfo();
           this.updateRollbackInfo();
           this.updateCIInfo();
+          this.updateDeploymentInfo();
         },
         deep: true
       }
@@ -367,6 +359,22 @@
       onDeploymentRows: function (rowNumbers) {
         this.deploymentsRowNumber = rowNumbers;
       },
+      updateDeploymentInfo: function () {
+        var me = this;
+        var isDeploying = false;
+        me.deployingStage = [];
+        me.deployingStageText = ' ';
+        var stages = ['dev', 'stg', 'prod'];
+        $.each(stages, function (i, stage) {
+          var status = me.devApp[stage].tempDeployment.status;
+          if (status == 'RUNNING' || status == 'RUNNING_ROLLBACK') {
+            isDeploying = true;
+            me.deployingStage.push(stage);
+            me.deployingStageText += stage == 'dev' ? '개발 ' : stage == 'stg' ? '스테이징 ' : '프로덕션 ';
+          }
+        })
+        me.isDeploying = isDeploying;
+      },
       //백엔드로 가져갈 필요성 있음.
       updateCIInfo: function () {
         var me = this;
@@ -377,34 +385,6 @@
               me.pipeline = response.data[0];
             }
           })
-      },
-      rollbackApp: function () {
-        var me = this;
-        me.$root.$children[0].confirm(
-          {
-            contentHtml: '신규 프로덕션 앱 버전을 삭제합니다. 진행하시겠습니까?',
-            okText: '진행하기',
-            cancelText: '취소',
-            callback: function () {
-              me.rollbackDevApp(me.appName, function (response) {
-
-              })
-            }
-          });
-      },
-      removeRollbackApp: function () {
-        var me = this;
-        me.$root.$children[0].confirm(
-          {
-            contentHtml: '이전 버전의 앱을 삭제합니다. 진행하시겠습니까?',
-            okText: '진행하기',
-            cancelText: '취소',
-            callback: function () {
-              me.removeRollbackDevApp(me.appName, function (response) {
-
-              })
-            }
-          });
       },
       updateRollbackInfo: function () {
         var me = this;
