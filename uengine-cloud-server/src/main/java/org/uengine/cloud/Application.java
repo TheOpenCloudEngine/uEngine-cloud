@@ -8,6 +8,8 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
 import org.springframework.context.annotation.Bean;
+import org.springframework.retry.annotation.EnableRetry;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.uengine.cloud.app.AppAccessLevelRepository;
 import org.uengine.cloud.app.AppEntity;
 import org.uengine.cloud.migration.MigrationService;
@@ -47,6 +49,8 @@ import java.util.Map;
 @EnableEurekaClient
 @EnableAutoConfiguration
 @EnableScheduling
+@EnableRetry
+@EnableAsync
 public class Application {
 
     @Autowired

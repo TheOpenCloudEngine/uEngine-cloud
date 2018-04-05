@@ -14,15 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.uengine.cloud.app.*;
-import org.uengine.cloud.scheduler.CronTable;
-import org.uengine.cloud.scheduler.JobScheduler;
-import org.uengine.cloud.tenant.TenantContext;
-import org.uengine.iam.client.IamClient;
-import org.uengine.iam.client.ResourceOwnerPasswordCredentials;
-import org.uengine.iam.client.TokenType;
-import org.uengine.iam.client.model.OauthUser;
-import org.uengine.iam.util.HttpUtils;
-import org.uengine.iam.util.JsonUtils;
 import org.uengine.iam.util.StringUtils;
 
 import java.text.SimpleDateFormat;

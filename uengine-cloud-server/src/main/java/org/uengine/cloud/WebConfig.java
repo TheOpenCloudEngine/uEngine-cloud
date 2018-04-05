@@ -7,21 +7,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.gitlab4j.api.GitLabApi;
 import org.uengine.iam.client.IamClient;
 import org.uengine.iam.util.ApplicationContextRegistry;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.SchedulerFactory;
-import org.quartz.impl.StdSchedulerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-import org.springframework.scheduling.TaskScheduler;
-import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.util.UrlPathHelper;
-import org.uengine.cloud.tenant.TenantAwareFilter;
 
 /**
  * Created by uengine on 2017. 11. 1..
@@ -74,19 +67,6 @@ public class WebConfig extends WebMvcConfigurerAdapter {
         String clientSecret = environment.getProperty("iam.clientSecret");
         IamClient iamClient = new IamClient(host, port, clientId, clientSecret);
         return iamClient;
-    }
-
-    @Bean
-    public TaskScheduler taskScheduler() {
-        return new ConcurrentTaskScheduler();
-    }
-
-    @Bean
-    public Scheduler scheduler() throws SchedulerException {
-        SchedulerFactory schedulerFactory = new StdSchedulerFactory();
-        Scheduler scheduler = schedulerFactory.getScheduler();
-        scheduler.start();
-        return scheduler;
     }
 
     @Bean

@@ -12,18 +12,8 @@ import org.gitlab4j.api.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
-import org.uengine.cloud.app.AppCreate;
-import org.uengine.cloud.app.DcosApi;
 import org.uengine.cloud.app.GitlabExtentApi;
-import org.uengine.cloud.app.HookController;
-import org.uengine.cloud.scheduler.CronTable;
-import org.uengine.cloud.scheduler.JobScheduler;
-import org.uengine.cloud.tenant.TenantContext;
-import org.uengine.iam.client.IamClient;
-import org.uengine.iam.client.model.OauthUser;
-import org.uengine.iam.util.HttpUtils;
 import org.uengine.iam.util.JsonUtils;
-import org.uengine.iam.util.StringUtils;
 
 import java.util.*;
 

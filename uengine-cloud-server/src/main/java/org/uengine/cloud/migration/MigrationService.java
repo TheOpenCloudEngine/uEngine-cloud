@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.uengine.cloud.app.*;
-import org.uengine.cloud.scheduler.JobScheduler;
 import org.uengine.cloud.tenant.TenantContext;
 import org.uengine.iam.client.IamClient;
 import org.uengine.iam.client.ResourceOwnerPasswordCredentials;
@@ -40,9 +39,6 @@ public class MigrationService {
 
     @Autowired
     private AppService appService;
-
-    @Autowired
-    private JobScheduler jobScheduler;
 
     @Autowired
     private DcosApi dcosApi;

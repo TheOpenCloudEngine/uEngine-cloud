@@ -8,10 +8,13 @@ import org.apache.http.util.EntityUtils;
 import org.gitlab4j.api.GitLabApi;
 import org.gitlab4j.api.models.Project;
 import org.gitlab4j.api.models.User;
+import org.springframework.retry.annotation.Retryable;
+import org.springframework.transaction.annotation.Transactional;
 import org.uengine.cloud.deployment.DeploymentHistoryEntity;
 import org.uengine.cloud.deployment.DeploymentHistoryRepository;
 import org.uengine.cloud.deployment.DeploymentStatus;
 import org.uengine.cloud.deployment.TempDeployment;
+import org.uengine.cloud.scheduler.AppAsyncService;
 import org.uengine.cloud.scheduler.CronTable;
 import org.uengine.cloud.snapshot.AppSnapshotService;
 import org.uengine.cloud.strategies.DeploymentStrategy;
@@ -26,7 +29,6 @@ import org.uengine.iam.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
-import org.uengine.cloud.scheduler.JobScheduler;
 import org.uengine.cloud.tenant.TenantContext;
 
 import java.util.*;
@@ -44,9 +46,6 @@ public class AppService {
 
     @Autowired
     private GitlabExtentApi gitlabExtentApi;
-
-    @Autowired
-    private JobScheduler jobScheduler;
 
     @Autowired
     private DcosApi dcosApi;
@@ -72,6 +71,9 @@ public class AppService {
     @Autowired
     private DeploymentHistoryRepository historyRepository;
 
+    @Autowired
+    private AppAsyncService appAsyncService;
+
     /**
      * 어플리케이션의 주어진 스테이지의 마라톤 서비스를 재기동한다.
      *
@@ -89,16 +91,8 @@ public class AppService {
             String description
     ) throws Exception {
 
-        Map data = new HashMap();
-        data.put("appName", appName);
-        data.put("stage", stage);
-        data.put("commit", commit);
-        data.put("snapshotId", snapshotId);
-        data.put("name", name);
-        data.put("description", description);
-
         //디플로이 백그라운드 작업 시작.
-        jobScheduler.startJobImmediatly(UUID.randomUUID().toString(), "deployedApp", data);
+        appAsyncService.deployApp(appName, stage, commit, snapshotId, name, description);
 
         //앱 변경 적용됨
         this.updateAppConfigChanged(appName, stage, false);
@@ -869,7 +863,7 @@ public class AppService {
         }
 
         //러너체크
-        int runnerId = gitlabExtentApi.getDockerRunnerId();
+        gitlabExtentApi.getDockerRunnerId();
 
 
         //깃랩 사용자 정의
@@ -930,15 +924,15 @@ public class AppService {
         //시큐어 콘피그 여부 저장
         appEntity.setInsecureConfig(appCreate.getInsecureConfig());
 
+        //it will throw exception if transaction accident fired.
         AppEntity save = appJpaRepository.save(appEntity);
-
 
         //vcapservice 등록
         this.addAppToVcapService(appCreate.getAppName());
 
         //앱 생성 백그라운드 작업 시작.
         appCreate.setUser(TenantContext.getThreadLocalInstance().getUser());
-        jobScheduler.startJobImmediatly(UUID.randomUUID().toString(), "appCreate", JsonUtils.convertClassToMap(appCreate));
+        appAsyncService.createApp(appCreate);
 
         System.out.println("End");
         return save;

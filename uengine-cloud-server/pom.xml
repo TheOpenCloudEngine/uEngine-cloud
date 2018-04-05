@@ -136,9 +136,21 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- ====================== -->
+        <!--  db -->
+        <!-- ====================== -->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+
+
+        <!-- ====================== -->
+        <!--  retry -->
+        <!-- ====================== -->
+        <dependency>
+            <groupId>org.springframework.retry</groupId>
+            <artifactId>spring-retry</artifactId>
         </dependency>
 
     </dependencies>

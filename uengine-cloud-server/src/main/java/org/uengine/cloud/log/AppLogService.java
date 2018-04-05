@@ -12,7 +12,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.uengine.cloud.app.*;
 import org.uengine.cloud.scheduler.CronTable;
-import org.uengine.cloud.scheduler.JobScheduler;
 import org.uengine.cloud.tenant.TenantContext;
 import org.uengine.iam.util.HttpUtils;
 import org.uengine.iam.util.JsonUtils;

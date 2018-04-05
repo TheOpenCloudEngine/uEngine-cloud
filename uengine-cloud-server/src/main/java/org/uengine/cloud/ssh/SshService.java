@@ -7,7 +7,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.uengine.cloud.app.DcosApi;
 import org.uengine.cloud.app.GitlabExtentApi;
-import org.uengine.cloud.scheduler.JobScheduler;
 import org.uengine.cloud.templates.MustacheTemplateEngine;
 
 import java.util.Date;
@@ -28,9 +27,6 @@ public class SshService {
 
     @Autowired
     private GitlabExtentApi gitlabExtentApi;
-
-    @Autowired
-    private JobScheduler jobScheduler;
 
     @Autowired
     private DcosApi dcosApi;

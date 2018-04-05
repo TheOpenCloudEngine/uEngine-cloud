@@ -1,24 +1,22 @@
-/**
- * Copyright (C) 2011 Flamingo Project (http://www.cloudine.io).
- * <p/>
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * <p/>
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * <p/>
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
 package org.uengine.cloud.scheduler;
 
-import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.gitlab4j.api.GitLabApi;
+import org.gitlab4j.api.models.Project;
+import org.gitlab4j.api.models.ProjectHook;
+import org.gitlab4j.api.models.User;
+import org.gitlab4j.api.models.Visibility;
+import org.quartz.JobDataMap;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
 import org.uengine.cloud.app.*;
+import org.uengine.cloud.catalog.CatalogService;
+import org.uengine.cloud.catalog.CategoryItem;
+import org.uengine.cloud.catalog.FileMapping;
 import org.uengine.cloud.deployment.DeploymentHistoryEntity;
 import org.uengine.cloud.deployment.DeploymentHistoryRepository;
 import org.uengine.cloud.deployment.DeploymentStatus;
@@ -30,60 +28,312 @@ import org.uengine.cloud.snapshot.AppSnapshot;
 import org.uengine.cloud.snapshot.AppSnapshotService;
 import org.uengine.cloud.strategies.DeploymentStrategy;
 import org.uengine.cloud.strategies.InstanceStrategy;
+import org.uengine.cloud.templates.MustacheTemplateEngine;
+import org.uengine.iam.client.IamClient;
+import org.uengine.iam.client.model.OauthUser;
 import org.uengine.iam.util.ApplicationContextRegistry;
 import org.uengine.iam.util.JsonUtils;
 import org.uengine.iam.util.StringUtils;
-import org.quartz.Job;
-import org.quartz.JobDataMap;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.springframework.core.env.Environment;
-import org.uengine.cloud.templates.MustacheTemplateEngine;
 
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-public class DeployAppJob implements Job {
+@Service
+public class AppAsyncService {
 
-    @Override
-    public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
+    @Autowired
+    private Environment environment;
+
+    @Autowired
+    private AppService appService;
+
+    @Autowired
+    private GitLabApi gitLabApi;
+
+    @Autowired
+    private GitlabExtentApi gitlabExtentApi;
+
+    @Autowired
+    private AppLogService logService;
+
+    @Autowired
+    private CatalogService catalogService;
+
+    @Autowired
+    private AppJpaRepository appJpaRepository;
+
+    @Autowired
+    private DeploymentHistoryRepository historyRepository;
+
+    @Autowired
+    private DcosApi dcosApi;
+
+    @Autowired
+    private AppSnapshotService snapshotService;
+
+    @Async
+    public void createApp(AppCreate appCreate) {
+        // 클라이언트 잡 실행시 필요한 정보를 가져온다.
+        int pipelineId = 0;
+        int projectId = 0;
+
+        Map<String, Object> log = null;
+        try {
+            log = JsonUtils.convertClassToMap(appCreate);
+        } catch (IOException ex) {
+            log = new HashMap<>();
+        }
+
+        try {
+            //DCOS 앱 찾기
+            AppEntity appEntity = appJpaRepository.findOne(appCreate.getAppName());
+
+            //iamUserName 은 IAM 유저네임
+            String iamUserName = appEntity.getIam();
+
+
+            //IAM 유저정보(패스워드 포함)
+            IamClient iamClient = new IamClient(environment.getProperty("iam.host"),
+                    Integer.parseInt(environment.getProperty("iam.port")),
+                    environment.getProperty("iam.clientId"),
+                    environment.getProperty("iam.clientSecret"));
+            OauthUser oauthUser = iamClient.getUser(iamUserName);
+
+            //깃랩 유저
+            int gitlabId = (int) oauthUser.getMetaData().get("gitlab-id");
+            User gitlabUser = gitLabApi.getUserApi().getUser(gitlabId);
+
+            //네임스페이스 구하기
+            String namespace = gitlabUser.getUsername();
+            if (!StringUtils.isEmpty(appCreate.getNamespace())) {
+                namespace = appCreate.getNamespace();
+            }
+
+            //프로젝트 포크
+
+            //템플릿 프로젝트 정보얻기.
+            CategoryItem categoryItem = catalogService.getCategoryItemWithFiles(appCreate.getCategoryItemId());
+
+            //포크하기
+            Map forkProject = gitlabExtentApi.forkProject(categoryItem.getProjectId(), namespace);
+
+
+            projectId = (int) forkProject.get("id");
+            Project project = gitLabApi.getProjectApi().getProject(projectId);
+
+            //포크릴레이션 삭제
+            gitlabExtentApi.deleteForkRelation(project.getId());
+
+            //레파지토리 이름 변경, 프로젝트 이름 변경, 퍼블릭 변경
+            project.setPublic(true);
+            project.setVisibility(Visibility.PUBLIC);
+            project.setPath(appCreate.getAppName());
+            project.setName(appCreate.getAppName());
+            gitLabApi.getProjectApi().updateProject(project);
+
+            Map<String, Object> data = appService.getTriggerVariables(appCreate.getAppName());
+
+            //template 특유의 정보가 있으면 전달함
+            if (appCreate.getTemplateSpecific() != null && appCreate.getTemplateSpecific().getData() != null)
+                data.put("templateSpecificData", appCreate.getTemplateSpecific().getData());
+
+
+            //mapping 파일들의 콘텐트를 교체한다.
+            List<FileMapping> mappings = categoryItem.getMappings();
+
+            //template 특유의 파일 목록이 있으면 파일 생성 목록에 추가해줌
+            if (appCreate.getTemplateSpecific() != null && appCreate.getTemplateSpecific().getFileMappings() != null)
+                mappings.addAll(appCreate.getTemplateSpecific().getFileMappings());
+
+            Map<String, String> templateFileCache = new HashMap<>();
+
+            MustacheTemplateEngine templateEngine = new MustacheTemplateEngine();
+            for (FileMapping mapping : mappings) {
+
+                Map<String, Object> templateData = data;
+
+                String path = mapping.getPath();
+                String file = mapping.getFile();
+
+                //override if there are template data specified in each file mapping
+                if (mapping.getData() != null) {
+                    templateData = new HashMap<String, Object>();
+                    templateData.putAll(data);
+                    templateData.put("templateSpecificData", mapping.getData());
+
+                    if (templateFileCache.containsKey(file))
+                        file = templateFileCache.get(file);
+                    else {
+                        String templateFile = gitlabExtentApi.getRepositoryFile(categoryItem.getProjectId(), "master", "template/file/" + file);
+                        templateFileCache.put(file, templateFile);
+                        file = templateFile;
+                    }
+                }
+
+                String body = templateEngine.executeTemplateText(file, templateData);
+
+                body = StringEscapeUtils.unescapeHtml(body);
+
+                gitlabExtentApi.updateOrCraeteRepositoryFile(projectId, "master", path, body);
+            }
+
+
+            //러너 등록. 웹훅 등록. 트리거 등록. 마라톤 데피니션 및 스크립트 파일들 복사. 파이프라인 실행. 스테이터스 변경
+            //러너 등록.
+            int dockerRunnerId = gitlabExtentApi.getDockerRunnerId();
+            gitlabExtentApi.enableRunner(projectId, dockerRunnerId);
+
+            //웹훅 등록
+            ProjectHook hook = new ProjectHook();
+            hook.setPushEvents(true);
+            hook.setPipelineEvents(true);
+            hook.setEnableSslVerification(false);
+            gitLabApi.getProjectApi().addHook(projectId, data.get("UENGINE_CLOUD_URL").toString() + "/hook", hook, false, null);
+
+            //트리거 등록
+            gitlabExtentApi.createTrigger(projectId, gitlabUser.getUsername(), "dcosTrigger");
+
+            //마라톤 디플로이 명세 파일 복사
+            int repoId = Integer.parseInt(environment.getProperty("gitlab.config-repo.projectId"));
+            String[] stages = new String[]{"dev", "stg", "prod"};
+
+            //생성시 결정한 시스템 자원을 반영한다.
+            for (String stage : stages) {
+                Map deployJson = null;
+                String fileName = null;
+                switch (stage) {
+                    case "prod":
+                        deployJson = JsonUtils.unmarshal(categoryItem.getDeployProd());
+                        fileName = "ci-deploy-production.json";
+                        break;
+                    case "dev":
+                        deployJson = JsonUtils.unmarshal(categoryItem.getDeployDev());
+                        fileName = "ci-deploy-dev.json";
+                        break;
+                    case "stg":
+                        deployJson = JsonUtils.unmarshal(categoryItem.getDeployStg());
+                        fileName = "ci-deploy-staging.json";
+                        break;
+                }
+                deployJson.put("cpus", appCreate.getCpu());
+                deployJson.put("mem", appCreate.getMem());
+                deployJson.put("instances", appCreate.getInstances());
+                gitlabExtentApi.updateOrCraeteRepositoryFile(
+                        repoId, "master",
+                        "deployment/" + data.get("APP_NAME").toString() + "/" + fileName, JsonUtils.marshal(deployJson));
+            }
+
+            //스크립트 및 파이프라인 파일 복사
+            String[] scripFiles = new String[]{
+                    "template/common/ci-deploy-production.sh",
+                    "template/common/ci-deploy-staging.sh",
+                    "template/common/ci-deploy-dev.sh",
+                    "template/common/ci-test.sh",
+                    "template/common/ci-pipeline.json"
+            };
+
+            for (String scripFile : scripFiles) {
+                String scriptText = gitlabExtentApi.getRepositoryFile(repoId, "master", scripFile);
+                String[] split = scripFile.split("/");
+                String fileName = split[split.length - 1];
+                gitlabExtentApi.updateOrCraeteRepositoryFile(
+                        repoId, "master", "deployment/" + data.get("APP_NAME").toString() + "/" + fileName, scriptText);
+            }
+
+
+            //클라우드 콘피그 파일 복사
+            appService.createAppConfigYml(
+                    appCreate.getAppName(),
+                    categoryItem.getConfig(),
+                    categoryItem.getConfigDev(),
+                    categoryItem.getConfigStg(),
+                    categoryItem.getConfigProd()
+            );
+
+            //dcos projectId 업데이트
+            appEntity.setProjectId(projectId);
+
+            //스테이터스 변경
+            appEntity.setCreateStatus("repository-create-success");
+            appJpaRepository.save(appEntity);
+
+
+            //파이프라인 트리거 실행.
+            Map pipeline = appService.excutePipelineTrigger(appCreate.getAppName(), "master", null);
+            pipelineId = (int) pipeline.get("id");
+
+
+            System.out.println("end");
+
+            logService.addHistory(appCreate.getAppName(), AppLogAction.CREATE_APP, AppLogStatus.SUCCESS, log);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            try {
+                //파이프라인이 있다면 파이프라인 중지.
+                if (pipelineId > 0) {
+                    gitLabApi.getPipelineApi().cancelPipelineJobs(projectId, pipelineId);
+                }
+
+                //프로젝트 삭제
+                if (projectId > 0) {
+                    gitLabApi.getProjectApi().deleteProject(projectId);
+                    //한번 더 삭제 TODO 이상함..
+                    try {
+                        gitLabApi.getProjectApi().deleteProject(projectId);
+                    } catch (Exception exx) {
+
+                    }
+                }
+
+                //vcap 서비스, config.yml 삭제
+                try {
+                    appService.removeAppToVcapService(appCreate.getAppName());
+                    appService.removeAppConfigYml(appCreate.getAppName());
+                } catch (Exception ee) {
+
+                }
+
+                //스테이터스 실패 등록
+                //deployment/create.json 변경.
+                Map createMap = new HashMap();
+                createMap.put("status", "repository-create-failed");
+                createMap.put("definition", JsonUtils.convertClassToMap(appCreate));
+                gitlabExtentApi.updateOrCraeteRepositoryFile(
+                        Integer.parseInt(environment.getProperty("gitlab.config-repo.projectId")),
+                        "master", "deployment/" + appCreate.getAppName() + "/create.json", JsonUtils.marshal(createMap)
+                );
+
+                //삭제 시도에 대한 이력
+                logService.addHistory(appCreate.getAppName(), AppLogAction.CREATE_APP, AppLogStatus.FAILED, log);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+
+                //삭제 시도를 실패했을 경우도 실패 이력
+                logService.addHistory(appCreate.getAppName(), AppLogAction.CREATE_APP, AppLogStatus.FAILED, log);
+            }
+        }
+    }
+
+    @Async
+    public void deployApp(String appName, String stage, String commit, Long snapshotId, String name, String description) {
 
         // 클라이언트 잡 실행시 필요한 정보를 가져온다.
-        JobDataMap map = jobExecutionContext.getMergedJobDataMap();
-        String appName = map.get("appName").toString();
-        String stage = map.get("stage").toString();
-        Long snapshotId = (Long) map.get("snapshotId");
-        String commit = null;
-        if (map.get("commit") != null) {
-            commit = map.get("commit").toString();
-        }
-        String name = map.get("name") != null ? map.get("name").toString() : null;
-        String description = map.get("description") != null ? map.get("description").toString() : null;
-
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         String dateString = dateFormat.format(new Date());
         if (StringUtils.isEmpty(name)) {
             name = String.format("%s %s %s Deployment", dateString, appName, stage);
         }
 
-        Map marathonDeploymentReponse = null;
+        Map marathonDeploymentResponse = null;
 
         Map log = new HashMap();
         log.put("stage", stage);
         log.put("commit", commit);
 
         System.out.println("Start DeployAppJob: " + appName + " : " + stage + " : " + commit);
-
-        Environment environment = ApplicationContextRegistry.getApplicationContext().getBean(Environment.class);
-        AppService appService = ApplicationContextRegistry.getApplicationContext().getBean(AppService.class);
-        DcosApi dcosApi = ApplicationContextRegistry.getApplicationContext().getBean(DcosApi.class);
-        AppLogService logService = ApplicationContextRegistry.getApplicationContext().getBean(AppLogService.class);
-        AppJpaRepository appJpaRepository = ApplicationContextRegistry.getApplicationContext().getBean(AppJpaRepository.class);
-        AppSnapshotService snapshotService = ApplicationContextRegistry.getApplicationContext().getBean(AppSnapshotService.class);
-        DeploymentHistoryRepository historyRepository = ApplicationContextRegistry.getApplicationContext().getBean(DeploymentHistoryRepository.class);
         try {
 
             //앱 정보.
@@ -208,11 +458,11 @@ public class DeployAppJob implements Job {
                  */
                 //신규 앱이 있을 경우 업데이트 디플로이
                 if (newMarathonApp != null) {
-                    marathonDeploymentReponse = dcosApi.updateApp(newMarathonAppId, deployJson);
+                    marathonDeploymentResponse = dcosApi.updateApp(newMarathonAppId, deployJson);
                 }
                 //신규 앱이 없을 경우 신규 디플로이
                 else {
-                    marathonDeploymentReponse = dcosApi.createApp(deployJson);
+                    marathonDeploymentResponse = dcosApi.createApp(deployJson);
                 }
             }
 
@@ -261,11 +511,11 @@ public class DeployAppJob implements Job {
 
                 //기존 앱이 있을 경우 업데이트 디플로이
                 if (marathonApp != null) {
-                    marathonDeploymentReponse = dcosApi.updateApp(marathonAppId, deployJson);
+                    marathonDeploymentResponse = dcosApi.updateApp(marathonAppId, deployJson);
                 }
                 //기존 앱이 없을 경우 신규 디플로이
                 else {
-                    marathonDeploymentReponse = dcosApi.createApp(deployJson);
+                    marathonDeploymentResponse = dcosApi.createApp(deployJson);
                 }
             }
 
@@ -276,11 +526,11 @@ public class DeployAppJob implements Job {
 
             String deploymentId = null;
             //new app create;
-            if (marathonDeploymentReponse.containsKey("deployments")) {
-                List<Map> deployments = (List<Map>) marathonDeploymentReponse.get("deployments");
+            if (marathonDeploymentResponse.containsKey("deployments")) {
+                List<Map> deployments = (List<Map>) marathonDeploymentResponse.get("deployments");
                 deploymentId = deployments.get(0).get("id").toString();
             } else {
-                deploymentId = marathonDeploymentReponse.get("deploymentId").toString();
+                deploymentId = marathonDeploymentResponse.get("deploymentId").toString();
             }
             TempDeployment tempDeployment = new TempDeployment();
             tempDeployment.setDeploymentId(deploymentId);
