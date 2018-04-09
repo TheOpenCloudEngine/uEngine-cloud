@@ -3,16 +3,10 @@ package org.uengine.cloud.deployment;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.uengine.cloud.app.AppEntity;
 import org.uengine.cloud.app.AppStage;
-import org.uengine.cloud.log.AppLogAction;
-import org.uengine.cloud.log.AppLogStatus;
-import org.uengine.cloud.strategies.InstanceStrategy;
 import org.uengine.iam.util.JsonUtils;
 
 import javax.persistence.*;
-import java.io.IOException;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 @Entity
 public class DeploymentHistoryEntity {

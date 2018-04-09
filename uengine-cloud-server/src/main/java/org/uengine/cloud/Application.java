@@ -1,13 +1,5 @@
 package org.uengine.cloud;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.util.EntityUtils;
-import org.springframework.context.annotation.Bean;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.uengine.cloud.app.AppAccessLevelRepository;
@@ -15,7 +7,6 @@ import org.uengine.cloud.app.AppEntity;
 import org.uengine.cloud.migration.MigrationService;
 import org.uengine.cloud.tenant.TenantContext;
 import org.uengine.iam.client.model.OauthUser;
-import org.uengine.iam.util.HttpUtils;
 import org.uengine.iam.util.JsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -25,11 +16,10 @@ import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import org.uengine.cloud.app.DcosApi;
+import org.uengine.cloud.integration.DcosApi;
 import org.uengine.cloud.scheduler.CronTable;
 
 import javax.servlet.http.HttpServletRequest;

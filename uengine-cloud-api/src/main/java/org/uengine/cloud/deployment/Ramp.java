@@ -1,4 +1,4 @@
-package org.uengine.cloud.strategies;
+package org.uengine.cloud.deployment;
 
 public class Ramp {
 

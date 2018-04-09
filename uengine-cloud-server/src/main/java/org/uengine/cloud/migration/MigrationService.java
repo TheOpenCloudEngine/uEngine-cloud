@@ -2,24 +2,15 @@ package org.uengine.cloud.migration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.util.EntityUtils;
 import org.gitlab4j.api.GitLabApi;
-import org.gitlab4j.api.models.Project;
-import org.gitlab4j.api.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.uengine.cloud.app.*;
-import org.uengine.cloud.tenant.TenantContext;
+import org.uengine.cloud.integration.DcosApi;
+import org.uengine.cloud.integration.GitlabExtentApi;
+import org.uengine.cloud.integration.HookController;
 import org.uengine.iam.client.IamClient;
-import org.uengine.iam.client.ResourceOwnerPasswordCredentials;
-import org.uengine.iam.client.TokenType;
-import org.uengine.iam.client.model.OauthUser;
-import org.uengine.iam.util.HttpUtils;
-import org.uengine.iam.util.JsonUtils;
-import org.uengine.iam.util.StringUtils;
 
 import java.util.*;
 

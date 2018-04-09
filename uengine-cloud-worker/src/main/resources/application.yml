@@ -1,0 +1,186 @@
+management:
+  security:
+    enabled: false
+
+security:
+  basic:
+    enabled: false
+  ignored: /**
+
+---
+
+kafka:
+  consumer:
+    group-id: cloud-worker
+  # for test
+  bootstrap-servers: @server.public.public@:9092
+  topic:
+    mesos: mesos.topic
+
+spring:
+  security:
+    enabled: false
+  profiles: local
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        show_sql: true
+  datasource:
+    url: jdbc:mysql://${vcap.services.db.external}/@db.database@
+    username: root
+    password: @db.password@
+
+server:
+  port: 8080
+  servletPath: /
+
+dcos:
+  host: http://@server.public.master@/
+  token: @dcos.token@
+
+gitlab:
+  host: http://@host.gitlab@
+  token: @gitlab.root.token@
+  config-repo:
+    projectId: @gitlab.config-repo.projectId@
+    deployment-path: @gitlab.config-repo.deployment-path@
+    template-path: @gitlab.config-repo.template-path@
+
+iam:
+  host: @host.iam@
+  port: @iam.port@
+  clientId: @iam.client-key@
+  clientSecret: @iam.client-secret@
+
+registry:
+  package: @host.registry.package@
+  host: @host.registry.private@
+  public-host: @host.registry.public@
+
+public-agent-ip: @server.public.public@
+
+default-host: @host.default@
+
+nexus:
+  ip: @nexus.ip@
+  username: @nexus.username@
+  password: @nexus.password@
+  mvn:
+    public: @nexus.mvn.public@
+    release: @nexus.mvn.release@
+    snapshot: @nexus.mvn.snapshot@
+  npm:
+    public: @nexus.npm.public@
+    private: @nexus.npm.private@
+
+pinpoint:
+  use: @pinpoint.use@
+  agent-path: @pinpoint.agent-path@
+  web: @pinpoint.web@
+  collector:
+    ip: @pinpoint.collector.ip@
+    tcp-port: @pinpoint.collector.tcp-port@
+    stat-port: @pinpoint.collector.stat-port@
+    span-port: @pinpoint.collector.span-port@
+
+elk:
+  elasticsearch:
+    private: @elk.elasticsearch.private@
+    web: @elk.elasticsearch.web@
+  kibana:
+    private: @elk.kibana.private@
+    web: @elk.kibana.web@
+    dashboard-id:
+      app-log: @elk.kibana.dashboard-id.app-log@
+      docker-metric: @elk.kibana.dashboard-id.docker-metric@
+      system-metric: @elk.kibana.dashboard-id.system-metric@
+
+vcap:
+  services:
+    db:
+      external: "@host.db@:10002"
+      internal: "marathon-lb-internal.marathon.mesos:10002"
+    iam:
+      external: "@host.iam@"
+      internal: "marathon-lb-internal.marathon.mesos:10003"
+    uengine-cloud-config:
+      external: "@server.public.public@:10000"
+      internal: "marathon-lb-internal.marathon.mesos:10000"
+    eureka-server:
+      external: "@host.eureka-server@"
+      internal: "marathon-lb-internal.marathon.mesos:10001"
+    uengine-cloud-server:
+      external: "@host.cloud-server@"
+      internal: "marathon-lb-internal.marathon.mesos:10005"
+    uengine-cloud-ui:
+      external: "@host.cloud-ui@"
+      internal: "marathon-lb-internal.marathon.mesos:10006"
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+    healthcheck:
+      enabled: true
+  instance:
+    statusPageUrlPath: ${server.servletPath}info
+    healthCheckUrlPath: ${server.servletPath}health
+    metadataMap:
+        deployment: local
+        profile: local
+
+---
+spring:
+  security:
+    enabled: false
+  profiles: docker
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        show_sql: true
+  datasource:
+    url: jdbc:mysql://${vcap.services.db.internal}/@db.database@
+    username: root
+    password: @db.password@
+
+server:
+  port: 8080
+  servletPath: /
+
+kafka:
+  consumer:
+    group-id: cloud-worker
+  bootstrap-servers: broker.kafka.l4lb.thisdcos.directory:9092
+  #bootstrap-servers: 52.79.51.79:9092
+  #bootstrap-servers: cloud.pas-mini.io:9092
+  #bootstrap-servers: 192.168.99.100:9092
+
+  topic:
+    mesos: mesos.topic
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://${vcap.services.eureka-server.internal}/eureka/
+    healthcheck:
+      enabled: true
+  instance:
+    hostname: ${HOST}
+    nonSecurePort: ${PORT}
+    preferIpAddress: false
+    statusPageUrl: http://${eureka.instance.hostname}:${eureka.instance.nonSecurePort}/info
+    healthCheckUrl: http://${eureka.instance.hostname}:${eureka.instance.nonSecurePort}/health
+    homePageUrl: http://${eureka.instance.hostname}:${eureka.instance.nonSecurePort}/
+    instanceId: ${HOST}:${spring.application.name}:${PORT}
+    metadataMap:
+        project: ${CI_PROJECT_NAME}
+        commitSha: ${CI_COMMIT_SHA}
+        image: ${MARATHON_APP_DOCKER_IMAGE}
+        deployment: ${DEPLOYMENT}
+        profile: ${PROFILE}

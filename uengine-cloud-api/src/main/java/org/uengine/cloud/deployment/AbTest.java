@@ -1,4 +1,4 @@
-package org.uengine.cloud.strategies;
+package org.uengine.cloud.deployment;
 
 import java.util.List;
 import java.util.Map;

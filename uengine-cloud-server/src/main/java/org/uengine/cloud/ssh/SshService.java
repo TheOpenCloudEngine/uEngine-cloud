@@ -5,8 +5,8 @@ import org.uengine.iam.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
-import org.uengine.cloud.app.DcosApi;
-import org.uengine.cloud.app.GitlabExtentApi;
+import org.uengine.cloud.integration.DcosApi;
+import org.uengine.cloud.integration.GitlabExtentApi;
 import org.uengine.cloud.templates.MustacheTemplateEngine;
 
 import java.util.Date;

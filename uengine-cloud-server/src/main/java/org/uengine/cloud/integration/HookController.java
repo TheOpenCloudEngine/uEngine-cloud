@@ -1,10 +1,14 @@
-package org.uengine.cloud.app;
+package org.uengine.cloud.integration;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.uengine.cloud.app.AppEntity;
+import org.uengine.cloud.app.AppJpaRepository;
+import org.uengine.cloud.app.AppService;
+import org.uengine.cloud.integration.GitlabExtentApi;
 import org.uengine.cloud.log.AppLogAction;
 import org.uengine.cloud.log.AppLogService;
 import org.uengine.cloud.log.AppLogStatus;

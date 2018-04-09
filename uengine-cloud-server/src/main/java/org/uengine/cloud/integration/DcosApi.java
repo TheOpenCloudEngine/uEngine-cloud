@@ -1,4 +1,4 @@
-package org.uengine.cloud.app;
+package org.uengine.cloud.integration;
 
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClient;

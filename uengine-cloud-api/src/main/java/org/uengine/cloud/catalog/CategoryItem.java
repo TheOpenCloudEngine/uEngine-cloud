@@ -1,9 +1,6 @@
 package org.uengine.cloud.catalog;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by uengine on 2018. 1. 15..

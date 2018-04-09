@@ -1,18 +1,12 @@
 package org.uengine.cloud.catalog;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.util.EntityUtils;
 import org.gitlab4j.api.GitLabApi;
 import org.gitlab4j.api.models.Project;
 import org.gitlab4j.api.models.TreeItem;
-import org.gitlab4j.api.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
-import org.uengine.cloud.app.GitlabExtentApi;
+import org.uengine.cloud.integration.GitlabExtentApi;
 import org.uengine.iam.util.JsonUtils;
 
 import java.util.*;

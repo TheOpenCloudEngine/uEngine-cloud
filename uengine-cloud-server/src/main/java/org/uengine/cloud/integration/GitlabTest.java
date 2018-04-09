@@ -1,4 +1,4 @@
-package org.uengine.cloud.app;
+package org.uengine.cloud.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;

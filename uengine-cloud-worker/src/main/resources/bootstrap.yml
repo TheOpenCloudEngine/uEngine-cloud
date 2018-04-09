@@ -1,0 +1,16 @@
+spring:
+  application:
+      name: uengine-cloud-worker
+  profiles:
+    active: "local"
+
+---
+spring:
+  profiles: local
+
+---
+spring:
+  profiles: docker
+  cloud:
+    config:
+      uri: http://marathon-lb-internal.marathon.mesos:10000

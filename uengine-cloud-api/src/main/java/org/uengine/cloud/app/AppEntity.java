@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
+@Table(name = "app_entity")
 public class AppEntity {
 
     @Id
@@ -28,8 +29,7 @@ public class AppEntity {
 
     private String configPassword;
 
-    //클라우드 콘피그 서버에서 dcos 로 앱정보 받으려면...? 마스터 키가 필요...?
-    //마스터키는 dcos 서버 프리패스 토큰
+    private Long groupId;
 
     @JsonIgnore
     @Column(columnDefinition = "TEXT")
@@ -191,5 +191,13 @@ public class AppEntity {
 
     public void setConfigPassword(String configPassword) {
         this.configPassword = configPassword;
+    }
+
+    public Long getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(Long groupId) {
+        this.groupId = groupId;
     }
 }

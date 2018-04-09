@@ -1,4 +1,4 @@
-package org.uengine.cloud.app;
+package org.uengine.cloud.integration;
 
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.io.IOUtils;
