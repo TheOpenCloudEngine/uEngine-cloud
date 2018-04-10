@@ -6,6 +6,8 @@ db.ip: {{db.ip}}
 db.database: {{db.database}}
 db.password: {{db.password}}
 
+redis.ip: {{redis.ip}}
+
 host.default: {{host.default}}
 host.registry.package: {{host.registry.package}}
 host.registry.private: {{host.registry.private}}
@@ -18,6 +20,8 @@ host.eureka-server: {{host.eureka-server}}
 host.cloud-server: {{host.cloud-server}}
 host.cloud-ui: {{host.cloud-ui}}
 host.nexus: {{host.nexus}}
+host.kafka: {{host.kafka}}
+host.redis: {{host.redis}}
 
 iam.port: {{iam.port}}
 iam.client-key: {{iam.client-key}}

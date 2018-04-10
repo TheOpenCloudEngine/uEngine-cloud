@@ -46,6 +46,10 @@ db:
   database: uengine
   password: my-secret-pw
 
+# Redis part
+redis:
+  ip: 172.31.6.35
+
 # Domain part
 host:
   default: pasmini.io
@@ -60,6 +64,8 @@ host:
   cloud-server: cloud-server.pasmini.io
   cloud-ui: cloud.pasmini.io
   nexus: nexus.pasmini.io
+  kafka: kafka.pas-mini.io
+  redis: redis.pas-mini.io
 
 # Security(IAM) part
 iam:

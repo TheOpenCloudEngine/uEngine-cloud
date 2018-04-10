@@ -19,7 +19,7 @@ public class MesosChangeHandler implements DefaultEventHandler {
     @Autowired
     private KafkaSender sender;
 
-    @Value("${kafka.topic.mesos}")
+    @Value("${spring.kafka.topic.mesos}")
     private String MESOS_TOPIC;
 
     @Override

@@ -6,6 +6,8 @@ db.ip: 172.31.6.35
 db.database: uengine
 db.password: my-secret-pw
 
+redis.ip: 172.31.6.35
+
 host.default: pas-mini.io
 host.registry.package: sppark
 host.registry.private: gitlab.pas-mini.io:5000
@@ -18,6 +20,8 @@ host.eureka-server: eureka-server.pas-mini.io
 host.cloud-server: cloud-server.pas-mini.io
 host.cloud-ui: cloud.pas-mini.io
 host.nexus: nexus.pas-mini.io
+host.kafka: kafka.pas-mini.io
+host.redis: redis.pas-mini.io
 
 iam.port: 80
 iam.client-key: my-client-key

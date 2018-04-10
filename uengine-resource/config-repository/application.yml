@@ -22,3 +22,9 @@ vcap:
     uengine-nexus:
       external: "@host.nexus@"
       internal: "marathon-lb-internal.marathon.mesos:10007"
+    kafka:
+      external: "@host.kafka@:9092"
+      internal: "broker.kafka.l4lb.thisdcos.directory:9092"
+    redis:
+      external: "@host.redis@:6379"
+      internal: "marathon-lb-internal.marathon.mesos:6379"

@@ -49,6 +49,10 @@ server:
     # Your public node's public ip
     public: 52.79.51.79
 
+# Redis part
+redis:
+  ip: 172.31.6.35
+
 # DB part
 db:
   ip: 172.31.6.35
@@ -69,6 +73,8 @@ host:
   cloud-server: cloud-server.pas-mini.io
   cloud-ui: cloud.pas-mini.io
   nexus: nexus.pas-mini.io
+  kafka: kafka.pas-mini.io
+  redis: redis.pas-mini.io
 
 # Security(IAM) part
 iam:

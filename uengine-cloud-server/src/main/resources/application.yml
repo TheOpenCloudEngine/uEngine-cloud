@@ -9,6 +9,34 @@ security:
 
 ---
 
+spring:
+  security:
+    enabled: false
+  profiles: local
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        show_sql: true
+  datasource:
+    url: jdbc:mysql://${vcap.services.db.external}/@db.database@
+    username: root
+    password: @db.password@
+  kafka:
+    consumer:
+      group-id: cloud-worker
+      enable-auto-commit: false
+    bootstrap-servers: ${vcap.services.kafka.external}
+    topic:
+      mesos: mesos.topic
+  redis-host: ${vcap.services.redis.external}
+
+server:
+  port: 8080
+  servletPath: /
+
 dcos:
   host: http://@server.public.master@/
   token: @dcos.token@
@@ -79,7 +107,7 @@ vcap:
       external: "@host.iam@"
       internal: "marathon-lb-internal.marathon.mesos:10003"
     uengine-cloud-config:
-      external: "@server.public.public@:10000"
+      external: "@host.config@"
       internal: "marathon-lb-internal.marathon.mesos:10000"
     eureka-server:
       external: "@host.eureka-server@"
@@ -90,28 +118,15 @@ vcap:
     uengine-cloud-ui:
       external: "@host.cloud-ui@"
       internal: "marathon-lb-internal.marathon.mesos:10006"
-
-
-spring:
-  security:
-    enabled: false
-  profiles: local
-  jpa:
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.MySQLDialect
-        show_sql: true
-  datasource:
-    url: jdbc:mysql://${vcap.services.db.external}/@db.database@
-    username: root
-    password: @db.password@
-
-
-server:
-  port: 8080
-  servletPath: /
+    uengine-nexus:
+      external: "@host.nexus@"
+      internal: "marathon-lb-internal.marathon.mesos:10007"
+    kafka:
+      external: "@host.kafka@:9092"
+      internal: "broker.kafka.l4lb.thisdcos.directory:9092"
+    redis:
+      external: "@host.redis@:6379"
+      internal: "marathon-lb-internal.marathon.mesos:6379"
 
 eureka:
   client:
@@ -142,6 +157,14 @@ spring:
     url: jdbc:mysql://${vcap.services.db.internal}/@db.database@
     username: root
     password: @db.password@
+  kafka:
+    consumer:
+      group-id: cloud-worker
+      enable-auto-commit: false
+    bootstrap-servers: ${vcap.services.kafka.internal}
+    topic:
+      mesos: mesos.topic
+  redis-host: ${vcap.services.redis.internal}
 
 server:
   port: 8080
