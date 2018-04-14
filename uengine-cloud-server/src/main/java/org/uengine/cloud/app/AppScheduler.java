@@ -23,6 +23,9 @@ public class AppScheduler {
     private AppWebService appWebService;
 
     @Autowired
+    private AppWebCacheService appWebCacheService;
+
+    @Autowired
     private LeaderWrapper leaderWrapper;
 
     @Autowired
@@ -45,37 +48,37 @@ public class AppScheduler {
     @Scheduled(initialDelay = 1000, fixedDelay = 3000)
     public void leaderScheduler() {
         //if not leader, skip.
-        if (leaderWrapper.amILeader()) {
+        if (!leaderWrapper.amILeader()) {
             return;
         }
-        try {
-            appWebService.updateAllAppNames();
-        } catch (Exception ex) {
-
-        }
-        try {
-            List<AppEntity> appEntities = appWebService.updateAllApps();
-            this.appEntityList = appEntities;
-        } catch (Exception ex) {
-
-        }
-        try {
-            marathonService.updateCachedServiceApps();
-        } catch (Exception ex) {
-
-        }
-
-        try {
-            marathonService.updateCachedDcosLast();
-        } catch (Exception ex) {
-
-        }
-
-        try {
-            this.checkDeploymentComplete();
-        } catch (Exception ex) {
-
-        }
+//        try {
+//            appWebService.updateAllAppNames();
+//        } catch (Exception ex) {
+//
+//        }
+//        try {
+//            List<AppEntity> appEntities = appWebService.updateAllApps();
+//            this.appEntityList = appEntities;
+//        } catch (Exception ex) {
+//
+//        }
+//        try {
+//            marathonService.updateCachedServiceApps();
+//        } catch (Exception ex) {
+//
+//        }
+//
+//        try {
+//            marathonService.updateCachedDcosLast();
+//        } catch (Exception ex) {
+//
+//        }
+//
+//        try {
+//            this.checkDeploymentComplete();
+//        } catch (Exception ex) {
+//
+//        }
     }
 
 
@@ -263,7 +266,7 @@ public class AppScheduler {
     }
 
     private boolean enableOverrideAppStage(AppEntity entity, String stage) {
-        AppEntity existEntity = appWebService.findOne(entity.getName());
+        AppEntity existEntity = appWebCacheService.findOneCache(entity.getName());
         if (existEntity == null) {
             return false;
         }

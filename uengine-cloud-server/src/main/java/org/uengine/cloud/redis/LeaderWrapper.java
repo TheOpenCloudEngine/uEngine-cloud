@@ -17,18 +17,16 @@ public class LeaderWrapper {
     private boolean isLeader;
 
     @Autowired
-    private RedisTemplate redisTemplate;
+    private String myApplicationId;
 
     @Autowired
-    private String myApplicationId;
+    private Jedis jedis;
 
 
     @Scheduled(fixedDelay = 2000)
     public void tryToAcquireLock() {
 
         try {
-            Jedis jedis = (Jedis) redisTemplate.getConnectionFactory().getConnection().getNativeConnection();
-
             if (isLeader) {
                 jedis.del(LEADER_LOCK);
             }

@@ -27,7 +27,7 @@ public class AppPipeLineService {
     private AppPipeLineJsonRepository pipeLineJsonRepository;
 
     @Autowired
-    private AppWebService appWebService;
+    private AppWebCacheService appWebCacheService;
 
     @Autowired
     private GitlabExtentApi gitlabExtentApi;
@@ -93,7 +93,7 @@ public class AppPipeLineService {
      * @throws Exception
      */
     public Map excutePipelineTrigger(String appName, String ref, String stage) throws Exception {
-        AppEntity appEntity = appWebService.findOne(appName);
+        AppEntity appEntity = appWebCacheService.findOneCache(appName);
         int projectId = appEntity.getProjectId();
         String token = gitlabExtentApi.getProjectDcosTriggerToken(projectId);
 
@@ -145,7 +145,7 @@ public class AppPipeLineService {
 
         String accessToken = null;
         try {
-            AppEntity appEntity = appWebService.findOne(appName);
+            AppEntity appEntity = appWebCacheService.findOneCache(appName);
             String userName = appEntity.getIam();
             OauthUser oauthUser = iamClient.getUser(userName);
             ResourceOwnerPasswordCredentials passwordCredentials = new ResourceOwnerPasswordCredentials();

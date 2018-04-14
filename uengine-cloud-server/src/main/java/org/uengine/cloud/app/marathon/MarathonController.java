@@ -19,6 +19,9 @@ public class MarathonController {
     private MarathonService marathonService;
 
     @Autowired
+    private MarathonCacheService marathonCacheService;
+
+    @Autowired
     private DcosApi dcosApi;
 
 
@@ -31,7 +34,7 @@ public class MarathonController {
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "/app/{appName}", method = RequestMethod.GET, produces = "text/plain;charset=UTF-8")
+    @RequestMapping(value = "/app/{appName}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public Map getMarathonAppsByAppName(HttpServletRequest request,
                                         HttpServletResponse response,
                                         @PathVariable("appName") String appName
@@ -49,7 +52,7 @@ public class MarathonController {
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "/service/{marathonAppId}", method = RequestMethod.GET, produces = "text/plain;charset=UTF-8")
+    @RequestMapping(value = "/service/{marathonAppId}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public Map getMarathonAppById(HttpServletRequest request,
                                   HttpServletResponse response,
                                   @PathVariable("marathonAppId") String marathonAppId
@@ -57,7 +60,7 @@ public class MarathonController {
         if (!marathonAppId.startsWith("/")) {
             marathonAppId = "/" + marathonAppId;
         }
-        return marathonService.getCachedMarathonAppById(marathonAppId);
+        return marathonCacheService.getMarathonAppByIdCache(marathonAppId);
     }
 
     /**
@@ -68,11 +71,11 @@ public class MarathonController {
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "/service", method = RequestMethod.GET, produces = "text/plain;charset=UTF-8")
+    @RequestMapping(value = "/service", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public List<Map> getServiceApps(HttpServletRequest request,
                                     HttpServletResponse response
     ) throws Exception {
-        return marathonService.getCachedServiceApps();
+        return marathonCacheService.getServiceAppsCache();
     }
 
     /**
@@ -84,7 +87,7 @@ public class MarathonController {
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "/task/{taskId}", method = RequestMethod.GET, produces = "text/plain;charset=UTF-8")
+    @RequestMapping(value = "/task/{taskId}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public Map getMesosTaskById(HttpServletRequest request,
                                 HttpServletResponse response,
                                 @PathVariable("taskId") String taskId
@@ -100,11 +103,11 @@ public class MarathonController {
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "/last", method = RequestMethod.GET, produces = "text/plain;charset=UTF-8")
+    @RequestMapping(value = "/last", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public Map getDcosLast(HttpServletRequest request,
                            HttpServletResponse response
     ) throws Exception {
-        return marathonService.getCachedDcosLast();
+        return marathonCacheService.getDcosLastCache();
     }
 }
 

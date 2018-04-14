@@ -44,6 +44,9 @@ public class AppDeploymentService {
     @Autowired
     private MarathonService marathonService;
 
+    @Autowired
+    private AppWebCacheService appWebCacheService;
+
     /**
      * synchronous dcos api need for deployment job
      */
@@ -95,7 +98,7 @@ public class AppDeploymentService {
      */
     //TODO need to kafka event
     public void rollbackApp(String appName, String stage) throws Exception {
-        AppEntity appEntity = appWebService.findOne(appName);
+        AppEntity appEntity = appWebCacheService.findOneCache(appName);
 
         AppStage appStage = appWebService.getAppStage(appEntity, stage);
 
@@ -224,7 +227,7 @@ public class AppDeploymentService {
      */
     //TODO need to kafka event
     public void finishManualCanaryDeployment(String appName, String stage) throws Exception {
-        AppEntity appEntity = appWebService.findOne(appName);
+        AppEntity appEntity = appWebCacheService.findOneCache(appName);
 
         AppStage appStage = appWebService.getAppStage(appEntity, stage);
 
@@ -284,7 +287,7 @@ public class AppDeploymentService {
      */
     //TODO need to block
     public void convertManualCanaryDeployment(String appName, String stage) throws Exception {
-        AppEntity appEntity = appWebService.findOne(appName);
+        AppEntity appEntity = appWebCacheService.findOneCache(appName);
 
         AppStage appStage = appWebService.getAppStage(appEntity, stage);
 
@@ -318,7 +321,7 @@ public class AppDeploymentService {
         //메소스 앱 삭제
 
         //디플로이 중인 정보 삭제
-        AppEntity appEntity = appWebService.findOne(appName);
+        AppEntity appEntity = appWebCacheService.findOneCache(appName);
         AppStage appStage = appWebService.getAppStage(appEntity, stage);
         appStage.setTempDeployment(null);
         appWebService.setAppStage(appEntity, appStage, stage);

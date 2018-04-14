@@ -2,7 +2,6 @@ package org.uengine.cloud.redis;
 
 import java.util.UUID;
 
-import org.springframework.data.redis.core.RedisTemplate;
 import redis.clients.jedis.Jedis;
 
 /**
@@ -72,56 +71,57 @@ public class JedisLock {
         }
     }
 
+
     /**
      * Detailed constructor with default acquire timeout 10000 msecs and lock
      * expiration of 60000 msecs.
      *
-     * @param redisTemplate
-     * @param lockKey       lock key (ex. account:1, ...)
+     * @param jedis
+     * @param lockKey lock key (ex. account:1, ...)
      */
-    public JedisLock(RedisTemplate redisTemplate, String lockKey) {
-        this(redisTemplate, lockKey, DEFAULT_ACQUIRE_TIMEOUT_MILLIS, DEFAULT_EXPIRY_TIME_MILLIS);
+    public JedisLock(Jedis jedis, String lockKey) {
+        this(jedis, lockKey, DEFAULT_ACQUIRE_TIMEOUT_MILLIS, DEFAULT_EXPIRY_TIME_MILLIS);
     }
 
     /**
      * Detailed constructor with default lock expiration of 60000 msecs.
      *
-     * @param redisTemplate
+     * @param jedis
      * @param lockKey              lock key (ex. account:1, ...)
      * @param acquireTimeoutMillis acquire timeout in miliseconds (default: 10000 msecs)
      */
-    public JedisLock(RedisTemplate redisTemplate, String lockKey, int acquireTimeoutMillis) {
-        this(redisTemplate, lockKey, acquireTimeoutMillis, DEFAULT_EXPIRY_TIME_MILLIS);
+    public JedisLock(Jedis jedis, String lockKey, int acquireTimeoutMillis) {
+        this(jedis, lockKey, acquireTimeoutMillis, DEFAULT_EXPIRY_TIME_MILLIS);
     }
 
     /**
      * Detailed constructor.
      *
-     * @param redisTemplate
+     * @param jedis
      * @param lockKey              lock key (ex. account:1, ...)
      * @param acquireTimeoutMillis acquire timeout in miliseconds (default: 10000 msecs)
      * @param expiryTimeMillis     lock expiration in miliseconds (default: 60000 msecs)
      */
-    public JedisLock(RedisTemplate redisTemplate, String lockKey, int acquireTimeoutMillis, int expiryTimeMillis) {
-        this(redisTemplate, lockKey, acquireTimeoutMillis, expiryTimeMillis, UUID.randomUUID());
+    public JedisLock(Jedis jedis, String lockKey, int acquireTimeoutMillis, int expiryTimeMillis) {
+        this(jedis, lockKey, acquireTimeoutMillis, expiryTimeMillis, UUID.randomUUID());
     }
 
     /**
      * Detailed constructor.
      *
-     * @param redisTemplate
+     * @param jedis
      * @param lockKey              lock key (ex. account:1, ...)
      * @param acquireTimeoutMillis acquire timeout in miliseconds (default: 10000 msecs)
      * @param expiryTimeMillis     lock expiration in miliseconds (default: 60000 msecs)
      * @param uuid                 unique identification of this lock
      */
-    public JedisLock(RedisTemplate redisTemplate, String lockKey, int acquireTimeoutMillis, int expiryTimeMillis, UUID uuid) {
-        this.jedis = (Jedis) redisTemplate.getConnectionFactory().getConnection().getNativeConnection();
-        ;
+    public JedisLock(Jedis jedis, String lockKey, int acquireTimeoutMillis, int expiryTimeMillis, UUID uuid) {
+        this.jedis = jedis;
         this.lockKeyPath = lockKey;
         this.acquiryTimeoutInMillis = acquireTimeoutMillis;
         this.lockExpiryInMillis = expiryTimeMillis + 1;
         this.lockUUID = uuid;
+        ;
     }
 
     /**
@@ -238,4 +238,6 @@ public class JedisLock {
     private Lock asLock(long expires) {
         return new Lock(lockUUID, expires);
     }
+
+
 }

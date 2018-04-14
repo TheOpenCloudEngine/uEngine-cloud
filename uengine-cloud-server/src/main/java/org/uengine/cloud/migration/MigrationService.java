@@ -31,7 +31,7 @@ public class MigrationService {
     private GitlabExtentApi gitlabExtentApi;
 
     @Autowired
-    private AppWebService appWebService;
+    private AppWebCacheService appWebCacheService;
 
     @Autowired
     private DcosApi dcosApi;
@@ -83,7 +83,7 @@ public class MigrationService {
 
 
             //멤버 업데이트
-            appWebService.updateAppMember(appEntity.getName());
+            appWebCacheService.updateAppMemberCache(appEntity.getName());
         }
     }
 }

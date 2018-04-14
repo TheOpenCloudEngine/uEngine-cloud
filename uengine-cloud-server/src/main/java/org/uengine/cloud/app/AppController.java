@@ -4,6 +4,7 @@ package org.uengine.cloud.app;
 import org.gitlab4j.api.models.Member;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -34,7 +35,7 @@ public class AppController {
     private AppWebService appWebService;
 
     @Autowired
-    private Environment environment;
+    private AppWebCacheService appWebCacheService;
 
     @Autowired
     private AppLogService logService;
@@ -109,18 +110,20 @@ public class AppController {
      * @return
      * @throws Exception
      */
+//    @Cacheable(value = "app", key = "#appName")
     @RequestMapping(value = "/{appName}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
-    public Map getApp(HttpServletRequest request,
+    public AppEntity getApp(HttpServletRequest request,
                       HttpServletResponse response,
                       @PathVariable("appName") String appName
     ) throws Exception {
         OauthUser user = TenantContext.getThreadLocalInstance().getUser();
-        AppEntity appEntity = appWebService.findOne(appName);
+        AppEntity appEntity = appWebCacheService.findOneCache(appName);
         appEntity = appWebService.setAccessLevel(appEntity, user);
         String acl = user.getMetaData().get("acl").toString();
 
         if ("admin".equals(acl) || appEntity.getAccessLevel() > 0) {
-            return JsonUtils.convertClassToMap(appEntity);
+            //return JsonUtils.convertClassToMap(appEntity);
+            return appEntity;
         }
 
         LOGGER.warn("Unauthorized getApp request for {} , {}", appName, user.getUserName());
@@ -138,19 +141,19 @@ public class AppController {
      * @throws Exception
      */
     @RequestMapping(value = "/{appName}/member", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
-    public Map getAppMember(HttpServletRequest request,
+    public List<Member> getAppMember(HttpServletRequest request,
                       HttpServletResponse response,
                       @PathVariable("appName") String appName
     ) throws Exception {
         OauthUser user = TenantContext.getThreadLocalInstance().getUser();
-        AppEntity appEntity = appWebService.findOne(appName);
-        List<Member> members = appWebService.getAppMember(appName);
+        AppEntity appEntity = appWebCacheService.findOneCache(appName);
+        List<Member> members = appWebCacheService.getAppMemberCache(appName);
 
         appEntity = appWebService.setAccessLevel(appEntity, user);
         String acl = user.getMetaData().get("acl").toString();
 
         if ("admin".equals(acl) || appEntity.getAccessLevel() > 0) {
-            return JsonUtils.convertClassToMap(members);
+            return members;
         }
 
         LOGGER.warn("Unauthorized getApp members request for {} , {}", appName, user.getUserName());

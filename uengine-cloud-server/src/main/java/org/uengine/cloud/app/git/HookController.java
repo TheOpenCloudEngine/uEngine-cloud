@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.uengine.cloud.app.AppEntity;
+import org.uengine.cloud.app.AppWebCacheService;
 import org.uengine.cloud.app.AppWebService;
 import org.uengine.cloud.app.config.AppConfigService;
 import org.uengine.cloud.app.log.AppLogAction;
@@ -27,9 +28,6 @@ import java.util.Map;
 public class HookController {
 
     @Autowired
-    private AppWebService appWebService;
-
-    @Autowired
     private AppConfigService appConfigService;
 
     @Autowired
@@ -40,6 +38,9 @@ public class HookController {
 
     @Autowired
     private AppPipeLineService pipeLineService;
+
+    @Autowired
+    private AppWebCacheService appWebCacheService;
 
     private Map<String, String> reservedStages = new HashMap<>();
 
@@ -69,7 +70,7 @@ public class HookController {
                 String pipelineId = ((Map) payloads.get("object_attributes")).get("id").toString();
                 String status = ((Map) payloads.get("object_attributes")).get("status").toString();
 
-                AppEntity appEntity = appWebService.findOne(appName);
+                AppEntity appEntity = appWebCacheService.findOneCache(appName);
 
                 //이력 저장
                 logService.addHistory(appName, AppLogAction.PIPELINE, AppLogStatus.valueOf(status.toUpperCase()), null);
@@ -105,7 +106,7 @@ public class HookController {
                 }
             } else if (payloads.get("object_kind").toString().equals("push")) {
                 String appName = ((Map) payloads.get("project")).get("name").toString();
-                AppEntity appEntity = appWebService.findOne(appName);
+                AppEntity appEntity = appWebCacheService.findOneCache(appName);
                 int projectId = appEntity.getProjectId();
 
                 //푸시 이력 남기기

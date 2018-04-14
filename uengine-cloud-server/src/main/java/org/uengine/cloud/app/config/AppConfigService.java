@@ -30,6 +30,9 @@ public class AppConfigService {
     private GitlabExtentApi gitlabExtentApi;
 
     @Autowired
+    private AppWebCacheService appWebCacheService;
+
+    @Autowired
     private AppWebService appWebService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AppConfigService.class);
@@ -89,7 +92,7 @@ public class AppConfigService {
      */
     public void addAppToVcapService(String appName) throws Exception {
         String[] stages = {"dev", "stg", "prod"};
-        this.addAppToVcapService(appWebService.findOne(appName), Arrays.asList(stages));
+        this.addAppToVcapService(appWebCacheService.findOneCache(appName), Arrays.asList(stages));
     }
 
     /**
@@ -182,7 +185,7 @@ public class AppConfigService {
 
     public void updateAppConfigChanged(String appName, String stage, boolean isChanged) throws Exception {
         //스테이지가 없으면 모든 스테이지가 변화된 것.
-        AppEntity appEntity = appWebService.findOne(appName);
+        AppEntity appEntity = appWebCacheService.findOneCache(appName);
         if (StringUtils.isEmpty(stage)) {
             AppStage dev = appEntity.getDev();
             dev.setConfigChanged(true);

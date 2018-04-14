@@ -4,6 +4,7 @@ import com.google.common.base.Joiner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.uengine.cloud.app.AppEntity;
+import org.uengine.cloud.app.AppWebCacheService;
 import org.uengine.cloud.app.AppWebService;
 import org.uengine.cloud.app.AppStage;
 import org.uengine.cloud.app.config.AppConfigService;
@@ -23,6 +24,9 @@ public class AppSnapshotService {
 
     @Autowired
     private AppWebService appWebService;
+
+    @Autowired
+    private AppWebCacheService appWebCacheService;
 
     @Autowired
     private AppSnapshotRepository snapshotRepository;
@@ -51,7 +55,7 @@ public class AppSnapshotService {
         //스냅샷 복원 검증
         AppSnapshot appSnapshot = this.validateRestoreSnapshot(snapshotId, stages);
         String appName = appSnapshot.getAppName();
-        AppEntity appEntity = appWebService.findOne(appName);
+        AppEntity appEntity = appWebCacheService.findOneCache(appName);
 
         //스냅샷으로부터 external 호스트를 가져와 vcap 서비스로 적용한다.
         for (String stage : stages) {
@@ -170,7 +174,7 @@ public class AppSnapshotService {
 
         //앱이 존재하는지 확인한다.
         String appName = appSnapshot.getApp().getName();
-        AppEntity existApp = appWebService.findOne(appName);
+        AppEntity existApp = appWebCacheService.findOneCache(appName);
         if (existApp == null) {
             throw new Exception(String.format("Not Found application %s in appSnapshot, %s", appName, snapshotId));
         }
@@ -221,7 +225,7 @@ public class AppSnapshotService {
 
     public AppSnapshot createSnapshot(String appName, String snapshotName, Long appGroupSnapshotId) throws Exception {
         //deployJson 을 포함한 app 정보를 가져온다.
-        AppEntity appEntity = appWebService.findOne(appName);
+        AppEntity appEntity = appWebCacheService.findOneCache(appName);
 
         //리소스를 가져온다.
         AppConfigYmlResource configYmlResource = this.createAppConfigSnapshot(appName, appEntity);

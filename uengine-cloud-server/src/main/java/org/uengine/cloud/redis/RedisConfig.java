@@ -3,6 +3,7 @@ package org.uengine.cloud.redis;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.interceptor.KeyGenerator;
+import org.springframework.cache.interceptor.SimpleKeyGenerator;
 import org.springframework.cache.transaction.TransactionAwareCacheManagerProxy;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +20,7 @@ import org.springframework.data.redis.serializer.GenericToStringSerializer;
 import redis.clients.jedis.Jedis;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Random;
 
 @Configuration
@@ -65,26 +67,5 @@ public class RedisConfig {
         cacheManager.setDefaultExpiration(7200);
         cacheManager.setTransactionAware(true);
         return cacheManager;
-    }
-
-    @Bean
-    public KeyGenerator customKeyGenerator() {
-        return new KeyGenerator() {
-            @Override
-            public Object generate(Object o, Method method, Object... objects) {
-                StringBuilder sb = new StringBuilder();
-                sb.append(o.getClass().getName());
-                sb.append(method.getName());
-                for (Object obj : objects) {
-                    sb.append(obj.toString());
-                }
-                return sb.toString();
-            }
-        };
-    }
-
-    @Bean
-    public String myApplicationId() {
-        return "" + new Random().nextInt(Integer.MAX_VALUE);
     }
 }

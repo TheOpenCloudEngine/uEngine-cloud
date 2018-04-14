@@ -4,6 +4,7 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.uengine.cloud.app.AppEntity;
+import org.uengine.cloud.app.AppWebCacheService;
 import org.uengine.cloud.app.AppWebService;
 import org.uengine.cloud.migration.MigrationService;
 import org.uengine.iam.util.JsonUtils;
@@ -44,7 +45,7 @@ public class Application {
     private MigrationService migrationService;
 
     @Autowired
-    private AppWebService appWebService;
+    private AppWebCacheService appWebCacheService;
 
     //findAll
     @RequestMapping(value = "/fetchLBData", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
@@ -52,7 +53,7 @@ public class Application {
                            HttpServletResponse response
     ) throws Exception {
 
-        List<AppEntity> appEntities = appWebService.findAllApps();
+        List<AppEntity> appEntities = appWebCacheService.findAllAppsCache();
 
         Map apps = new HashMap();
         for (int i = 0; i < appEntities.size(); i++) {

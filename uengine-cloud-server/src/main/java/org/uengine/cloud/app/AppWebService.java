@@ -10,6 +10,7 @@ import org.gitlab4j.api.models.Project;
 import org.gitlab4j.api.models.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -59,24 +60,13 @@ public class AppWebService {
     @Lazy
     private AppAsyncService appAsyncService;
 
+    @Autowired
+    private AppWebCacheService appWebCacheService;
+
     public List<AppEntity> cachedAllApps = new ArrayList<>();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AppWebService.class);
 
-    //Cacheable 은 자동으로 저장까지 이루어지지 않는다....
-    //Intiate 코드 필요.
-
-    @Cacheable(value = "app", key = "#name")
-    public AppEntity findOne(String name) {
-        LOGGER.info("find app from jdbc {}", name);
-        return saveTransactional(appEntityRepository.findOne(name));
-    }
-
-    @CachePut(value = "app", key = "#appEntity.name")
-    @Transactional
-    public AppEntity saveTransactional(AppEntity appEntity) {
-        return appEntityRepository.save(appEntity);
-    }
 
     //TODO need redis -> websocket
     public AppEntity save(AppEntity appEntity) throws Exception {
@@ -94,7 +84,7 @@ public class AppWebService {
         prod.setMesos(null);
         appEntity.setProd(prod);
 
-        AppEntity save = this.saveTransactional(appEntity);
+        AppEntity save = appWebCacheService.saveCache(appEntity);
 
         //and sse or websocket app changed event call to ui.
 
@@ -106,93 +96,6 @@ public class AppWebService {
         return save;
     }
 
-    @CacheEvict(value = "app", key = "#name")
-    @Transactional
-    public void deleteTransactional(String name) {
-        appEntityRepository.delete(name);
-    }
-
-
-    //TODO need redis -> websocket
-    public void delete(String name) {
-        this.deleteTransactional(name);
-    }
-
-    @Cacheable(value = "appAllNames", key = "#root.methodName")
-    public List<String> findAllAppNames() {
-        LOGGER.info("find all app names from jdbc {}");
-        return this.updateAllAppNames();
-    }
-
-
-    @CachePut(value = "appAllNames", key = "#root.methodName")
-    @Transactional
-    //From AppScheduler
-    public List<String> updateAllAppNames() {
-        LOGGER.info("update all app names to redis {}");
-        return appEntityRepository.findAllAppNames();
-    }
-
-    //For Marathon LB fetch job
-    @Cacheable(value = "appAll", key = "#root.methodName")
-    public List<AppEntity> findAllApps() {
-        LOGGER.info("find all apps from jdbc {}");
-        return this.updateAllApps();
-    }
-
-
-    @CachePut(value = "appAll", key = "#root.methodName")
-    @Transactional
-    //From AppScheduler
-    public List<AppEntity> updateAllApps() {
-        LOGGER.info("update all apps to redis {}");
-        return appEntityRepository.findAll();
-    }
-
-
-    @Cacheable(value = "appMembers", key = "#appName")
-    public List<Member> getAppMember(String appName) throws Exception {
-        LOGGER.info("find app member from git for app {}", appName);
-        return this.updateAppMember(appName);
-    }
-
-    //TODO need from kafka event
-    //TODO need redis -> websocket
-    @CachePut(value = "appMembers", key = "#appName")
-    @Transactional
-    public List<Member> updateAppMember(String appName) throws Exception {
-        LOGGER.info("update app member to redis for app {}", appName);
-
-        AppEntity appEntity = this.findOne(appName);
-
-        try {
-            int projectId = appEntity.getProjectId();
-            List<Member> members = gitLabApi.getProjectApi().getMembers(projectId);
-
-            //update members.
-            List<String> memberIds = new ArrayList<>();
-            for (int i = 0; i < members.size(); i++) {
-                Member member = members.get(i);
-                String memberId = "m" + member.getId() + "m";
-                memberIds.add(memberId);
-            }
-            appEntity.setMemberIds(Joiner.on(",").join(memberIds));
-            this.save(appEntity);
-            return members;
-
-        } catch (Exception ex) {
-            LOGGER.error("failed update members to redis for app {}", appName);
-            throw new Exception(ex);
-        }
-    }
-
-    //TODO need from delete app
-    @CacheEvict(value = "appMembers", key = "#appName")
-    @Transactional
-    public void deleteAppMember(String appName) {
-        LOGGER.error("remove app member from redis for app {}", appName);
-    }
-
 
     //TODO need from kafka event
     //if group, get group projects -> get apps by projectId
@@ -201,7 +104,7 @@ public class AppWebService {
         List<Project> projects = gitLabApi.getGroupApi().getProjects(groupId);
         for (int i = 0; i < projects.size(); i++) {
             AppEntity appEntity = appEntityRepository.findByProjectId(projects.get(i).getId());
-            this.updateAppMember(appEntity.getName());
+            appWebCacheService.updateAppMemberCache(appEntity.getName());
         }
     }
 
@@ -216,7 +119,7 @@ public class AppWebService {
         try {
             appEntity.setAccessLevel(0);
             int gitlabId = ((Long) oauthUser.getMetaData().get("gitlab-id")).intValue();
-            List<Member> members = this.getAppMember(appEntity.getName());
+            List<Member> members = appWebCacheService.getAppMemberCache(appEntity.getName());
             for (int i = 0; i < members.size(); i++) {
                 Member member = members.get(i);
                 if (member.getId() == gitlabId) {
@@ -238,7 +141,7 @@ public class AppWebService {
      */
     //TODO need to kafka event
     public void deleteApp(String appName, boolean removeRepository) throws Exception {
-        AppEntity appEntity = this.findOne(appName);
+        AppEntity appEntity = appWebCacheService.findOneCache(appName);
 
         //메소스 앱 삭제
         String[] stages = new String[]{"blue", "green", "stg", "dev"};
@@ -271,7 +174,7 @@ public class AppWebService {
         appConfigService.removeAppConfigYml(appName);
 
         //app 삭제
-        this.delete(appEntity.getName());
+        appWebCacheService.deleteCache(appEntity.getName());
     }
 
 
@@ -297,7 +200,7 @@ public class AppWebService {
         appCreate.setAppName(appName);
 
         //appName 중복 체크
-        AppEntity existEntity = this.findOne(appCreate.getAppName());
+        AppEntity existEntity = appWebCacheService.findOneCache(appCreate.getAppName());
         if (existEntity != null) {
             throw new Exception("App name is exist");
         }
