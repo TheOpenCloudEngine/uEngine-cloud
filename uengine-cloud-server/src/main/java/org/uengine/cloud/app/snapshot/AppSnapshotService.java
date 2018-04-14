@@ -78,7 +78,7 @@ public class AppSnapshotService {
                     break;
             }
         }
-        appWebService.save(appEntity);
+        appWebService.save(appEntity, true);
 
         //리소스 수정: overrideResource 존재시 덮어씀.
         AppConfigYmlResource configYmlResource = overrideResource == null ? appSnapshot.getAppConfigYmlResource() : overrideResource;

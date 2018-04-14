@@ -180,7 +180,7 @@ public class AppController {
     ) throws Exception {
         try {
             AppEntity entity = JsonUtils.convertValue(appEntity, AppEntity.class);
-            entity = appWebService.save(entity);
+            entity = appWebService.save(entity, true);
 
             logService.addHistory(appName, AppLogAction.UPDATE_APP, AppLogStatus.SUCCESS, null);
             return JsonUtils.convertClassToMap(entity);

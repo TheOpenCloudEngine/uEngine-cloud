@@ -68,8 +68,12 @@ public class AppWebService {
     private static final Logger LOGGER = LoggerFactory.getLogger(AppWebService.class);
 
 
-    //TODO need redis -> websocket
     public AppEntity save(AppEntity appEntity) throws Exception {
+        return this.save(appEntity, false);
+    }
+
+    //TODO need redis -> websocket
+    public AppEntity save(AppEntity appEntity, boolean updateVcap) throws Exception {
 
         //if mesos status remain, remove.
         AppStage dev = this.adjustmentStage(appEntity.getDev());
@@ -91,7 +95,9 @@ public class AppWebService {
         //send to redis? => websocket event call.
 
         //Future. vcap 서비스 업데이트
-        appConfigService.addAppToVcapService(appEntity.getName());
+        if (updateVcap) {
+            appConfigService.addAppToVcapService(appEntity.getName());
+        }
 
         return save;
     }
@@ -314,7 +320,7 @@ public class AppWebService {
         appEntity.setInsecureConfig(appCreate.getInsecureConfig());
 
         //it will throw exception if transaction accident fired.
-        AppEntity save = this.save(appEntity);
+        AppEntity save = this.save(appEntity, true);
 
         //앱 생성 백그라운드 작업 시작.
         appCreate.setUser(TenantContext.getThreadLocalInstance().getUser());
