@@ -1,11 +1,13 @@
-package org.uengine.cloud.group;
+package org.uengine.cloud.app.snapshot;
 
 import javax.persistence.*;
-import java.util.*;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
-@Table(name = "app_group")
-public class AppGroup {
+@Table(name = "app_group_snapshot")
+public class AppGroupSnapshot {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,12 +17,24 @@ public class AppGroup {
 
     private String iam;
 
+    @Column(name = "app_group_id")
+    private Long appGroupId;
+
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "app_group_snapshot_id")
+    private Set<AppSnapshot> snapshots = new HashSet<>();
+
     @Column(name = "regDate", nullable = false, updatable = false, insertable = true)
     private long regDate;
 
     @PrePersist
     void preInsert() {
         this.regDate = new Date().getTime();
+    }
+
+    @PostPersist
+    void postInsert() {
+
     }
 
     public Long getId() {
@@ -45,6 +59,22 @@ public class AppGroup {
 
     public void setIam(String iam) {
         this.iam = iam;
+    }
+
+    public Long getAppGroupId() {
+        return appGroupId;
+    }
+
+    public void setAppGroupId(Long appGroupId) {
+        this.appGroupId = appGroupId;
+    }
+
+    public Set<AppSnapshot> getSnapshots() {
+        return snapshots;
+    }
+
+    public void setSnapshots(Set<AppSnapshot> snapshots) {
+        this.snapshots = snapshots;
     }
 
     public long getRegDate() {

@@ -31,6 +31,9 @@ public class AppEntity {
 
     private Long groupId;
 
+    @Column(columnDefinition = "TEXT")
+    private String memberIds;
+
     @JsonIgnore
     @Column(columnDefinition = "TEXT")
     private String devString;
@@ -156,17 +159,6 @@ public class AppEntity {
     }
 
     @Transient
-    private List<Member> members;
-
-    public List<Member> getMembers() {
-        return members;
-    }
-
-    public void setMembers(List<Member> members) {
-        this.members = members;
-    }
-
-    @Transient
     private int accessLevel;
 
     public int getAccessLevel() {
@@ -199,5 +191,13 @@ public class AppEntity {
 
     public void setGroupId(Long groupId) {
         this.groupId = groupId;
+    }
+
+    public String getMemberIds() {
+        return memberIds;
+    }
+
+    public void setMemberIds(String memberIds) {
+        this.memberIds = memberIds;
     }
 }

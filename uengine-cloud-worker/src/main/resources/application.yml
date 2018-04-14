@@ -157,6 +157,9 @@ spring:
     url: jdbc:mysql://${vcap.services.db.internal}/@db.database@
     username: root
     password: @db.password@
+    #url: jdbc:mysql://localhost:3306/msa
+    #username: root
+    #password:
   kafka:
     consumer:
       group-id: cloud-worker

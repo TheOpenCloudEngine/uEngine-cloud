@@ -6,7 +6,7 @@ import org.gitlab4j.api.models.TreeItem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
-import org.uengine.cloud.integration.GitlabExtentApi;
+import org.uengine.cloud.app.git.GitlabExtentApi;
 import org.uengine.iam.util.JsonUtils;
 
 import java.util.*;

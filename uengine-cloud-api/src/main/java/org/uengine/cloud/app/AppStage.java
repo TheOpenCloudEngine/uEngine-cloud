@@ -16,7 +16,6 @@ public class AppStage {
     private String marathonAppId;
     private String commit;
     private int servicePort;
-    private Map deployJson;
     private Map mesos;
     private boolean configChanged;
     private DeploymentStrategy deploymentStrategy;
@@ -75,14 +74,6 @@ public class AppStage {
         this.servicePort = servicePort;
     }
 
-    public Map getDeployJson() {
-        return deployJson;
-    }
-
-    public void setDeployJson(Map deployJson) {
-        this.deployJson = deployJson;
-    }
-
     public boolean getConfigChanged() {
         return configChanged;
     }
@@ -100,14 +91,6 @@ public class AppStage {
 
     public void setDeploymentStrategy(DeploymentStrategy deploymentStrategy) {
         this.deploymentStrategy = deploymentStrategy;
-    }
-
-    public Map getMesos() {
-        return mesos;
-    }
-
-    public void setMesos(Map mesos) {
-        this.mesos = mesos;
     }
 
     public Long getSnapshot() {
@@ -173,5 +156,13 @@ public class AppStage {
 
     public void setTempDeployment(TempDeployment tempDeployment) {
         this.tempDeployment = tempDeployment;
+    }
+
+    public Map getMesos() {
+        return mesos;
+    }
+
+    public void setMesos(Map mesos) {
+        this.mesos = mesos;
     }
 }

@@ -1,16 +1,17 @@
 package org.uengine.cloud.migration;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import org.gitlab4j.api.GitLabApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.uengine.cloud.app.*;
-import org.uengine.cloud.integration.DcosApi;
-import org.uengine.cloud.integration.GitlabExtentApi;
-import org.uengine.cloud.integration.HookController;
+import org.uengine.cloud.app.deployjson.AppDeployJsonService;
+import org.uengine.cloud.app.git.GitlabExtentApi;
+import org.uengine.cloud.app.git.HookController;
+import org.uengine.cloud.app.marathon.DcosApi;
+import org.uengine.cloud.app.pipeline.AppPipeLineService;
 import org.uengine.iam.client.IamClient;
+import org.uengine.iam.util.JsonUtils;
 
 import java.util.*;
 
@@ -19,6 +20,7 @@ import java.util.*;
  */
 @Service
 public class MigrationService {
+
     @Autowired
     private Environment environment;
 
@@ -29,7 +31,7 @@ public class MigrationService {
     private GitlabExtentApi gitlabExtentApi;
 
     @Autowired
-    private AppService appService;
+    private AppWebService appWebService;
 
     @Autowired
     private DcosApi dcosApi;
@@ -38,125 +40,50 @@ public class MigrationService {
     private HookController hookController;
 
     @Autowired
-    private AppAccessLevelRepository appAccessLevelRepository;
+    private AppEntityRepository appEntityRepository;
 
     @Autowired
-    private AppJpaRepository appJpaRepository;
+    private AppDeployJsonService deployJsonService;
+
+    @Autowired
+    private AppPipeLineService appPipeLineService;
 
     @Autowired
     private IamClient iamClient;
 
     public void migration() throws Exception {
-        Map<String, Map> appsMap = getAppsMap();
-        Set<String> keySet = appsMap.keySet();
-        for (String appName : keySet) {
-            Map app = appsMap.get(appName);
 
-            AppEntity entity = new AppEntity();
-            entity.setName(appName);
+        List<AppEntity> appEntities = appEntityRepository.findAll();
 
-            entity.setAppType(app.get("appType").toString());
+        for (AppEntity appEntity : appEntities) {
 
-            int projectId = (int) ((Map) app.get("gitlab")).get("projectId");
-            entity.setProjectId(projectId);
-
-            entity.setIam(app.get("iam").toString());
-
-            entity.setNumber((int) app.get("number"));
-
+            //디플로이 파일
             String[] stages = new String[]{"dev", "stg", "prod"};
+            int repoId = Integer.parseInt(environment.getProperty("gitlab.config-repo.projectId"));
             for (String stage : stages) {
-                Map stageMap = (Map) app.get(stage);
-                AppStage appStage = new AppStage();
-                appStage.setConfigChanged(false);
-                appStage.setDeployment(stageMap.get("deployment").toString());
-                appStage.setExternal(stageMap.get("external").toString());
-                appStage.setInternal(stageMap.get("internal").toString());
-                appStage.setMarathonAppId(stageMap.get("marathonAppId").toString());
-                appStage.setServicePort((int) stageMap.get("service-port"));
-
-                appService.setAppStage(entity, appStage, stage);
-            }
-
-            //앱 저장
-            appJpaRepository.save(entity);
-
-            //모든 앱 cloud-config-server/deploy/deploy....json 전부 CONFIG_JSON 추가.
-            String[] deployStages = new String[]{"dev", "stg", "prod", "rollback"};
-            for (String stage : deployStages) {
-                try {
-                    Map deployJson = appService.getDeployJson(appName, stage);
-                    Map env = (Map) deployJson.get("env");
-                    env.put("CONFIG_JSON", "{{CONFIG_JSON}}");
-
-                    appService.updateDeployJson(appName, stage, deployJson);
-                } catch (Exception ex) {
-
+                String deployJsonfilePath = "";
+                if (stage.equals("dev")) {
+                    deployJsonfilePath = "deployment/" + appEntity.getName() + "/ci-deploy-dev.json";
+                } else if (stage.equals("stg")) {
+                    deployJsonfilePath = "deployment/" + appEntity.getName() + "/ci-deploy-staging.json";
+                } else if (stage.equals("prod")) {
+                    deployJsonfilePath = "deployment/" + appEntity.getName() + "/ci-deploy-production.json";
                 }
+
+                String content = gitlabExtentApi.getRepositoryFile(repoId, "master", deployJsonfilePath);
+                Map map = JsonUtils.unmarshal(content);
+                deployJsonService.updateDeployJson(appEntity.getName(), stage, map);
             }
 
-            //모든 앱 커밋 중지
-            Map pipeLineJson = appService.getPipeLineJson(appName);
-            List<String> refs = (List<String>) pipeLineJson.get("refs");
-            refs = new ArrayList<String>();
-            pipeLineJson.put("refs", refs);
-            appService.updatePipeLineJson(appName, pipeLineJson);
+            //파이프라인 파일
+            String pipelineFilePath = "deployment/" + appEntity.getName() + "/ci-pipeline.json";
+            String content = gitlabExtentApi.getRepositoryFile(repoId, "master", pipelineFilePath);
+            Map map = JsonUtils.unmarshal(content);
+            appPipeLineService.updatePipeLineJson(appEntity.getName(), map);
 
 
-            //모든 앱 ci 파일 전부 수정
-            ObjectMapper yamlReader = new ObjectMapper(new YAMLFactory());
-            String ciFile = gitlabExtentApi.getRepositoryFile(projectId, "master", ".gitlab-ci.yml");
-            Map map = yamlReader.readValue(ciFile, Map.class);
-            String[] jobs = new String[]{"test", "dev", "staging", "production"};
-            for (String job : jobs) {
-                List<String> script = new ArrayList<>();
-
-                switch (job) {
-                    case "test":
-                        script.add("curl -H \"access_token: ${ACCESS_TOKEN}\" ${UENGINE_CLOUD_URL}/gitlab/api/v4/projects/${CONFIG_REPO_ID}/repository/files/deployment%2F${APP_NAME}%2Fci-test.sh/raw?ref=master | sh");
-                        break;
-                    case "dev":
-                        script.add("curl -H \"access_token: ${ACCESS_TOKEN}\" ${UENGINE_CLOUD_URL}/gitlab/api/v4/projects/${CONFIG_REPO_ID}/repository/files/template%2Fcommon%2Fci-deploy-dev.sh/raw?ref=master | sh");
-                        break;
-                    case "staging":
-                        script.add("curl -H \"access_token: ${ACCESS_TOKEN}\" ${UENGINE_CLOUD_URL}/gitlab/api/v4/projects/${CONFIG_REPO_ID}/repository/files/template%2Fcommon%2Fci-deploy-staging.sh/raw?ref=master | sh");
-                        break;
-                    case "production":
-                        script.add("curl -H \"access_token: ${ACCESS_TOKEN}\" ${UENGINE_CLOUD_URL}/gitlab/api/v4/projects/${CONFIG_REPO_ID}/repository/files/template%2Fcommon%2Fci-deploy-production.sh/raw?ref=master | sh");
-                }
-                Map map1 = (Map) map.get(job);
-                map1.put("script", script);
-            }
-
-            String converted = yamlReader.writeValueAsString(map);
-            gitlabExtentApi.updateOrCraeteRepositoryFile(projectId, "master", ".gitlab-ci.yml", converted);
-
-            //모든 앱 커밋 원복
-            refs = new ArrayList<String>();
-            refs.add("master");
-            pipeLineJson.put("refs", refs);
-            appService.updatePipeLineJson(appName, pipeLineJson);
-
-
-            //String configId = environment.getProperty("gitlab.config-repo.projectId");
-            //String aaa = "curl -H \\\"access_token: ${ACCESS_TOKEN}\\\" ${UENGINE_CLOUD_URL}/gitlab/api/v4/projects/${CONFIG_REPO_ID}/repository/files/template%2Fcommon%2Fci-deploy-production.sh/raw?ref=master | sh";
+            //멤버 업데이트
+            appWebService.updateAppMember(appEntity.getName());
         }
-    }
-
-    /**
-     * dcos-apps.yml 의 데이터를 가져온다.
-     *
-     * @return
-     * @throws Exception
-     */
-    public Map<String, Map> getAppsMap() throws Exception {
-        String dcosYml = gitlabExtentApi.getRepositoryFile(
-                Integer.parseInt(environment.getProperty("gitlab.config-repo.projectId")),
-                "master", "dcos-apps.yml"
-        );
-        ObjectMapper yamlReader = new ObjectMapper(new YAMLFactory());
-        Map map = yamlReader.readValue(dcosYml, Map.class);
-        Map dcos = (Map) map.get("dcos");
-        return (Map<String, Map>) dcos.get("apps");
     }
 }

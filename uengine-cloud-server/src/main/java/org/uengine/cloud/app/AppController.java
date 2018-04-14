@@ -1,23 +1,24 @@
 package org.uengine.cloud.app;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.util.EntityUtils;
-import org.uengine.cloud.log.AppLogAction;
-import org.uengine.cloud.log.AppLogService;
-import org.uengine.cloud.log.AppLogStatus;
+
+import org.gitlab4j.api.models.Member;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.uengine.cloud.app.log.AppLogAction;
+import org.uengine.cloud.app.log.AppLogService;
+import org.uengine.cloud.app.log.AppLogStatus;
 import org.uengine.cloud.tenant.TenantContext;
 import org.uengine.iam.client.model.OauthUser;
-import org.uengine.iam.util.HttpUtils;
 import org.uengine.iam.util.JsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.*;
-import org.uengine.iam.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +31,7 @@ import java.util.Map;
 public class AppController {
 
     @Autowired
-    private AppService appService;
+    private AppWebService appWebService;
 
     @Autowired
     private Environment environment;
@@ -39,7 +40,9 @@ public class AppController {
     private AppLogService logService;
 
     @Autowired
-    private AppAccessLevelRepository appAccessLevelRepository;
+    private AppEntityRepository appEntityRepository;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AppController.class);
 
     /**
      * 앱의 도커 이미지 목록을 가져온다.
@@ -55,219 +58,46 @@ public class AppController {
                                   HttpServletResponse response,
                                   @PathVariable("appName") String appName
     ) throws Exception {
-        return appService.getAppRegistryTags(appName);
+        return appWebService.getAppRegistryTags(appName);
     }
 
+    //get app list 추가. (pageable, oauth user)
+    //admin 일 경우 gitlabid 빈값 호출.
+
     /**
-     * 앱 배포 파이프라인을 실행한다. (깃랩 CI)
+     * 앱 목록을 가져온다.
      *
      * @param request
      * @param response
-     * @param appName  앱 이름
-     * @param ref      커밋 레퍼런스
-     * @param stage    스테이지
+     * @param name
+     * @param pageable
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "/{appName}/pipeline", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
-    public Map excutePipelineTrigger(HttpServletRequest request,
-                                     HttpServletResponse response,
-                                     @PathVariable("appName") String appName,
-                                     @RequestParam(value = "ref", defaultValue = "master") String ref,
-                                     @RequestParam(value = "stage", required = false) String stage
+    @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+    public Page<AppEntity> getApps(HttpServletRequest request,
+                                   HttpServletResponse response,
+                                   @RequestParam(required = false, value = "name", defaultValue = "") String name,
+                                   @PageableDefault Pageable pageable
     ) throws Exception {
-        Map log = new HashMap();
-        log.put("ref", ref);
-        log.put("stage", stage);
-        try {
-            Map map = appService.excutePipelineTrigger(appName, ref, stage);
-            logService.addHistory(appName, AppLogAction.EXCUTE_PIPELINE_TRIGGER, AppLogStatus.SUCCESS, log);
-            return map;
-        } catch (Exception ex) {
-            logService.addHistory(appName, AppLogAction.EXCUTE_PIPELINE_TRIGGER, AppLogStatus.FAILED, log);
-            throw ex;
+        OauthUser user = TenantContext.getThreadLocalInstance().getUser();
+        String acl = user.getMetaData().get("acl").toString();
+        int gitlabId = (int) user.getMetaData().get("gitlab-id");
+
+        Page<AppEntity> appEntities = null;
+        if ("admin".equals(acl)) {
+            appEntities = appEntityRepository.findLikeNameAndGitlabId(name, "", pageable);
+        } else {
+            appEntities = appEntityRepository.findLikeNameAndGitlabId(name, "m" + gitlabId + "m", pageable);
         }
-    }
 
-    /**
-     * 앱 자동 배포 설정을 가져온다.
-     *
-     * @param request
-     * @param response
-     * @param appName  앱 이름
-     * @return
-     * @throws Exception
-     */
-    @RequestMapping(value = "/{appName}/pipeline/info", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
-    public Map getAppPipeLineJson(HttpServletRequest request,
-                                  HttpServletResponse response,
-                                  @PathVariable("appName") String appName
-    ) throws Exception {
-        return appService.getPipeLineJson(appName);
-    }
-
-    /**
-     * 앱 자동 배포 설정을 변경한다.
-     *
-     * @param request
-     * @param response
-     * @param appName      앱 이름
-     * @param pipelineJson 설정 내용
-     * @return
-     * @throws Exception
-     */
-    @RequestMapping(value = "/{appName}/pipeline/info", method = RequestMethod.PUT, produces = "application/json;charset=UTF-8")
-    public Map updateAppPipeLineJson(HttpServletRequest request,
-                                     HttpServletResponse response,
-                                     @PathVariable("appName") String appName,
-                                     @RequestBody Map pipelineJson
-    ) throws Exception {
-        try {
-            Map map = appService.updatePipeLineJson(appName, pipelineJson);
-            logService.addHistory(appName, AppLogAction.UPDATE_APP_PIPELINE_JSON, AppLogStatus.SUCCESS, null);
-            return map;
-        } catch (Exception ex) {
-            logService.addHistory(appName, AppLogAction.UPDATE_APP_PIPELINE_JSON, AppLogStatus.FAILED, null);
-            throw ex;
-        }
-    }
-
-    /**
-     * 앱의 주어진 스테이지(dev,stg,prod) 의 인스턴스들을 삭제한다.
-     *
-     * @param request
-     * @param response
-     * @param appName  앱 이름
-     * @param stage    스테이지
-     * @throws Exception
-     */
-    @RequestMapping(value = "/{appName}/deploy", method = RequestMethod.DELETE, produces = "application/json;charset=UTF-8")
-    public void removeDeployedApp(HttpServletRequest request,
-                                  HttpServletResponse response,
-                                  @PathVariable("appName") String appName,
-                                  @RequestParam(value = "stage") String stage
-    ) throws Exception {
-        Map log = new HashMap();
-        log.put("stage", stage);
-        try {
-            appService.removeDeployedApp(appName, stage);
-            response.setStatus(200);
-
-            logService.addHistory(appName, AppLogAction.REMOVE_DEPLOYED_APP, AppLogStatus.SUCCESS, log);
-        } catch (Exception ex) {
-            logService.addHistory(appName, AppLogAction.REMOVE_DEPLOYED_APP, AppLogStatus.FAILED, log);
-            throw ex;
-        }
-    }
-
-    /**
-     * Rollback App which is on deployment.
-     *
-     * @param request
-     * @param response
-     * @param appName  앱 이름
-     * @throws Exception
-     */
-    @RequestMapping(value = "/{appName}/rollback", method = RequestMethod.DELETE, produces = "application/json;charset=UTF-8")
-    public void rollbackApp(HttpServletRequest request,
-                            HttpServletResponse response,
-                            @PathVariable("appName") String appName,
-                            @RequestParam(value = "stage") String stage
-    ) throws Exception {
-        try {
-            appService.rollbackApp(appName, stage);
-            response.setStatus(200);
-
-            logService.addHistory(appName, AppLogAction.ROLLBACK_APP, AppLogStatus.SUCCESS, null);
-        } catch (Exception ex) {
-            logService.addHistory(appName, AppLogAction.ROLLBACK_APP, AppLogStatus.FAILED, null);
-            throw ex;
-        }
-    }
-
-    /**
-     * Finish app deployment which is on manual canary deployment.
-     *
-     * @param request
-     * @param response
-     * @param appName  앱 이름
-     * @throws Exception
-     */
-    @RequestMapping(value = "/{appName}/finishManualCanaryDeployment", method = RequestMethod.DELETE, produces = "application/json;charset=UTF-8")
-    public void finishManualCanaryDeployment(HttpServletRequest request,
-                                             HttpServletResponse response,
-                                             @PathVariable("appName") String appName,
-                                             @RequestParam(value = "stage") String stage
-    ) throws Exception {
-        try {
-            appService.finishManualCanaryDeployment(appName, stage);
-            response.setStatus(200);
-
-            logService.addHistory(appName, AppLogAction.FINISH_MANUAL_CANARY_DEPLOYMENT, AppLogStatus.SUCCESS, null);
-        } catch (Exception ex) {
-            logService.addHistory(appName, AppLogAction.FINISH_MANUAL_CANARY_DEPLOYMENT, AppLogStatus.FAILED, null);
-            throw ex;
-        }
-    }
-
-    /**
-     * Convert manual canary deployment which is on auto canary deployment.
-     *
-     * @param request
-     * @param response
-     * @param appName  앱 이름
-     * @throws Exception
-     */
-    @RequestMapping(value = "/{appName}/convertManualCanaryDeployment", method = RequestMethod.PUT, produces = "application/json;charset=UTF-8")
-    public void convertManualCanaryDeployment(HttpServletRequest request,
-                                              HttpServletResponse response,
-                                              @PathVariable("appName") String appName,
-                                              @RequestParam(value = "stage") String stage
-    ) throws Exception {
-        try {
-            appService.convertManualCanaryDeployment(appName, stage);
-            response.setStatus(200);
-        } catch (Exception ex) {
-            throw ex;
-        }
-    }
-
-    /**
-     * 앱의 주어진 스테이지에 인스턴스를 생성한다.
-     *
-     * @param request
-     * @param response
-     * @param appName  앱 이름
-     * @param stage    스테이지
-     * @param commit   커밋 아이디
-     * @throws Exception
-     */
-    @RequestMapping(value = "/{appName}/deploy", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
-    public void runDeployedApp(HttpServletRequest request,
-                               HttpServletResponse response,
-                               @PathVariable("appName") String appName,
-                               @RequestParam(value = "stage") String stage,
-                               @RequestParam(value = "commit", required = false) String commit,
-                               @RequestBody(required = false) Map params
-    ) throws Exception {
-        Map log = new HashMap();
-        log.put("commit", commit);
-        log.put("stage", stage);
-        try {
-            String name = null;
-            String description = null;
-            if (params != null) {
-                name = params.containsKey("name") ? params.get("name").toString() : null;
-                description = params.containsKey("description") ? params.get("description").toString() : null;
+        //TODO remove if performance down.
+        if (!appEntities.getContent().isEmpty()) {
+            for (AppEntity appEntity : appEntities.getContent()) {
+                appWebService.setAccessLevel(appEntity, user);
             }
-            appService.runDeployedApp(appName, stage, commit, null, name, description);
-            response.setStatus(200);
-
-            logService.addHistory(appName, AppLogAction.RUN_DEPLOYED_APP_REQUEST, AppLogStatus.SUCCESS, log);
-        } catch (Exception ex) {
-            logService.addHistory(appName, AppLogAction.RUN_DEPLOYED_APP_REQUEST, AppLogStatus.FAILED, log);
-            throw ex;
         }
+        return appEntities;
     }
 
     /**
@@ -284,7 +114,48 @@ public class AppController {
                       HttpServletResponse response,
                       @PathVariable("appName") String appName
     ) throws Exception {
-        return JsonUtils.convertClassToMap(appService.getAppIncludeDeployJson(appName));
+        OauthUser user = TenantContext.getThreadLocalInstance().getUser();
+        AppEntity appEntity = appWebService.findOne(appName);
+        appEntity = appWebService.setAccessLevel(appEntity, user);
+        String acl = user.getMetaData().get("acl").toString();
+
+        if ("admin".equals(acl) || appEntity.getAccessLevel() > 0) {
+            return JsonUtils.convertClassToMap(appEntity);
+        }
+
+        LOGGER.warn("Unauthorized getApp request for {} , {}", appName, user.getUserName());
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+        return null;
+    }
+
+    /**
+     * 앱의 멤버 정보를 가져온다.
+     *
+     * @param request
+     * @param response
+     * @param appName  앱 이름
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/{appName}/member", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+    public Map getAppMember(HttpServletRequest request,
+                      HttpServletResponse response,
+                      @PathVariable("appName") String appName
+    ) throws Exception {
+        OauthUser user = TenantContext.getThreadLocalInstance().getUser();
+        AppEntity appEntity = appWebService.findOne(appName);
+        List<Member> members = appWebService.getAppMember(appName);
+
+        appEntity = appWebService.setAccessLevel(appEntity, user);
+        String acl = user.getMetaData().get("acl").toString();
+
+        if ("admin".equals(acl) || appEntity.getAccessLevel() > 0) {
+            return JsonUtils.convertClassToMap(members);
+        }
+
+        LOGGER.warn("Unauthorized getApp members request for {} , {}", appName, user.getUserName());
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+        return null;
     }
 
     /**
@@ -306,11 +177,8 @@ public class AppController {
     ) throws Exception {
         try {
             AppEntity entity = JsonUtils.convertValue(appEntity, AppEntity.class);
-            if (excludeDeploy) {
-                entity = appService.updateAppExcludeDeployJson(appName, entity);
-            } else {
-                entity = appService.updateAppIncludeDeployJson(appName, entity);
-            }
+            entity = appWebService.save(entity);
+
             logService.addHistory(appName, AppLogAction.UPDATE_APP, AppLogStatus.SUCCESS, null);
             return JsonUtils.convertClassToMap(entity);
         } catch (Exception ex) {
@@ -338,7 +206,7 @@ public class AppController {
         log.put("removeRepository", removeRepository);
 
         try {
-            appService.deleteApp(appName, removeRepository);
+            appWebService.deleteApp(appName, removeRepository);
             response.setStatus(200);
 
             logService.addHistory(appName, AppLogAction.DELETE_APP, AppLogStatus.SUCCESS, log);
@@ -364,7 +232,7 @@ public class AppController {
 
         Map<String, Object> log = JsonUtils.convertClassToMap(appCreate);
         try {
-            AppEntity appEntity = appService.createApp(appCreate);
+            AppEntity appEntity = appWebService.createApp(appCreate);
             logService.addHistory(appCreate.getAppName(), AppLogAction.CREATE_APP_REQUEST, AppLogStatus.SUCCESS, log);
             return JsonUtils.convertClassToMap(appEntity);
         } catch (Exception ex) {
@@ -373,72 +241,5 @@ public class AppController {
         }
     }
 
-    /**
-     * 앱의 vcap(연결정보) 를 가져온다.
-     *
-     * @param request
-     * @param response
-     * @param appName  앱 이름
-     * @return
-     * @throws Exception
-     */
-    @RequestMapping(value = "/{appName}/vcap", method = RequestMethod.GET, produces = "text/plain;charset=UTF-8")
-    public String getVcapServices(HttpServletRequest request,
-                                  HttpServletResponse response,
-                                  @PathVariable("appName") String appName
-    ) throws Exception {
-        return appService.getApplicationYml();
-    }
-
-    /**
-     * 앱의 주어진 스테이지의 클라우드 콘피그 yml 을 가져온다.
-     *
-     * @param request
-     * @param response
-     * @param appName  앱 이름
-     * @param stage    스테이지
-     * @return
-     * @throws Exception
-     */
-    @RequestMapping(value = "/{appName}/config", method = RequestMethod.GET, produces = "text/plain;charset=UTF-8")
-    public String getAppConfigYml(HttpServletRequest request,
-                                  HttpServletResponse response,
-                                  @PathVariable("appName") String appName,
-                                  @RequestParam(required = false, value = "stage") String stage
-    ) throws Exception {
-
-        return appService.getAppConfigYml(appName, stage);
-    }
-
-    /**
-     * 앱의 주어진 스테이지에 클라우드 콘피크 yml 을 업데이트한다.
-     *
-     * @param request
-     * @param response
-     * @param appName  앱 이름
-     * @param stage    스테이지
-     * @param content  yml 내용
-     * @return
-     * @throws Exception
-     */
-    @RequestMapping(value = "/{appName}/config", method = RequestMethod.PUT, produces = "text/plain;charset=UTF-8")
-    public String updateAppConfigYml(HttpServletRequest request,
-                                     HttpServletResponse response,
-                                     @PathVariable("appName") String appName,
-                                     @RequestParam(required = false, value = "stage") String stage,
-                                     @RequestBody String content) throws Exception {
-        Map log = new HashMap();
-        log.put("stage", stage);
-        try {
-            String yml = appService.updateAppConfigYml(appName, content, stage);
-
-            logService.addHistory(appName, AppLogAction.UPDATE_APP_CONFIGYML, AppLogStatus.SUCCESS, log);
-
-            return yml;
-        } catch (Exception ex) {
-            logService.addHistory(appName, AppLogAction.UPDATE_APP_CONFIGYML, AppLogStatus.FAILED, log);
-            throw ex;
-        }
-    }
 }
 
