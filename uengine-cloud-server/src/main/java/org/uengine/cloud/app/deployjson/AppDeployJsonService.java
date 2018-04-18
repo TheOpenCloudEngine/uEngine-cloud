@@ -61,6 +61,8 @@ public class AppDeployJsonService {
             appDeployJson.setAppName(appName);
             appDeployJson.setStage(stage);
             appDeployJson.setJson(deployJson);
+        } else {
+            appDeployJson.setJson(deployJson);
         }
         return deployJsonRepository.save(appDeployJson).getJson();
     }

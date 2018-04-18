@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.uengine.cloud.app.AppEntity;
 import org.uengine.cloud.app.SSEController;
@@ -17,7 +18,8 @@ import java.util.Map;
 public class MarathonMessageHandler implements MessageListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(MarathonMessageHandler.class);
 
-    private RedisTemplate redisTemplate;
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
 
     public String topic = "marathonApp";
 
@@ -30,12 +32,6 @@ public class MarathonMessageHandler implements MessageListener {
     @Autowired
     private MarathonService marathonService;
 
-
-    @Autowired
-    public void setRedisTemplate(RedisTemplate redisTemplate) {
-        this.redisTemplate = redisTemplate;
-    }
-
     @Override
     public void onMessage(Message message, byte[] bytes) {
         this.subscribe(message, bytes);
@@ -45,33 +41,35 @@ public class MarathonMessageHandler implements MessageListener {
     public void subscribe(Message message, byte[] bytes) {
         try {
             byte[] body = message.getBody();
-            String marathonAppId = (String) redisTemplate.getStringSerializer().deserialize(body);
-            marathonAppId = marathonAppId.replaceAll("\"", "");
-            AppEntity appEntity = marathonService.getAppEntityFromMarathonAppId(marathonAppId);
-            Map marathonApp = marathonCacheService.getMarathonAppByIdCache(marathonAppId);
+            String str = stringRedisTemplate.getStringSerializer().deserialize(body);
+            Map marathonApp = JsonUtils.unmarshal(str);
+            AppEntity appEntity =
+                    marathonService.getAppEntityFromMarathonAppId(((Map) marathonApp.get("app")).get("id").toString());
             Map map = new HashMap();
             map.put("topic", topic);
             map.put("message", marathonApp);
-            if (appEntity == null) {
+            if (appEntity != null) {
+                map.put("service", false);
                 map.put("appName", appEntity.getName());
+            } else {
+                map.put("service", true);
             }
-
 
             sseController.gitlabBaseEmitterSend(appEntity, JsonUtils.marshal(map));
 
-            LOGGER.info("key : {}, message : {}", new String(bytes), marathonAppId);
+            LOGGER.error("subscribe marathonApp from redis success");
         } catch (Exception ex) {
-            LOGGER.error("subscribe from redis failed");
+            LOGGER.error("subscribe marathonApp from redis failed");
         }
     }
 
     @Async
-    public void publish(String appId) {
+    public void publish(Map marathonApp) {
         try {
-            LOGGER.info("publish to redis, {}", appId);
-            redisTemplate.convertAndSend(topic, appId);
+            LOGGER.info("publish marathonApp to redis");
+            stringRedisTemplate.convertAndSend(topic, JsonUtils.marshal(marathonApp));
         } catch (Exception ex) {
-            LOGGER.error("publish to redis failed");
+            LOGGER.error("publish marathonApp to redis failed");
         }
     }
 }

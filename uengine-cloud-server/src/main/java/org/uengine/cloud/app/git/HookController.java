@@ -59,7 +59,7 @@ public class HookController {
         //user_remove_from_group
         try {
             String event_name = payloads.get("event_name").toString();
-            if (event_name.equals("user_add_to_team") || event_name.equals("user_add_to_team")) {
+            if (event_name.equals("user_add_to_team") || event_name.equals("user_remove_from_team")) {
                 hookService.receiveUserTeamEventHook(payloads);
             } else if (event_name.equals("user_add_to_group") || event_name.equals("user_remove_from_group")) {
                 hookService.receiveUserGroupEventHook(payloads);

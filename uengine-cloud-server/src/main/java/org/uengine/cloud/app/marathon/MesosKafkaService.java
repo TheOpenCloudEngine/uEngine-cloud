@@ -50,7 +50,7 @@ public class MesosKafkaService {
 
             LOGGER.info("marathonAppChangeReceive from kafka {}", appId);
             Map marathonApp = marathonCacheService.updateMarathonAppByIdCache(appId);
-            marathonMessageHandler.publish(appId);
+            marathonMessageHandler.publish(marathonApp);
 
         } finally {
             ack.acknowledge();

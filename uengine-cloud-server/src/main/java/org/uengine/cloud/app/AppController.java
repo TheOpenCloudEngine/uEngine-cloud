@@ -16,6 +16,7 @@ import org.uengine.iam.util.JsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.json.Json;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
@@ -77,14 +78,14 @@ public class AppController {
      * @throws Exception
      */
     @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
-    public Page<AppEntity> getApps(HttpServletRequest request,
+    public Map getApps(HttpServletRequest request,
                                    HttpServletResponse response,
                                    @RequestParam(required = false, value = "name", defaultValue = "") String name,
                                    @PageableDefault Pageable pageable
     ) throws Exception {
         OauthUser user = TenantContext.getThreadLocalInstance().getUser();
         String acl = user.getMetaData().get("acl").toString();
-        int gitlabId = (int) user.getMetaData().get("gitlab-id");
+        int gitlabId = ((Long) user.getMetaData().get("gitlab-id")).intValue();
 
         Page<AppEntity> appEntities = null;
         if ("admin".equals(acl)) {
@@ -99,7 +100,7 @@ public class AppController {
                 appWebService.setAccessLevel(appEntity, user);
             }
         }
-        return appEntities;
+        return JsonUtils.convertClassToMap(appEntities);
     }
 
     /**
@@ -112,13 +113,13 @@ public class AppController {
      * @throws Exception
      */
     @RequestMapping(value = "/{appName}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
-    public AppEntity getApp(HttpServletRequest request,
-                      HttpServletResponse response,
-                      @PathVariable("appName") String appName
+    public Map getApp(HttpServletRequest request,
+                            HttpServletResponse response,
+                            @PathVariable("appName") String appName
     ) throws Exception {
         OauthUser user = TenantContext.getThreadLocalInstance().getUser();
         AppEntity appEntity = appWebCacheService.findOneCache(appName);
-        if(appEntity == null){
+        if (appEntity == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND, "NOT_FOUND");
             return null;
         }
@@ -126,8 +127,7 @@ public class AppController {
         String acl = user.getMetaData().get("acl").toString();
 
         if ("admin".equals(acl) || appEntity.getAccessLevel() > 0) {
-            //return JsonUtils.convertClassToMap(appEntity);
-            return appEntity;
+            return JsonUtils.convertClassToMap(appEntity);
         }
 
         LOGGER.warn("Unauthorized getApp request for {} , {}", appName, user.getUserName());
@@ -146,8 +146,8 @@ public class AppController {
      */
     @RequestMapping(value = "/{appName}/member", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public List<Member> getAppMember(HttpServletRequest request,
-                      HttpServletResponse response,
-                      @PathVariable("appName") String appName
+                                     HttpServletResponse response,
+                                     @PathVariable("appName") String appName
     ) throws Exception {
         OauthUser user = TenantContext.getThreadLocalInstance().getUser();
         AppEntity appEntity = appWebCacheService.findOneCache(appName);
@@ -184,6 +184,7 @@ public class AppController {
     ) throws Exception {
         try {
             AppEntity entity = JsonUtils.convertValue(appEntity, AppEntity.class);
+            entity.setName(appName);
             entity = appWebService.save(entity, true);
 
             logService.addHistory(appName, AppLogAction.UPDATE_APP, AppLogStatus.SUCCESS, null);

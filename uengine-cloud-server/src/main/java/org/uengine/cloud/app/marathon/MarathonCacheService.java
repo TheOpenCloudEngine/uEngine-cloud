@@ -72,7 +72,7 @@ public class MarathonCacheService {
     @Transactional
     public Map updateMarathonAppByIdCache(String marathonAppId) throws Exception {
         LOGGER.info("update Marathon App to redis, {}", marathonAppId);
-        return dcosApi.getApp(marathonAppId);
+        return dcosApi.getApp(marathonAppId) == null ? new HashMap() : dcosApi.getApp(marathonAppId);
     }
 
     /**
@@ -85,7 +85,7 @@ public class MarathonCacheService {
     @Cacheable(value = "marathonApp", key = "#marathonAppId")
     public Map getMarathonAppByIdCache(String marathonAppId) throws Exception {
         LOGGER.info("get Marathon App from dcos, {}", marathonAppId);
-        return dcosApi.getApp(marathonAppId);
+        return dcosApi.getApp(marathonAppId) == null ? new HashMap() : dcosApi.getApp(marathonAppId);
     }
 
     /**

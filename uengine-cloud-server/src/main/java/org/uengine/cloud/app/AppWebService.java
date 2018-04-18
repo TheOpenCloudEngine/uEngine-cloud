@@ -432,7 +432,7 @@ public class AppWebService {
             appConfigService.addAppToVcapService(appEntity.getName());
         }
 
-        appMessageHandler.publish(save.getName());
+        appMessageHandler.publish(save);
 
         return save;
     }
@@ -503,7 +503,10 @@ public class AppWebService {
         appConfigService.removeAppConfigYml(appName);
 
         //app 삭제
-        appWebCacheService.deleteCache(appEntity.getName());
+        appWebCacheService.deleteCache(appName);
+
+        //삭제 알림
+        appMessageHandler.publish(appEntity);
     }
 
 

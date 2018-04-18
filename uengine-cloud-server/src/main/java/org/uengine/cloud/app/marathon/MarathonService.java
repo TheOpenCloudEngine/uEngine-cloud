@@ -9,6 +9,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.uengine.cloud.app.*;
+import org.uengine.iam.util.StringUtils;
 
 import java.util.*;
 
@@ -42,10 +43,22 @@ public class MarathonService {
     public Map getMarathonAppsByAppName(String appName) throws Exception {
         Map map = new HashMap();
         AppEntity appEntity = appWebCacheService.findOneCache(appName);
-        map.put("dev", marathonCacheService.getMarathonAppByIdCache(appEntity.getDev().getMarathonAppId()));
-        map.put("stg", marathonCacheService.getMarathonAppByIdCache(appEntity.getStg().getMarathonAppId()));
-        map.put("prod", marathonCacheService.getMarathonAppByIdCache(appEntity.getProd().getMarathonAppId()));
-        map.put("oldProd", marathonCacheService.getMarathonAppByIdCache(appEntity.getProd().getMarathonAppIdOld()));
+        String devId = appEntity.getDev().getMarathonAppId();
+        String stgId = appEntity.getStg().getMarathonAppId();
+        String prodId = appEntity.getProd().getMarathonAppId();
+        String oldProdId = appEntity.getProd().getMarathonAppIdOld();
+        if (!StringUtils.isEmpty(devId)) {
+            map.put("dev", marathonCacheService.getMarathonAppByIdCache(devId));
+        }
+        if (!StringUtils.isEmpty(stgId)) {
+            map.put("stg", marathonCacheService.getMarathonAppByIdCache(stgId));
+        }
+        if (!StringUtils.isEmpty(prodId)) {
+            map.put("prod", marathonCacheService.getMarathonAppByIdCache(prodId));
+        }
+        if (!StringUtils.isEmpty(oldProdId)) {
+            map.put("oldProd", marathonCacheService.getMarathonAppByIdCache(oldProdId));
+        }
         return map;
     }
 
