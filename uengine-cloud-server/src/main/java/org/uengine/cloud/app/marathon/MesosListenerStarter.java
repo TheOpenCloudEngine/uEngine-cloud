@@ -1,8 +1,7 @@
-package org.uengine.cloud.listener;
+package org.uengine.cloud.app.marathon;
 
 import com.launchdarkly.eventsource.EventSource;
 import okhttp3.Headers;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Async;

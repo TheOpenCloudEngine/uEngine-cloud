@@ -20,6 +20,9 @@ import java.util.Map;
 public class AppDeploymentController {
 
     @Autowired
+    private AppDeploymentKafkaService deploymentKafkaService;
+
+    @Autowired
     private AppDeploymentService deploymentService;
 
     @Autowired
@@ -71,7 +74,7 @@ public class AppDeploymentController {
                             @RequestParam(value = "stage") String stage
     ) throws Exception {
         try {
-            deploymentService.rollbackApp(appName, stage);
+            deploymentKafkaService.rollbackAppSend(appName, stage);
             response.setStatus(200);
 
             logService.addHistory(appName, AppLogAction.ROLLBACK_APP, AppLogStatus.SUCCESS, null);
@@ -139,7 +142,7 @@ public class AppDeploymentController {
      * @throws Exception
      */
     @RequestMapping(value = "/{appName}/deploy", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
-    public void runDeployedApp(HttpServletRequest request,
+    public void deployApp(HttpServletRequest request,
                                HttpServletResponse response,
                                @PathVariable("appName") String appName,
                                @RequestParam(value = "stage") String stage,
@@ -156,7 +159,7 @@ public class AppDeploymentController {
                 name = params.containsKey("name") ? params.get("name").toString() : null;
                 description = params.containsKey("description") ? params.get("description").toString() : null;
             }
-            deploymentService.runDeployedApp(appName, stage, commit, null, name, description);
+            deploymentKafkaService.deployAppSend(appName, stage, commit, null, name, description);
             response.setStatus(200);
 
             logService.addHistory(appName, AppLogAction.RUN_DEPLOYED_APP_REQUEST, AppLogStatus.SUCCESS, log);

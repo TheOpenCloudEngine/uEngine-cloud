@@ -1,6 +1,7 @@
 package org.uengine.cloud.app.git;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -27,143 +28,44 @@ import java.util.Map;
 @RestController
 public class HookController {
 
-    @Autowired
-    private AppConfigService appConfigService;
 
     @Autowired
-    private GitlabExtentApi gitlabExtentApi;
-
-    @Autowired
-    private AppLogService logService;
-
-    @Autowired
-    private AppPipeLineService pipeLineService;
-
-    @Autowired
-    private AppWebCacheService appWebCacheService;
-
-    private Map<String, String> reservedStages = new HashMap<>();
-
-    public void addReservedStage(String pipelineId, String stage) {
-        reservedStages.put(pipelineId, stage);
-    }
-
-    public void removeReservedStage(String pipelineId) {
-        reservedStages.remove("pipelineId");
-    }
+    private HookService hookService;
 
     @RequestMapping(value = "/hook", method = RequestMethod.POST)
-    public void getGitlabHook(HttpServletRequest request,
-                              HttpServletResponse response,
-                              @RequestBody Map payloads) throws Exception {
-        //커밋이 올 경우 파이프라인을 실행한다.
+    public void receiveWebHook(HttpServletRequest request,
+                               HttpServletResponse response,
+                               @RequestBody Map payloads) throws Exception {
 
-        //파이프라인이 올 경우, 빌드 별로 메뉴얼을 추린다.
-
-        //일단, 오는 것들을 보자.
         try {
             if (payloads.get("object_kind").toString().equals("pipeline")) {
-
-                //running, pending 은 진행중
-                //success, failed, canceled, skipped 인 경우는 이력에 저장.
-                String appName = ((Map) payloads.get("project")).get("name").toString();
-                String pipelineId = ((Map) payloads.get("object_attributes")).get("id").toString();
-                String status = ((Map) payloads.get("object_attributes")).get("status").toString();
-
-                AppEntity appEntity = appWebCacheService.findOneCache(appName);
-
-                //이력 저장
-                logService.addHistory(appName, AppLogAction.PIPELINE, AppLogStatus.valueOf(status.toUpperCase()), null);
-
-                int projectId = appEntity.getProjectId();
-                Map pipeLineJson = pipeLineService.getPipeLineJson(appName);
-                List<String> autoDeploys = (List<String>) pipeLineJson.get("auto-deploy");
-
-                List<Map> builds = (List<Map>) payloads.get("builds");
-                for (Map build : builds) {
-
-                    //예약된 스테이지 배포인 경우
-                    if (reservedStages.containsKey(pipelineId) && build.get("status").equals("manual")) {
-                        if (build.get("name").toString().equals(reservedStages.get(pipelineId))) {
-                            int jobId = (int) build.get("id");
-                            gitlabExtentApi.playJob(projectId, jobId);
-
-                            //예약된 스테이지 배포 삭제
-                            this.removeReservedStage(pipelineId);
-
-                            //후처리 작업
-                            this.afterDeployedByCI(appName, build.get("name").toString());
-                        }
-                    }
-                    //매뉴얼 단계이면서 auto 빌드에 속한 경우
-                    else if (autoDeploys.indexOf(build.get("name").toString()) != -1 && build.get("status").equals("manual")) {
-                        int jobId = (int) build.get("id");
-                        gitlabExtentApi.playJob(projectId, jobId);
-
-                        //후처리 작업
-                        this.afterDeployedByCI(appName, build.get("name").toString());
-                    }
-                }
+                hookService.receivePipeLineEventHook(payloads);
             } else if (payloads.get("object_kind").toString().equals("push")) {
-                String appName = ((Map) payloads.get("project")).get("name").toString();
-                AppEntity appEntity = appWebCacheService.findOneCache(appName);
-                int projectId = appEntity.getProjectId();
-
-                //푸시 이력 남기기
-                logService.addHistory(appName, AppLogAction.PUSH, AppLogStatus.SUCCESS, null);
-
-                Map pipeLineJson = pipeLineService.getPipeLineJson(appName);
-                List<String> refs = (List<String>) pipeLineJson.get("refs");
-                String commitRef = payloads.get("ref").toString();
-
-                //when 이 commit 일때는 푸쉬때마다 허용. manual 일때는 ui 로만 가능.
-                if (pipeLineJson.get("when").toString().equals("commit")) {
-
-                    //커밋된 ref 가 허용 refs 에 들어있는 항목인 경우 수락.
-                    boolean enable = false;
-                    for (String ref : refs) {
-                        if (payloads.get("ref").toString().indexOf(ref) != -1) {
-                            enable = true;
-                        }
-                    }
-                    if (enable) {
-                        pipeLineService.excutePipelineTrigger(appName, commitRef, null);
-                    }
-                }
+                hookService.receivePushEventHook(payloads);
             }
-
-            response.setStatus(200);
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } finally {
             response.setStatus(200);
         }
     }
 
-    //앱 변경 적용
-    private void afterDeployedByCI(String appName, String buildName) throws Exception {
+    @RequestMapping(value = "/systemhook", method = RequestMethod.POST)
+    public void receiveSystemWebHook(HttpServletRequest request,
+                                     HttpServletResponse response,
+                                     @RequestBody Map payloads) throws Exception {
 
-        if (StringUtils.isEmpty(buildName)) {
-            return;
+        //user_add_to_team
+        //user_remove_from_team
+        //user_add_to_group
+        //user_remove_from_group
+        try {
+            String event_name = payloads.get("event_name").toString();
+            if (event_name.equals("user_add_to_team") || event_name.equals("user_add_to_team")) {
+                hookService.receiveUserTeamEventHook(payloads);
+            } else if (event_name.equals("user_add_to_group") || event_name.equals("user_remove_from_group")) {
+                hookService.receiveUserGroupEventHook(payloads);
+            }
+        } finally {
+            response.setStatus(200);
         }
-        String stage = "";
-        switch (buildName) {
-            case "dev":
-                stage = "dev";
-                break;
-            case "staging":
-                stage = "stg";
-                break;
-            case "production":
-                stage = "prod";
-                break;
-        }
-
-        //로그 추가
-        Map map = new HashMap();
-        map.put("stage", stage);
-        logService.addHistory(appName, AppLogAction.START_DEPLOYED_BY_CI, AppLogStatus.SUCCESS, map);
-
-        //콘피드 변경 해제
-        appConfigService.updateAppConfigChanged(appName, stage, false);
     }
 }

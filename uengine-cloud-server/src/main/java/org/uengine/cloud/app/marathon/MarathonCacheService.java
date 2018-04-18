@@ -67,7 +67,7 @@ public class MarathonCacheService {
     //TODO need from kafka event
     //status_update_event
     //health_status_changed_event
-    //TODO need redis -> websocket
+    //TODO need redis -> sse
     @CachePut(value = "marathonApp", key = "#marathonAppId")
     @Transactional
     public Map updateMarathonAppByIdCache(String marathonAppId) throws Exception {
@@ -133,6 +133,26 @@ public class MarathonCacheService {
             }
         }
         return serviceApps;
+    }
+
+    /**
+     * 마라톤 앱아이디로 앱을 찾는다.
+     * @param marathonAppId
+     * @return
+     * @throws Exception
+     */
+    public AppEntity getAppEntityFromMarathonAppId(String marathonAppId) throws Exception {
+        String id = marathonAppId.replaceFirst("/", "");
+        id = replaceLast(id, "-dev", "");
+        id = replaceLast(id, "-stg", "");
+        id = replaceLast(id, "-blue", "");
+        id = replaceLast(id, "-green", "");
+        return appWebCacheService.findOneCache(id);
+    }
+
+    public boolean isServiceApp(Map marathonApp) throws Exception {
+        List<String> allAppNames = appWebCacheService.findAllAppNamesCache();
+        return this.isServiceApp(marathonApp, allAppNames);
     }
 
     /**

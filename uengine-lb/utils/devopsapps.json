@@ -1,1 +1,4510 @@
-{}
+{
+  "process-service" : {
+    "name" : "process-service",
+    "appType" : "springboot",
+    "projectId" : 54,
+    "iam" : "darkgodarkgo@gmail.com",
+    "number" : 3,
+    "createStatus" : "repository-create-success",
+    "insecureConfig" : false,
+    "configPassword" : null,
+    "groupId" : null,
+    "memberIds" : null,
+    "regDate" : 1517188106483,
+    "accessLevel" : 0,
+    "prod" : {
+      "snapshot" : 0,
+      "deployment" : "green",
+      "external" : "bpm.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10017",
+      "marathonAppId" : "/process-service-green",
+      "commit" : null,
+      "servicePort" : 10017,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "stg" : {
+      "snapshot" : 0,
+      "deployment" : "stg",
+      "external" : "bpm-stg.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10018",
+      "marathonAppId" : "/process-service-stg",
+      "commit" : null,
+      "servicePort" : 10018,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "dev" : {
+      "snapshot" : 152,
+      "deployment" : "dev",
+      "external" : "bpm-dev.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10019",
+      "marathonAppId" : "/process-service-dev",
+      "commit" : "d33689ef599f2c1632ccd78521d6586640a98808",
+      "servicePort" : 10019,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 148,
+      "deploymentOld" : "dev",
+      "marathonAppIdOld" : "/process-service-dev",
+      "commitOld" : "0a88c45d4b336d1210ac9e50317c346f4d266bcc",
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    }
+  },
+  "uengine5-router" : {
+    "name" : "uengine5-router",
+    "appType" : "zuul",
+    "projectId" : 340,
+    "iam" : "jyjang@uengine.org",
+    "number" : 1,
+    "createStatus" : "repository-create-success",
+    "insecureConfig" : false,
+    "configPassword" : "380c90c7-e558-475a-b161-d18d20fd23a6",
+    "groupId" : null,
+    "memberIds" : null,
+    "regDate" : 1522160516274,
+    "accessLevel" : 0,
+    "prod" : {
+      "snapshot" : 0,
+      "deployment" : "green",
+      "external" : "uengine5-router.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10011",
+      "marathonAppId" : "/uengine5-router-green",
+      "commit" : null,
+      "servicePort" : 10011,
+      "mesos" : null,
+      "configChanged" : true,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "stg" : {
+      "snapshot" : 0,
+      "deployment" : "stg",
+      "external" : "uengine5-router-stg.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10012",
+      "marathonAppId" : "/uengine5-router-stg",
+      "commit" : null,
+      "servicePort" : 10012,
+      "mesos" : null,
+      "configChanged" : true,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "dev" : {
+      "snapshot" : 0,
+      "deployment" : "dev",
+      "external" : "uengine5-router-dev.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10013",
+      "marathonAppId" : "/uengine5-router-dev",
+      "commit" : null,
+      "servicePort" : 10013,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    }
+  },
+  "backend-coursemanagement" : {
+    "name" : "backend-coursemanagement",
+    "appType" : "metaworks4",
+    "projectId" : 304,
+    "iam" : "jyjang@uengine.org",
+    "number" : 7,
+    "createStatus" : "repository-create-success",
+    "insecureConfig" : false,
+    "configPassword" : "32e08485-d674-448e-a4c2-6ae8c1faa0d4",
+    "groupId" : null,
+    "memberIds" : null,
+    "regDate" : 1521036296139,
+    "accessLevel" : 0,
+    "prod" : {
+      "snapshot" : 0,
+      "deployment" : "green",
+      "external" : "backend-coursemanagement.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10029",
+      "marathonAppId" : "/backend-coursemanagement-green",
+      "commit" : null,
+      "servicePort" : 10029,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "stg" : {
+      "snapshot" : 0,
+      "deployment" : "stg",
+      "external" : "backend-coursemanagement-stg.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10030",
+      "marathonAppId" : "/backend-coursemanagement-stg",
+      "commit" : null,
+      "servicePort" : 10030,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "dev" : {
+      "snapshot" : 0,
+      "deployment" : "dev",
+      "external" : "backend-coursemanagement-dev.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10031",
+      "marathonAppId" : "/backend-coursemanagement-dev",
+      "commit" : null,
+      "servicePort" : 10031,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    }
+  },
+  "uengine5-monolithic-clob" : {
+    "name" : "uengine5-monolithic-clob",
+    "appType" : "metaworks4",
+    "projectId" : 147,
+    "iam" : "jyjang@uengine.org",
+    "number" : 19,
+    "createStatus" : "repository-create-success",
+    "insecureConfig" : false,
+    "configPassword" : null,
+    "groupId" : null,
+    "memberIds" : null,
+    "regDate" : 1517188120688,
+    "accessLevel" : 0,
+    "prod" : {
+      "snapshot" : 0,
+      "deployment" : "green",
+      "external" : "uengine5-monolithic-clob.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10065",
+      "marathonAppId" : "/uengine5-monolithic-clob-green",
+      "commit" : null,
+      "servicePort" : 10065,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "stg" : {
+      "snapshot" : 0,
+      "deployment" : "stg",
+      "external" : "uengine5-monolithic-clob-stg.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10066",
+      "marathonAppId" : "/uengine5-monolithic-clob-stg",
+      "commit" : null,
+      "servicePort" : 10066,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "dev" : {
+      "snapshot" : 0,
+      "deployment" : "dev",
+      "external" : "uengine5-monolithic-clob-dev.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10067",
+      "marathonAppId" : "/uengine5-monolithic-clob-dev",
+      "commit" : null,
+      "servicePort" : 10067,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    }
+  },
+  "lms" : {
+    "name" : "lms",
+    "appType" : "vuejs",
+    "projectId" : 152,
+    "iam" : "jyjang@uengine.org",
+    "number" : 17,
+    "createStatus" : "repository-create-success",
+    "insecureConfig" : false,
+    "configPassword" : null,
+    "groupId" : null,
+    "memberIds" : null,
+    "regDate" : 1517188087147,
+    "accessLevel" : 0,
+    "prod" : {
+      "snapshot" : 0,
+      "deployment" : "green",
+      "external" : "lms.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10059",
+      "marathonAppId" : "/lms-green",
+      "commit" : null,
+      "servicePort" : 10059,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "stg" : {
+      "snapshot" : 0,
+      "deployment" : "stg",
+      "external" : "lms-stg.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10060",
+      "marathonAppId" : "/lms-stg",
+      "commit" : null,
+      "servicePort" : 10060,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "dev" : {
+      "snapshot" : 0,
+      "deployment" : "dev",
+      "external" : "lms-dev.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10061",
+      "marathonAppId" : "/lms-dev",
+      "commit" : null,
+      "servicePort" : 10061,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    }
+  },
+  "gmv-service" : {
+    "name" : "gmv-service",
+    "appType" : "metaworks4",
+    "projectId" : 326,
+    "iam" : "darkgodarkgo@gmail.com",
+    "number" : 32,
+    "createStatus" : "repository-create-success",
+    "insecureConfig" : false,
+    "configPassword" : "05c374d6-df4d-419c-9ff9-cb20b7344eee",
+    "groupId" : null,
+    "memberIds" : null,
+    "regDate" : 1521780075857,
+    "accessLevel" : 0,
+    "prod" : {
+      "snapshot" : 0,
+      "deployment" : "blue",
+      "external" : "gmv-service.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10104",
+      "marathonAppId" : "/gmv-service-blue",
+      "commit" : null,
+      "servicePort" : 10104,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 100,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : "green",
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "stg" : {
+      "snapshot" : 0,
+      "deployment" : "stg",
+      "external" : "gmv-service-stg.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10105",
+      "marathonAppId" : "/gmv-service-stg",
+      "commit" : null,
+      "servicePort" : 10105,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "dev" : {
+      "snapshot" : 0,
+      "deployment" : "dev",
+      "external" : "gmv-service-dev.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10106",
+      "marathonAppId" : "/gmv-service-dev",
+      "commit" : null,
+      "servicePort" : 10106,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    }
+  },
+  "java-reverse" : {
+    "name" : "java-reverse",
+    "appType" : "springboot",
+    "projectId" : 269,
+    "iam" : "jyjang@uengine.org",
+    "number" : 31,
+    "createStatus" : "repository-create-success",
+    "insecureConfig" : false,
+    "configPassword" : "34f1e096-ec44-4512-a3ec-3bbcda83d5e5",
+    "groupId" : null,
+    "memberIds" : null,
+    "regDate" : 1518050751486,
+    "accessLevel" : 0,
+    "prod" : {
+      "snapshot" : 0,
+      "deployment" : "green",
+      "external" : "java-reverse.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10101",
+      "marathonAppId" : "/java-reverse-green",
+      "commit" : null,
+      "servicePort" : 10101,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "stg" : {
+      "snapshot" : 0,
+      "deployment" : "stg",
+      "external" : "java-reverse-stg.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10102",
+      "marathonAppId" : "/java-reverse-stg",
+      "commit" : null,
+      "servicePort" : 10102,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "dev" : {
+      "snapshot" : 0,
+      "deployment" : "dev",
+      "external" : "java-reverse-dev.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10103",
+      "marathonAppId" : "/java-reverse-dev",
+      "commit" : null,
+      "servicePort" : 10103,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    }
+  },
+  "backend-trouble-domain" : {
+    "name" : "backend-trouble-domain",
+    "appType" : "metaworks4",
+    "projectId" : 305,
+    "iam" : "jyjang@uengine.org",
+    "number" : 8,
+    "createStatus" : "repository-create-success",
+    "insecureConfig" : false,
+    "configPassword" : "b84e71d4-fa20-413f-88bf-cfc60c3bbc37",
+    "groupId" : null,
+    "memberIds" : null,
+    "regDate" : 1521106178152,
+    "accessLevel" : 0,
+    "prod" : {
+      "snapshot" : 146,
+      "deployment" : "blue",
+      "external" : "backend-trouble-domain.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10032",
+      "marathonAppId" : "/backend-trouble-domain-blue",
+      "commit" : "5d54e177f412c9b20f8ddf5c8e90f47c2657bf08",
+      "servicePort" : 10032,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "CANARY",
+        "bluegreen" : true,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : true,
+          "weight" : 100,
+          "auto" : false,
+          "increase" : 5,
+          "test" : 10,
+          "decrease" : 5
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "stg" : {
+      "snapshot" : 0,
+      "deployment" : "stg",
+      "external" : "backend-trouble-domain-stg.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10033",
+      "marathonAppId" : "/backend-trouble-domain-stg",
+      "commit" : null,
+      "servicePort" : 10033,
+      "mesos" : null,
+      "configChanged" : true,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "dev" : {
+      "snapshot" : 153,
+      "deployment" : "dev",
+      "external" : "backend-trouble-domain-dev.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10034",
+      "marathonAppId" : "/backend-trouble-domain-dev",
+      "commit" : "5d54e177f412c9b20f8ddf5c8e90f47c2657bf08",
+      "servicePort" : 10034,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 147,
+      "deploymentOld" : "dev",
+      "marathonAppIdOld" : "/backend-trouble-domain-dev",
+      "commitOld" : "5d54e177f412c9b20f8ddf5c8e90f47c2657bf08",
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    }
+  },
+  "class-course-service" : {
+    "name" : "class-course-service",
+    "appType" : "metaworks4",
+    "projectId" : 349,
+    "iam" : "jyjang@uengine.org",
+    "number" : 11,
+    "createStatus" : "repository-create-success",
+    "insecureConfig" : false,
+    "configPassword" : "976b3675-9720-4336-a103-14cd3e950177",
+    "groupId" : null,
+    "memberIds" : null,
+    "regDate" : 1523522640040,
+    "accessLevel" : 0,
+    "prod" : {
+      "snapshot" : 0,
+      "deployment" : "green",
+      "external" : "class-course-service.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10041",
+      "marathonAppId" : "/class-course-service-green",
+      "commit" : null,
+      "servicePort" : 10041,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "CANARY",
+        "bluegreen" : true,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : true,
+          "weight" : 100,
+          "auto" : true,
+          "increase" : 5,
+          "test" : 10,
+          "decrease" : 3
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "stg" : {
+      "snapshot" : 0,
+      "deployment" : "stg",
+      "external" : "class-course-service-stg.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10042",
+      "marathonAppId" : "/class-course-service-stg",
+      "commit" : null,
+      "servicePort" : 10042,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "dev" : {
+      "snapshot" : 159,
+      "deployment" : "dev",
+      "external" : "class-course-service-dev.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10043",
+      "marathonAppId" : "/class-course-service-dev",
+      "commit" : "9217f6f45c117ea1ef7a7a60493ffea96b611055",
+      "servicePort" : 10043,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 155,
+      "deploymentOld" : "dev",
+      "marathonAppIdOld" : "/class-course-service-dev",
+      "commitOld" : "9217f6f45c117ea1ef7a7a60493ffea96b611055",
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    }
+  },
+  "backend-defense" : {
+    "name" : "backend-defense",
+    "appType" : "metaworks4",
+    "projectId" : 306,
+    "iam" : "jyjang@uengine.org",
+    "number" : 16,
+    "createStatus" : "repository-create-success",
+    "insecureConfig" : false,
+    "configPassword" : "da4f6aa8-b04c-4798-977e-42d728b47513",
+    "groupId" : null,
+    "memberIds" : null,
+    "regDate" : 1521158386772,
+    "accessLevel" : 0,
+    "prod" : {
+      "snapshot" : 0,
+      "deployment" : "green",
+      "external" : "backend-defense.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10056",
+      "marathonAppId" : "/backend-defense-green",
+      "commit" : null,
+      "servicePort" : 10056,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "stg" : {
+      "snapshot" : 0,
+      "deployment" : "stg",
+      "external" : "backend-defense-stg.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10057",
+      "marathonAppId" : "/backend-defense-stg",
+      "commit" : null,
+      "servicePort" : 10057,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "dev" : {
+      "snapshot" : 0,
+      "deployment" : "dev",
+      "external" : "backend-defense-dev.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10058",
+      "marathonAppId" : "/backend-defense-dev",
+      "commit" : null,
+      "servicePort" : 10058,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    }
+  },
+  "credit-service" : {
+    "name" : "credit-service",
+    "appType" : "metaworks4",
+    "projectId" : 325,
+    "iam" : "darkgodarkgo@gmail.com",
+    "number" : 30,
+    "createStatus" : "repository-create-success",
+    "insecureConfig" : false,
+    "configPassword" : "d6199e4c-80b6-4bbb-8bb2-70e8a872bec4",
+    "groupId" : null,
+    "memberIds" : null,
+    "regDate" : 1521780054384,
+    "accessLevel" : 0,
+    "prod" : {
+      "snapshot" : 0,
+      "deployment" : "green",
+      "external" : "credit-service.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10098",
+      "marathonAppId" : "/credit-service-green",
+      "commit" : null,
+      "servicePort" : 10098,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "stg" : {
+      "snapshot" : 0,
+      "deployment" : "stg",
+      "external" : "credit-service-stg.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10099",
+      "marathonAppId" : "/credit-service-stg",
+      "commit" : null,
+      "servicePort" : 10099,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "dev" : {
+      "snapshot" : 0,
+      "deployment" : "dev",
+      "external" : "credit-service-dev.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10100",
+      "marathonAppId" : "/credit-service-dev",
+      "commit" : null,
+      "servicePort" : 10100,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    }
+  },
+  "customer-service" : {
+    "name" : "customer-service",
+    "appType" : "springboot",
+    "projectId" : 93,
+    "iam" : "jyjang@uengine.org",
+    "number" : 9,
+    "createStatus" : "repository-create-success",
+    "insecureConfig" : false,
+    "configPassword" : null,
+    "groupId" : null,
+    "memberIds" : null,
+    "regDate" : 1517188065132,
+    "accessLevel" : 0,
+    "prod" : {
+      "snapshot" : 0,
+      "deployment" : "green",
+      "external" : "customer-service.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10035",
+      "marathonAppId" : "/customer-service-green",
+      "commit" : null,
+      "servicePort" : 10035,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "stg" : {
+      "snapshot" : 0,
+      "deployment" : "stg",
+      "external" : "customer-service-stg.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10036",
+      "marathonAppId" : "/customer-service-stg",
+      "commit" : null,
+      "servicePort" : 10036,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "dev" : {
+      "snapshot" : 0,
+      "deployment" : "dev",
+      "external" : "customer-service-dev.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10037",
+      "marathonAppId" : "/customer-service-dev",
+      "commit" : null,
+      "servicePort" : 10037,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    }
+  },
+  "ui-for-insurance" : {
+    "name" : "ui-for-insurance",
+    "appType" : "vuejs",
+    "projectId" : 317,
+    "iam" : "jyjang@uengine.org",
+    "number" : 29,
+    "createStatus" : "repository-create-success",
+    "insecureConfig" : false,
+    "configPassword" : "53afb07d-74c4-4594-8c83-74010e3b8bbe",
+    "groupId" : null,
+    "memberIds" : null,
+    "regDate" : 1521685619925,
+    "accessLevel" : 0,
+    "prod" : {
+      "snapshot" : 0,
+      "deployment" : "green",
+      "external" : "ui-for-insurance.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10095",
+      "marathonAppId" : "/ui-for-insurance-green",
+      "commit" : null,
+      "servicePort" : 10095,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "stg" : {
+      "snapshot" : 0,
+      "deployment" : "stg",
+      "external" : "ui-for-insurance-stg.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10096",
+      "marathonAppId" : "/ui-for-insurance-stg",
+      "commit" : null,
+      "servicePort" : 10096,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "dev" : {
+      "snapshot" : 0,
+      "deployment" : "dev",
+      "external" : "ui-for-insurance-dev.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10097",
+      "marathonAppId" : "/ui-for-insurance-dev",
+      "commit" : null,
+      "servicePort" : 10097,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    }
+  },
+  "customer-management-backend-2" : {
+    "name" : "customer-management-backend-2",
+    "appType" : "metaworks4",
+    "projectId" : 195,
+    "iam" : "jyjang@uengine.org",
+    "number" : 18,
+    "createStatus" : "repository-create-success",
+    "insecureConfig" : false,
+    "configPassword" : "6411f206-b449-4ebd-ab57-b281eccff90e",
+    "groupId" : null,
+    "memberIds" : null,
+    "regDate" : 1517900190458,
+    "accessLevel" : 0,
+    "prod" : {
+      "snapshot" : 0,
+      "deployment" : "green",
+      "external" : "customer-management-backend-2.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10062",
+      "marathonAppId" : "/customer-management-backend-2-green",
+      "commit" : null,
+      "servicePort" : 10062,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "stg" : {
+      "snapshot" : 0,
+      "deployment" : "stg",
+      "external" : "customer-management-backend-2-stg.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10063",
+      "marathonAppId" : "/customer-management-backend-2-stg",
+      "commit" : null,
+      "servicePort" : 10063,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "dev" : {
+      "snapshot" : 0,
+      "deployment" : "dev",
+      "external" : "customer-management-backend-2-dev.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10064",
+      "marathonAppId" : "/customer-management-backend-2-dev",
+      "commit" : null,
+      "servicePort" : 10064,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    }
+  },
+  "class-sme" : {
+    "name" : "class-sme",
+    "appType" : "metaworks4",
+    "projectId" : 154,
+    "iam" : "jyjang@uengine.org",
+    "number" : 24,
+    "createStatus" : "repository-create-success",
+    "insecureConfig" : false,
+    "configPassword" : null,
+    "groupId" : null,
+    "memberIds" : null,
+    "regDate" : 1517188059442,
+    "accessLevel" : 0,
+    "prod" : {
+      "snapshot" : 0,
+      "deployment" : "green",
+      "external" : "class-sme.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10080",
+      "marathonAppId" : "/class-sme-green",
+      "commit" : null,
+      "servicePort" : 10080,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "stg" : {
+      "snapshot" : 0,
+      "deployment" : "stg",
+      "external" : "class-sme-stg.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10081",
+      "marathonAppId" : "/class-sme-stg",
+      "commit" : null,
+      "servicePort" : 10081,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "dev" : {
+      "snapshot" : 0,
+      "deployment" : "dev",
+      "external" : "class-sme-dev.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10082",
+      "marathonAppId" : "/class-sme-dev",
+      "commit" : null,
+      "servicePort" : 10082,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    }
+  },
+  "class-customer" : {
+    "name" : "class-customer",
+    "appType" : "metaworks4",
+    "projectId" : 156,
+    "iam" : "jyjang@uengine.org",
+    "number" : 26,
+    "createStatus" : "repository-create-success",
+    "insecureConfig" : false,
+    "configPassword" : null,
+    "groupId" : null,
+    "memberIds" : null,
+    "regDate" : 1517188053501,
+    "accessLevel" : 0,
+    "prod" : {
+      "snapshot" : 0,
+      "deployment" : "green",
+      "external" : "class-customer.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10086",
+      "marathonAppId" : "/class-customer-green",
+      "commit" : null,
+      "servicePort" : 10086,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "stg" : {
+      "snapshot" : 0,
+      "deployment" : "stg",
+      "external" : "class-customer-stg.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10087",
+      "marathonAppId" : "/class-customer-stg",
+      "commit" : null,
+      "servicePort" : 10087,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "dev" : {
+      "snapshot" : 0,
+      "deployment" : "dev",
+      "external" : "class-customer-dev.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10088",
+      "marathonAppId" : "/class-customer-dev",
+      "commit" : null,
+      "servicePort" : 10088,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RAMP",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    }
+  },
+  "class-mgmt-front" : {
+    "name" : "class-mgmt-front",
+    "appType" : "vuejs",
+    "projectId" : 158,
+    "iam" : "jyjang@uengine.org",
+    "number" : 28,
+    "createStatus" : "repository-create-success",
+    "insecureConfig" : false,
+    "configPassword" : null,
+    "groupId" : null,
+    "memberIds" : null,
+    "regDate" : 1517188126926,
+    "accessLevel" : 0,
+    "prod" : {
+      "snapshot" : 0,
+      "deployment" : "green",
+      "external" : "class-mgmt-front.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10092",
+      "marathonAppId" : "/class-mgmt-front-green",
+      "commit" : null,
+      "servicePort" : 10092,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "stg" : {
+      "snapshot" : 0,
+      "deployment" : "stg",
+      "external" : "class-mgmt-front-stg.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10093",
+      "marathonAppId" : "/class-mgmt-front-stg",
+      "commit" : null,
+      "servicePort" : 10093,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "dev" : {
+      "snapshot" : 0,
+      "deployment" : "dev",
+      "external" : "class-mgmt-front-dev.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10094",
+      "marathonAppId" : "/class-mgmt-front-dev",
+      "commit" : null,
+      "servicePort" : 10094,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    }
+  },
+  "e-shop-api" : {
+    "name" : "e-shop-api",
+    "appType" : "zuul",
+    "projectId" : 294,
+    "iam" : "darkgodarkgo@gmail.com",
+    "number" : 13,
+    "createStatus" : "repository-create-success",
+    "insecureConfig" : false,
+    "configPassword" : "37378eee-963c-4f23-b6ba-6248558e6523",
+    "groupId" : null,
+    "memberIds" : null,
+    "regDate" : 1520484658954,
+    "accessLevel" : 0,
+    "prod" : {
+      "snapshot" : 0,
+      "deployment" : "green",
+      "external" : "e-shop-api.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10047",
+      "marathonAppId" : "/e-shop-api-green",
+      "commit" : null,
+      "servicePort" : 10047,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "stg" : {
+      "snapshot" : 0,
+      "deployment" : "stg",
+      "external" : "e-shop-api-stg.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10048",
+      "marathonAppId" : "/e-shop-api-stg",
+      "commit" : null,
+      "servicePort" : 10048,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "dev" : {
+      "snapshot" : 0,
+      "deployment" : "dev",
+      "external" : "e-shop-api-dev.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10049",
+      "marathonAppId" : "/e-shop-api-dev",
+      "commit" : null,
+      "servicePort" : 10049,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    }
+  },
+  "insurance-service" : {
+    "name" : "insurance-service",
+    "appType" : "metaworks4",
+    "projectId" : 327,
+    "iam" : "darkgodarkgo@gmail.com",
+    "number" : 33,
+    "createStatus" : "repository-create-success",
+    "insecureConfig" : false,
+    "configPassword" : "cc84c288-fb2e-4d07-9a5b-1996814a592d",
+    "groupId" : null,
+    "memberIds" : null,
+    "regDate" : 1521780098469,
+    "accessLevel" : 0,
+    "prod" : {
+      "snapshot" : 0,
+      "deployment" : "green",
+      "external" : "insurance-service.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10107",
+      "marathonAppId" : "/insurance-service-green",
+      "commit" : null,
+      "servicePort" : 10107,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "stg" : {
+      "snapshot" : 0,
+      "deployment" : "stg",
+      "external" : "insurance-service-stg.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10108",
+      "marathonAppId" : "/insurance-service-stg",
+      "commit" : null,
+      "servicePort" : 10108,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "dev" : {
+      "snapshot" : 0,
+      "deployment" : "dev",
+      "external" : "insurance-service-dev.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10109",
+      "marathonAppId" : "/insurance-service-dev",
+      "commit" : null,
+      "servicePort" : 10109,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    }
+  },
+  "class-course" : {
+    "name" : "class-course",
+    "appType" : "metaworks4",
+    "projectId" : 153,
+    "iam" : "jyjang@uengine.org",
+    "number" : 23,
+    "createStatus" : "repository-create-success",
+    "insecureConfig" : false,
+    "configPassword" : null,
+    "groupId" : null,
+    "memberIds" : null,
+    "regDate" : 1517188050977,
+    "accessLevel" : 0,
+    "prod" : {
+      "snapshot" : 0,
+      "deployment" : "green",
+      "external" : "class-course.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10077",
+      "marathonAppId" : "/class-course-green",
+      "commit" : null,
+      "servicePort" : 10077,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "stg" : {
+      "snapshot" : 0,
+      "deployment" : "stg",
+      "external" : "class-course-stg.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10078",
+      "marathonAppId" : "/class-course-stg",
+      "commit" : null,
+      "servicePort" : 10078,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "dev" : {
+      "snapshot" : 149,
+      "deployment" : "dev",
+      "external" : "class-course-dev.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10079",
+      "marathonAppId" : "/class-course-dev",
+      "commit" : "15de7c38525059b01a2b2a7b9a40d0633975613a",
+      "servicePort" : 10079,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : "dev",
+      "marathonAppIdOld" : "/class-course-dev",
+      "commitOld" : "bc937bc5efc385fe6a52cfc28ff873721f8e3fdd",
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    }
+  },
+  "backend-course-domain" : {
+    "name" : "backend-course-domain",
+    "appType" : "metaworks4",
+    "projectId" : 348,
+    "iam" : "jyjang@uengine.org",
+    "number" : 10,
+    "createStatus" : "repository-create-success",
+    "insecureConfig" : false,
+    "configPassword" : "d310e31f-172f-41ac-9351-81c4cabea602",
+    "groupId" : null,
+    "memberIds" : null,
+    "regDate" : 1523512530067,
+    "accessLevel" : 0,
+    "prod" : {
+      "snapshot" : 0,
+      "deployment" : "green",
+      "external" : "backend-course-domain.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10038",
+      "marathonAppId" : "/backend-course-domain-green",
+      "commit" : null,
+      "servicePort" : 10038,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "stg" : {
+      "snapshot" : 0,
+      "deployment" : "stg",
+      "external" : "backend-course-domain-stg.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10039",
+      "marathonAppId" : "/backend-course-domain-stg",
+      "commit" : null,
+      "servicePort" : 10039,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "dev" : {
+      "snapshot" : 154,
+      "deployment" : "dev",
+      "external" : "backend-course-domain-dev.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10040",
+      "marathonAppId" : "/backend-course-domain-dev",
+      "commit" : "26fa902fc0ff1132199c145cd2f9be343da9a59a",
+      "servicePort" : 10040,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : "dev",
+      "marathonAppIdOld" : "/backend-course-domain-dev",
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    }
+  },
+  "bpm-definition-clob" : {
+    "name" : "bpm-definition-clob",
+    "appType" : "metaworks4",
+    "projectId" : 145,
+    "iam" : "jyjang@uengine.org",
+    "number" : 22,
+    "createStatus" : "repository-create-success",
+    "insecureConfig" : false,
+    "configPassword" : null,
+    "groupId" : null,
+    "memberIds" : null,
+    "regDate" : 1517188045011,
+    "accessLevel" : 0,
+    "prod" : {
+      "snapshot" : 0,
+      "deployment" : "green",
+      "external" : "bpm-definition-clob.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10074",
+      "marathonAppId" : "/bpm-definition-clob-green",
+      "commit" : null,
+      "servicePort" : 10074,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "stg" : {
+      "snapshot" : 0,
+      "deployment" : "stg",
+      "external" : "bpm-definition-clob-stg.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10075",
+      "marathonAppId" : "/bpm-definition-clob-stg",
+      "commit" : null,
+      "servicePort" : 10075,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "dev" : {
+      "snapshot" : 0,
+      "deployment" : "dev",
+      "external" : "bpm-definition-clob-dev.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10076",
+      "marathonAppId" : "/bpm-definition-clob-dev",
+      "commit" : null,
+      "servicePort" : 10076,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    }
+  },
+  "definition-service" : {
+    "name" : "definition-service",
+    "appType" : "springboot",
+    "projectId" : 52,
+    "iam" : "darkgodarkgo@gmail.com",
+    "number" : 2,
+    "createStatus" : "repository-create-success",
+    "insecureConfig" : false,
+    "configPassword" : null,
+    "groupId" : null,
+    "memberIds" : null,
+    "regDate" : 1517188068424,
+    "accessLevel" : 0,
+    "prod" : {
+      "snapshot" : 0,
+      "deployment" : "green",
+      "external" : "definition.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10014",
+      "marathonAppId" : "/definition-service-green",
+      "commit" : null,
+      "servicePort" : 10014,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "stg" : {
+      "snapshot" : 0,
+      "deployment" : "stg",
+      "external" : "definition-stg.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10015",
+      "marathonAppId" : "/definition-service-stg",
+      "commit" : null,
+      "servicePort" : 10015,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "dev" : {
+      "snapshot" : 150,
+      "deployment" : "dev",
+      "external" : "definition-dev.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10016",
+      "marathonAppId" : "/definition-service-dev",
+      "commit" : "c29c0acb4b6ab5140972f0bcd43819d4b00e30d2",
+      "servicePort" : 10016,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 110,
+      "deploymentOld" : "dev",
+      "marathonAppIdOld" : "/definition-service-dev",
+      "commitOld" : "0e7ff336903046d1dd8e7d3936c7cdfc76d79d81",
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    }
+  },
+  "e-shop-front" : {
+    "name" : "e-shop-front",
+    "appType" : "vuejs",
+    "projectId" : 144,
+    "iam" : "jyjang@uengine.org",
+    "number" : 21,
+    "createStatus" : "repository-create-success",
+    "insecureConfig" : false,
+    "configPassword" : null,
+    "groupId" : null,
+    "memberIds" : null,
+    "regDate" : 1517188074545,
+    "accessLevel" : 0,
+    "prod" : {
+      "snapshot" : 0,
+      "deployment" : "green",
+      "external" : "e-shop-front.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10071",
+      "marathonAppId" : "/e-shop-front-green",
+      "commit" : null,
+      "servicePort" : 10071,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "stg" : {
+      "snapshot" : 0,
+      "deployment" : "stg",
+      "external" : "e-shop-front-stg.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10072",
+      "marathonAppId" : "/e-shop-front-stg",
+      "commit" : null,
+      "servicePort" : 10072,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "dev" : {
+      "snapshot" : 0,
+      "deployment" : "dev",
+      "external" : "e-shop-front-dev.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10073",
+      "marathonAppId" : "/e-shop-front-dev",
+      "commit" : null,
+      "servicePort" : 10073,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    }
+  },
+  "semantic-entity" : {
+    "name" : "semantic-entity",
+    "appType" : "springboot",
+    "projectId" : 88,
+    "iam" : "jyjang@uengine.org",
+    "number" : 6,
+    "createStatus" : "repository-create-success",
+    "insecureConfig" : false,
+    "configPassword" : null,
+    "groupId" : null,
+    "memberIds" : null,
+    "regDate" : 1517188110120,
+    "accessLevel" : 0,
+    "prod" : {
+      "snapshot" : 0,
+      "deployment" : "blue",
+      "external" : "semantic-entity.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10026",
+      "marathonAppId" : "/semantic-entity-blue",
+      "commit" : null,
+      "servicePort" : 10026,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "stg" : {
+      "snapshot" : 0,
+      "deployment" : "stg",
+      "external" : "semantic-entity-stg.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10027",
+      "marathonAppId" : "/semantic-entity-stg",
+      "commit" : null,
+      "servicePort" : 10027,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "dev" : {
+      "snapshot" : 0,
+      "deployment" : "dev",
+      "external" : "semantic-entity-dev.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10028",
+      "marathonAppId" : "/semantic-entity-dev",
+      "commit" : null,
+      "servicePort" : 10028,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    }
+  },
+  "e-shop-iam" : {
+    "name" : "e-shop-iam",
+    "appType" : "iam",
+    "projectId" : 337,
+    "iam" : "darkgodarkgo@gmail.com",
+    "number" : 5,
+    "createStatus" : "repository-create-success",
+    "insecureConfig" : false,
+    "configPassword" : "b5266f44-0a9a-4bff-8833-8e17b055a277",
+    "groupId" : null,
+    "memberIds" : null,
+    "regDate" : 1522151631773,
+    "accessLevel" : 0,
+    "prod" : {
+      "snapshot" : 0,
+      "deployment" : "green",
+      "external" : "e-shop-iam.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10023",
+      "marathonAppId" : "/e-shop-iam-green",
+      "commit" : null,
+      "servicePort" : 10023,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "stg" : {
+      "snapshot" : 0,
+      "deployment" : "stg",
+      "external" : "e-shop-iam-stg.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10024",
+      "marathonAppId" : "/e-shop-iam-stg",
+      "commit" : null,
+      "servicePort" : 10024,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "dev" : {
+      "snapshot" : 0,
+      "deployment" : "dev",
+      "external" : "e-shop-iam-dev.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10025",
+      "marathonAppId" : "/e-shop-iam-dev",
+      "commit" : null,
+      "servicePort" : 10025,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    }
+  },
+  "front-end" : {
+    "name" : "front-end",
+    "appType" : "vuejs",
+    "projectId" : 60,
+    "iam" : "darkgodarkgo@gmail.com",
+    "number" : 4,
+    "createStatus" : "repository-create-success",
+    "insecureConfig" : false,
+    "configPassword" : null,
+    "groupId" : null,
+    "memberIds" : null,
+    "regDate" : 1517188084038,
+    "accessLevel" : 0,
+    "prod" : {
+      "snapshot" : 114,
+      "deployment" : "green",
+      "external" : "front-end.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10020",
+      "marathonAppId" : "/front-end-green",
+      "commit" : "63d572d05c3d7c5fc277c8583291ad26799ac73b",
+      "servicePort" : 10020,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "CANARY",
+        "bluegreen" : true,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : true,
+          "weight" : 100,
+          "auto" : true,
+          "increase" : 10,
+          "test" : 20,
+          "decrease" : 10
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "stg" : {
+      "snapshot" : 0,
+      "deployment" : "stg",
+      "external" : "front-end-stg.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10021",
+      "marathonAppId" : "/front-end-stg",
+      "commit" : null,
+      "servicePort" : 10021,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "dev" : {
+      "snapshot" : 160,
+      "deployment" : "dev",
+      "external" : "front-end-dev.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10022",
+      "marathonAppId" : "/front-end-dev",
+      "commit" : "90a9aec83625112d936d33b4ba71bdc1f761d925",
+      "servicePort" : 10022,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 117,
+      "deploymentOld" : "dev",
+      "marathonAppIdOld" : "/front-end-dev",
+      "commitOld" : "089ef0a095d8d962cf7917575efa69b08cbaebc8",
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    }
+  },
+  "class-class" : {
+    "name" : "class-class",
+    "appType" : "metaworks4",
+    "projectId" : 155,
+    "iam" : "jyjang@uengine.org",
+    "number" : 25,
+    "createStatus" : "repository-create-success",
+    "insecureConfig" : false,
+    "configPassword" : null,
+    "groupId" : null,
+    "memberIds" : null,
+    "regDate" : 1517188047865,
+    "accessLevel" : 0,
+    "prod" : {
+      "snapshot" : 108,
+      "deployment" : "green",
+      "external" : "class-class.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10083",
+      "marathonAppId" : "/class-class-green",
+      "commit" : "0b0c34725511f13326c0f3b0d67933767b71b36c",
+      "servicePort" : 10083,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "CANARY",
+        "bluegreen" : true,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : true,
+          "weight" : 100,
+          "auto" : false,
+          "increase" : 10,
+          "test" : 10,
+          "decrease" : 10
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : null,
+      "marathonAppIdOld" : null,
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "stg" : {
+      "snapshot" : 101,
+      "deployment" : "stg",
+      "external" : "class-class-stg.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10084",
+      "marathonAppId" : "/class-class-stg",
+      "commit" : "0b0c34725511f13326c0f3b0d67933767b71b36c",
+      "servicePort" : 10084,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 0,
+      "deploymentOld" : "stg",
+      "marathonAppIdOld" : "/class-class-stg",
+      "commitOld" : null,
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    },
+    "dev" : {
+      "snapshot" : 151,
+      "deployment" : "dev",
+      "external" : "class-class-dev.pas-mini.io",
+      "internal" : "marathon-lb-internal.marathon.mesos:10085",
+      "marathonAppId" : "/class-class-dev",
+      "commit" : "e94a9af3624b8c69014430204a74a475aebef855",
+      "servicePort" : 10085,
+      "mesos" : null,
+      "configChanged" : false,
+      "deploymentStrategy" : {
+        "instanceStrategy" : "RECREATE",
+        "bluegreen" : false,
+        "sticky" : false,
+        "ramp" : {
+          "maximumOverCapacity" : 0.0
+        },
+        "canary" : {
+          "active" : false,
+          "weight" : 0,
+          "auto" : true,
+          "increase" : 0,
+          "test" : 0,
+          "decrease" : 0
+        },
+        "abtest" : {
+          "active" : false,
+          "aclToB" : null
+        }
+      },
+      "snapshotOld" : 106,
+      "deploymentOld" : "dev",
+      "marathonAppIdOld" : "/class-class-dev",
+      "commitOld" : "0b0c34725511f13326c0f3b0d67933767b71b36c",
+      "tempDeployment" : {
+        "name" : null,
+        "description" : null,
+        "status" : null,
+        "startTime" : null,
+        "rollbackStartTime" : null,
+        "deploymentEndTime" : null,
+        "endTime" : null,
+        "deploymentId" : null,
+        "currentStep" : null,
+        "minuteFromDeployment" : 0,
+        "commit" : null,
+        "commitOld" : null
+      }
+    }
+  }
+}

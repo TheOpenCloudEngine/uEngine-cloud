@@ -14,7 +14,6 @@
         <module>uengine-eureka-server</module>
         <module>uengine-cloud-config</module>
         <module>uengine-cloud-api</module>
-        <module>uengine-cloud-worker</module>
         <module>uengine-cloud-server</module>
         <module>uengine-cloud-iam</module>
         <module>uengine-cloud-zuul</module>

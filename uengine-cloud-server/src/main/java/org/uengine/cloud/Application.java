@@ -1,11 +1,13 @@
 package org.uengine.cloud;
 
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.uengine.cloud.app.AppEntity;
 import org.uengine.cloud.app.AppWebCacheService;
 import org.uengine.cloud.app.AppWebService;
+import org.uengine.cloud.app.marathon.MesosListenerStarter;
 import org.uengine.cloud.migration.MigrationService;
 import org.uengine.iam.util.JsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +39,7 @@ import java.util.Map;
 @EnableAutoConfiguration
 @EnableScheduling
 @EnableRetry
-@EnableAsync
+@EnableAsync(proxyTargetClass = true)
 @EnableCaching
 public class Application {
 
@@ -78,8 +80,11 @@ public class Application {
         return "";
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         System.setProperty("org.apache.tomcat.util.buf.UDecoder.ALLOW_ENCODED_SLASH", "true");
-        new SpringApplicationBuilder(Application.class).web(true).run(args);
+        ConfigurableApplicationContext ctx = new SpringApplicationBuilder(Application.class).web(true).run(args);
+
+        MesosListenerStarter listenerStarter = ctx.getBean(MesosListenerStarter.class);
+        listenerStarter.run();
     }
 }

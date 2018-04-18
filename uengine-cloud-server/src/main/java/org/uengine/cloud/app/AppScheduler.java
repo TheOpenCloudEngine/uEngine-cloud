@@ -5,9 +5,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.uengine.cloud.app.deployment.AppDeploymentService;
 import org.uengine.cloud.app.marathon.DcosApi;
-import org.uengine.cloud.app.marathon.MarathonService;
+import org.uengine.cloud.app.marathon.MarathonCacheService;
 import org.uengine.cloud.deployment.DeploymentStatus;
-import org.uengine.cloud.redis.JedisLock;
 import org.uengine.cloud.redis.LeaderWrapper;
 import org.uengine.iam.util.StringUtils;
 
@@ -29,7 +28,7 @@ public class AppScheduler {
     private LeaderWrapper leaderWrapper;
 
     @Autowired
-    private MarathonService marathonService;
+    private MarathonCacheService marathonCacheService;
 
     @Autowired
     private DcosApi dcosApi;
@@ -37,78 +36,48 @@ public class AppScheduler {
     @Autowired
     private AppDeploymentService deploymentService;
 
+    @Autowired
+    private AppLockService lockService;
+
     public List<AppEntity> appEntityList;
 
 
-    //TODO
-    //리더 스케쥴러 역할.
-    //updateAllAppNames
-    //updateAllApp
-    //updateCachedServiceApps
     @Scheduled(initialDelay = 1000, fixedDelay = 3000)
     public void leaderScheduler() {
         //if not leader, skip.
         if (!leaderWrapper.amILeader()) {
             return;
         }
-//        try {
-//            appWebService.updateAllAppNames();
-//        } catch (Exception ex) {
-//
-//        }
-//        try {
-//            List<AppEntity> appEntities = appWebService.updateAllApps();
-//            this.appEntityList = appEntities;
-//        } catch (Exception ex) {
-//
-//        }
-//        try {
-//            marathonService.updateCachedServiceApps();
-//        } catch (Exception ex) {
-//
-//        }
-//
-//        try {
-//            marathonService.updateCachedDcosLast();
-//        } catch (Exception ex) {
-//
-//        }
-//
-//        try {
-//            this.checkDeploymentComplete();
-//        } catch (Exception ex) {
-//
-//        }
+        try {
+            appWebCacheService.updateAllAppNamesCache();
+        } catch (Exception ex) {
+
+        }
+        try {
+            List<AppEntity> appEntities = appWebCacheService.updateAllAppsCache();
+            this.appEntityList = appEntities;
+        } catch (Exception ex) {
+
+        }
+        try {
+            marathonCacheService.updateServiceAppsCache();
+        } catch (Exception ex) {
+
+        }
+
+        try {
+            marathonCacheService.updateDcosLastCache();
+        } catch (Exception ex) {
+
+        }
+
+        try {
+            this.checkDeploymentComplete();
+        } catch (Exception ex) {
+
+        }
     }
 
-
-//    // 애플리케이션 시작 후 10초 후에 첫 실행, 그 후 매 10초마다 주기적으로 실행한다.
-//    @Scheduled(initialDelay = 10000, fixedDelay = 10000)
-//    public void removeSshContainer() throws Exception {
-//        Date currentDate = new Date();
-//        Map groups = dcosApi.getGroups();
-//        List<Map> apps = (List<Map>) groups.get("apps");
-//        for (int i = 0; i < apps.size(); i++) {
-//            Map marathonApp = apps.get(i);
-//            String marathonAppId = marathonApp.get("id").toString();
-//            if (marathonAppId.startsWith("/ssh-")) {
-//                String taskId = marathonAppId.replace("/ssh-", "");
-//
-//                //허트비트 매퍼에 마라톤아이디가 없으면 삭제.
-//                if (!sshService.heartbeatMapper.containsKey(taskId)) {
-//                    sshService.deleteSshContainer(taskId);
-//                }
-//                //허트비트 매퍼에, 10초 이상된 taskId 삭제.
-//                else {
-//                    Date lastDate = sshService.heartbeatMapper.get(taskId);
-//                    long diff = currentDate.getTime() - lastDate.getTime();
-//                    if (diff > 1000 * 10) {
-//                        sshService.deleteSshContainer(taskId);
-//                    }
-//                }
-//            }
-//        }
-//    }
 
     //TODO deployment event from kafka.
     public void checkDeploymentComplete() throws Exception {
@@ -150,12 +119,15 @@ public class AppScheduler {
                     if (this.isDeploymentFinished(appStage, deployments)) {
                         //save history and finish deployment
                         if (this.enableOverrideAppStage(appEntity, stage)) {
-                            //save history and finish deployment
-                            deploymentService.finishDeployment(
-                                    appEntity,
-                                    appStage,
-                                    stage,
-                                    DeploymentStatus.ROLLBACK_SUCCEED);
+
+                            if (!lockService.isLock(appEntity.getName())) {
+                                //save history and finish deployment
+                                deploymentService.finishDeployment(
+                                        appEntity,
+                                        appStage,
+                                        stage,
+                                        DeploymentStatus.ROLLBACK_SUCCEED);
+                            }
                         }
                     }
                 }
@@ -175,7 +147,10 @@ public class AppScheduler {
                         appWebService.setAppStage(appEntity, appStage, stage);
 
                         if (this.enableOverrideAppStage(appEntity, stage)) {
-                            appWebService.save(appEntity);
+
+                            if (!lockService.isLock(appEntity.getName())) {
+                                appWebService.save(appEntity);
+                            }
                         }
                     }
 
@@ -234,14 +209,18 @@ public class AppScheduler {
                                     appStage.getDeploymentStrategy().getCanary().setWeight(newWeight.intValue());
                                     appEntity = appWebService.setAppStage(appEntity, appStage, stage);
                                     if (this.enableOverrideAppStage(appEntity, stage)) {
-                                        appWebService.save(appEntity);
+                                        if (!lockService.isLock(appEntity.getName())) {
+                                            appWebService.save(appEntity);
+                                        }
                                     }
                                 }
                             }
                             //finishManualCanaryDeployment if time is over
                             else {
                                 if (this.enableOverrideAppStage(appEntity, stage)) {
-                                    deploymentService.finishManualCanaryDeployment(appEntity.getName(), stage);
+                                    if (!lockService.isLock(appEntity.getName())) {
+                                        deploymentService.finishManualCanaryDeployment(appEntity.getName(), stage);
+                                    }
                                 }
                             }
                         }
@@ -251,12 +230,14 @@ public class AppScheduler {
                         //finish deployment if deployment end.
                         if (this.isDeploymentFinished(appStage, deployments)) {
                             if (this.enableOverrideAppStage(appEntity, stage)) {
-                                //save history and finish deployment
-                                deploymentService.finishDeployment(
-                                        appEntity,
-                                        appStage,
-                                        stage,
-                                        DeploymentStatus.SUCCEED);
+                                if (!lockService.isLock(appEntity.getName())) {
+                                    //save history and finish deployment
+                                    deploymentService.finishDeployment(
+                                            appEntity,
+                                            appStage,
+                                            stage,
+                                            DeploymentStatus.SUCCEED);
+                                }
                             }
                         }
                     }

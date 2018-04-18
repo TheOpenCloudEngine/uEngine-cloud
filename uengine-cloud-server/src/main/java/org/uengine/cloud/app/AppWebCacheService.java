@@ -1,35 +1,16 @@
 package org.uengine.cloud.app;
 
 import com.google.common.base.Joiner;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.util.EntityUtils;
 import org.gitlab4j.api.GitLabApi;
 import org.gitlab4j.api.models.Member;
-import org.gitlab4j.api.models.Project;
-import org.gitlab4j.api.models.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.uengine.cloud.app.config.AppConfigService;
-import org.uengine.cloud.app.git.GitlabExtentApi;
-import org.uengine.cloud.app.marathon.DcosApi;
-import org.uengine.cloud.deployment.DeploymentStrategy;
-import org.uengine.cloud.deployment.InstanceStrategy;
-import org.uengine.cloud.services.AppService;
-import org.uengine.cloud.tenant.TenantContext;
-import org.uengine.iam.client.IamClient;
-import org.uengine.iam.client.model.OauthUser;
-import org.uengine.iam.util.HttpUtils;
-import org.uengine.iam.util.JsonUtils;
-import org.uengine.iam.util.StringUtils;
 
 import java.util.*;
 
@@ -118,7 +99,7 @@ public class AppWebCacheService {
     }
 
     //TODO need from kafka event
-    //TODO need redis -> websocket
+    //TODO need redis -> sse
     @CachePut(value = "appMembers", key = "#appName + '-member'")
     @Transactional
     public List<Member> updateAppMemberCache(String appName) {

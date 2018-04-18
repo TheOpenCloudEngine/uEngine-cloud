@@ -40,12 +40,66 @@ public class AppSnapshotService {
     @Autowired
     private AppDeploymentService deploymentService;
 
+
+    /**
+     * 스냅샷을 생선한다.
+     *
+     * @param appName
+     * @param snapshotName
+     * @param appGroupSnapshotId
+     * @return
+     * @throws Exception
+     */
+
+    public AppSnapshot createSnapshot(String appName, String snapshotName, Long appGroupSnapshotId) throws Exception {
+        //deployJson 을 포함한 app 정보를 가져온다.
+        AppEntity appEntity = appWebCacheService.findOneCache(appName);
+
+        //리소스를 가져온다.
+        AppConfigYmlResource configYmlResource = this.createAppConfigSnapshot(appName, appEntity);
+
+        AppSnapshot snapshot = new AppSnapshot();
+        snapshot.setApp(appEntity);
+        snapshot.setAppConfigYmlResource(configYmlResource);
+
+        if (appGroupSnapshotId != null && appGroupSnapshotId > 0) {
+            snapshot.setAppGroupSnapshotId(appGroupSnapshotId);
+        }
+        snapshot.setAppName(appEntity.getName());
+        snapshot.setIam(appEntity.getIam());
+
+        //name 생성
+        if (StringUtils.isEmpty(snapshotName)) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            String dateString = dateFormat.format(new Date());
+            snapshotName = String.format("%s %s Snapshot", dateString, appName);
+        }
+        snapshot.setName(snapshotName);
+
+        //액티브 스테이지를 기록한다.
+        ArrayList<String> activeStages = new ArrayList<>();
+        if (this.getCommitRefFromSnapshot(snapshot, "dev") != null) {
+            activeStages.add("dev");
+        }
+        if (this.getCommitRefFromSnapshot(snapshot, "stg") != null) {
+            activeStages.add("stg");
+        }
+        if (this.getCommitRefFromSnapshot(snapshot, "prod") != null) {
+            activeStages.add("prod");
+        }
+        if (activeStages.size() > 0) {
+            snapshot.setActiveStages(Joiner.on(",").join(activeStages));
+        }
+
+        return snapshotRepository.save(snapshot);
+    }
+
     /**
      * 스냅샷으로부터 요청된 스테이지에 한해 앱을 복원한다.
-     *
      * @param snapshotId
      * @param stages
      * @param overrideResource
+     * @param redeploy 앱 배포 여부
      * @return
      * @throws Exception
      */
@@ -118,7 +172,7 @@ public class AppSnapshotService {
                     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
                     String dateString = dateFormat.format(new Date());
                     String name = String.format("%s Auto deployment from Snapshot %s, %s %s", dateString, appSnapshot.getId(), appName, stage);
-                    deploymentService.runDeployedApp(appName, stage, commit, appSnapshot.getId(), name, null);
+                    deploymentService.deployApp(appName, stage, commit, appSnapshot.getId(), name, null);
                 }
             }
         }
@@ -213,58 +267,6 @@ public class AppSnapshotService {
         return appSnapshot;
     }
 
-    /**
-     * 스냅샷을 생선한다.
-     *
-     * @param appName
-     * @param snapshotName
-     * @param appGroupSnapshotId
-     * @return
-     * @throws Exception
-     */
-
-    public AppSnapshot createSnapshot(String appName, String snapshotName, Long appGroupSnapshotId) throws Exception {
-        //deployJson 을 포함한 app 정보를 가져온다.
-        AppEntity appEntity = appWebCacheService.findOneCache(appName);
-
-        //리소스를 가져온다.
-        AppConfigYmlResource configYmlResource = this.createAppConfigSnapshot(appName, appEntity);
-
-        AppSnapshot snapshot = new AppSnapshot();
-        snapshot.setApp(appEntity);
-        snapshot.setAppConfigYmlResource(configYmlResource);
-
-        if (appGroupSnapshotId != null && appGroupSnapshotId > 0) {
-            snapshot.setAppGroupSnapshotId(appGroupSnapshotId);
-        }
-        snapshot.setAppName(appEntity.getName());
-        snapshot.setIam(appEntity.getIam());
-
-        //name 생성
-        if (StringUtils.isEmpty(snapshotName)) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            String dateString = dateFormat.format(new Date());
-            snapshotName = String.format("%s %s Snapshot", dateString, appName);
-        }
-        snapshot.setName(snapshotName);
-
-        //액티브 스테이지를 기록한다.
-        ArrayList<String> activeStages = new ArrayList<>();
-        if (this.getCommitRefFromSnapshot(snapshot, "dev") != null) {
-            activeStages.add("dev");
-        }
-        if (this.getCommitRefFromSnapshot(snapshot, "stg") != null) {
-            activeStages.add("stg");
-        }
-        if (this.getCommitRefFromSnapshot(snapshot, "prod") != null) {
-            activeStages.add("prod");
-        }
-        if (activeStages.size() > 0) {
-            snapshot.setActiveStages(Joiner.on(",").join(activeStages));
-        }
-
-        return snapshotRepository.save(snapshot);
-    }
 
     public AppConfigYmlResource createAppConfigSnapshot(String appName, AppEntity appEntity) throws Exception {
         AppConfigYmlResource configYmlResource = new AppConfigYmlResource();

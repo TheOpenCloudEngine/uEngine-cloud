@@ -49,6 +49,13 @@ public class MarathonService {
         return map;
     }
 
+    /**
+     * 디플로이먼트 아이디로 마라톤 앱을 가져온다.
+     *
+     * @param deploymentId
+     * @return
+     * @throws Exception
+     */
     public Map getMarathonDeploymentById(String deploymentId) throws Exception {
 
         List<Map> deployments = dcosApi.getDeployments();
@@ -61,5 +68,4 @@ public class MarathonService {
         }
         return null;
     }
-
 }

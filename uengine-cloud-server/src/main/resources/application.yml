@@ -32,8 +32,6 @@ spring:
       group-id: cloud-worker
       enable-auto-commit: false
     bootstrap-servers: ${vcap.services.kafka.external}
-    topic:
-      mesos: mesos.topic
   redis-host: ${vcap.services.redis.external}
 
 server:
@@ -110,7 +108,7 @@ vcap:
       external: "@host.iam@"
       internal: "marathon-lb-internal.marathon.mesos:10003"
     uengine-cloud-config:
-      external: "@host.config@"
+      external: "@server.public.public@:10000"
       internal: "marathon-lb-internal.marathon.mesos:10000"
     eureka-server:
       external: "@host.eureka-server@"

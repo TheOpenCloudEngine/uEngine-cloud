@@ -1,11 +1,14 @@
 package org.uengine.cloud.app.pipeline;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.uengine.cloud.app.*;
 import org.uengine.cloud.app.git.GitlabExtentApi;
 import org.uengine.cloud.app.git.HookController;
+import org.uengine.cloud.app.git.HookService;
 import org.uengine.iam.client.IamClient;
 import org.uengine.iam.client.ResourceOwnerPasswordCredentials;
 import org.uengine.iam.client.TokenType;
@@ -33,10 +36,12 @@ public class AppPipeLineService {
     private GitlabExtentApi gitlabExtentApi;
 
     @Autowired
-    private HookController hookController;
+    private HookService hookService;
 
     @Autowired
     private IamClient iamClient;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AppPipeLineService.class);
 
     /**
      * 어플리케이션의 파이프라인 가동 정의 파일을 가져온다.
@@ -93,6 +98,9 @@ public class AppPipeLineService {
      * @throws Exception
      */
     public Map excutePipelineTrigger(String appName, String ref, String stage) throws Exception {
+
+        LOGGER.info("excutePipelineTrigger {}", appName);
+
         AppEntity appEntity = appWebCacheService.findOneCache(appName);
         int projectId = appEntity.getProjectId();
         String token = gitlabExtentApi.getProjectDcosTriggerToken(projectId);
@@ -118,7 +126,7 @@ public class AppPipeLineService {
                     break;
             }
 
-            hookController.addReservedStage(pipelineId, reservedStage);
+            hookService.addReservedStage(pipelineId, reservedStage);
         }
         return pipeline;
     }

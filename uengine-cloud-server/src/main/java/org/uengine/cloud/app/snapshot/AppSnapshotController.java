@@ -34,6 +34,9 @@ public class AppSnapshotController {
     @Autowired
     private AppSnapshotService snapshotService;
 
+    @Autowired
+    private AppSnapshotKafkaService snapshotKafkaService;
+
     /**
      * 앱의 스냅샷을 생성한다.
      *
@@ -43,16 +46,16 @@ public class AppSnapshotController {
      * @throws Exception
      */
     @RequestMapping(value = "/{appName}/snapshot", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
-    public AppSnapshot createAppSnapshot(HttpServletRequest request,
-                                         HttpServletResponse response,
-                                         @PathVariable("appName") String appName,
-                                         @RequestParam(required = false, value = "name") String name) throws Exception {
+    public void createAppSnapshot(HttpServletRequest request,
+                                  HttpServletResponse response,
+                                  @PathVariable("appName") String appName,
+                                  @RequestParam(required = false, value = "name") String name) throws Exception {
 
         try {
+            snapshotKafkaService.createSnapshotSend(appName, name, null);
+            response.setStatus(200);
 
-            AppSnapshot snapshot = snapshotService.createSnapshot(appName, name, null);
             logService.addHistory(appName, AppLogAction.CREATE_APP_SNAPSHOT, AppLogStatus.SUCCESS, new HashMap());
-            return snapshot;
         } catch (Exception ex) {
             logService.addHistory(appName, AppLogAction.CREATE_APP_REQUEST, AppLogStatus.FAILED, new HashMap());
             throw ex;
@@ -84,7 +87,7 @@ public class AppSnapshotController {
         log.put("stages", stages);
         try {
             String[] split = stages.split(",");
-            snapshotService.restoreSnapshot(snapshotId, Arrays.asList(split), overrideResource, redeploy);
+            snapshotKafkaService.restoreSnapshotSend(snapshotId, Arrays.asList(split), overrideResource, redeploy);
             response.setStatus(200);
 
             logService.addHistory(appName, AppLogAction.RESTORE_APP_SNAPSHOT, AppLogStatus.SUCCESS, log);

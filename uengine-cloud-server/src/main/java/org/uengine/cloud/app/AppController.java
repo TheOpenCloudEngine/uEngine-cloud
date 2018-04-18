@@ -4,7 +4,6 @@ package org.uengine.cloud.app;
 import org.gitlab4j.api.models.Member;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -15,7 +14,6 @@ import org.uengine.cloud.tenant.TenantContext;
 import org.uengine.iam.client.model.OauthUser;
 import org.uengine.iam.util.JsonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -42,6 +40,9 @@ public class AppController {
 
     @Autowired
     private AppEntityRepository appEntityRepository;
+
+    @Autowired
+    private AppKafkaService appKafkaService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AppController.class);
 
@@ -110,7 +111,6 @@ public class AppController {
      * @return
      * @throws Exception
      */
-//    @Cacheable(value = "app", key = "#appName")
     @RequestMapping(value = "/{appName}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public AppEntity getApp(HttpServletRequest request,
                       HttpServletResponse response,
@@ -118,6 +118,10 @@ public class AppController {
     ) throws Exception {
         OauthUser user = TenantContext.getThreadLocalInstance().getUser();
         AppEntity appEntity = appWebCacheService.findOneCache(appName);
+        if(appEntity == null){
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "NOT_FOUND");
+            return null;
+        }
         appEntity = appWebService.setAccessLevel(appEntity, user);
         String acl = user.getMetaData().get("acl").toString();
 
@@ -235,7 +239,7 @@ public class AppController {
 
         Map<String, Object> log = JsonUtils.convertClassToMap(appCreate);
         try {
-            AppEntity appEntity = appWebService.createApp(appCreate);
+            AppEntity appEntity = appKafkaService.createAppSend(appCreate);
             logService.addHistory(appCreate.getAppName(), AppLogAction.CREATE_APP_REQUEST, AppLogStatus.SUCCESS, log);
             return JsonUtils.convertClassToMap(appEntity);
         } catch (Exception ex) {

@@ -1,7 +1,4 @@
-package org.uengine.cloud.consumer;
-
-import java.util.HashMap;
-import java.util.Map;
+package org.uengine.cloud.kafka;
 
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -14,14 +11,9 @@ import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.listener.AbstractMessageListenerContainer;
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
-import org.springframework.retry.RetryContext;
-import org.springframework.retry.annotation.Retryable;
-import org.springframework.retry.backoff.BackOffContext;
-import org.springframework.retry.backoff.BackOffInterruptedException;
-import org.springframework.retry.backoff.BackOffPolicy;
-import org.springframework.retry.backoff.FixedBackOffPolicy;
-import org.springframework.retry.policy.SimpleRetryPolicy;
-import org.springframework.retry.support.RetryTemplate;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 public class KafkaReceiverConfig {
@@ -63,15 +55,10 @@ public class KafkaReceiverConfig {
         factory.setConsumerFactory(consumerFactory());
 
         //5 threads enable.
-        factory.setConcurrency(1);
+        factory.setConcurrency(5);
 
         factory.getContainerProperties().setAckMode(AbstractMessageListenerContainer.AckMode.MANUAL);
 
         return factory;
-    }
-
-    @Bean
-    public KafkaReceiver receiver() {
-        return new KafkaReceiver();
     }
 }
