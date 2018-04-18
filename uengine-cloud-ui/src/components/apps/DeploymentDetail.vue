@@ -296,8 +296,8 @@
 
           //if current
           if (!me.historyId) {
-            me.marathonApp = me.getDcosAppById(data.appStage.marathonAppId);
-            me.marathonAppOld = me.getDcosAppById(data.appStage.marathonAppIdOld);
+            me.marathonApp = me.getMarathonAppById(data.appStage.marathonAppId);
+            me.marathonAppOld = me.getMarathonAppById(data.appStage.marathonAppIdOld);
 
             //if canary && !auto
             if (data.appStage.deploymentStrategy.canary.active && !data.auto) {

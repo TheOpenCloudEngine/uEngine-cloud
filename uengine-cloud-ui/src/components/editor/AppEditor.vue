@@ -102,7 +102,7 @@
               });
             me.appName = appName;
           } else {
-            this.service = this.getDcosAppById(this.appId);
+            this.service = this.getMarathonAppById(this.appId);
             me.appName = this.appId;
           }
         }

@@ -118,7 +118,7 @@
         this.role = role;
         this.force = false;
         this.$refs['open'].open();
-        var app = this.getDcosAppById(appId);
+        var app = this.getMarathonAppById(appId);
         if (app) {
           this.instances = app.instances;
         }

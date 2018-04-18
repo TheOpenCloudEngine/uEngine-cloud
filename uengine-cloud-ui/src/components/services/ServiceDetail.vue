@@ -34,7 +34,7 @@
     watch: {
       dcosData: {
         handler: function (newVal, oldVal) {
-          this.app = this.getDcosAppById(this.appId);
+          this.app = this.getMarathonAppById(this.appId);
         },
         deep: true
       }

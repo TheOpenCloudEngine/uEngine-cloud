@@ -379,7 +379,7 @@
           (me.appStage.deploymentStrategy.instanceStrategy == 'CANARY' ||
             me.appStage.deploymentStrategy.instanceStrategy == 'ABTEST')
         ) {
-          var marathonApp = me.getDcosAppById(me.appStage.marathonAppId);
+          var marathonApp = me.getMarathonAppById(me.appStage.marathonAppId);
           if (!marathonApp) {
             me.enableStrategyUse = false;
           } else {
@@ -482,7 +482,7 @@
         //현재 스테이지 버전 가져오기
         var projectId = me.copyDevApp.projectId;
         var marathonAppId = me.copyDevApp[me.stage].marathonAppId;
-        var commitRef = me.getCommitRefFromMarathonApp(me.getDcosAppById(marathonAppId));
+        var commitRef = me.getCommitRefFromMarathonApp(me.getMarathonAppById(marathonAppId));
         if (commitRef) {
           addVersion('현재 버전 유지', commitRef);
           me.currentCommitRef = commitRef;
@@ -495,7 +495,7 @@
         $.each(stages, function (i, stage) {
           if (stage != me.stage) {
             var marathonAppId = me.copyDevApp[stage].marathonAppId;
-            var commitRef = me.getCommitRefFromMarathonApp(me.getDcosAppById(marathonAppId));
+            var commitRef = me.getCommitRefFromMarathonApp(me.getMarathonAppById(marathonAppId));
             if (commitRef) {
               addVersion(me.stageName(stage) + ' 버전 바로쓰기', commitRef);
             }

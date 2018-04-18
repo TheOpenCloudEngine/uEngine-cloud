@@ -101,7 +101,7 @@
         copy.dev.external = this.externalDevDomain;
         me.updateAppExcludeDeployJson(copy.name, copy, function (response) {
           if (response) {
-            me.runDeployedAppByExistStages(copy.name, null);
+            me.deployAppByExistStages(copy.name, null);
           }
         });
       },

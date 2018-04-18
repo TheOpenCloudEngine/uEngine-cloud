@@ -44,10 +44,8 @@
 </template>
 <script>
   export default {
-    props: {
-      dcosData: Object
-    },
-    data () {
+    props: {},
+    data() {
       return {
         isBlock: false,
         backendUrl: backendUrl,
@@ -65,36 +63,26 @@
     },
     mounted() {
       console.log("config", this.config);
-      this.fetchData();
+      this.fetchLast();
     },
     methods: {
       /**
        * 2초에 한번 전체 데이터를 갱신하도록 조정.
        */
-      fetchData: function () {
+      fetchLast: function () {
         var me = this;
-        var p1 = this.$root.backend('fetchData').get();
+        var p1 = this.$root.backend('marathon/last').get();
 
         Promise.all([p1])
           .then(function ([r1]) {
-            me.$root.dcosData = {
-              last: r1.data.last,
-              jobs: r1.data.jobs,
-              groups: r1.data.groups,
-              queue: r1.data.queue,
-              deployments: r1.data.deployments,
-              units: r1.data.units,
-              state: r1.data.state,
-              devopsApps: r1.data.devopsApps,
-              config: me.config
-            };
+            me.$root.last = r1.data.last;
             setTimeout(function () {
-              me.fetchData();
+              me.fetchLast();
             }, 2000);
           })
           .catch(function (b) {
             setTimeout(function () {
-              me.fetchData();
+              me.fetchLast();
             }, 2000);
           });
       },
@@ -124,10 +112,10 @@
       confirm2: function (options) {
         this.$refs.confirm2.open(options);
       },
-      block: function(){
+      block: function () {
         this.isBlock = true;
       },
-      unblock: function(){
+      unblock: function () {
         this.isBlock = false;
       }
     }

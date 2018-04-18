@@ -144,7 +144,7 @@
     },
     mounted() {
       var me = this;
-      me.getGroupsIncludMe(localStorage['gitlab-id'], function (groups) {
+      me.getGroupsIncludeMe(localStorage['gitlab-id'], function (groups) {
         if (groups) {
           me.groups = groups;
         }

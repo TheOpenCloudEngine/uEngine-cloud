@@ -52,6 +52,6 @@ new Vue({
   template: '<App/>',
   components: {App},
   data: {
-    dcosData: {}
+    last: {}
   }
 });

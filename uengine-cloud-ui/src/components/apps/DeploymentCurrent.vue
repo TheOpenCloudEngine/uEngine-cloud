@@ -109,7 +109,7 @@
         me.marathonApp = null;
         var stageApp = me.devApp[me.stage];
         if (stageApp.tempDeployment.status == 'RUNNING' || stageApp.tempDeployment.status == 'RUNNING_ROLLBACK') {
-          me.marathonApp = me.getDcosAppById(stageApp.marathonAppId);
+          me.marathonApp = me.getMarathonAppById(stageApp.marathonAppId);
 
           me.data = {
             status: stageApp.tempDeployment.status,

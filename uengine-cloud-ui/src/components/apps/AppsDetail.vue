@@ -403,7 +403,7 @@
           return;
         }
         me.projectId = me.devApp.projectId;
-        var marathonApp = me.getDcosAppById(me.devApp[me.stage]['marathonAppId']);
+        var marathonApp = me.getMarathonAppById(me.devApp[me.stage]['marathonAppId']);
         if (!marathonApp) {
           return;
         }
