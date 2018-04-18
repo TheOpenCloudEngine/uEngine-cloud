@@ -17,6 +17,7 @@ import org.uengine.cloud.app.log.AppLogService;
 import org.uengine.cloud.app.log.AppLogStatus;
 import org.uengine.cloud.app.marathon.MesosKafkaService;
 import org.uengine.cloud.app.pipeline.AppPipeLineService;
+import org.uengine.cloud.catalog.CatalogCacheService;
 import org.uengine.iam.util.StringUtils;
 
 import javax.annotation.PostConstruct;
@@ -47,6 +48,9 @@ public class HookService {
 
     @Autowired
     private GitLabApi gitLabApi;
+
+    @Autowired
+    private CatalogCacheService catalogCacheService;
 
     private static final String RESERVED_STAGE = "RESERVED_STAGE";
 
@@ -198,6 +202,19 @@ public class HookService {
             if (appEntity != null) {
                 appWebCacheService.updateAppMemberCache(appEntity.getName());
             }
+        }
+    }
+
+    public void receiveProjectCreateHook(Map payloads) throws Exception {
+        if (payloads.get("name").toString().startsWith("template")) {
+            catalogCacheService.updateCategoriesCache();
+        }
+    }
+
+    public void receiveRepositoryUpdateHook(Map payloads) throws Exception {
+        Map project = (Map) payloads.get("project");
+        if (project.get("name").toString().startsWith("template")) {
+            catalogCacheService.updateCategoriesCache();
         }
     }
 

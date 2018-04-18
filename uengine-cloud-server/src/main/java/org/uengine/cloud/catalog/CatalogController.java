@@ -17,7 +17,7 @@ import java.util.List;
 public class CatalogController {
 
     @Autowired
-    private CatalogService catalogService;
+    private CatalogCacheService catalogCacheService;
 
     /**
      * 카테고리 목록을 가져온다.
@@ -31,7 +31,7 @@ public class CatalogController {
     public List<Category> getCatalogs(HttpServletRequest request,
                                       HttpServletResponse response
     ) throws Exception {
-        return catalogService.getCategories();
+        return catalogCacheService.getCategoriesCache();
     }
 
 }

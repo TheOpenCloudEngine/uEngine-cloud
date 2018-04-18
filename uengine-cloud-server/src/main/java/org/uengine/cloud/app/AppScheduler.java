@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import org.uengine.cloud.app.deployment.AppDeploymentService;
 import org.uengine.cloud.app.marathon.DcosApi;
 import org.uengine.cloud.app.marathon.MarathonCacheService;
+import org.uengine.cloud.app.marathon.MarathonService;
 import org.uengine.cloud.deployment.DeploymentStatus;
 import org.uengine.cloud.redis.LeaderWrapper;
 import org.uengine.iam.util.StringUtils;
@@ -29,6 +30,9 @@ public class AppScheduler {
 
     @Autowired
     private MarathonCacheService marathonCacheService;
+
+    @Autowired
+    private MarathonService marathonService;
 
     @Autowired
     private DcosApi dcosApi;
@@ -59,14 +63,16 @@ public class AppScheduler {
         } catch (Exception ex) {
 
         }
-        try {
-            marathonCacheService.updateServiceAppsCache();
-        } catch (Exception ex) {
+
+        try{
+            marathonCacheService.updateDcosLastCache();
+        }catch (Exception ex){
 
         }
-
         try {
-            marathonCacheService.updateDcosLastCache();
+            List<Map> apps = marathonCacheService.updateMarathonAppsCache();
+            marathonService.saveTasksByNode(apps);
+
         } catch (Exception ex) {
 
         }
@@ -77,7 +83,6 @@ public class AppScheduler {
 
         }
     }
-
 
     //TODO deployment event from kafka.
     public void checkDeploymentComplete() throws Exception {

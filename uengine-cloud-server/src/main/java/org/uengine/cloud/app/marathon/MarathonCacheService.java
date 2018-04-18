@@ -89,19 +89,20 @@ public class MarathonCacheService {
     }
 
     /**
-     * 서비스 앱 리스트 캐쉬를 가져온다.
+     * 마라톤 앱 리스트 캐쉬를 가져온다.
      *
      * @return
      * @throws Exception
      */
-    @Cacheable(value = "serviceApps", key = "'serviceApps'")
-    public List<Map> getServiceAppsCache() throws Exception {
-        LOGGER.info("get Marathon service Apps from dcos");
-        return getServiceApps();
+    @Cacheable(value = "marathonApps", key = "'serviceApps'")
+    public List<Map> getMarathonAppsCache() throws Exception {
+        LOGGER.info("get Marathon Apps from dcos");
+        Map groups = dcosApi.getGroups();
+        return (List<Map>) groups.get("apps");
     }
 
     /**
-     * 서비스 앱 리스트 캐쉬를 갱신한다.
+     * 마라톤 앱 리스트 캐쉬를 갱신한다.
      *
      * @return
      * @throws Exception
@@ -109,70 +110,39 @@ public class MarathonCacheService {
     //From AppScheduler
     @CachePut(value = "serviceApps", key = "'serviceApps'")
     @Transactional
-    public List<Map> updateServiceAppsCache() throws Exception {
+    public List<Map> updateMarathonAppsCache() throws Exception {
         LOGGER.info("update Marathon service Apps to redis");
-        return getServiceApps();
-    }
-
-    /**
-     * 서비스 앱 리스트를 가져온다.
-     *
-     * @return
-     * @throws Exception
-     */
-    private List<Map> getServiceApps() throws Exception {
         Map groups = dcosApi.getGroups();
-        List<String> allAppNames = appWebCacheService.findAllAppNamesCache();
-        List<Map> apps = (List<Map>) groups.get("apps");
-        List<Map> serviceApps = new ArrayList<>();
-        if (!apps.isEmpty()) {
-            for (Map app : apps) {
-                if (isServiceApp(app, allAppNames)) {
-                    serviceApps.add(app);
-                }
-            }
-        }
-        return serviceApps;
+        return (List<Map>) groups.get("apps");
     }
+
 
     /**
-     * 마라톤 앱아이디로 앱을 찾는다.
-     * @param marathonAppId
-     * @return
-     * @throws Exception
-     */
-    public AppEntity getAppEntityFromMarathonAppId(String marathonAppId) throws Exception {
-        String id = marathonAppId.replaceFirst("/", "");
-        id = replaceLast(id, "-dev", "");
-        id = replaceLast(id, "-stg", "");
-        id = replaceLast(id, "-blue", "");
-        id = replaceLast(id, "-green", "");
-        return appWebCacheService.findOneCache(id);
-    }
-
-    public boolean isServiceApp(Map marathonApp) throws Exception {
-        List<String> allAppNames = appWebCacheService.findAllAppNamesCache();
-        return this.isServiceApp(marathonApp, allAppNames);
-    }
-
-    /**
-     * 마라톤 앱이 서비스 앱인지 확인한다.
+     * 슬레이브 별 타스크 리스트를 업데이트 한다.
      *
-     * @param marathonApp
+     * @param salveId
+     * @param tasks
      * @return
      * @throws Exception
      */
-    public boolean isServiceApp(Map marathonApp, List<String> allAppNames) throws Exception {
-        String id = marathonApp.get("id").toString();
-        id = id.replaceFirst("/", "");
-        id = replaceLast(id, "-dev", "");
-        id = replaceLast(id, "-stg", "");
-        id = replaceLast(id, "-blue", "");
-        id = replaceLast(id, "-green", "");
-        return !allAppNames.contains(id);
+    @CachePut(value = "marathonAppsPerNode", key = "#salveId")
+    @Transactional
+    public List<Map> updateTasksPerNodeCache(String salveId, List<Map> tasks) throws Exception {
+        LOGGER.info("update Tasks per node, {}", salveId);
+        return tasks;
     }
 
-    private String replaceLast(String text, String regex, String replacement) {
-        return text.replaceFirst("(?s)(.*)" + regex, "$1" + replacement);
+    /**
+     * 슬레이브 별 타스크 리스트를 가져온다.
+     *
+     * @param salveId
+     * @return
+     * @throws Exception
+     */
+    @Cacheable(value = "marathonAppsPerNode", key = "#salveId")
+    public List<Map> getTasksPerNodeCache(String salveId) {
+        LOGGER.info("get tasks per node return empty list cause by redis empty.");
+        return new ArrayList<>();
     }
+
 }

@@ -25,37 +25,6 @@ public class AppPipeLineController {
     private AppLogService logService;
 
     /**
-     * 앱 배포 파이프라인을 실행한다. (깃랩 CI)
-     *
-     * @param request
-     * @param response
-     * @param appName  앱 이름
-     * @param ref      커밋 레퍼런스
-     * @param stage    스테이지
-     * @return
-     * @throws Exception
-     */
-    @RequestMapping(value = "/{appName}/pipeline", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
-    public Map excutePipelineTrigger(HttpServletRequest request,
-                                     HttpServletResponse response,
-                                     @PathVariable("appName") String appName,
-                                     @RequestParam(value = "ref", defaultValue = "master") String ref,
-                                     @RequestParam(value = "stage", required = false) String stage
-    ) throws Exception {
-        Map log = new HashMap();
-        log.put("ref", ref);
-        log.put("stage", stage);
-        try {
-            Map map = pipeLineService.excutePipelineTrigger(appName, ref, stage);
-            logService.addHistory(appName, AppLogAction.EXCUTE_PIPELINE_TRIGGER, AppLogStatus.SUCCESS, log);
-            return map;
-        } catch (Exception ex) {
-            logService.addHistory(appName, AppLogAction.EXCUTE_PIPELINE_TRIGGER, AppLogStatus.FAILED, log);
-            throw ex;
-        }
-    }
-
-    /**
      * 앱 자동 배포 설정을 가져온다.
      *
      * @param request
@@ -94,6 +63,37 @@ public class AppPipeLineController {
             return map;
         } catch (Exception ex) {
             logService.addHistory(appName, AppLogAction.UPDATE_APP_PIPELINE_JSON, AppLogStatus.FAILED, null);
+            throw ex;
+        }
+    }
+
+    /**
+     * 앱 배포 파이프라인을 실행한다. (깃랩 CI)
+     *
+     * @param request
+     * @param response
+     * @param appName  앱 이름
+     * @param ref      커밋 레퍼런스
+     * @param stage    스테이지
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/{appName}/pipeline", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    public Map excutePipelineTrigger(HttpServletRequest request,
+                                     HttpServletResponse response,
+                                     @PathVariable("appName") String appName,
+                                     @RequestParam(value = "ref", defaultValue = "master") String ref,
+                                     @RequestParam(value = "stage", required = false) String stage
+    ) throws Exception {
+        Map log = new HashMap();
+        log.put("ref", ref);
+        log.put("stage", stage);
+        try {
+            Map map = pipeLineService.excutePipelineTrigger(appName, ref, stage);
+            logService.addHistory(appName, AppLogAction.EXCUTE_PIPELINE_TRIGGER, AppLogStatus.SUCCESS, log);
+            return map;
+        } catch (Exception ex) {
+            logService.addHistory(appName, AppLogAction.EXCUTE_PIPELINE_TRIGGER, AppLogStatus.FAILED, log);
             throw ex;
         }
     }

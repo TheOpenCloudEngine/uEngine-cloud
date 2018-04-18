@@ -111,7 +111,6 @@ public class CatalogService {
                     //로고 파일 얻기
                     if (treeItem.getName().startsWith("logo")) {
                         logoSrc = "http://" + environment.getProperty("vcap.services.uengine-cloud-server.external") + "/gitlab/" + project.getPathWithNamespace() + "/raw/master/template/" + treeItem.getName();
-                        //logoSrc = project.getWebUrl() + "/raw/master/template/" + treeItem.getName();
                     }
                 }
                 //카달로그 파일이 있을 경우

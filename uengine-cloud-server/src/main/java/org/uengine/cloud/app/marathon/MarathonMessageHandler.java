@@ -27,6 +27,9 @@ public class MarathonMessageHandler implements MessageListener {
     @Autowired
     private MarathonCacheService marathonCacheService;
 
+    @Autowired
+    private MarathonService marathonService;
+
 
     @Autowired
     public void setRedisTemplate(RedisTemplate redisTemplate) {
@@ -44,7 +47,7 @@ public class MarathonMessageHandler implements MessageListener {
             byte[] body = message.getBody();
             String marathonAppId = (String) redisTemplate.getStringSerializer().deserialize(body);
             marathonAppId = marathonAppId.replaceAll("\"", "");
-            AppEntity appEntity = marathonCacheService.getAppEntityFromMarathonAppId(marathonAppId);
+            AppEntity appEntity = marathonService.getAppEntityFromMarathonAppId(marathonAppId);
             Map marathonApp = marathonCacheService.getMarathonAppByIdCache(marathonAppId);
             Map map = new HashMap();
             map.put("topic", topic);

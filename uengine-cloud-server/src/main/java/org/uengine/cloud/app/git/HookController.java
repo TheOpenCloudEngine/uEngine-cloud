@@ -63,6 +63,10 @@ public class HookController {
                 hookService.receiveUserTeamEventHook(payloads);
             } else if (event_name.equals("user_add_to_group") || event_name.equals("user_remove_from_group")) {
                 hookService.receiveUserGroupEventHook(payloads);
+            } else if (event_name.equals("project_create")) {
+                hookService.receiveProjectCreateHook(payloads);
+            } else if (event_name.equals("repository_update")) {
+                hookService.receiveRepositoryUpdateHook(payloads);
             }
         } finally {
             response.setStatus(200);

@@ -15,6 +15,14 @@ import java.util.Map;
 @RequestMapping("/marathon")
 public class MarathonController {
 
+
+    //앱별 타스크 => 앱에서 가져옴.
+    //노드별 타스크 => 풀링.
+    //서비스 앱 불러오는 로직에서 슬레이브 아이디별로 정리 후 레디스에 저장. 이때 cpus,mem,disk 함께 저장.
+
+    //앱이 사라짐은 어찌 처리 => null 로 나옴.
+    //앱 변경
+
     @Autowired
     private MarathonService marathonService;
 
@@ -26,7 +34,7 @@ public class MarathonController {
 
 
     /**
-     * 앱의 마라톤 앱들을 가져온다.
+     * 앱에 소속된 마라톤 앱들을 가져온다.
      *
      * @param request
      * @param response
@@ -34,10 +42,10 @@ public class MarathonController {
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "/app/{appName}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+    @RequestMapping(value = "/app", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public Map getMarathonAppsByAppName(HttpServletRequest request,
                                         HttpServletResponse response,
-                                        @PathVariable("appName") String appName
+                                        @RequestParam("appName") String appName
     ) throws Exception {
 
         return marathonService.getMarathonAppsByAppName(appName);
@@ -52,7 +60,7 @@ public class MarathonController {
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "/service/{marathonAppId}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+    @RequestMapping(value = "/app/{marathonAppId}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public Map getMarathonAppById(HttpServletRequest request,
                                   HttpServletResponse response,
                                   @PathVariable("marathonAppId") String marathonAppId
@@ -75,7 +83,7 @@ public class MarathonController {
     public List<Map> getServiceApps(HttpServletRequest request,
                                     HttpServletResponse response
     ) throws Exception {
-        return marathonCacheService.getServiceAppsCache();
+        return marathonService.getServiceApps();
     }
 
     /**
@@ -93,6 +101,23 @@ public class MarathonController {
                                 @PathVariable("taskId") String taskId
     ) throws Exception {
         return dcosApi.getMesosTaskById(taskId);
+    }
+
+    /**
+     * 노드별 타스크 리스트를 가져온다.
+     *
+     * @param request
+     * @param response
+     * @param slaveId
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/task/slave/{slaveId}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+    public List<Map> getTasksBySlaveId(HttpServletRequest request,
+                                       HttpServletResponse response,
+                                       @PathVariable("slaveId") String slaveId
+    ) throws Exception {
+        return marathonCacheService.getTasksPerNodeCache(slaveId);
     }
 
     /**
