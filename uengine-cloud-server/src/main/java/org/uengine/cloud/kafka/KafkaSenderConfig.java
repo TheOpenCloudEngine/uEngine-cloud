@@ -44,22 +44,4 @@ public class KafkaSenderConfig {
     public KafkaTemplate<String, String> kafkaTemplate() {
         return new KafkaTemplate<>(producerFactory());
     }
-
-    @Bean
-    public KafkaAdmin admin() {
-
-        Map<String, Object> configs = new HashMap<>();
-        configs.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        return new KafkaAdmin(configs);
-    }
-
-    @Bean
-    public NewTopic topic1() {
-        return new NewTopic("foo", 3, (short) 2);
-    }
-
-    @Bean
-    public NewTopic topic2() {
-        return new NewTopic("bar", 3, (short) 2);
-    }
 }

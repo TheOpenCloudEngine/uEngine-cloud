@@ -20,7 +20,6 @@ host.eureka-server: eureka-server.pas-mini.io
 host.cloud-server: cloud-server.pas-mini.io
 host.cloud-ui: cloud.pas-mini.io
 host.nexus: nexus.pas-mini.io
-host.kafka: kafka.pas-mini.io
 host.redis: redis.pas-mini.io
 
 iam.port: 80
@@ -46,6 +45,9 @@ gitlab.root.token: -arWnfRY7S4h6oyRthNy
 gitlab.config-repo.projectId: 47
 gitlab.config-repo.deployment-path: /deployment
 gitlab.config-repo.template-path: /template
+
+kafka.private: 52.79.51.79:9092
+kafka.public: 52.79.51.79:9092
 
 nexus.ip: 172.31.10.202
 nexus.username: admin

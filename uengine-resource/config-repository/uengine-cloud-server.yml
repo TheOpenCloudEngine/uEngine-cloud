@@ -25,6 +25,10 @@ public-agent-ip: @server.public.public@
 
 default-host: @host.default@
 
+kafka:
+  public: @kafka.public@
+  private: @kafka.private@
+
 nexus:
   ip: @nexus.ip@
   username: @nexus.username@

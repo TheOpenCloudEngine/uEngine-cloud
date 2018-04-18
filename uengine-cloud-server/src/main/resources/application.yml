@@ -31,7 +31,7 @@ spring:
     consumer:
       group-id: cloud-worker
       enable-auto-commit: false
-    bootstrap-servers: ${vcap.services.kafka.external}
+    bootstrap-servers: ${kafka.public}
   redis-host: ${vcap.services.redis.external}
 
 server:
@@ -64,6 +64,10 @@ registry:
 public-agent-ip: @server.public.public@
 
 default-host: @host.default@
+
+kafka:
+  public: @kafka.public@
+  private: @kafka.private@
 
 nexus:
   ip: @nexus.ip@
@@ -122,9 +126,6 @@ vcap:
     uengine-nexus:
       external: "@host.nexus@"
       internal: "marathon-lb-internal.marathon.mesos:10007"
-    kafka:
-      external: "@host.kafka@:9092"
-      internal: "broker.kafka.l4lb.thisdcos.directory:9092"
     redis:
       external: "@host.redis@:6379"
       internal: "marathon-lb-internal.marathon.mesos:6379"
@@ -162,7 +163,7 @@ spring:
     consumer:
       group-id: cloud-worker
       enable-auto-commit: false
-    bootstrap-servers: ${vcap.services.kafka.internal}
+    bootstrap-servers: ${kafka.private}
     topic:
       mesos: mesos.topic
   redis-host: ${vcap.services.redis.internal}

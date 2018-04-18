@@ -3,11 +3,16 @@ package org.uengine.cloud.redis;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
+import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import redis.clients.jedis.Jedis;
+
+import javax.annotation.PostConstruct;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class LeaderWrapper {
@@ -20,19 +25,35 @@ public class LeaderWrapper {
     private String myApplicationId;
 
     @Autowired
-    private Jedis jedis;
+    private RedisTemplate redisTemplate;
 
+    private ValueOperations valueOperations;
+
+    @PostConstruct
+    private void init() {
+        valueOperations = redisTemplate.opsForValue();
+    }
 
     @Scheduled(fixedDelay = 2000)
     public void tryToAcquireLock() {
 
         try {
-            if (isLeader) {
-                jedis.del(LEADER_LOCK);
+            Object existLock = valueOperations.get(LEADER_LOCK);
+
+            //if null, set me new leader
+            if (existLock == null) {
+                valueOperations.set(LEADER_LOCK, myApplicationId, LOCK_TIMEOUT, TimeUnit.MILLISECONDS);
+                isLeader = true;
+                return;
             }
-            jedis.set(LEADER_LOCK, "" + myApplicationId, "NX", "PX", LOCK_TIMEOUT);
-            String get = jedis.get(LEADER_LOCK);
-            isLeader = myApplicationId.equals(get);
+
+
+            //if existLock equals myApplicationId, reset value with timeout.
+            isLeader = myApplicationId.equals(existLock);
+            if (isLeader) {
+                valueOperations.set(LEADER_LOCK, myApplicationId, LOCK_TIMEOUT, TimeUnit.MILLISECONDS);
+            }
+
         } catch (Exception ex) {
             isLeader = false;
         }

@@ -80,4 +80,9 @@ public class RedisConfig {
         cacheManager.setTransactionAware(true);
         return cacheManager;
     }
+
+    @Bean
+    public String myApplicationId() {
+        return "" + new Random().nextInt(Integer.MAX_VALUE);
+    }
 }

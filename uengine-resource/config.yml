@@ -73,7 +73,6 @@ host:
   cloud-server: cloud-server.pas-mini.io
   cloud-ui: cloud.pas-mini.io
   nexus: nexus.pas-mini.io
-  kafka: kafka.pas-mini.io
   redis: redis.pas-mini.io
 
 # Security(IAM) part
@@ -125,6 +124,11 @@ gitlab:
     projectId: 47
     deployment-path: /deployment
     template-path: /template
+
+# Kafka part
+kafka:
+  private: 52.79.51.79:9092
+  public: 52.79.51.79:9092
 
 # Nexus part
 nexus:

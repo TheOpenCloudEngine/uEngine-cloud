@@ -20,7 +20,6 @@ host.eureka-server: {{host.eureka-server}}
 host.cloud-server: {{host.cloud-server}}
 host.cloud-ui: {{host.cloud-ui}}
 host.nexus: {{host.nexus}}
-host.kafka: {{host.kafka}}
 host.redis: {{host.redis}}
 
 iam.port: {{iam.port}}
@@ -46,6 +45,9 @@ gitlab.root.token: {{gitlab.root.token}}
 gitlab.config-repo.projectId: {{gitlab.config-repo.projectId}}
 gitlab.config-repo.deployment-path: {{gitlab.config-repo.deployment-path}}
 gitlab.config-repo.template-path: {{gitlab.config-repo.template-path}}
+
+kafka.private: {{kafka.private}}
+kafka.public: {{kafka.public}}
 
 nexus.ip: {{nexus.ip}}
 nexus.username: {{nexus.username}}

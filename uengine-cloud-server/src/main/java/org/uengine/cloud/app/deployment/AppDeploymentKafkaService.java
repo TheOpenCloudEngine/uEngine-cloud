@@ -29,18 +29,8 @@ public class AppDeploymentKafkaService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AppDeploymentKafkaService.class);
 
-    public static final String DEPLOY_APP_TOPIC = "DEPLOY_APP";
-    public static final String ROLLBACK_APP_TOPIC = "ROLLBACK_APP";
-
-    @Bean
-    public NewTopic DEPLOY_APP_TOPIC() {
-        return new NewTopic(DEPLOY_APP_TOPIC, 3, (short) 1);
-    }
-
-    @Bean
-    public NewTopic ROLLBACK_APP_TOPIC() {
-        return new NewTopic(ROLLBACK_APP_TOPIC, 3, (short) 1);
-    }
+    private static final String DEPLOY_APP_TOPIC = "DEPLOY_APP";
+    private static final String ROLLBACK_APP_TOPIC = "ROLLBACK_APP";
 
     public void deployAppSend(
             String appName,

@@ -52,7 +52,8 @@ public class AppKafkaService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AppKafkaService.class);
 
-    public static final String CREATE_APP_TOPIC = "CREATE_APP_TOPIC";
+    private static final String CREATE_APP_TOPIC = "CREATE_APP_TOPIC";
+    private static final String DELETE_APP_TOPIC = "DELETE_APP_TOPIC";
 
     public AppEntity createAppSend(AppCreate appCreate) throws Exception {
 
