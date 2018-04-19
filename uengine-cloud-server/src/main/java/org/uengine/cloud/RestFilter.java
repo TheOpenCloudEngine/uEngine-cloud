@@ -41,11 +41,14 @@ public class RestFilter extends GenericFilterBean {
             chain.doFilter(req, res);
         } else if (Arrays.asList(guestPaths).contains(requestURI)) {
             chain.doFilter(req, res);
-        } else {
+        }
+        ///files/download
+        else {
             //토큰이 없을 경우
             OauthUser user = TenantContext.getThreadLocalInstance().getUser();
             if (!requestURI.startsWith("/config/uengine-cloud-server.json")
                     && !requestURI.startsWith("/gitlab")
+                    && !requestURI.contains("/files/download")
                     && user == null) {
                 response.setStatus(401);
                 this.addCors(response);

@@ -80,7 +80,7 @@ public class DcosApi implements InitializingBean {
     public Map getApp(String appId) throws Exception {
         try {
             HttpResponse response = new HttpUtils().makeRequest("GET",
-                    host + "/service/marathon/v2/apps/" + appId,
+                    host + "/service/marathon/v2/apps/" + appId + "?embed=app.taskStats&embed=app.lastTaskFailure",
                     null,
                     this.addHeaders()
             );
@@ -142,7 +142,7 @@ public class DcosApi implements InitializingBean {
 
     public Map getGroups() throws Exception {
         HttpResponse response = new HttpUtils().makeRequest("GET",
-                host + "/service/marathon/v2/groups?embed=group.groups&embed=group.apps&embed=group.pods&embed=group.apps.deployments&embed=group.apps.counts&embed=group.apps.tasks&embed=group.apps.taskStats&embed=group.apps.lastTaskFailur",
+                host + "/service/marathon/v2/groups?embed=group.groups&embed=group.apps&embed=group.pods&embed=group.apps.deployments&embed=group.apps.counts&embed=group.apps.tasks&embed=group.apps.taskStats&embed=group.apps.lastTaskFailure",
                 null,
                 this.addHeaders()
         );

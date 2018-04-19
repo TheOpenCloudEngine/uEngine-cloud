@@ -95,10 +95,10 @@ public class MarathonController {
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "/task/{taskId}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+    @RequestMapping(value = "/task", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public Map getMesosTaskById(HttpServletRequest request,
                                 HttpServletResponse response,
-                                @PathVariable("taskId") String taskId
+                                @RequestParam("taskId") String taskId
     ) throws Exception {
         return dcosApi.getMesosTaskById(taskId);
     }
