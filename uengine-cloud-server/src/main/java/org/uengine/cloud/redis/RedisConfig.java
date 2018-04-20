@@ -14,19 +14,12 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.PatternTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.GenericToStringSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-import org.uengine.cloud.app.AppMessageHandler;
-import org.uengine.cloud.app.AppWebCacheService;
-import org.uengine.cloud.app.marathon.MarathonMessageHandler;
-import redis.clients.jedis.Jedis;
+import org.uengine.cloud.app.emitter.AppEntityBaseMessageHandler;
 
-import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Random;
 
 @Configuration
@@ -64,22 +57,15 @@ public class RedisConfig {
     }
 
     @Bean
-    public MarathonMessageHandler marathonMessageHandler() {
-        return new MarathonMessageHandler();
-    }
-
-    @Bean
-    public AppMessageHandler appMessageHandler() {
-        return new AppMessageHandler();
+    public AppEntityBaseMessageHandler appEntityBaseMessageHandler() {
+        return new AppEntityBaseMessageHandler();
     }
 
     @Bean
     public RedisMessageListenerContainer redisContainer(RedisConnectionFactory connectionFactory) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
-        container.addMessageListener(marathonMessageHandler(), new PatternTopic("marathonApp"));
-        container.addMessageListener(appMessageHandler(), new PatternTopic("app"));
-
+        container.addMessageListener(appEntityBaseMessageHandler(), new PatternTopic("AppEntityBaseMessage"));
         return container;
     }
 

@@ -1,4 +1,4 @@
-package org.uengine.cloud.app;
+package org.uengine.cloud.app.emitter;
 
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.uengine.iam.client.model.OauthUser;

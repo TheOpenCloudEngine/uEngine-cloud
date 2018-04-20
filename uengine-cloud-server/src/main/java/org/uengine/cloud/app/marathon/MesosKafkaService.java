@@ -10,8 +10,12 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.uengine.cloud.app.AppEntity;
+import org.uengine.cloud.app.emitter.AppEntityBaseMessageHandler;
+import org.uengine.cloud.app.emitter.AppEntityBaseMessageTopic;
 import org.uengine.iam.util.JsonUtils;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -21,10 +25,13 @@ public class MesosKafkaService {
     private MarathonCacheService marathonCacheService;
 
     @Autowired
+    private MarathonService marathonService;
+
+    @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
 
     @Autowired
-    private MarathonMessageHandler marathonMessageHandler;
+    private AppEntityBaseMessageHandler messageHandler;
 
     @Autowired
     private RedisTemplate redisTemplate;
@@ -50,7 +57,11 @@ public class MesosKafkaService {
 
             LOGGER.info("marathonAppChangeReceive from kafka {}", appId);
             Map marathonApp = marathonCacheService.updateMarathonAppByIdCache(appId);
-            marathonMessageHandler.publish(marathonApp);
+
+            AppEntity appEntity =
+                    marathonService.getAppEntityFromMarathonAppId(((Map) marathonApp.get("app")).get("id").toString());
+
+            messageHandler.publish(AppEntityBaseMessageTopic.marathonApp, appEntity, null, marathonApp);
 
         } finally {
             ack.acknowledge();

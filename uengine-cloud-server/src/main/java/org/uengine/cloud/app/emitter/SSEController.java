@@ -1,4 +1,4 @@
-package org.uengine.cloud.app;
+package org.uengine.cloud.app.emitter;
 
 import com.nimbusds.jose.JWSObject;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-import org.uengine.cloud.tenant.TenantContext;
+import org.uengine.cloud.app.AppEntity;
 import org.uengine.iam.client.model.OauthUser;
 import org.uengine.iam.util.JsonUtils;
 import org.uengine.iam.util.StringUtils;
@@ -51,7 +51,7 @@ public class SSEController {
             emitter.onCompletion(() -> this.userBaseEmitters.remove(emitter));
             emitter.onTimeout(() -> this.userBaseEmitters.remove(emitter));
 
-            LOGGER.info("emitter counts: {}" , userBaseEmitters.size());
+            LOGGER.info("emitter counts: {}", userBaseEmitters.size());
 
             return emitter;
 
@@ -61,8 +61,11 @@ public class SSEController {
         }
     }
 
-    public void gitlabBaseEmitterSend(AppEntity appEntity, String message) {
+    public void appEntityBaseEmitterSend(AppEntityBaseMessage appEntityBaseMessage) throws Exception {
         List<Integer> gitlabIds = new ArrayList<>();
+        AppEntity appEntity = appEntityBaseMessage.getAppEntity();
+        String message = JsonUtils.marshal(appEntityBaseMessage);
+
         if (appEntity != null) {
             String memberIds = appEntity.getMemberIds();
             if (!StringUtils.isEmpty(memberIds)) {

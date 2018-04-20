@@ -11,18 +11,13 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
-import org.uengine.cloud.app.deployment.AppDeploymentService;
-import org.uengine.cloud.app.deployment.DeployAppMessage;
 import org.uengine.cloud.app.git.GitlabExtentApi;
-import org.uengine.cloud.services.AppService;
 import org.uengine.cloud.tenant.TenantContext;
 import org.uengine.iam.client.IamClient;
 import org.uengine.iam.client.model.OauthUser;
 import org.uengine.iam.util.JsonUtils;
 import org.uengine.iam.util.StringUtils;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 

@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.uengine.cloud.app.*;
+import org.uengine.cloud.app.emitter.AppEntityBaseMessageHandler;
+import org.uengine.cloud.app.emitter.AppEntityBaseMessageTopic;
 
 import java.util.*;
 
@@ -19,6 +21,15 @@ public class AppDeployJsonService {
     @Autowired
     private AppDeployJsonRepository deployJsonRepository;
 
+    @Autowired
+    private AppDeployJsonCacheService deployJsonCacheService;
+
+    @Autowired
+    private AppEntityBaseMessageHandler messageHandler;
+
+    @Autowired
+    private AppWebCacheService appWebCacheService;
+
     /**
      * 어플리케이션의 주어진 스테이지에 따른 배포 정보를 반환한다.
      *
@@ -28,7 +39,7 @@ public class AppDeployJsonService {
      * @throws Exception
      */
     public Map getDeployJson(String appName, String stage) throws Exception {
-        return deployJsonRepository.findByAppNameAndStage(appName, stage).getJson();
+        return deployJsonCacheService.getDeployJsonCache(appName, stage);
     }
 
     /**
@@ -40,9 +51,9 @@ public class AppDeployJsonService {
      */
     public Map getAllDeployJson(String appName) throws Exception {
         Map map = new HashMap();
-        map.put("dev", deployJsonRepository.findByAppNameAndStage(appName, "dev").getJson());
-        map.put("stg", deployJsonRepository.findByAppNameAndStage(appName, "stg").getJson());
-        map.put("prod", deployJsonRepository.findByAppNameAndStage(appName, "prod").getJson());
+        map.put("dev", deployJsonCacheService.getDeployJsonCache(appName, "dev"));
+        map.put("stg", deployJsonCacheService.getDeployJsonCache(appName, "stg"));
+        map.put("prod", deployJsonCacheService.getDeployJsonCache(appName, "prod"));
         return map;
     }
 
@@ -55,16 +66,12 @@ public class AppDeployJsonService {
      * @throws Exception
      */
     public Map updateDeployJson(String appName, String stage, Map deployJson) throws Exception {
-        AppDeployJson appDeployJson = deployJsonRepository.findByAppNameAndStage(appName, stage);
-        if (appDeployJson == null) {
-            appDeployJson = new AppDeployJson();
-            appDeployJson.setAppName(appName);
-            appDeployJson.setStage(stage);
-            appDeployJson.setJson(deployJson);
-        } else {
-            appDeployJson.setJson(deployJson);
-        }
-        return deployJsonRepository.save(appDeployJson).getJson();
+        Map json = deployJsonCacheService.updateDeployJsonCache(appName, stage, deployJson);
+
+        //변경 알림
+        AppEntity appEntity = appWebCacheService.findOneCache(appName);
+        messageHandler.publish(AppEntityBaseMessageTopic.deployJson, appEntity, stage, json);
+        return json;
     }
 
     /**

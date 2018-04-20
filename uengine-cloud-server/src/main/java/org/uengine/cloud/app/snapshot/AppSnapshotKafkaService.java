@@ -8,10 +8,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
 import org.uengine.cloud.app.AppLockService;
-import org.uengine.cloud.app.AppWebCacheService;
 import org.uengine.cloud.app.config.AppConfigYmlResource;
-import org.uengine.cloud.app.deployment.AppDeploymentService;
-import org.uengine.cloud.app.deployment.DeployAppMessage;
 import org.uengine.iam.util.JsonUtils;
 
 import java.util.HashMap;

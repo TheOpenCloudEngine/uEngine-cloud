@@ -12,10 +12,13 @@ import org.uengine.cloud.app.AppEntity;
 import org.uengine.cloud.app.AppEntityRepository;
 import org.uengine.cloud.app.AppWebCacheService;
 import org.uengine.cloud.app.config.AppConfigService;
+import org.uengine.cloud.app.emitter.AppEntityBaseMessageHandler;
+import org.uengine.cloud.app.emitter.AppEntityBaseMessageTopic;
 import org.uengine.cloud.app.log.AppLogAction;
 import org.uengine.cloud.app.log.AppLogService;
 import org.uengine.cloud.app.log.AppLogStatus;
-import org.uengine.cloud.app.marathon.MesosKafkaService;
+import org.uengine.cloud.app.pipeline.AppLastPipeLine;
+import org.uengine.cloud.app.pipeline.AppPipeLineCacheService;
 import org.uengine.cloud.app.pipeline.AppPipeLineService;
 import org.uengine.cloud.catalog.CatalogCacheService;
 import org.uengine.iam.util.StringUtils;
@@ -39,6 +42,12 @@ public class HookService {
 
     @Autowired
     private AppPipeLineService pipeLineService;
+
+    @Autowired
+    private AppPipeLineCacheService pipeLineCacheService;
+
+    @Autowired
+    private AppEntityBaseMessageHandler messageHandler;
 
     @Autowired
     private AppWebCacheService appWebCacheService;
@@ -93,18 +102,23 @@ public class HookService {
     public void receivePipeLineEventHook(Map payloads) throws Exception {
         //running, pending 은 진행중
         //success, failed, canceled, skipped 인 경우는 이력에 저장.
-        String appName = ((Map) payloads.get("project")).get("name").toString();
+        int projectId = (int) ((Map) payloads.get("project")).get("id");
+        AppEntity appEntity = appEntityRepository.findByProjectId(projectId);
+        String appName = appEntity.getName();
         String pipelineId = ((Map) payloads.get("object_attributes")).get("id").toString();
         String status = ((Map) payloads.get("object_attributes")).get("status").toString();
 
-        LOGGER.info("receivePipeLineEventHook {}", appName);
+        LOGGER.info("receivePipeLineEventHook {}, {}", projectId, appName);
 
-        AppEntity appEntity = appWebCacheService.findOneCache(appName);
+        //파이프라인 캐쉬 업데이트
+        AppLastPipeLine lastPipeLine = pipeLineCacheService.updateLastPipeline(appName);
+
+        //파이프라인 변경 알림
+        messageHandler.publish(AppEntityBaseMessageTopic.pipeline, appEntity, null, lastPipeLine);
 
         //이력 저장
         logService.addHistory(appName, AppLogAction.PIPELINE, AppLogStatus.valueOf(status.toUpperCase()), null);
 
-        int projectId = appEntity.getProjectId();
         Map pipeLineJson = pipeLineService.getPipeLineJson(appName);
         List<String> autoDeploys = (List<String>) pipeLineJson.get("auto-deploy");
 
@@ -146,11 +160,11 @@ public class HookService {
     }
 
     public void receivePushEventHook(Map payloads) throws Exception {
-        String appName = ((Map) payloads.get("project")).get("name").toString();
-        AppEntity appEntity = appWebCacheService.findOneCache(appName);
-        int projectId = appEntity.getProjectId();
+        int projectId = (int) ((Map) payloads.get("project")).get("id");
+        AppEntity appEntity = appEntityRepository.findByProjectId(projectId);
+        String appName = appEntity.getName();
 
-        LOGGER.info("receivePushEventHook {}", appName);
+        LOGGER.info("receivePushEventHook {} , {}", projectId, appName);
 
         //푸시 이력 남기기
         logService.addHistory(appName, AppLogAction.PUSH, AppLogStatus.SUCCESS, null);

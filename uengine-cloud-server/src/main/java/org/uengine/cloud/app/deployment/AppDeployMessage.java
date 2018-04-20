@@ -1,6 +1,6 @@
 package org.uengine.cloud.app.deployment;
 
-public class DeployAppMessage {
+public class AppDeployMessage {
 
     private String appName;
 
@@ -14,7 +14,7 @@ public class DeployAppMessage {
 
     private String description;
 
-    public DeployAppMessage(String appName, String stage, String commit, Long snapshotId, String name, String description) {
+    public AppDeployMessage(String appName, String stage, String commit, Long snapshotId, String name, String description) {
         this.appName = appName;
         this.stage = stage;
         this.commit = commit;

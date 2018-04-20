@@ -1,6 +1,5 @@
 package org.uengine.cloud.app;
 
-import com.google.common.base.Joiner;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -9,14 +8,10 @@ import org.gitlab4j.api.GitLabApi;
 import org.gitlab4j.api.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.transaction.annotation.Transactional;
 import org.uengine.cloud.app.config.AppConfigService;
 import org.uengine.cloud.app.deployjson.AppDeployJsonService;
+import org.uengine.cloud.app.emitter.AppEntityBaseMessageHandler;
+import org.uengine.cloud.app.emitter.AppEntityBaseMessageTopic;
 import org.uengine.cloud.app.git.GitlabExtentApi;
 import org.uengine.cloud.app.log.AppLogAction;
 import org.uengine.cloud.app.log.AppLogService;
@@ -84,7 +79,7 @@ public class AppWebService {
     private AppLogService logService;
 
     @Autowired
-    private AppMessageHandler appMessageHandler;
+    private AppEntityBaseMessageHandler messageHandler;
 
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AppWebService.class);
@@ -432,8 +427,7 @@ public class AppWebService {
             appConfigService.addAppToVcapService(appEntity.getName());
         }
 
-        appMessageHandler.publish(save);
-
+        messageHandler.publish(AppEntityBaseMessageTopic.app, save, null, null);
         return save;
     }
 
@@ -506,7 +500,7 @@ public class AppWebService {
         appWebCacheService.deleteCache(appName);
 
         //삭제 알림
-        appMessageHandler.publish(appEntity);
+        messageHandler.publish(AppEntityBaseMessageTopic.app, appEntity, null, null);
     }
 
 

@@ -22,7 +22,27 @@ public class AppPipeLineController {
     private AppPipeLineService pipeLineService;
 
     @Autowired
+    private AppPipeLineCacheService pipeLineCacheService;
+
+    @Autowired
     private AppLogService logService;
+
+    /**
+     * 앱의 마지막 파이프라인 결과를 가져온다.
+     *
+     * @param request
+     * @param response
+     * @param appName  앱 이름
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/{appName}/pipeline/last", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+    public AppLastPipeLine getAppLastPipeline(HttpServletRequest request,
+                                              HttpServletResponse response,
+                                              @PathVariable("appName") String appName
+    ) throws Exception {
+        return pipeLineCacheService.getLastPipeline(appName);
+    }
 
     /**
      * 앱 자동 배포 설정을 가져온다.

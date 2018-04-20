@@ -1,11 +1,8 @@
 package org.uengine.cloud.app.deployment;
 
-import org.apache.kafka.clients.admin.NewTopic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.Acknowledgment;
@@ -43,7 +40,7 @@ public class AppDeploymentKafkaService {
 
         LOGGER.info("deployApp send to kafka {}", appName);
 
-        DeployAppMessage deployAppMessage = new DeployAppMessage(appName, stage, commit, snapshotId, name, description);
+        AppDeployMessage deployAppMessage = new AppDeployMessage(appName, stage, commit, snapshotId, name, description);
         kafkaTemplate.send(DEPLOY_APP_TOPIC, JsonUtils.marshal(deployAppMessage));
     }
 
@@ -51,7 +48,7 @@ public class AppDeploymentKafkaService {
     public void deployAppReceive(String payload, Acknowledgment ack) throws Exception {
 
         try {
-            DeployAppMessage deployAppMessage = JsonUtils.convertValue((Map) JsonUtils.unmarshal(payload), DeployAppMessage.class);
+            AppDeployMessage deployAppMessage = JsonUtils.convertValue((Map) JsonUtils.unmarshal(payload), AppDeployMessage.class);
             String appName = deployAppMessage.getAppName();
 
             LOGGER.info("deployApp receive from kafka {}", appName);
