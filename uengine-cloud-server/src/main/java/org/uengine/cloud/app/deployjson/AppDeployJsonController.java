@@ -35,7 +35,7 @@ public class AppDeployJsonController {
      * @param deployJson
      * @throws Exception
      */
-    @RequestMapping(value = "/{appName}/deployJson", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    @RequestMapping(value = "/{appName}/deployJson", method = RequestMethod.PUT, produces = "application/json;charset=UTF-8")
     public Map updateDeployJson(HttpServletRequest request,
                                 HttpServletResponse response,
                                 @PathVariable("appName") String appName,

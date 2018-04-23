@@ -97,7 +97,7 @@ public class AppDeploymentKafkaService {
         kafkaTemplate.send(ROLLBACK_APP_TOPIC, JsonUtils.marshal(params));
     }
 
-    @KafkaListener(topics = DEPLOY_APP_TOPIC, containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(topics = ROLLBACK_APP_TOPIC, containerFactory = "kafkaListenerContainerFactory")
     public void rollbackAppReceive(String payload, Acknowledgment ack) throws Exception {
 
         try {

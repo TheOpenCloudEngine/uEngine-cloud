@@ -14,6 +14,9 @@ public class AppDeployMessage {
 
     private String description;
 
+    public AppDeployMessage() {
+    }
+
     public AppDeployMessage(String appName, String stage, String commit, Long snapshotId, String name, String description) {
         this.appName = appName;
         this.stage = stage;

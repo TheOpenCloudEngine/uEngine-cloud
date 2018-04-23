@@ -69,6 +69,7 @@ public class AppDeploymentService {
 
     /**
      * 어플리케이션의 주어진 스테이지에 앱을 디플로이한다.
+     *
      * @param appName
      * @param stage
      * @param commit
@@ -314,11 +315,9 @@ public class AppDeploymentService {
                 }
             }
 
+            appStage.setConfigChanged(false);
             appEntity = appWebService.setAppStage(appEntity, appStage, stage);
             appEntity = appWebService.save(appEntity);
-
-            //앱 변경 적용됨
-            appConfigService.updateAppConfigChanged(appName, stage, false);
 
             /**
              * create new snapshot

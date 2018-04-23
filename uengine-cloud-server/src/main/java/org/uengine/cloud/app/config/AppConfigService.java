@@ -183,7 +183,7 @@ public class AppConfigService {
     }
 
 
-    public void updateAppConfigChanged(String appName, String stage, boolean isChanged) throws Exception {
+    public AppEntity updateAppConfigChanged(String appName, String stage, boolean isChanged) throws Exception {
         //스테이지가 없으면 모든 스테이지가 변화된 것.
         AppEntity appEntity = appWebCacheService.findOneCache(appName);
         if (StringUtils.isEmpty(stage)) {
@@ -231,7 +231,7 @@ public class AppConfigService {
                     break;
             }
         }
-        appWebService.save(appEntity);
+        return appWebService.save(appEntity);
     }
 
     public Map getOriginalCloudConfigJson(String appName, String stage) throws Exception {
