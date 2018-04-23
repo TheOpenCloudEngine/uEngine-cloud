@@ -7,7 +7,7 @@
     <groupId>org.uengine</groupId>
     <artifactId>uengine-cloud</artifactId>
     <packaging>pom</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.1-SNAPSHOT</version>
 
     <modules>
         <module>uengine-resource</module>
