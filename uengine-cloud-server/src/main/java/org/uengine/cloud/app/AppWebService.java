@@ -353,6 +353,8 @@ public class AppWebService {
             Map pipeline = pipeLineService.excutePipelineTrigger(appCreate.getAppName(), "master", null);
             pipelineId = (int) pipeline.get("id");
 
+            //신규 프로젝트 맴버 캐쉬 업데이트
+            appWebCacheService.updateAppMemberCache(appEntity.getName());
 
             System.out.println("end");
 

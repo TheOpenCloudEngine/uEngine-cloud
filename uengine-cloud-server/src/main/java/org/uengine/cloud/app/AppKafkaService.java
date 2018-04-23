@@ -117,6 +117,9 @@ public class AppKafkaService {
         //시큐어 콘피그 여부 저장
         appEntity.setInsecureConfig(appCreate.getInsecureConfig());
 
+        //초기 멤버 유저 저장
+        appEntity.setMemberIds("m" + gitlabId + "m");
+
         //it will throw exception if transaction accident fired.
         AppEntity save = appWebCacheService.saveCache(appEntity);
 
