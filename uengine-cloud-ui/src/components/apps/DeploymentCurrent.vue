@@ -57,7 +57,7 @@
                 </md-button>
 
                 <md-menu-content>
-                  <md-menu-item v-on:click="rollback(appName, stage)">
+                  <md-menu-item v-on:click="rollbackAppConfirm(appName, stage)">
                     <span>롤백</span>
                   </md-menu-item>
                 </md-menu-content>
@@ -79,17 +79,24 @@
     props: {
       stage: String,
       devApp: Object,
-      categoryItem: Object
+      categoryItem: Object,
+      marathonApps: Object,
+      deployJson: Object
     },
     data() {
       return {
         data: null,
-        marathonApp: null
       }
     },
     mounted() {
       var me = this;
       me.makeData();
+    },
+    computed: {
+      marathonApp: function () {
+        return this.marathonApps && this.marathonApps[this.stage] && this.marathonApps[this.stage].app ?
+          this.marathonApps[this.stage].app : null;
+      }
     },
     watch: {
       stage: function () {
@@ -100,16 +107,20 @@
           this.makeData();
         },
         deep: true
+      },
+      marathonApps: {
+        handler: function () {
+          this.makeData();
+        },
+        deep: true
       }
     },
     methods: {
       makeData: function () {
         var me = this;
         me.data = null;
-        me.marathonApp = null;
         var stageApp = me.devApp[me.stage];
         if (stageApp.tempDeployment.status == 'RUNNING' || stageApp.tempDeployment.status == 'RUNNING_ROLLBACK') {
-          me.marathonApp = me.getMarathonAppById(stageApp.marathonAppId);
 
           me.data = {
             status: stageApp.tempDeployment.status,

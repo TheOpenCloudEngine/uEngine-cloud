@@ -61,7 +61,7 @@
       this.makeList();
     },
     watch: {
-      dcosData: {
+      last: {
         handler: function (newVal, oldVal) {
           this.makeList();
         },
@@ -81,10 +81,10 @@
         var me = this;
         me.list = [];
 
-        if (!me.dcosData.last) {
+        if (!me.last) {
           return;
         }
-        $.each(me.dcosData.last.slaves, function (i, slave) {
+        $.each(me.last.slaves, function (i, slave) {
           list.push({
             id: slave.id,
             host: slave.hostname,
@@ -108,13 +108,6 @@
           count++;
         }
         this.total = count;
-      },
-      openDeployments: function () {
-        this.$refs['service-deployments'].open();
-      }
-      ,
-      openScaleApp: function (appId, role) {
-        this.$refs['scale-app'].open(appId, role);
       }
       ,
       moveNode: function (nodeId) {

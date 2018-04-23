@@ -182,8 +182,10 @@
 
               <app-runtime-card v-if="changeResource"
                                 :stage="stage"
-                                :devApp.sync="copyDevApp"
+                                :devApp="copyDevApp"
                                 :categoryItem="categoryItem"
+                                :marathonApps="marathonApps"
+                                :deployJson.sync="copyDeployJson"
                                 :deploy="false"
                                 style="margin-bottom: 32px"
               ></app-runtime-card>
@@ -233,6 +235,8 @@
       stage: String,
       devApp: Object,
       categoryItem: Object,
+      marathonApps: Object,
+      deployJson: Object,
       menu: String
     },
     computed: {
@@ -290,6 +294,14 @@
           this.appStage.deploymentStrategy.canary.decrease = (val * 60) + this.decreaseM;
         }
       },
+      marathonApp: function () {
+        return this.marathonApps && this.marathonApps[this.stage] && this.marathonApps[this.stage].app ?
+          this.marathonApps[this.stage].app : null;
+      },
+      marathonAppOld: function () {
+        return this.marathonApps && this.marathonApps['oldProd'] && this.marathonApps['oldProd'].app ?
+          this.marathonApps['oldProd'].app : null;
+      }
     },
     data() {
       return {
@@ -319,6 +331,7 @@
             infoText: '이전 버전과 신규 버전 사이의 트래픽을 테스트 조건에 따라 나눕니다.'
           }],
         copyDevApp: null,
+        copyDeployJson: null,
         appStage: null,
         tagList: [],
         imageList: [],
@@ -371,62 +384,10 @@
       }
     },
     methods: {
-      setEnableStrategyUse: function () {
-        var me = this;
-        me.enableStrategyUse = true;
-        //if not deployed anything yet, disable canary and abtest
-        if (me.stage == 'prod' && me.appStage.marathonAppId &&
-          (me.appStage.deploymentStrategy.instanceStrategy == 'CANARY' ||
-            me.appStage.deploymentStrategy.instanceStrategy == 'ABTEST')
-        ) {
-          var marathonApp = me.getMarathonAppById(me.appStage.marathonAppId);
-          if (!marathonApp) {
-            me.enableStrategyUse = false;
-          } else {
-            me.enableStrategyUse = true;
-          }
-        }
-      },
-      setCanaryTotalTime: function () {
-        this.canaryTotalTime =
-          this.appStage.deploymentStrategy.canary.increase +
-          this.appStage.deploymentStrategy.canary.test +
-          this.appStage.deploymentStrategy.canary.decrease
-      },
-      setCapacityRate: function (val) {
-        var me = this;
-        //슬라이더에 의해 조정된 경우
-        if (val != undefined) {
-          me.appStage.deploymentStrategy.ramp.maximumOverCapacity = val / 10;
-        } else {
-          me.maximumOverCapacity = me.appStage.deploymentStrategy.ramp.maximumOverCapacity * 10;
-        }
-        me.maxInstances = me.appStage.deployJson.instances;
-        me.capacityInstances = me.appStage.deployJson.instances * me.appStage.deploymentStrategy.ramp.maximumOverCapacity;
-        me.capacityInstances = Math.ceil(me.capacityInstances);
-        //
-        //비율이 0% 이고, 인스턴스 세팅이 1 개 이상이면 최소 1개 인스턴스 표기.
-        if (me.capacityInstances == 0 && me.appStage.deployJson.instances > 0) {
-          me.capacityInstances = 1;
-        }
-      },
-      changeInstanceStrategy: function (val) {
-        this.appStage.deploymentStrategy.instanceStrategy = val;
-      },
-      stageName: function (stage) {
-        if (stage == 'dev') {
-          return '개발'
-        }
-        else if (stage == 'stg') {
-          return '스테이징'
-        }
-        else if (stage == 'prod') {
-          return '프로덕션'
-        }
-      },
       createData: function () {
         var me = this;
         me.copyDevApp = JSON.parse(JSON.stringify(me.devApp));
+        me.copyDeployJson = JSON.parse(JSON.stringify(me.deployJson));
         me.appStage = me.copyDevApp[me.stage];
 
         me.enableStrategyUse = true;
@@ -446,6 +407,55 @@
         me.setCapacityRate();
         me.setCanaryTotalTime();
         me.updateRefs();
+      },
+      setEnableStrategyUse: function () {
+        var me = this;
+        //if not deployed anything yet, disable canary and abtest
+        if (!me.marathonApp &&
+          (me.appStage.deploymentStrategy.instanceStrategy == 'CANARY' ||
+            me.appStage.deploymentStrategy.instanceStrategy == 'ABTEST')
+        ) {
+          me.enableStrategyUse = false;
+        } else {
+          me.enableStrategyUse = true;
+        }
+      },
+      setCanaryTotalTime: function () {
+        this.canaryTotalTime =
+          this.appStage.deploymentStrategy.canary.increase +
+          this.appStage.deploymentStrategy.canary.test +
+          this.appStage.deploymentStrategy.canary.decrease
+      },
+      setCapacityRate: function (val) {
+        var me = this;
+        //슬라이더에 의해 조정된 경우
+        if (val != undefined) {
+          me.appStage.deploymentStrategy.ramp.maximumOverCapacity = val / 10;
+        } else {
+          me.maximumOverCapacity = me.appStage.deploymentStrategy.ramp.maximumOverCapacity * 10;
+        }
+        me.maxInstances = me.copyDeployJson[me.stage].instances;
+        me.capacityInstances = me.copyDeployJson[me.stage].instances * me.appStage.deploymentStrategy.ramp.maximumOverCapacity;
+        me.capacityInstances = Math.ceil(me.capacityInstances);
+        //
+        //비율이 0% 이고, 인스턴스 세팅이 1 개 이상이면 최소 1개 인스턴스 표기.
+        if (me.capacityInstances == 0 && me.copyDeployJson[me.stage].instances > 0) {
+          me.capacityInstances = 1;
+        }
+      },
+      changeInstanceStrategy: function (val) {
+        this.appStage.deploymentStrategy.instanceStrategy = val;
+      },
+      stageName: function (stage) {
+        if (stage == 'dev') {
+          return '개발'
+        }
+        else if (stage == 'stg') {
+          return '스테이징'
+        }
+        else if (stage == 'prod') {
+          return '프로덕션'
+        }
       },
       updateRefs: function () {
         var me = this;
@@ -482,7 +492,7 @@
         //현재 스테이지 버전 가져오기
         var projectId = me.copyDevApp.projectId;
         var marathonAppId = me.copyDevApp[me.stage].marathonAppId;
-        var commitRef = me.getCommitRefFromMarathonApp(me.getMarathonAppById(marathonAppId));
+        var commitRef = me.getCommitRefFromMarathonApp(me.marathonApp);
         if (commitRef) {
           addVersion('현재 버전 유지', commitRef);
           me.currentCommitRef = commitRef;
@@ -495,7 +505,7 @@
         $.each(stages, function (i, stage) {
           if (stage != me.stage) {
             var marathonAppId = me.copyDevApp[stage].marathonAppId;
-            var commitRef = me.getCommitRefFromMarathonApp(me.getMarathonAppById(marathonAppId));
+            var commitRef = me.getCommitRefFromMarathonApp(me.marathonApps[me.stage].app);
             if (commitRef) {
               addVersion(me.stageName(stage) + ' 버전 바로쓰기', commitRef);
             }
@@ -519,16 +529,19 @@
         console.log('selectedVersion', me.selectedVersion.commitRef);
         me.appStage.deploymentStrategy.canary.weight = me.weight;
         me.copyDevApp[me.stage] = me.appStage;
-        me.updateDevApp(me.appName, me.copyDevApp, function (response) {
-          //스테이지 디플로이
-          //commit
-          me.runDeployedApp(me.appName, me.stage, me.selectedVersion.commitRef,
-            function (response) {
-              if (response) {
-                me.cancel();
-              }
-            });
-        });
+
+        me.updateDeployJson(me.appName, me.stage, me.copyDeployJson[me.stage], function (response) {
+          me.updateApp(me.appName, me.copyDevApp, function (response) {
+            //스테이지 디플로이
+            //commit
+            me.deployApp(me.appName, me.stage, me.selectedVersion.commitRef,
+              function (response) {
+                if (response) {
+                  me.cancel();
+                }
+              });
+          });
+        })
       },
       cancel: function () {
         this.$emit('update:menu', 'history')

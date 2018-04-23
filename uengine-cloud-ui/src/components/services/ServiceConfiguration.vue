@@ -76,7 +76,7 @@
       <md-table v-once style="margin-top: 10%;">
 
         <md-table-header>
-            <md-table-head><span class="md-title" style="color: #111111;font-size: 30px;">Network</span></md-table-head>
+          <md-table-head><span class="md-title" style="color: #111111;font-size: 30px;">Network</span></md-table-head>
         </md-table-header>
         <md-table-row>
           <md-table-cell><span style="color: #111111;font-size: 15px;">NETWORK MODE</span></md-table-cell>
@@ -181,21 +181,17 @@
       }
     },
     mounted() {
-
+      var me = this;
+      me.getMarathonAppById(me.appId, function (response) {
+        me.app = response.data.app;
+      })
     },
     filters: {
       app: function (value) {
         return JSON.stringify(JSON.parse(value), null, 2);
       }
     },
-    watch: {
-      'dcosData': {
-        handler: function (newVal, oldVal) {
-          this.app = this.getMarathonAppById(this.appId);
-        },
-        deep: true
-      }
-    },
+    watch: {},
     methods: {}
   }
 </script>

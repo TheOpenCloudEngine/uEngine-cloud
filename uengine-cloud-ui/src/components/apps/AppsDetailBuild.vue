@@ -101,7 +101,9 @@
     props: {
       stage: String,
       devApp: Object,
-      categoryItem: Object
+      categoryItem: Object,
+      marathonApps: Object,
+      deployJson: Object
     },
     data() {
       return {

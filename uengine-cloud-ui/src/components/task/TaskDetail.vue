@@ -149,39 +149,24 @@
       }
     },
     mounted() {
+      var me = this;
+      me.getMesosTaskById(me.taskId, function (response) {
+        if (response) {
+          me.task = response.data;
+          me.host = me.getHostBySlaveId(me.task['slave_id']);
 
+          me.getMarathonAppById('/' + me.task.name, function (res) {
+            if (res) {
+              me.app = res.data.app;
+            }
+          });
+        }
+      })
     },
     watch: {
       'dcosData': {
         handler: function (newVal, oldVal) {
-          var me = this;
-          var task = me.getTaskById(this.taskId);
-          var app;
-          if (!task) {
-            return;
-          }
-          var metronomeId;
-          var marathonId;
-          $.each(me.dcosData.state.frameworks, function (f, framework) {
-            if (framework.name == 'metronome') {
-              metronomeId = framework.id;
-            } else {
-              marathonId = framework.id;
-            }
-          });
-          //호스트
-          var host = me.getHostBySlaveId(task['slave_id']);
 
-          //마라톤 타스크일 경우
-          if (marathonId == task['framework_id']) {
-            task.framework = 'marathon';
-            app = me.getMarathonAppById('/' + task.name);
-          } else {
-            task.framework = 'metronome';
-          }
-          me.task = task;
-          me.host = host;
-          me.app = app;
         },
         deep: true
       }

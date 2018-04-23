@@ -248,7 +248,7 @@
             me.serviceIds.push(application.name.toLowerCase());
           });
         });
-      me.getDevAppConfigYml(me.appName, me.stage, function (response) {
+      me.getAppConfigYml(me.appName, me.stage, function (response) {
         me.model = YAML.load(response.data);
         me.zuulConfigCode = response.data;
         me.separation();
@@ -323,13 +323,13 @@
       getCodes: function () {
         var me = this;
         me.codeChanged = false;
-        me.getDevAppConfigYml(me.appName, me.stage, function (response) {
+        me.getAppConfigYml(me.appName, me.stage, function (response) {
           me.zuulConfigCode = response.data;
         });
       },
       saveConfig: function () {
         var me = this;
-        me.updateDevAppConfigYml(me.appName, me.stage, me.zuulConfigCode, function (response) {
+        me.updateAppConfigYml(me.appName, me.stage, me.zuulConfigCode, function (response) {
           me.codeChanged = false;
           me.getCodes();
         })

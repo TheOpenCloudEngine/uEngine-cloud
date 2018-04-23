@@ -22,7 +22,7 @@
     computed: {
       tagName: function () {
         console.log("this.appType",this.appType);
-        return 'apps-' + this.appType + '-config';
+        return 'app-' + this.appType + '-config';
       },
     }
     ,

@@ -43,6 +43,7 @@
 <script>
   import DcosDataProvider from '../DcosDataProvider'
   import PathProvider from '../PathProvider'
+
   export default {
     mixins: [DcosDataProvider, PathProvider],
     props: {},
@@ -52,30 +53,37 @@
         errLog: '',
         stdLog: '',
         task: null,
-        isFocus: false
+        isFocus: false,
+        interval: true
       }
     },
+    destroyed: function () {
+      this.interval = false;
+    },
     mounted() {
-
+      var me = this;
+      me.getMesosTaskById(me.taskId, function (response) {
+        if (response) {
+          me.task = response.data;
+          me.startTailLog();
+        }
+      })
     },
     watch: {
       menu: function (val) {
         this.isFocus = false;
         this.focusLog();
-      },
-      'dcosData': {
-        handler: function (newVal, oldVal) {
-          this.task = this.getTaskById(this.taskId);
-        },
-        deep: true
-      },
-      'task': {
-        handler: function (newVal, endVal) {
-          var me = this;
-          var slaveId = newVal['slave_id'];
-          var frameworkId = newVal['framework_id'];
-          var containerId = newVal.statuses[newVal.statuses.length - 1]['container_status']['container_id']['value'];
-          var fileUrl = 'agent/' + slaveId + '/files/read?path=/var/lib/mesos/slave/slaves/' + slaveId + '/frameworks/' + frameworkId + '/executors/' + me.taskId + '/runs/' + containerId + '/';
+      }
+    },
+    methods: {
+      startTailLog: function () {
+        var me = this;
+        var slaveId = me.task['slave_id'];
+        var frameworkId = me.task['framework_id'];
+        var containerId = me.task.statuses[me.task.statuses.length - 1]['container_status']['container_id']['value'];
+        var fileUrl = 'agent/' + slaveId + '/files/read?path=/var/lib/mesos/slave/slaves/' + slaveId + '/frameworks/' + frameworkId + '/executors/' + me.taskId + '/runs/' + containerId + '/';
+
+        var intervalLog = function () {
           me.$root.dcos(fileUrl + 'stderr&offset=-1').get()
             .then(function (response) {
               var offset = response.data.offset;
@@ -105,19 +113,17 @@
                   me.focusLog();
                 })
             });
-        },
-        deep: true
-      }
-    },
-    methods: {
+          if (me.interval) {
+            setTimeout(function () {
+              intervalLog();
+            }, 2000);
+          }
+        }
+        intervalLog();
+      },
       focusLog: function () {
         var me = this;
         $(me.$el).find('.CodeMirror').height(600).css('font-size', '11px');
-//        if (!me.isFocus) {
-//          me.isFocus = true;
-//          me.$refs[me.menu].editor.focus();
-//          me.$refs[me.menu].editor.setCursor(me.$refs[me.menu].editor.lineCount(), 0);
-//        }
       }
     }
   }

@@ -6,13 +6,15 @@
       :devApp="devApp"
       :categoryItem="categoryItem"
       :isRollback="isRollback"
+      :marathonApps="marathonApps"
+      :deployJson="deployJson"
     ></app-runtime-card>
     <div style="margin-top: 5%;">
       <md-layout md-gutter="16">
         <md-layout md-flex="40">
           <div style="width: 100%">
             <div class="md-subheading">활동 피드</div>
-            <apps-logs-list></apps-logs-list>
+            <apps-detail-feed></apps-detail-feed>
           </div>
         </md-layout>
         <md-layout md-flex="60">
@@ -20,7 +22,7 @@
             <div class="md-subheading">인스턴스</div>
             <task-list
               simple
-              :appIds="stage == 'prod' && isRollback ? [devApp[stage]['marathonAppIdOld']] : [devApp[stage]['marathonAppId']]">
+              :marathonAppId="stage == 'prod' && isRollback ? devApp[stage]['marathonAppIdOld'] : devApp[stage]['marathonAppId']">
             </task-list>
           </div>
         </md-layout>
@@ -38,7 +40,9 @@
       devApp: Object,
       categoryItem: Object,
       isRollback: Boolean,
-      hasRollback: Boolean
+      hasRollback: Boolean,
+      marathonApps: Object,
+      deployJson: Object
     },
     data() {
       return {}

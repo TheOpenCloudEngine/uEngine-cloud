@@ -43,9 +43,6 @@ import AppList from '../components/dashboard/AppList'
 
 Vue.component('app-list', AppList);
 
-import JobList from '../components/dashboard/JobList'
-
-Vue.component('job-list', JobList);
 
 /**
  * 노드
@@ -61,6 +58,10 @@ Vue.component('node-task', NodeTaskList);
 /**
  * 서비스
  */
+import ServiceList from '../components/services/ServiceList'
+
+Vue.component('service-list', ServiceList);
+
 import ServiceProgress from '../components/services/ServiceProgress'
 
 Vue.component('service-progress', ServiceProgress);
@@ -81,21 +82,6 @@ import ServiceDebug from '../components/services/ServiceDebug'
 
 Vue.component('service-debug', ServiceDebug);
 
-
-/**
- * 잡
- */
-import JobDetail from '../components/jobs/JobDetail'
-
-Vue.component('job-detail', JobDetail);
-
-import JobRunList from '../components/jobs/JobRunList'
-
-Vue.component('job-runlist', JobRunList);
-
-import JobConfiguration from '../components/jobs/JobConfiguration'
-
-Vue.component('job-configuration', JobConfiguration);
 
 /**
  * 타스크
@@ -138,10 +124,6 @@ Vue.component('container-editor', ContainerEditor);
 import ScaleApp from '../components/editor/ScaleApp'
 
 Vue.component('scale-app', ScaleApp);
-
-import ServiceDeployments from '../components/editor/ServiceDeployments'
-
-Vue.component('service-deployments', ServiceDeployments);
 
 
 /**
@@ -192,9 +174,9 @@ import AppsDetailMonitor from '../components/apps/AppsDetailMonitor'
 
 Vue.component('apps-detail-deployment', AppsDetailMonitor);
 
-import AppsDetailZuulConfig from '../components/apps/AppsDetailZuulConfig'
+import AppZuulConfig from '../components/apps/AppZuulConfig'
 
-Vue.component('apps-zuul-config', AppsDetailZuulConfig);
+Vue.component('app-zuul-config', AppZuulConfig);
 
 import AppRoute from '../components/apps/AppRoute'
 
@@ -220,9 +202,9 @@ import GitlabDeploy from '../components/apps/GitlabDeploy'
 
 Vue.component('gitlab-deploy', GitlabDeploy);
 
-import AppLogsList from '../components/apps/AppLogsList'
+import AppsDetailFeed from '../components/apps/AppsDetailFeed'
 
-Vue.component('apps-logs-list', AppLogsList);
+Vue.component('apps-detail-feed', AppsDetailFeed);
 
 import AppsDetailSnapshot from '../components/apps/AppsDetailSnapshot'
 
@@ -480,60 +462,6 @@ export default new Router({
           ]
         },
         {
-          path: 'jobs/detail/:jobId/',
-          name: 'jobDetail',
-          redirect: 'jobs/detail/:jobId/runs',
-          component: JobDetail,
-          meta: {
-            preTitle: '잡',
-            breadcrumb: ':jobId'
-          },
-          children: [
-            {
-              path: 'runs',
-              name: 'jobRunList',
-              component: JobRunList,
-              beforeEnter: RouterGuard.requireUser,
-            },
-            {
-              path: 'configuration',
-              name: 'jobConfiguration',
-              component: JobConfiguration,
-              beforeEnter: RouterGuard.requireUser
-            },
-            {
-              path: 'task/:taskId/',
-              name: 'jobTaskMenu',
-              redirect: 'task/:taskId/detail',
-              component: TaskMenu,
-              props: {from: 'job'},
-              meta: {
-                breadcrumb: ':taskId'
-              },
-              children: [
-                {
-                  path: 'detail',
-                  name: 'jobTaskDetail',
-                  component: TaskDetail,
-                  beforeEnter: RouterGuard.requireUser
-                },
-                {
-                  path: 'files',
-                  name: 'jobTaskFiles',
-                  component: TaskFiles,
-                  beforeEnter: RouterGuard.requireUser
-                },
-                {
-                  path: 'log',
-                  name: 'jobTaskLog',
-                  component: TaskLog,
-                  beforeEnter: RouterGuard.requireUser
-                },
-              ]
-            }
-          ]
-        },
-        {
           path: 'apps/',
           name: 'apps',
           redirect: '/apps/overview',
@@ -612,9 +540,9 @@ export default new Router({
                   beforeEnter: RouterGuard.requireUser,
                 },
                 {
-                  path: 'appLogs',
-                  name: 'appLogsList',
-                  component: AppLogsList,
+                  path: 'feed',
+                  name: 'appsDetailFeed',
+                  component: AppsDetailFeed,
                   beforeEnter: RouterGuard.requireUser,
                 }
               ]

@@ -66,13 +66,15 @@
         :devApp="devApp"
         :categoryItem="categoryItem"
         :isRollback="isRollback"
+        :marathonApps="marathonApps"
+        :deployJson="deployJson"
       ></app-runtime-card>
 
       <br><br>
       <span class="md-subheading">인스턴스</span>
       <task-list
         simple
-        :appIds="stage == 'prod' && isRollback ? [devApp[stage]['marathonAppIdOld']] : [devApp[stage]['marathonAppId']]">
+        :marathonAppId="stage == 'prod' && isRollback ? devApp[stage]['marathonAppIdOld'] : devApp[stage]['marathonAppId']">
       </task-list>
     </div>
     <div v-if="menu == 'config'">
@@ -97,7 +99,7 @@
 <script>
   import DcosDataProvider from '../DcosDataProvider'
   import PathProvider from '../PathProvider'
-  import ExtensionMenu from "./AppsExtensionMenu.vue";
+  import ExtensionMenu from "./AppExtensionMenu.vue";
 
   export default {
     components: {ExtensionMenu},
@@ -106,39 +108,24 @@
       stage: String,
       devApp: Object,
       categoryItem: Object,
-      isRollback: Boolean
+      isRollback: Boolean,
+      marathonApps: Object,
+      deployJson: Object
     },
     data() {
       return {
         menu: 'runtime',
         targetAppId: null,
-        configChanged: false,
-        appType: "",
+        //configChanged: false,
+        //appType: "",
       }
     },
-    mounted() {
-      var me = this;
-      me.getDevAppByName(me.appName, function (response) {
-        var devops = response.data;
-        if (devops[me.stage]['configChanged']) {
-          me.configChanged = devops[me.stage]['configChanged'];
-        }
-//        console.log("devops", devops);
-      });
-    },
-    watch: {
-      devApp: {
-        handler: function (newVal, oldVal) {
-          this.appType = newVal.appType;
-        },
-        deep: true
+    computed: {
+      configChanged: function () {
+        return this.devApp ? this.devApp[this.stage]['configChanged'] : false;
       },
-      dcosData: {
-        handler: function (newVal, oldVal) {
-          var copy = newVal;
-          this.configChanged = copy.devopsApps[this.appName][this.stage]['configChanged'] ? copy.devopsApps[this.appName][this.stage]['configChanged'] : false;
-        },
-        deep: true
+      appType: function () {
+        return this.devApp ? this.devApp.appType : "";
       }
     },
     methods: {

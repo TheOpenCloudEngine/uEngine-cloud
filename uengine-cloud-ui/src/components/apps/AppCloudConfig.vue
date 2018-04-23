@@ -234,13 +234,13 @@
       getCodes: function () {
         var me = this;
         if (!me.isRollback) {
-          me.getDevAppVcapYml(me.appName, function (response) {
+          me.getVcapServices(me.appName, function (response) {
             me.vcapCode = response.data;
           });
-          me.getDevAppConfigYml(me.appName, '', function (response) {
+          me.getAppConfigYml(me.appName, '', function (response) {
             me.commonCode = response.data;
           });
-          me.getDevAppConfigYml(me.appName, me.stage, function (response) {
+          me.getAppConfigYml(me.appName, me.stage, function (response) {
             me.configCode = response.data;
           });
         } else {
@@ -269,7 +269,7 @@
       saveCommon: function () {
         var me = this;
         //커먼 컨피그 저장
-        me.updateDevAppConfigYml(me.appName, null, me.commonCode, function (response) {
+        me.updateAppConfigYml(me.appName, null, me.commonCode, function (response) {
           me.commonChanged = false;
           me.getCodes();
         })
@@ -277,7 +277,7 @@
       saveConfig: function () {
         var me = this;
         //스테이지 컨피그 저장
-        me.updateDevAppConfigYml(me.appName, me.stage, me.configCode, function (response) {
+        me.updateAppConfigYml(me.appName, me.stage, me.configCode, function (response) {
           me.codeChanged = false;
           me.getCodes();
         })

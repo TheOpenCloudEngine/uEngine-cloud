@@ -20,6 +20,7 @@
 <script>
   import DcosDataProvider from '../DcosDataProvider'
   import PathProvider from '../PathProvider'
+
   export default {
     mixins: [DcosDataProvider, PathProvider],
     props: {},
@@ -29,17 +30,23 @@
       }
     },
     mounted() {
-
+      var me = this;
+      me.init();
+      window.busVue.$on('marathonApp', function (event) {
+        var marathonAppId = event.body.app.id;
+        if (me.app && marathonAppId == me.app.id) {
+          me.app = event.body.app;
+        }
+      });
     },
-    watch: {
-      dcosData: {
-        handler: function (newVal, oldVal) {
-          this.app = this.getMarathonAppById(this.appId);
-        },
-        deep: true
-      }
-    },
+    watch: {},
     methods: {
+      init: function () {
+        var me = this;
+        me.getMarathonAppById(me.appId, function (response) {
+          me.app = response.data.app;
+        });
+      },
       move: function (routeName) {
         var me = this;
         this.$router.push(

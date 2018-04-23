@@ -50,6 +50,7 @@
         isBlock: false,
         backendUrl: backendUrl,
         config: window.config,
+        evtSource: null,
         snackbar: {
           top: true,
           right: true,
@@ -62,12 +63,37 @@
       }
     },
     mounted() {
-      console.log("config", this.config);
       this.fetchLast();
+      this.startSSE();
+    },
+    beforeDestroy: function () {
+      if (this.evtSource) {
+        console.log("closing evtSource beforeDestroy");
+        this.evtSource.close();
+      }
     },
     methods: {
+      startSSE: function () {
+        var me = this;
+        me.evtSource = new EventSource(backendUrl + '/emitter?token=' + localStorage['access_token']);
+
+        me.evtSource.onmessage = function (e) {
+          var parse = JSON.parse(e.data);
+          var topic = parse.topic;
+          console.log('message', JSON.parse(e.data));
+          window.busVue.$emit(topic, parse);
+        }
+
+        me.evtSource.onerror = function (e) {
+          if (me.evtSource) {
+            console.log("closing evtSource and reconnect");
+            me.evtSource.close();
+            me.startSSE();
+          }
+        }
+      },
       /**
-       * 2초에 한번 전체 데이터를 갱신하도록 조정.
+       * 2초에 한번 last 데이터를 갱신하도록 조정.
        */
       fetchLast: function () {
         var me = this;
@@ -75,7 +101,7 @@
 
         Promise.all([p1])
           .then(function ([r1]) {
-            me.$root.last = r1.data.last;
+            me.$root.last = r1.data;
             setTimeout(function () {
               me.fetchLast();
             }, 2000);

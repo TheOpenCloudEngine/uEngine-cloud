@@ -1,10 +1,5 @@
 <template xmlns:v-on="http://www.w3.org/1999/xhtml" xmlns:v-bind="http://www.w3.org/1999/xhtml">
   <div v-if="appName">
-    <service-deployments
-      v-on:rows="onDeploymentRows"
-      :appIds="['/'+ appName + '-blue', '/'+ appName + '-green', '/'+ appName + '-dev', '/'+ appName + '-stg']"
-      ref="service-deployments"></service-deployments>
-
     <md-layout v-if="status == 'repository-create-success'">
       <md-layout md-flex="15" style="border-right: 1px solid #DFE3E6;padding: 16px">
         <div>
@@ -48,16 +43,6 @@
                   </div>
                 </md-layout>
                 <md-layout md-flex="80" md-align="end">
-
-                  <!--배포-->
-                  <md-button class="md-raised"
-                             @click="openDeployments">
-                    <md-spinner v-if="deploymentsRowNumber > 0" :md-size="20" md-indeterminate class="md-accent"
-                                style="margin-top: 5px"
-                    ></md-spinner>
-                    ({{deploymentsRowNumber}}) 배포중
-                    <md-tooltip md-direction="bottom">배포중인 앱을 확인할 수 있습니다.</md-tooltip>
-                  </md-button>
 
                   <!--라우트-->
                   <md-button v-on:click="$refs['app-route'].open()" class="md-raised md-primary">라우트
@@ -207,6 +192,8 @@
               :categoryItem="categoryItem"
               :isRollback="isRollback"
               :hasRollback="hasRollback"
+              :marathonApps="marathonApps"
+              :deployJson="deployJson"
               style="width: 100%"></router-view>
 
             <md-layout v-else class="bg-white">
@@ -267,20 +254,28 @@
         deployingStage: [],
         isDeploying: false,
         isAdmin: false,
-        pipeline: null,
         hasRollback: false,
         isRollback: false,
-        tagList: [],
         commitRef: null,
         projectId: null,
         currentRoute: 'appsDetailDashboard',
-        interval: true,
         appRoutes: [],
         stage: 'dev',
         categoryItem: null,
         devApp: null,
+        marathonApps: {
+          dev: null,
+          stg: null,
+          prod: null,
+          oldProd: null
+        },
+        deployJson: {
+          dev: null,
+          stg: null,
+          prod: null
+        },
+        pipeline: null,
         status: null,
-        deploymentsRowNumber: 0,
         items: [
           {title: '시작하기', icon: 'question_answer', routerName: 'appsDetailDocs'},
           {title: '개요', icon: 'question_answer', routerName: 'appsDetailDashboard'},
@@ -292,7 +287,7 @@
           {title: '로그', icon: 'question_answer', routerName: 'appsDetailLog'},
           {title: '모니터링', icon: 'question_answer', routerName: 'appsDetailMonitor'},
           {title: '레지스트리', icon: 'question_answer', routerName: 'registry'},
-          {title: '변경이력', icon: 'question_answer', routerName: 'appLogsList'}
+          {title: '변경이력', icon: 'question_answer', routerName: 'appsDetailFeed'}
         ],
       }
     },
@@ -301,29 +296,37 @@
       me.isAdmin = window.localStorage['acl'] == 'admin' ? true : false;
       me.categoryItem = null;
 
-      this.updateActive();
+      me.updateActive();
+      me.resetDevApp();
+      me.resetDeployJson();
+      me.resetLastPipeline();
+      me.resetMarathonApps();
 
-      var intervalDevApp = function () {
-        me.getDevAppByName(me.appName, function (response, error) {
-          if (response) {
-            me.devApp = response.data;
-            me.status = response.data['createStatus'];
-            if (!me.categoryItem) {
-              me.getCategoryItem(me.devApp.appType, function (item) {
-                me.categoryItem = item;
-              });
-            }
-          } else {
-            me.devApp = null;
-          }
-          if (me.interval) {
-            setTimeout(function () {
-              intervalDevApp();
-            }, 2000);
-          }
-        });
-      };
-      intervalDevApp();
+      window.busVue.$on('app', function (event) {
+        if (me.appName == event.appName) {
+          me.resetDevApp();
+        }
+      });
+      window.busVue.$on('deployJson', function (event) {
+        if (me.appName == event.appName) {
+          me.resetDeployJson();
+        }
+      });
+      window.busVue.$on('pipeline', function (event) {
+        if (me.appName == event.appName) {
+          me.resetLastPipeline();
+        }
+      });
+      window.busVue.$on('marathonApp', function (event) {
+        if (me.appName == event.appName) {
+          me.resetMarathonApps();
+        }
+      });
+
+      //파이프라인 풀링 캐쉬 & 메세지.
+      //디플로이 json 캐쉬 & 메세지.
+      //앱 변경시는 마라톤 앱 리스트 갱신.
+      //마라톤 앱 변경시 마라톤 앱 리스트 갱신.
     },
     destroyed: function () {
       this.interval = false;
@@ -332,33 +335,56 @@
       '$route'(to, from) {
         this.updateActive();
       },
-      stage: function (val) {
-        var me = this;
-        me.getDevAppByName(me.appName, function (response, error) {
-          if (response) {
-            me.devApp = response.data;
-          } else {
-            me.devApp = null;
-          }
-        });
-      },
-      devApp: {
-        handler: function (newVal, oldVal) {
-          this.updateCommitInfo();
-          this.updateRollbackInfo();
-          this.updateCIInfo();
-          this.updateDeploymentInfo();
-        },
-        deep: true
+      stage: function () {
+        this.updateRollbackInfo();
+        this.updateCommitInfo();
       }
     },
     methods: {
-      openDeployments: function () {
-        this.$refs['service-deployments'].open();
+      resetDevApp: function () {
+        var me = this;
+        me.getApp(me.appName, function (response) {
+          if (response) {
+            me.devApp = response.data;
+            me.projectId = me.devApp.projectId;
+            me.status = response.data['createStatus'];
+            if (!me.categoryItem) {
+              me.getCategoryItem(me.devApp.appType, function (item) {
+                me.categoryItem = item;
+              });
+            }
+            me.updateDeploymentInfo();
+          }
+        })
       },
-      onDeploymentRows: function (rowNumbers) {
-        this.deploymentsRowNumber = rowNumbers;
+      resetDeployJson: function () {
+        var me = this;
+        me.getAllDeployJson(me.appName, function (response) {
+          if (response) {
+            me.deployJson = response.data;
+          }
+        })
       },
+      resetLastPipeline: function () {
+        var me = this;
+        me.getAppPipeLineLast(me.appName, function (response) {
+          if (response) {
+            me.pipeline = response.data.pipeline;
+          }
+        })
+      },
+      resetMarathonApps: function () {
+        var me = this;
+        me.getMarathonAppsByAppName(me.appName, function (response) {
+          if (response) {
+            me.marathonApps = response.data;
+
+            me.updateRollbackInfo();
+            me.updateCommitInfo();
+          }
+        })
+      },
+
       updateDeploymentInfo: function () {
         var me = this;
         var isDeploying = false;
@@ -375,39 +401,23 @@
         })
         me.isDeploying = isDeploying;
       },
-      //백엔드로 가져갈 필요성 있음.
-      updateCIInfo: function () {
-        var me = this;
-        var projectId = me.devApp.projectId;
-        me.$root.gitlab('api/v4/projects/' + projectId + '/pipelines?page=1&per_page=1').get()
-          .then(function (response) {
-            if (response.data && response.data.length) {
-              me.pipeline = response.data[0];
-            }
-          })
-      },
+
       updateRollbackInfo: function () {
+        console.log('me.marathonApps ', this.marathonApps);
         var me = this;
-        var marathonApps = me.getAppsByDevopsId(me.appName);
         me.hasRollback = false;
-        if (me.stage == 'prod' && marathonApps && marathonApps.oldProd) {
+        if (me.stage == 'prod' && me.marathonApps.oldProd && me.marathonApps.oldProd.app) {
           me.hasRollback = true;
         }
       },
       updateCommitInfo: function () {
         var me = this;
         me.commitRef = null;
-        me.projectId = null;
-
-        if (!me.devApp) {
-          return;
+        if (me.hasRollback) {
+          me.commitRef = me.getCommitRefFromMarathonApp(me.marathonApps.oldProd.app);
+        } else {
+          me.commitRef = me.getCommitRefFromMarathonApp(me.marathonApps[me.stage].app);
         }
-        me.projectId = me.devApp.projectId;
-        var marathonApp = me.getMarathonAppById(me.devApp[me.stage]['marathonAppId']);
-        if (!marathonApp) {
-          return;
-        }
-        me.commitRef = me.getCommitRefFromMarathonApp(marathonApp);
       },
       updateActive: function () {
         var me = this;
@@ -431,7 +441,7 @@
             okText: '진행하기',
             cancelText: '취소',
             callback: function () {
-              me.runDeployedApp(me.appName, me.stage, null, function (response) {
+              me.deployApp(me.appName, me.stage, null, function (response) {
 
               });
             }
@@ -448,13 +458,13 @@
             okText: '진행하기',
             cancelText: '취소',
             callback: function () {
-              var data = JSON.parse(JSON.stringify(me.devApp));
-              data[me.stage]['deployJson'].instances = 0;
+              var data = JSON.parse(JSON.stringify(me.deployJson[me.stage]));
+              data.instances = 0;
               //업데이트
-              me.updateDevApp(me.appName, data, function (response) {
-                window.busVue.$emit('appRefresh', true);
+              me.updateDeployJson(me.appName, me.stage, data, function (response) {
                 //스테이지 디플로이
-                me.runDeployedApp(me.appName, me.stage, null, function (response) {
+                me.deployApp(me.appName, me.stage, null, function (response) {
+
                 });
               });
             }
@@ -468,7 +478,9 @@
             okText: '진행하기',
             cancelText: '취소',
             callback: function () {
-              me.removeDevAppStage(me.appName, stage);
+              me.removeDeployedApp(me.appName, stage, function (response) {
+
+              });
             }
           });
       },
@@ -480,7 +492,7 @@
             okText: '진행하기',
             cancelText: '취소',
             callback: function () {
-              me.removeDevAppByName(appName, function () {
+              me.deleteApp(appName, function (response) {
                 me.$router.push(
                   {
                     name: 'appsOverview'
@@ -491,7 +503,6 @@
           });
       },
       createAppSnapshot: function () {
-        //createSnapshot
         var me = this;
         var today = new Date();
         var defaultSnapshotName = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate()

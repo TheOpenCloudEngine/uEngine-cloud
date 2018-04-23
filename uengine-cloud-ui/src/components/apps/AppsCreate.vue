@@ -7,7 +7,7 @@
     <br>
     <br>
 
-    <md-layout v-if="dcosData.devopsApps" :md-gutter="16">
+    <md-layout :md-gutter="16">
       <md-layout md-flex="30">
         <div>
           <span class="md-subheading">{{categoryItem.title}}</span>
@@ -123,7 +123,6 @@
         cpu: 0.4,
         mem: 512,
         instances: 1,
-        //appNumber: 1,
         namespace: "",
         groups: [],
         projectId: "",
@@ -154,44 +153,14 @@
       });
     },
     watch: {
-      'dcosData.devopsApps': {
-        handler: function (newVal, oldVal) {
-          if (!newVal) {
-            return;
-          }
-          var min = 1;
-          var max = 33;
-          this.appNumber = 1;
-          for (var i = min; i <= max; i++) {
-            var canUse = true;
-            for (var appId in newVal) {
-              if (i == newVal[appId].number) {
-                canUse = false;
-              }
-            }
-            if (canUse) {
-              this.appNumber = i;
-              break;
-            }
-          }
-        },
-        deep: true
-      },
       appName: function (val) {
         var me = this;
         if (!val) {
           val = '';
         }
-        var prodPort = 10010 + ((this.appNumber - 1) * 3) + 1;
-        var stgPort = 10010 + ((this.appNumber - 1) * 3) + 2;
-        var devPort = 10010 + ((this.appNumber - 1) * 3) + 3;
-        this.prodPort = prodPort;
-        this.stgPort = stgPort;
-        this.devPort = devPort;
-        this.internalProdDomain = 'marathon-lb-internal.marathon.mesos:' + prodPort;
-        this.internalStgDomain = 'marathon-lb-internal.marathon.mesos:' + stgPort;
-        this.internalDevDomain = 'marathon-lb-internal.marathon.mesos:' + devPort;
-
+        this.internalProdDomain = 'marathon-lb-internal.marathon.mesos:port';
+        this.internalStgDomain = 'marathon-lb-internal.marathon.mesos:port';
+        this.internalDevDomain = 'marathon-lb-internal.marathon.mesos:port';
         this.externalProdDomain = val + '.' + this.defaultHost;
 
         var special_pattern = /[_`~!@#$%^&*|\\\'\";:\/?]/gi;

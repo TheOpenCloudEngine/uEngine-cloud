@@ -73,7 +73,7 @@
         //409
         var me = this;
         if (this.role == 'scale') {
-          this.scaleDcosApp(this.appId, this.instances, this.force, function (response) {
+          this.scaleMarathonApp(this.appId, this.instances, this.force, function (response) {
             if (response.status == 409) {
               me.force = true;
             } else {
@@ -83,7 +83,7 @@
           });
         }
         if (this.role == 'suspend') {
-          this.suspendDcosApp(this.appId, this.force, function (response) {
+          this.suspendMarathonApp(this.appId, this.force, function (response) {
             if (response.status == 409) {
               me.force = true;
             } else {
@@ -93,7 +93,7 @@
           });
         }
         if (this.role == 'restart') {
-          this.restartDcosApp(this.appId, this.force, function (response) {
+          this.restartMarathonApp(this.appId, this.force, function (response) {
             if (response.status == 409) {
               me.force = true;
             } else {
@@ -103,7 +103,7 @@
           });
         }
         if (this.role == 'delete') {
-          this.deleteDcosApp(this.appId, this.force, function (response) {
+          this.deleteMarathonApp(this.appId, this.force, function (response) {
             if (response.status == 409) {
               me.force = true;
             } else {
@@ -114,14 +114,16 @@
         }
       },
       open(appId, role) {
+        var me = this;
         this.appId = appId;
         this.role = role;
         this.force = false;
         this.$refs['open'].open();
-        var app = this.getMarathonAppById(appId);
-        if (app) {
-          this.instances = app.instances;
-        }
+        this.getMarathonAppById(appId, function(response){
+          if (response && response.data.app) {
+            me.instances = response.data.app.instances;
+          }
+        });
       },
       close(ref) {
         this.$refs['open'].close();

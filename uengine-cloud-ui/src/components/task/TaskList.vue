@@ -1,17 +1,5 @@
 <template xmlns:v-on="http://www.w3.org/1999/xhtml">
   <div>
-    <md-layout v-if="!simple">
-      <md-input-container>
-        <md-icon>search</md-icon>
-        <label>항목 검색</label>
-        <md-input type="text" v-model="searchKeyword"></md-input>
-        <md-button-toggle md-single class="md-primary">
-          <md-button v-on:click="doFilter" value="ALL">ALL</md-button>
-          <md-button class="md-toggle" v-on:click="doFilter" value="RUNNING">ACTIVE</md-button>
-          <md-button v-on:click="doFilter" value="COMPLETED">COMPLETED</md-button>
-        </md-button-toggle>
-      </md-input-container>
-    </md-layout>
     <md-layout>
       <md-table-card style="width: 100%">
         <div class="header-top-line"></div>
@@ -52,8 +40,8 @@
               <md-table-cell>
                 <a v-on:click="moveLog(task)" style="cursor: pointer">로그보기</a>
               </md-table-cell>
-              <md-table-cell v-if="!simple">{{task.resources.cpus}}</md-table-cell>
-              <md-table-cell v-if="!simple">{{task.resources.mem}}</md-table-cell>
+              <md-table-cell v-if="!simple">{{task.cpus}}</md-table-cell>
+              <md-table-cell v-if="!simple">{{task.mem}}</md-table-cell>
             </md-table-row>
           </md-table-body>
         </md-table>
@@ -77,7 +65,7 @@
   export default {
     mixins: [DcosDataProvider, PathProvider],
     props: {
-      appIds: Array,
+      marathonAppId: String,
       simple: {
         type: Boolean,
         default: false
@@ -86,26 +74,29 @@
     data() {
       return {
         list: [],
-        searchKeyword: "",
-        filter: "RUNNING",
         total: 10,
         size: 25,
         page: 1
       }
     },
-    mounted() {
-
-    },
-    watch: {
-      'dcosData.state': {
-        handler: function (newVal, oldVal) {
-          if (newVal) {
-            this.makeList();
-          }
-        },
-        deep: true
+    computed: {
+      targetAppId: function () {
+        //appId 는 패스값.
+        //marathonAppId 는 프롭스값
+        return this.marathonAppId ? this.marathonAppId : this.appId;
       }
     },
+    mounted() {
+      var me = this;
+      me.makeList();
+      window.busVue.$on('marathonApp', function (event) {
+        var marathonAppId = event.body.app.id;
+        if (me.targetAppId && marathonAppId == me.targetAppId) {
+          me.makeList();
+        }
+      });
+    },
+    watch: {},
     methods: {
       onPagination: function (val) {
         this.size = val.size;
@@ -114,114 +105,71 @@
       },
       makeList: function () {
         var me = this;
-        var filtered = [];
-        var list = [];
-        me.list = [];
-
-        if (this.appId) {
-          list = me.getTasksByAppId(me.appId);
-        } else if (this.nodeId) {
-          list = me.getTasksByNodeId(me.nodeId);
-        } else if (this.appIds && this.appIds.length) {
-          $.each(me.appIds, function (i, id) {
-            var temp = me.getTasksByAppId(id);
-            if (temp != null) {
-              list = list.concat(temp);
-            }
-          });
-        }
-
-        if (list == null) {
-          return;
-        }
-
-        var metronomeId;
-        var marathonId;
-        $.each(me.dcosData.state.frameworks, function (f, framework) {
-          if (framework.name == 'metronome') {
-            metronomeId = framework.id;
-          } else {
-            marathonId = framework.id;
-          }
-        });
-
-        //호스트
-        $.each(list, function (taskIndex, taskValue) {
-          taskValue.host = me.getHostBySlaveId(taskValue['slave_id']);
-        });
-
-        //필터
-        $.each(list, function (taskIndex, taskValue) {
-          if (me.filter == "ALL") {
-            filtered.push(taskValue);
-          } else if (me.filter == "RUNNING" && (taskValue.state == 'TASK_RUNNING' || taskValue.state == 'TASK_STAGING')) {
-            filtered.push(taskValue);
-          } else if (me.filter == "COMPLETED" &&
-            (taskValue.state == 'TASK_FINISHED' || taskValue.state == 'TASK_KILLED' || taskValue.state == 'TASK_FAILED')) {
-            filtered.push(taskValue);
-          }
-        });
-        list = filtered;
-
-        //서치
-        filtered = [];
-        if (me.searchKeyword && me.searchKeyword != "") {
-          $.each(list, function (taskIndex, taskValue) {
-            if (taskValue.id.indexOf(me.searchKeyword) != -1) {
-              filtered.push(taskValue);
-            }
-          });
-          list = filtered;
-        }
-
-        //프레임워크 구분
-        $.each(list, function (taskIndex, taskValue) {
-          //마라톤 일 경우 헬스 체크
-          if (marathonId == taskValue['framework_id']) {
-            taskValue.framework = 'marathon';
-            var app = me.getMarathonAppById('/' + taskValue.name);
-            if (app) {
-              $.each(app.tasks, function (key, value) {
-                if (taskValue.id == value.id) {
-                  if (value.healthCheckResults && value.healthCheckResults.length) {
-                    taskValue.healthCheckResults = value.healthCheckResults[0].alive;
-                  }
-                } else {
-                }
+        if (this.targetAppId) {
+          me.getMarathonAppById(me.targetAppId, function (response) {
+            if (response) {
+              console.log(response);
+              var list = response.data.app.tasks;
+              list.forEach(function (task, index) {
+                task.cpus = response.data.app.cpus;
+                task.mem = response.data.app.mem;
+                task.disk = response.data.app.disk;
               })
+              completeList(list);
             }
-          } else {
-            taskValue.framework = 'metronome';
-          }
-        });
-
-        //페이지네이션
-        var offset = (this.page - 1) * this.size;
-        var limit = (this.page) * this.size - 1;
-
-        var count = 0;
-        for (var i = 0; i < list.length; i++) {
-          if (count >= offset && count <= limit) {
-            me.list.push(list[i]);
-          }
-          count++;
+          })
+        } else if (this.nodeId) {
+          me.getTasksBySlaveId(me.nodeId, function (response) {
+            if (response) {
+              var list = response.data;
+              completeList(list);
+            }
+          })
         }
-        this.total = count;
+
+        var completeList = function (list) {
+          me.list = [];
+          $.each(list, function (index, task) {
+            if (task.healthCheckResults && task.healthCheckResults.length) {
+              task.healthCheckResults = task.healthCheckResults[0].alive;
+            }
+            task.name = task.id.split('.')[0];
+          });
+
+          //페이지네이션
+          var offset = (me.page - 1) * me.size;
+          var limit = (me.page) * me.size - 1;
+
+          var count = 0;
+          for (var i = 0; i < list.length; i++) {
+            if (count >= offset && count <= limit) {
+              me.list.push(list[i]);
+            }
+            count++;
+          }
+          me.total = count;
+        }
       },
       moveCadvisor: function (task) {
-        if (task['statuses'][0]) {
-          var dockerName = 'mesos-' + task['statuses'][0]['container_status']['container_id'].value;
-          var url = this.getCadvisorUrlBySlaveId(task['slave_id']);
-          if (url) {
-            window.open(url + '/docker/' + dockerName);
-          } else {
-            this.$root.$children[0].warning('등록된 메트릭스 서비스가 없습니다.');
+        var me = this;
+        me.getMesosTaskById(task.id, function (response) {
+          if (response) {
+            var mesosTask = response.data;
+            if (mesosTask['statuses'][0]) {
+              var dockerName = 'mesos-' + mesosTask['statuses'][0]['container_status']['container_id'].value;
+              var url = me.getCadvisorUrlBySlaveId(mesosTask['slave_id']);
+              if (url) {
+                window.open(url + '/docker/' + dockerName);
+              } else {
+                me.$root.$children[0].warning('등록된 메트릭스 서비스가 없습니다.');
+              }
+            }
           }
-        }
+        })
       },
       moveLog: function (task) {
         var me = this;
-        if (this.appId || (this.appIds && this.appIds.length)) {
+        if (this.targetAppId) {
           this.$router.push(
             {
               name: 'serviceTaskLog',
@@ -235,18 +183,11 @@
               params: {nodeId: me.nodeId, taskId: task.id}
             }
           )
-        } else if (this.jobId) {
-          this.$router.push(
-            {
-              name: 'jobTaskLog',
-              params: {jobId: me.jobId, taskId: task.id}
-            }
-          )
         }
       },
       moveDetail: function (task) {
         var me = this;
-        if (this.appId || (this.appIds && this.appIds.length)) {
+        if (this.targetAppId) {
           this.$router.push(
             {
               name: 'serviceTaskDetail',
@@ -260,18 +201,7 @@
               params: {nodeId: me.nodeId, taskId: task.id}
             }
           )
-        } else if (this.jobId) {
-          this.$router.push(
-            {
-              name: 'jobTaskDetail',
-              params: {jobId: me.jobId, taskId: task.id}
-            }
-          )
         }
-      },
-      doFilter: function (event) {
-        this.filter = event.target.value;
-        this.makeList();
       }
     }
   }

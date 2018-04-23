@@ -45,7 +45,7 @@
         reviewFlag: false,
         service: undefined,
         appName: "",
-        deployment: "",
+        stage: ""
       }
     },
     mounted() {
@@ -73,37 +73,26 @@
             appName = appName.replace('-blue', '');
             appName = appName.replace('-green', '');
 
-            //deployment 추출하기. dev,stg,blue,green
-            var deployment = this.appId.replace(appName + '-', '');
-
-            //stage 구하기
-            var stage = deployment;
-            if (deployment == 'blue' || deployment == 'green') {
+            //stage 추출하기. dev,stg,prod
+            var stage = this.appId.replace(appName + '-', '');
+            if (stage == 'blue' || stage == 'green') {
               stage = 'prod';
             }
-            me.deployment = stage;
-            me.getDevAppByName(appName,
-              function (response, fail) {
-                if (response) {
-                  //성공
-                  //프로덕션은 프로덕션(신규), 프로덕션(롤백), 프로덕션(현재)
-                  //프로덕션은 현재만 수정가능.  현재인지 아닌지 구별법은 prod.deployment 값이 deployment 랑 같은지 보기
-                  if ((deployment == 'blue' || deployment == 'green') && (response.data.prod.deployment != deployment)) {
-                    //현재 프로덕션이 아니므로 수정불가능 (롤백 또는 신규버젼 배포중){}
-                    me.editable = false;
-                  }
-                  me.service = response.data[stage]['deployJson'];
-                  me.$set(me.service, "servicePort", response.data[stage]['servicePort']);
-                  console.log("newService response.data[stage]", response.data[stage]);
-                } else if (fail) {
-                  //실패
-                  me.$root.$children[0].error('앱정보를 불러올 수 없습니다.');
-                }
-              });
+            me.stage = stage;
+
+            me.getDeployJson(appName, stage, function (response, fail) {
+              if (response) {
+                me.service = response.data;
+              } else {
+                me.$root.$children[0].error('앱정보를 불러올 수 없습니다.');
+              }
+            });
             me.appName = appName;
           } else {
-            this.service = this.getMarathonAppById(this.appId);
-            me.appName = this.appId;
+            me.getMarathonAppById(me.appId, function (response) {
+              me.service = response.data.app;
+              me.appName = me.appId;
+            });
           }
         }
       },
@@ -141,40 +130,34 @@
         var me = this;
         var devApp = null;
         if (this.mode == 'app') {
-          me.getDevAppByName(me.appName.replace("/", ""), function (response, error) {
+          me.updateDeployJson(me.appName, me.stage, me.service, function (response) {
             if (response) {
-              devApp = response.data;
-              devApp[me.deployment]['deployJson'] = me.service;
-              me.updateApp(me.appName, devApp, function (response) {
-                if (response) {
-                  me.$root.$children[0].confirm(
-                    {
-                      contentHtml: '앱의 구동 설정이 변경되었습니다. 지금 앱을 다시 시작하시겠습니까?',
-                      okText: '진행하기',
-                      cancelText: '취소',
-                      callback: function () {
-                        //runDeployedApp
-                        me.runDeployedApp(me.appName, me.deployment, null, function (response) {
-                          me.reviewFlag = false;
-                          me.close();
-                        });
-                      }
+              me.$root.$children[0].confirm(
+                {
+                  contentHtml: '앱의 구동 설정이 변경되었습니다. 지금 앱을 다시 시작하시겠습니까?',
+                  okText: '진행하기',
+                  cancelText: '취소',
+                  callback: function () {
+                    //runDeployedApp
+                    me.deployApp(me.appName, me.stage, null, function (response) {
+                      me.reviewFlag = false;
+                      me.close();
                     });
-                }
-              });
+                  }
+                });
             }
-          })
+          });
         }
         //서비스일때
         else {
           if (this.appId) {
             //update
-            me.updateDcosApp(me.appId, me.service, true, function (response) {
+            me.updateMarathonApp(me.appId, me.service, true, function (response) {
               me.close();
             });
           } else {
             //new
-            me.createDcosApp(me.service, function (response) {
+            me.createMarathonApp(me.service, function (response) {
               me.close();
             });
           }

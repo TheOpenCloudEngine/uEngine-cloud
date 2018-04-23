@@ -2,9 +2,6 @@
   <div style="width: 100%;">
     <div v-if="appLogs.length">
       <div class="header-top-line"></div>
-      <!--<md-card md-with-hover style="width: 100%;">-->
-      <!--<md-card-area>-->
-      <!--<md-card-content>-->
       <md-table-card>
         <md-table>
           <md-table-body>
@@ -93,7 +90,9 @@
     props: {
       stage: String,
       devApp: Object,
-      categoryItem: Object
+      categoryItem: Object,
+      marathonApps: Object,
+      deployJson: Object
     },
     data() {
       return {

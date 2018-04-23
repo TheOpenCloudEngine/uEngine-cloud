@@ -99,7 +99,7 @@
         copy.prod.external = this.externalProdDomain;
         copy.stg.external = this.externalStgDomain;
         copy.dev.external = this.externalDevDomain;
-        me.updateAppExcludeDeployJson(copy.name, copy, function (response) {
+        me.updateApp(copy.name, copy, function (response) {
           if (response) {
             me.deployAppByExistStages(copy.name, null);
           }

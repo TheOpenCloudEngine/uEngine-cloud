@@ -58,11 +58,9 @@
       //this.fetchData();
     },
     watch: {
-      dcosData: {
+      last: {
         handler: function (newVal, oldVal) {
-          if (newVal.last) {
-            this.fetchMetricsData(newVal.last);
-          }
+          this.fetchMetricsData(newVal);
         },
         deep: true
       }

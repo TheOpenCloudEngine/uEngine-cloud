@@ -206,16 +206,16 @@
               <md-button
                 v-if="detailData.appStage.deploymentStrategy.bluegreen &&
                 !detailData.appStage.deploymentStrategy.canary.auto"
-                v-on:click="finishManual(appName, stage)" class="md-raised">
+                v-on:click="finishManualConfirm(appName, stage)" class="md-raised">
                 배포 완료
               </md-button>
               <md-button
                 v-if="detailData.appStage.deploymentStrategy.bluegreen &&
                 detailData.appStage.deploymentStrategy.canary.auto"
-                v-on:click="convertManual(appName, stage)" class="md-raised">
+                v-on:click="convertManualConfirm(appName, stage)" class="md-raised">
                 수동 전환
               </md-button>
-              <md-button v-on:click="rollback(appName, stage)" class="md-primary md-raised">
+              <md-button v-on:click="rollbackAppConfirm(appName, stage)" class="md-primary md-raised">
                 롤백
               </md-button>
             </md-layout>
@@ -236,15 +236,15 @@
       stage: String,
       devApp: Object,
       categoryItem: Object,
-      historyId: String
+      historyId: String,
+      marathonApps: Object,
+      deployJson: Object
     },
     computed: {},
     data() {
       return {
         detailData: null,
         detailFlex: this.historyId ? 100 : 40,
-        marathonApp: null,
-        marathonAppOld: null,
         tempWeight: null,
         tempWeightDiff: false
       }
@@ -252,6 +252,19 @@
     mounted() {
       var me = this;
       me.createData();
+    },
+    computed: {
+      marathonApp: function () {
+        return this.marathonApps && this.marathonApps[this.stage] && this.marathonApps[this.stage].app ?
+          this.marathonApps[this.stage].app : null;
+      },
+      marathonAppOld: function () {
+        return this.marathonApps && this.marathonApps['oldProd'] && this.marathonApps['oldProd'].app ?
+          this.marathonApps['oldProd'].app : null;
+      },
+      appStage: function () {
+        return this.devApp ? this.devApp[this.stage] : null;
+      }
     },
     watch: {
       tempWeight: function (val) {
@@ -261,6 +274,14 @@
       devApp: {
         handler: function (val) {
           //update if current deployment detail.
+          if (!this.historyId) {
+            this.createData();
+          }
+        },
+        deep: true
+      },
+      marathonApps: {
+        handler: function () {
           if (!this.historyId) {
             this.createData();
           }
@@ -277,7 +298,7 @@
         var me = this;
         var data = JSON.parse(JSON.stringify(me.devApp));
         data[me.stage].deploymentStrategy.canary.weight = me.tempWeight;
-        me.updateAppExcludeDeployJson(me.appName, data, function (response) {
+        me.updateApp(me.appName, data, function (response) {
           if (response) {
             me.tempWeightDiff = null;
           }
@@ -285,8 +306,6 @@
       },
       createData: function () {
         var me = this;
-        me.marathonApp = null;
-        me.marathonAppOld = null;
         var _addAdditionalData = function (data) {
           data.commit = data.appStage.tempDeployment.commit;
           data.commitOld = data.appStage.tempDeployment.commitOld;
@@ -296,9 +315,6 @@
 
           //if current
           if (!me.historyId) {
-            me.marathonApp = me.getMarathonAppById(data.appStage.marathonAppId);
-            me.marathonAppOld = me.getMarathonAppById(data.appStage.marathonAppIdOld);
-
             //if canary && !auto
             if (data.appStage.deploymentStrategy.canary.active && !data.auto) {
               if (me.tempWeight == null) {
@@ -335,7 +351,6 @@
 
         me.detailData = null;
         //me.copyDevApp = JSON.parse(JSON.stringify(me.devApp));
-        me.appStage = me.devApp[me.stage];
         if (me.historyId) {
           me.$root.backend('deploymentHistory/' + me.historyId)
             .get()

@@ -12,6 +12,7 @@
     },
     mounted() {
       this.last = this.$root.last || this.last;
+      console.log('this.last', this.last);
     },
     watch: {
       '$root.last': {
@@ -268,7 +269,7 @@
           })
       },
       getMesosTaskById: function (taskId, cb) {
-        this.$root.backend('marathon/task/' + taskId).get()
+        this.$root.backend('marathon/task?taskId=' + taskId).get()
           .then(function (response) {
             cb(response);
           }, function (response) {
@@ -518,48 +519,48 @@
             if (response.data.prod) {
               existStages.push('prod');
             }
+            var toChangeStages = [];
+            //스테이지가 지정된 경우
+            if (stage) {
+              if (existStages.indexOf(stage) != -1) {
+                toChangeStages.push(stage);
+              }
+            }
+            //지정되지 않은 경우 (공통)
+            else {
+              toChangeStages = existStages;
+            }
+            if (toChangeStages && toChangeStages.length) {
+              var stageNames = '';
+              $.each(toChangeStages, function (i, toChangeStage) {
+                if (toChangeStage == 'prod') {
+                  stageNames += '[프로덕션] '
+                }
+                else if (toChangeStage == 'stg') {
+                  stageNames += '[스테이징] '
+                }
+                else if (toChangeStage == 'dev') {
+                  stageNames += '[개발] '
+                }
+              });
+              me.$root.$children[0].confirm(
+                {
+                  contentHtml: '변경된 설정으로 인해 ' + stageNames + ' 서버들이 영향을 받습니다. 앱들을 재시작하겠습니까?',
+                  okText: '진행하기',
+                  cancelText: '취소',
+                  callback: function () {
+                    //스테이지 디플로이
+                    $.each(toChangeStages, function (s, toChangeStage) {
+                      me.deployApp(appName, toChangeStage, null, function (response) {
+
+                      });
+                    });
+                  }
+                });
+            }
+
           }
         })
-
-        var toChangeStages = [];
-        //스테이지가 지정된 경우
-        if (stage) {
-          if (existStages.indexOf(stage) != -1) {
-            toChangeStages.push(stage);
-          }
-        }
-        //지정되지 않은 경우 (공통)
-        else {
-          toChangeStages = existStages;
-        }
-        if (toChangeStages && toChangeStages.length) {
-          var stageNames = '';
-          $.each(toChangeStages, function (i, toChangeStage) {
-            if (toChangeStage == 'prod') {
-              stageNames += '[프로덕션] '
-            }
-            else if (toChangeStage == 'stg') {
-              stageNames += '[스테이징] '
-            }
-            else if (toChangeStage == 'dev') {
-              stageNames += '[개발] '
-            }
-          });
-          me.$root.$children[0].confirm(
-            {
-              contentHtml: '변경된 설정으로 인해 ' + stageNames + ' 서버들이 영향을 받습니다. 앱들을 재시작하겠습니까?',
-              okText: '진행하기',
-              cancelText: '취소',
-              callback: function () {
-                //스테이지 디플로이
-                $.each(toChangeStages, function (s, toChangeStage) {
-                  me.deployApp(appName, toChangeStage, null, function (response) {
-
-                  });
-                });
-              }
-            });
-        }
       },
       convertManualConfirm: function (appName, stage, cb) {
         var me = this;
@@ -601,6 +602,14 @@
       //=====================
       //====pipeline service
       //=====================
+      getAppPipeLineLast: function (appName, cb) {
+        this.$root.backend('app/' + appName + '/pipeline/last').get()
+          .then(function (response) {
+            cb(response);
+          }, function (response) {
+            cb(null, response);
+          })
+      },
       getAppPipeLineJson: function (appName, cb) {
         this.$root.backend('app/' + appName + '/pipeline/info').get()
           .then(function (response) {
@@ -653,7 +662,7 @@
       },
 
       //=======================
-      //====deploy json service
+      //====deployjson service
       //=======================
       getAllDeployJson: function (appName, cb) {
         this.$root.backend('app/' + appName + '/deployJson').get()

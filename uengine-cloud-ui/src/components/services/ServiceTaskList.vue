@@ -12,8 +12,7 @@
       return {}
     },
     mounted() {
-      //console.log(this.$parent);
-      //this.fetchData();
+
     },
     watch: {},
     methods: {}

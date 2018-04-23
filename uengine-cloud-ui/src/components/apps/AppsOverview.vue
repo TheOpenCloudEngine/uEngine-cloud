@@ -1,7 +1,5 @@
 <template xmlns:v-on="http://www.w3.org/1999/xhtml">
   <div>
-    <service-deployments ref="service-deployments"></service-deployments>
-
     <md-layout>
       <md-layout>
         <span class="md-subheading">앱 목록</span>
@@ -11,12 +9,6 @@
           <md-tooltip md-direction="bottom">신규 앱을 작성합니다.</md-tooltip>
           작성
           <md-icon>control_point</md-icon>
-        </md-button>
-        <md-button class="md-raised md-primary"
-                   v-if="dcosData.deployments"
-                   @click="openDeployments">
-          <md-tooltip md-direction="bottom">배포 중인 앱 또는 서비스를 중단할 수 있습니다.</md-tooltip>
-          배포중 {{dcosData.deployments.length}}
         </md-button>
       </md-layout>
     </md-layout>
@@ -69,9 +61,6 @@
         } else {
           this.view = 'list'
         }
-      },
-      openDeployments: function () {
-        this.$refs['service-deployments'].open();
       }
     }
   }

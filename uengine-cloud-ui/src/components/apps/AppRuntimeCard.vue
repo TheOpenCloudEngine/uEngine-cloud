@@ -1,7 +1,7 @@
 <template xmlns:v-on="http://www.w3.org/1999/xhtml">
   <md-layout v-if="categoryItem && devApp" class="bg-white">
     <div class="header-top-line"></div>
-    <div v-if="isActive || !deploy" style="width: 100%">
+    <div v-if="marathonApp || !deploy" style="width: 100%">
       <md-layout>
         <md-layout v-for="(item, key) in items">
           <md-card md-with-hover style="width: 100%;">
@@ -58,17 +58,21 @@
         </md-layout>
       </md-layout>
     </div>
+    <md-layout v-else-if="marathonApps" style="height: 200px">
+      <md-card md-with-hover style="width: 100%;">
+        <md-card-area>
+          <md-card-content style="text-align: center">
+            현재 영역에 배포중인 어플리케이션이 없습니다. <a v-on:click="moveDeployment">배포 메뉴</a> 에서
+            어플리케이션을 배포하세요.
+          </md-card-content>
+        </md-card-area>
+      </md-card>
+    </md-layout>
     <md-layout v-else style="height: 200px">
       <md-card md-with-hover style="width: 100%;">
         <md-card-area>
           <md-card-content style="text-align: center">
-            <!--여기 스피너와 문구 구분하는 조건값 확인-->
-            <div v-if="isLoaded">현재 영역에 배포중인 어플리케이션이 없습니다. <a v-on:click="moveDeployment">배포 메뉴</a> 에서
-              어플리케이션을 배포하세요.
-            </div>
-            <div v-else>
-              <md-spinner :md-size="60" md-indeterminate></md-spinner>
-            </div>
+            <md-spinner :md-size="60" md-indeterminate></md-spinner>
           </md-card-content>
         </md-card-area>
       </md-card>
@@ -91,12 +95,13 @@
           return true;
         }
       },
-      isRollback: Boolean
+      isRollback: Boolean,
+      marathonApps: Object,
+      deployJson: Object
     },
     data() {
       return {
-        isLoaded: false,
-        stageApp: null,
+        stageDeployJson: null,
         marathonApp: null,
         isActive: false,
         items: [],
@@ -109,9 +114,6 @@
     mounted() {
       var me = this;
       this.makeItems();
-      window.busVue.$on('appRefresh', function (val) {
-        me.resourceUpdated = false;
-      });
     },
     watch: {
       isRollback: function (val) {
@@ -124,13 +126,30 @@
       devApp: {
         handler: function (newVal, oldVal) {
           this.makeItems();
-          this.isLoaded = true;
+        },
+        deep: true
+      },
+      categoryItem: {
+        handler: function (newVal, oldVal) {
+          this.makeItems();
+        },
+        deep: true
+      },
+      marathonApps: {
+        handler: function (newVal, oldVal) {
+          this.makeItems();
+        },
+        deep: true
+      },
+      deployJson: {
+        handler: function (newVal, oldVal) {
+          this.makeItems();
         },
         deep: true
       }
     },
     methods: {
-      moveDeployment: function(){
+      moveDeployment: function () {
         var me = this;
         this.$router.push(
           {
@@ -139,36 +158,31 @@
           }
         )
       },
-      updateApp: function (data) {
-        //어플리케이션 업데이트
-        var me = this;
-        if (!me.deploy) {
-          me.resourceUpdated = false;
-          me.$emit('update:devApp', data);
-        } else {
-          me.updateDevApp(me.appName, data, function (response) {
-            me.resourceUpdated = false;
-            //스테이지 디플로이
-            me.runDeployedApp(me.appName, me.stage, null, function (response) {
-
-            });
-          });
-        }
-      },
       updateCancel: function () {
         this.resourceUpdated = false;
         this.makeItems();
       },
       updateDeploy: function () {
         var me = this;
-        var stageCopy = JSON.parse(JSON.stringify(me.stageApp));
-        stageCopy['deployJson'].instances = me.instances;
-        stageCopy['deployJson'].mem = me.mem;
-        stageCopy['deployJson'].cpus = me.cpus;
-        var data = JSON.parse(JSON.stringify(me.devApp));
-        data[me.stage] = stageCopy;
+        var stageDeployJsonCopy = JSON.parse(JSON.stringify(me.stageDeployJson));
+        stageDeployJsonCopy.instances = me.instances;
+        stageDeployJsonCopy.mem = me.mem;
+        stageDeployJsonCopy.cpus = me.cpus;
 
-        me.updateApp(data);
+        var deployJsonCopy = JSON.parse(JSON.stringify(me.deployJson));
+        deployJsonCopy[me.stage] = stageDeployJsonCopy;
+        if (!me.deploy) {
+          me.resourceUpdated = false;
+          me.$emit('update:deployJson', deployJsonCopy);
+        } else {
+          me.updateDeployJson(me.appName, me.stage, stageDeployJsonCopy, function (response) {
+            me.resourceUpdated = false;
+            //스테이지 디플로이
+            me.deployApp(me.appName, me.stage, null, function (response) {
+
+            });
+          });
+        }
       },
       updateResource: function (item, updown) {
         var me = this;
@@ -210,27 +224,20 @@
           return;
         }
 
-        me.stageApp = me.devApp[me.stage];
-        var appsByDevopsId = this.getAppsByDevopsId(me.devApp.name);
+        me.stageDeployJson = me.deployJson[me.stage];
 
         var marathonAppId;
         if (this.isRollback) {
-          me.marathonApp = appsByDevopsId.oldProd;
+          me.marathonApp = me.marathonApps.oldProd.app;
         } else {
-          me.marathonApp = appsByDevopsId[me.stage];
-        }
-
-        if (me.marathonApp) {
-          me.isActive = true;
-        } else {
-          me.isActive = false;
+          me.marathonApp = me.marathonApps[me.stage].app;
         }
 
         //최초 리소스 로딩인경우 값 배정
         if (!me.resourceUpdated) {
-          me.instances = me.stageApp['deployJson'].instances;
-          me.mem = me.stageApp['deployJson'].mem;
-          me.cpus = me.stageApp['deployJson'].cpus;
+          me.instances = me.stageDeployJson.instances;
+          me.mem = me.stageDeployJson.mem;
+          me.cpus = me.stageDeployJson.cpus;
           me.resourceUpdated = true;
         }
 
@@ -248,7 +255,7 @@
             subTitle: '',
             type: 'instances',
             size: me.isRollback ? me.marathonApp.instances : me.instances,
-            diff: me.isRollback ? false : me.stageApp['deployJson'].instances != me.instances
+            diff: me.isRollback ? false : me.stageDeployJson.instances != me.instances
           },
           {
             image: me.categoryItem.logoSrc,
@@ -256,7 +263,7 @@
             subTitle: '',
             type: 'mem',
             size: me.isRollback ? me.marathonApp.mem : me.mem,
-            diff: me.isRollback ? false : me.stageApp['deployJson'].mem != me.mem
+            diff: me.isRollback ? false : me.stageDeployJson.mem != me.mem
           },
           {
             image: me.categoryItem.logoSrc,
@@ -264,7 +271,7 @@
             subTitle: '',
             type: 'cpus',
             size: me.isRollback ? me.marathonApp.cpus : me.cpus,
-            diff: me.isRollback ? false : me.stageApp['deployJson'].cpus != me.cpus
+            diff: me.isRollback ? false : me.stageDeployJson.cpus != me.cpus
           }
         ]
       }

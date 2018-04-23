@@ -1,5 +1,5 @@
 <template>
-  <div v-if="devApp">
+  <div v-if="devApp && deployJson && marathonApps">
 
     <md-button v-if="menu == 'history'"
                class="md-raised md-primary" @click="changeMenu('new')">
@@ -19,6 +19,8 @@
                     :stage="stage"
                     :devApp="devApp"
                     :categoryItem="categoryItem"
+                    :marathonApps="marathonApps"
+                    :deployJson="deployJson"
                     :menu.sync="menu"
     ></deployment-new>
 
@@ -27,6 +29,8 @@
         :stage="stage"
         :devApp="devApp"
         :categoryItem="categoryItem"
+        :marathonApps="marathonApps"
+        :deployJson="deployJson"
         v-on:showDetail="showCurrentDetail"
       ></deployment-current>
 
@@ -36,6 +40,8 @@
         :stage="stage"
         :devApp="devApp"
         :categoryItem="categoryItem"
+        :marathonApps="marathonApps"
+        :deployJson="deployJson"
         v-on:showDetail="showHistoryDetail"
       ></deployment-history>
     </div>
@@ -44,6 +50,8 @@
                        :stage="stage"
                        :devApp="devApp"
                        :categoryItem="categoryItem"
+                       :marathonApps="marathonApps"
+                       :deployJson="deployJson"
                        :historyId="historyId"
                        :menu.sync="menu"
     ></deployment-detail>
@@ -58,7 +66,9 @@
     props: {
       stage: String,
       devApp: Object,
-      categoryItem: Object
+      categoryItem: Object,
+      marathonApps: Object,
+      deployJson: Object
     },
     data() {
       return {

@@ -106,16 +106,13 @@
       }
     },
     mounted() {
-
+      var me = this;
+      me.getMarathonAppById(me.appId, function (response) {
+        me.app = response.data.app;
+        console.log(me.app);
+      })
     },
-    watch: {
-      'dcosData': {
-        handler: function (newVal, oldVal) {
-          this.app = this.getMarathonAppById(this.appId);
-        },
-        deep: true
-      }
-    },
+    watch: {},
     methods: {}
   }
 </script>

@@ -12,6 +12,7 @@
 <script>
   import DcosDataProvider from '../DcosDataProvider'
   import PathProvider from '../PathProvider'
+
   export default {
     mixins: [DcosDataProvider, PathProvider],
     props: {
@@ -25,14 +26,7 @@
     mounted() {
 
     },
-    watch: {
-      'dcosData': {
-        handler: function (newVal, oldVal) {
-          this.task = this.getTaskById(this.taskId);
-        },
-        deep: true
-      }
-    },
+    watch: {},
     methods: {
       move: function (routeName) {
         var me = this;
