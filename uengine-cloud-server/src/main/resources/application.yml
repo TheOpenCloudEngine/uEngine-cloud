@@ -31,7 +31,7 @@ spring:
     consumer:
       group-id: cloud-worker
       enable-auto-commit: false
-    bootstrap-servers: ${kafka.public}
+    bootstrap-servers: ${vcap.services.kafka.external}
   redis-host: ${vcap.services.redis.external}
 
 server:
@@ -64,10 +64,6 @@ registry:
 public-agent-ip: @server.public.public@
 
 default-host: @host.default@
-
-kafka:
-  public: @kafka.public@
-  private: @kafka.private@
 
 nexus:
   ip: @nexus.ip@
@@ -129,6 +125,9 @@ vcap:
     redis:
       external: "@host.redis@:6379"
       internal: "marathon-lb-internal.marathon.mesos:6379"
+    kafka:
+      external: "@kafka.public@"
+      internal: "@kafka.private@"
 
 eureka:
   client:
@@ -163,7 +162,7 @@ spring:
     consumer:
       group-id: cloud-worker
       enable-auto-commit: false
-    bootstrap-servers: ${kafka.private}
+    bootstrap-servers: ${vcap.services.kafka.internal}
     topic:
       mesos: mesos.topic
   redis-host: ${vcap.services.redis.internal}

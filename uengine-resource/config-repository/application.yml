@@ -25,3 +25,6 @@ vcap:
     redis:
       external: "@host.redis@:6379"
       internal: "marathon-lb-internal.marathon.mesos:6379"
+    kafka:
+      external: "@kafka.public@"
+      internal: "@kafka.private@"
