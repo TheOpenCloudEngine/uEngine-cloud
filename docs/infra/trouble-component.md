@@ -14,3 +14,7 @@ journalctl -flu dcos-mesos-master
 journalctl -flu dcos-gen-resolvconf
 ```
 
+## exhibitor - 주키퍼 정보 확인
+
+http://<master-ip>/exhibitor
+

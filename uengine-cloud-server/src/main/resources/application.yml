@@ -123,11 +123,11 @@ vcap:
       external: "@host.nexus@"
       internal: "marathon-lb-internal.marathon.mesos:10007"
     redis:
-      external: "@host.redis@:6379"
+      external: "52.79.51.79:6380"
+      #external: "@host.redis@:6379"
       internal: "marathon-lb-internal.marathon.mesos:6379"
     kafka:
       external: "@kafka.public@"
-      #external: "52.79.51.79:9093"
       internal: "@kafka.private@"
 
 eureka:
