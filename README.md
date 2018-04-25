@@ -6,6 +6,9 @@
 
 - [docsify 도큐먼트 제작툴](https://docsify.js.org)
 
+```
+docsify serve docs
+```
 
 
 
