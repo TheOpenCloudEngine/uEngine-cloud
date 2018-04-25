@@ -46,8 +46,8 @@ gitlab.config-repo.projectId: 47
 gitlab.config-repo.deployment-path: /deployment
 gitlab.config-repo.template-path: /template
 
-kafka.private: uengine-kafka.marathon.l4lb.thisdcos.directory:9092
-kafka.public: 52.79.51.79:9092
+kafka.private: 172.31.5.136:9092
+kafka.public: 52.79.51.79:9093
 
 nexus.ip: 172.31.10.202
 nexus.username: admin

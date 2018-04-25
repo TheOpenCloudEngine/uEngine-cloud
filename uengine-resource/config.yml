@@ -61,8 +61,8 @@ redis:
 
 # Kafka part
 kafka:
-  private: uengine-kafka.marathon.l4lb.thisdcos.directory:9092
-  public: 52.79.51.79:9092
+  private: 172.31.5.136:9092
+  public: 52.79.51.79:9093
 
 # Domain part
 host:

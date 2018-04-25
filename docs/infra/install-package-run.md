@@ -14,35 +14,51 @@ $ ll
 -rw-rw-r--. 1 centos centos  1061  1월 18 06:31 iam.json
 -rw-rw-r--. 1 centos centos 34932  1월 18 06:31 marathon-lb-internal.json
 -rw-rw-r--. 1 centos centos 34885  1월 18 06:31 marathon-lb.json
+-rw-rw-r--. 1 centos centos 34885  1월 18 06:31 nexus.json
+-rw-rw-r--. 1 centos centos 34885  1월 18 06:31 redis.json
 ```
 
 이 파일들은 DC/OS 클러스터에 배포하기 위한 [marathon-parameters](https://docs.mesosphere.com/1.10/deploying-services/marathon-parameters/#example) 파일입니다.
 
 다음 순차로 배포를 시작합니다.
 
+**DB && Redis && Config server && eureka**
+
 ```
-# Run these three apps.
+# Run these four apps.
 dcos marathon app add config.json
 dcos marathon app add eureka-server.json
 dcos marathon app add db.json
+dcos marathon app add redis.json
 ```
 
-먼저, `config.json` , `eureka-server.json` , `db.json` 을 배포하도록 합니다.
+`config.json` , `eureka-server.json` , `db.json`, `redis.json` 을 배포하도록 합니다.
 
 - config.json : 클라우드 콘피그 서버
 - eureka-server.json : 유레카 서버
 - db.json : Mysql 데이터베이스
+- reds.json : redis
 
-이후, DC/OS ui 로 접속하여 세가지 서비스가 모두 health 상태가 될때까지 기다리도록 합니다. 이 과정은 수분이 소요될 수 있습니다.
+
+
+이후, DC/OS ui 로 접속하여 네가지 서비스가 모두 health 상태가 될때까지 기다리도록 합니다. 이 과정은 수분이 소요될 수 있습니다.
  혹시 Failed 된 Task 가 발생하게 된다면 로그를 확인 후 조치를 취하도록 합니다. 
+
+
+**Kafka**
+
+그 후, [카프카 싱글 브로커 설치](infra/additional-kafka.md) 를 통해 카프카를 설치하도록 합니다.
+
+
+**Server && UI && Iam**
 
 그 이후, 나머지 서비스들을 배포합니다.
 
 ```
 # Check pre three apps are all healthy, then run under three apps.
-dcos marathon app add iam.json
 dcos marathon app add cloud-server.json
 dcos marathon app add cloud-ui.json
+dcos marathon app add iam.json
 ```
 
 나머지 서비스도 모두 health 상태가 되었다면, [도메인 && 네트워크 준비](infra/pre-domain.md) 에서 설정한 iam 호스트주소로 접속합니다. (ex. **http://iam.pas-mini.io**)

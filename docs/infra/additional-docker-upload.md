@@ -18,7 +18,7 @@
 ```
 # Mandatory-docker part
 mandatory-docker:
-  - mesosphere/marathon-lb:v1.11.2
+  - sppark/uengine-lb:v1
   - mysql:5.7
   - docker:latest
   - node:latest
@@ -52,11 +52,12 @@ $ mvn clean install exec:java package
 # Untag this, if you need sudo
 # sudo su
 
-docker pull mesosphere/marathon-lb:v1.11.2
-docker tag mesosphere/marathon-lb:v1.11.2 sppark/marathon-lb:v1.11.2
-docker push sppark/marathon-lb:v1.11.2
-docker rmi sppark/marathon-lb:v1.11.2
-docker rmi mesosphere/marathon-lb:v1.11.2
+.
+docker pull mysql:5.7
+docker tag mysql:5.7 sppark/mysql:5.7
+docker push sppark/mysql:5.7
+docker rmi sppark/mysql:5.7
+docker rmi mysql:5.7
 .
 .
 .

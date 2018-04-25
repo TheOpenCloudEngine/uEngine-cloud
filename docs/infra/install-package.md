@@ -14,7 +14,28 @@
 DC/OS 클러스터의 어드민 토큰 발급은 앞선 [사용자 생성](infra/install-cluster-user.md) 에서 발급받은 토큰입니다. 
 깃랩 어드민 토큰은 깃랩 UI 로 접속하여 받을 수 있습니다. 먼저, 루트계정으로 깃랩으로 접속하도록 합니다. 초기 유저,패스워드는 `root` , `adminadmin` 입니다.
 
+그 후, `User Settings => Access Tokens` 메뉴를 통해 아래 그림과 같이 토큰을 생성하도록 합니다.
+
 ![token](image/package1.png)
+
+DC/OS 클러스터의 어드민 토큰과 깃랩의 어드민 토큰을 기억하고 있도록 합니다.
+
+## Create system hook
+
+깃랩으로부터 시스템 변경사항을 클라우드 플랫폼에서 구독할 수 있도록 설정합니다.
+
+`Admin area => System hooks` 메뉴를 통해 아래 그림과 같이 hook 을 생성하도록 합니다.
+
+![hook](image/package5.png)
+
+이때, URL 은 [도메인 준비](infra/pre-domain.md) 에서 기입했던 `cloud-server` 의 주소의 `/systemhook` 패스입니다.
+
+
+| A_MASK        | 도메인      | 역할                   | 퍼블릭 아이피              |
+|---------------|-------------|------------------------|----------------------------|
+| cloud-server  | pas-mini.io | 클라우드 플랫폼 서버   | 52.79.51.79(public-agent) |
+
+예를 들어 위와 같은 도메인이 존재할 경우, URL 은 `http://cloud-server.pas-mini.io/systemhook` 이 됩니다.
 
 
 ## Create Gitlab Projects
