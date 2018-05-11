@@ -106,7 +106,8 @@ public class HookService {
     }
 
     public void receiveGithubPushEventHook(Map payloads) throws Exception {
-        Long repoId = (Long) ((Map) payloads.get("repository")).get("id");
+        Integer id = (Integer) ((Map) payloads.get("repository")).get("id");
+        Long repoId = Long.valueOf(id);
 
         LOGGER.info("receiveGithubPushEventHook {} ", repoId);
 

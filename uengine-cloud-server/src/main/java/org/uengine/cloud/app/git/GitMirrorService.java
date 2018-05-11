@@ -25,6 +25,7 @@ import org.uengine.iam.client.model.OauthUser;
 import org.uengine.iam.util.JsonUtils;
 import org.uengine.iam.util.StringUtils;
 
+import javax.json.Json;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -171,7 +172,12 @@ public class GitMirrorService {
 
         Assert.notNull(oauthUser.getMetaData().get("githubToken"), "githubToken required.");
         String githubToken = (String) oauthUser.getMetaData().get("githubToken");
+
+        LOGGER.info("Search github repo id {}", appEntity.getGithubRepoId());
         Map repository = githubExtentApi.getRepositoryById(githubToken, appEntity.getGithubRepoId());
+        Assert.notNull(repository, "github repository not found.");
+
+        LOGGER.info("github repo payload is {}", JsonUtils.marshal(repository));
         String GITHUB_REPO_OWNER = ((Map) repository.get("owner")).get("login").toString();
         String GITHUB_REPO_NAME = repository.get("name").toString();
         String GITHUB_TOKEN = githubToken;
