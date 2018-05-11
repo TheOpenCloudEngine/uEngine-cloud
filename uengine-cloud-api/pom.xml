@@ -58,7 +58,8 @@
         <dependency>
             <groupId>org.gitlab4j</groupId>
             <artifactId>gitlab4j-api</artifactId>
-            <version>4.6.9</version>
+            <!--<version>4.6.9</version>-->
+            <version>4.8.15</version>
         </dependency>
 
         <dependency>
@@ -67,7 +68,30 @@
             <version>4.12</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- ====================== -->
+        <!--  Github SDK            -->
+        <!-- ====================== -->
+        <dependency>
+            <groupId>org.eclipse.mylyn.github</groupId>
+            <artifactId>org.eclipse.egit.github.core</artifactId>
+            <version>2.1.5</version>
+        </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.6.2</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
     <profiles>
         <profile>

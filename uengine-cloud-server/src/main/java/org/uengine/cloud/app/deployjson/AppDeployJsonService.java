@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import org.uengine.cloud.app.*;
 import org.uengine.cloud.app.emitter.AppEntityBaseMessageHandler;
 import org.uengine.cloud.app.emitter.AppEntityBaseMessageTopic;
+import org.uengine.cloud.app.git.GitlabExtentApi;
+import org.uengine.iam.util.JsonUtils;
 
 import java.util.*;
 
@@ -30,6 +32,9 @@ public class AppDeployJsonService {
     @Autowired
     private AppWebCacheService appWebCacheService;
 
+    @Autowired
+    private GitlabExtentApi gitlabExtentApi;
+
     /**
      * 어플리케이션의 주어진 스테이지에 따른 배포 정보를 반환한다.
      *
@@ -51,9 +56,9 @@ public class AppDeployJsonService {
      */
     public Map getAllDeployJson(String appName) throws Exception {
         Map map = new HashMap();
-        map.put("dev", deployJsonCacheService.getDeployJsonCache(appName, "dev"));
-        map.put("stg", deployJsonCacheService.getDeployJsonCache(appName, "stg"));
-        map.put("prod", deployJsonCacheService.getDeployJsonCache(appName, "prod"));
+        map.put("dev", this.getDeployJson(appName, "dev"));
+        map.put("stg", this.getDeployJson(appName, "stg"));
+        map.put("prod", this.getDeployJson(appName, "prod"));
         return map;
     }
 

@@ -43,7 +43,7 @@ public class AppController {
     private AppEntityRepository appEntityRepository;
 
     @Autowired
-    private AppKafkaService appKafkaService;
+    private AppCreateService appCreateService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AppController.class);
 
@@ -79,9 +79,9 @@ public class AppController {
      */
     @RequestMapping(value = "", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public Map getApps(HttpServletRequest request,
-                                   HttpServletResponse response,
-                                   @RequestParam(required = false, value = "name", defaultValue = "") String name,
-                                   @PageableDefault Pageable pageable
+                       HttpServletResponse response,
+                       @RequestParam(required = false, value = "name", defaultValue = "") String name,
+                       @PageableDefault Pageable pageable
     ) throws Exception {
         OauthUser user = TenantContext.getThreadLocalInstance().getUser();
         String acl = user.getMetaData().get("acl").toString();
@@ -114,8 +114,8 @@ public class AppController {
      */
     @RequestMapping(value = "/{appName}", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public Map getApp(HttpServletRequest request,
-                            HttpServletResponse response,
-                            @PathVariable("appName") String appName
+                      HttpServletResponse response,
+                      @PathVariable("appName") String appName
     ) throws Exception {
         OauthUser user = TenantContext.getThreadLocalInstance().getUser();
         AppEntity appEntity = appWebCacheService.findOneCache(appName);
@@ -240,7 +240,7 @@ public class AppController {
 
         Map<String, Object> log = JsonUtils.convertClassToMap(appCreate);
         try {
-            AppEntity appEntity = appKafkaService.createAppSend(appCreate);
+            AppEntity appEntity = appCreateService.initCreateApp(appCreate);
             logService.addHistory(appCreate.getAppName(), AppLogAction.CREATE_APP_REQUEST, AppLogStatus.SUCCESS, log);
             return JsonUtils.convertClassToMap(appEntity);
         } catch (Exception ex) {

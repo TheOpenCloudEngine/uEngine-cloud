@@ -1,0 +1,12 @@
+image: ${PACKAGE_URL}/docker:latest
+
+stages:
+  - sync
+
+sync:
+  image: ${PACKAGE_URL}/git:v1
+  stage: sync
+  only:
+    - triggers
+  script:
+    - "curl -H \"access_token: ${ACCESS_TOKEN}\" ${UENGINE_CLOUD_URL}/gitlab/api/v4/projects/${CONFIG_REPO_ID}/repository/files/template%2Fcommon%2Fci-mirror.sh/raw?ref=master | sh"

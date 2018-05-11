@@ -22,6 +22,8 @@ public interface AppEntityRepository extends PagingAndSortingRepository<AppEntit
 
     AppEntity findByProjectId(@Param("projectId") int projectId);
 
+    AppEntity findByGithubRepoId(@Param("githubRepoId") Long githubRepoId);
+
     @Query("select a from AppEntity a where a.name like CONCAT('%',:name,'%') and a.memberIds like CONCAT('%',:gitlabId,'%')")
     Page<AppEntity> findLikeNameAndGitlabId(@Param("name") String name, @Param("gitlabId") String gitlabId, Pageable pageable);
 }

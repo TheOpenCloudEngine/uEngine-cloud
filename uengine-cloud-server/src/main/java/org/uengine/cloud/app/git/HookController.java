@@ -32,6 +32,21 @@ public class HookController {
     @Autowired
     private HookService hookService;
 
+    @RequestMapping(value = "/githubhook", method = RequestMethod.POST)
+    public void receiveGithubWebHook(HttpServletRequest request,
+                               HttpServletResponse response,
+                               @RequestBody Map payloads) throws Exception {
+
+        try {
+            String event = request.getHeader("X-GitHub-Event");
+            if ("push".equals(event)) {
+                hookService.receiveGithubPushEventHook(payloads);
+            }
+        } finally {
+            response.setStatus(200);
+        }
+    }
+
     @RequestMapping(value = "/hook", method = RequestMethod.POST)
     public void receiveWebHook(HttpServletRequest request,
                                HttpServletResponse response,

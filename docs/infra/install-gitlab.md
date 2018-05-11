@@ -36,7 +36,7 @@ $ sudo systemctl reload firewalld
 
 $ curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.rpm.sh | sudo bash
  
-$ sudo yum install -y gitlab-ce-10.2.4-ce.0.el7.x86_64
+$ sudo yum install -y gitlab-ce-10.6.0-ce.0.el7.x86_64
 ```
 
 ## 기본 환경 설정

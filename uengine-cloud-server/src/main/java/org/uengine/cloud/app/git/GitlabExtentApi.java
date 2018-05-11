@@ -13,6 +13,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.uengine.iam.util.HttpUtils;
 import org.uengine.iam.util.JsonUtils;
+import org.uengine.iam.util.StringUtils;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -167,7 +168,9 @@ public class GitlabExtentApi implements InitializingBean {
         params.put("description", description);
 
         Map<String, String> headers = this.addHeaders();
-        headers.put("Sudo", gitlabUsername);
+        if (!StringUtils.isEmpty(gitlabUsername)) {
+            headers.put("Sudo", gitlabUsername);
+        }
         HttpResponse response = new HttpUtils().makeRequest("POST",
                 host + "/api/v4/projects/" + projectId + "/triggers",
                 JsonUtils.marshal(params),

@@ -18,3 +18,11 @@ journalctl -flu dcos-gen-resolvconf
 
 http://<master-ip>/exhibitor
 
+## Redis 확인
+
+Redis cli 로 접속테스트 : 접속주소는 `config.yml` 의 `host.redis` 값.
+
+```
+docker run -it --rm redis redis-cli -h redis.pas-mini.io -p 6379
+```
+

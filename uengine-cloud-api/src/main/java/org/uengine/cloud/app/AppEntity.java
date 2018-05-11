@@ -200,4 +200,25 @@ public class AppEntity {
     public void setMemberIds(String memberIds) {
         this.memberIds = memberIds;
     }
+
+
+    private String repoType;
+
+    public String getRepoType() {
+        return repoType;
+    }
+
+    public void setRepoType(String repoType) {
+        this.repoType = repoType;
+    }
+
+    private Long githubRepoId;
+
+    public Long getGithubRepoId() {
+        return githubRepoId;
+    }
+
+    public void setGithubRepoId(Long githubRepoId) {
+        this.githubRepoId = githubRepoId;
+    }
 }

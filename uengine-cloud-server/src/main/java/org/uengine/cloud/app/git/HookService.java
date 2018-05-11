@@ -1,5 +1,6 @@
 package org.uengine.cloud.app.git;
 
+import org.apache.http.util.Asserts;
 import org.gitlab4j.api.GitLabApi;
 import org.gitlab4j.api.models.Project;
 import org.slf4j.Logger;
@@ -7,7 +8,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.uengine.cloud.app.AppEntity;
 import org.uengine.cloud.app.AppEntityRepository;
 import org.uengine.cloud.app.AppWebCacheService;
@@ -61,6 +64,9 @@ public class HookService {
     @Autowired
     private CatalogCacheService catalogCacheService;
 
+    @Autowired
+    private GitMirrorService gitMirrorService;
+
     private static final String RESERVED_STAGE = "RESERVED_STAGE";
 
     @Autowired
@@ -97,6 +103,17 @@ public class HookService {
         } catch (Exception ex) {
             return null;
         }
+    }
+
+    public void receiveGithubPushEventHook(Map payloads) throws Exception {
+        Long repoId = (Long) ((Map) payloads.get("repository")).get("id");
+
+        LOGGER.info("receiveGithubPushEventHook {} ", repoId);
+
+        AppEntity appEntity = appEntityRepository.findByGithubRepoId(repoId);
+        Assert.notNull(appEntity, "Not found appEntity for given github repo.");
+
+        gitMirrorService.syncGithubToGitlab(appEntity.getName());
     }
 
     public void receivePipeLineEventHook(Map payloads) throws Exception {

@@ -11,7 +11,6 @@ public class AppCreate {
     private int mem;
     private int instances;
     private int appNumber;
-    private int projectId;
     private String appName;
     private String externalProdDomain;
     private String externalStgDomain;
@@ -23,8 +22,13 @@ public class AppCreate {
     private int stgPort;
     private int devPort;
     private OauthUser user;
+    private String repoType;
     private String namespace;
-    private boolean insecureConfig;
+    private String repositoryName;
+    private int gitlabProjectId;
+    private Long githubRepoId;
+    private String importGitUrl;
+    private AppManageMethod appManageMethod;
 
     TemplateSpecific templateSpecific;
 
@@ -66,14 +70,6 @@ public class AppCreate {
 
     public void setAppNumber(int appNumber) {
         this.appNumber = appNumber;
-    }
-
-    public int getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(int projectId) {
-        this.projectId = projectId;
     }
 
     public String getAppName() {
@@ -172,14 +168,6 @@ public class AppCreate {
         this.namespace = namespace;
     }
 
-    public boolean getInsecureConfig() {
-        return insecureConfig;
-    }
-
-    public void setInsecureConfig(boolean insecureConfig) {
-        this.insecureConfig = insecureConfig;
-    }
-
     public TemplateSpecific getTemplateSpecific() {
         return templateSpecific;
     }
@@ -189,6 +177,51 @@ public class AppCreate {
     }
 
 
+    public String getRepoType() {
+        return repoType;
+    }
 
+    public void setRepoType(String repoType) {
+        this.repoType = repoType;
+    }
 
+    public Long getGithubRepoId() {
+        return githubRepoId;
+    }
+
+    public void setGithubRepoId(Long githubRepoId) {
+        this.githubRepoId = githubRepoId;
+    }
+
+    public String getImportGitUrl() {
+        return importGitUrl;
+    }
+
+    public void setImportGitUrl(String importGitUrl) {
+        this.importGitUrl = importGitUrl;
+    }
+
+    public AppManageMethod getAppManageMethod() {
+        return appManageMethod;
+    }
+
+    public void setAppManageMethod(AppManageMethod appManageMethod) {
+        this.appManageMethod = appManageMethod;
+    }
+
+    public String getRepositoryName() {
+        return repositoryName;
+    }
+
+    public void setRepositoryName(String repositoryName) {
+        this.repositoryName = repositoryName;
+    }
+
+    public int getGitlabProjectId() {
+        return gitlabProjectId;
+    }
+
+    public void setGitlabProjectId(int gitlabProjectId) {
+        this.gitlabProjectId = gitlabProjectId;
+    }
 }
