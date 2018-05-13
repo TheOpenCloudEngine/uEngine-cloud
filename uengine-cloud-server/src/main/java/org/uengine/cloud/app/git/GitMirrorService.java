@@ -5,6 +5,7 @@ import org.eclipse.egit.github.core.RepositoryHook;
 import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.service.RepositoryService;
 import org.gitlab4j.api.GitLabApi;
+import org.gitlab4j.api.models.ImpersonationToken;
 import org.gitlab4j.api.models.Project;
 import org.gitlab4j.api.models.ProjectHook;
 import org.gitlab4j.api.models.Visibility;
@@ -26,9 +27,7 @@ import org.uengine.iam.util.JsonUtils;
 import org.uengine.iam.util.StringUtils;
 
 import javax.json.Json;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class GitMirrorService {
@@ -193,10 +192,31 @@ public class GitMirrorService {
         String GITHUB_REPO_NAME = repository.get("name").toString();
         String GITHUB_TOKEN = githubToken;
 
+        //check tokens, and create if not exist.
+        ImpersonationToken impersonationToken = null;
+        int gitlabId = (int) oauthUser.getMetaData().get("gitlab-id");
+        String tokenName = "cloud-server-token";
+        List<ImpersonationToken> tokens = gitLabApi.getUserApi().getImpersonationTokens(gitlabId);
+        if (tokens != null && !tokens.isEmpty()) {
+            for (ImpersonationToken token : tokens) {
+                if (tokenName.equals(token.getName())) {
+                    impersonationToken = token;
+                }
+            }
+        }
+        if (impersonationToken == null) {
+            LOGGER.info("Generate new gitlab impersonationToken for user {}", oauthUser.getUserName());
+            Calendar c = Calendar.getInstance();
+            c.setTime(new Date());
+            c.add(Calendar.YEAR, 100);
+            ImpersonationToken.Scope[] scopes = {ImpersonationToken.Scope.API};
+            impersonationToken = gitLabApi.getUserApi().createImpersonationToken(gitlabId, tokenName, c.getTime(), scopes);
+        }
+
         Project gitlabProject = gitLabApi.getProjectApi().getProject(appEntity.getProjectId());
         String GITLAB_REPO_OWNER = gitlabProject.getNamespace().getPath();
         String GITLAB_REPO_NAME = gitlabProject.getPath();
-        String GITLAB_TOKEN = environment.getProperty("gitlab.token");
+        String GITLAB_TOKEN = impersonationToken.getToken();
         String GITLAB_URL = environment.getProperty("gitlab.host").replace("http://", "");
         String SYNC_TO = syncTo;
 
