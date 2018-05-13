@@ -98,9 +98,20 @@ public class GitMirrorService {
         Assert.notNull(repo, "repository not found.");
         Repository repository = JsonUtils.convertValue(repo, Repository.class);
 
-        //create github webhook.
+        //create github webhook if not exist.
+        boolean isHookExist = false;
         String url = triggerVariables.get("UENGINE_CLOUD_URL").toString() + "/githubhook";
-        RepositoryHook repositoryHook = githubExtentApi.createRepositoryHook(githubToken, repository, url);
+        List<RepositoryHook> hooks = githubExtentApi.listRepositoryHook(githubToken, repository);
+        if (!hooks.isEmpty()) {
+            for (RepositoryHook hook : hooks) {
+                if (url.equals(hook.getConfig().get("url").toString())) {
+                    isHookExist = true;
+                }
+            }
+        }
+        if (!isHookExist) {
+            RepositoryHook repositoryHook = githubExtentApi.createRepositoryHook(githubToken, repository, url);
+        }
 
         //push github source codes to gitlab.
         this.syncGithubToGitlab(appEntity.getName());

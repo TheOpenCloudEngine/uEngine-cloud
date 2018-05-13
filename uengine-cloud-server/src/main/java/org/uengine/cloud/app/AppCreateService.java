@@ -171,6 +171,8 @@ public class AppCreateService {
         appEntity.setName(appCreate.getAppName());
         appEntity.setAppType(appCreate.getCategoryItemId());
         appEntity.setIam(userName);
+        appEntity.setRepoType(appCreate.getRepoType());
+        appEntity.setGithubRepoId(appCreate.getGithubRepoId());
 
         //생성 상태 저장
         appEntity.setCreateStatus("repository-create");

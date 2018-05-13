@@ -14,7 +14,9 @@ import org.uengine.iam.util.HttpUtils;
 import org.uengine.iam.util.JsonUtils;
 import org.uengine.iam.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -41,6 +43,15 @@ public class GithubExtentApi {
             String json = EntityUtils.toString(entity);
             return JsonUtils.unmarshal(json);
         } else {
+            return null;
+        }
+    }
+
+    public Repository getRepositoryByOwnerAndName(String token, String owner, String name) throws Exception {
+
+        try {
+            return this.getRepositoryService(token).getRepository(owner, name);
+        } catch (Exception ex) {
             return null;
         }
     }
@@ -90,5 +101,14 @@ public class GithubExtentApi {
         hook.setConfig(config);
 
         return this.getRepositoryService(token).createHook(repository, hook);
+    }
+
+    public List<RepositoryHook> listRepositoryHook(String token, Repository repository) throws Exception {
+
+        try {
+            return this.getRepositoryService(token).getHooks(repository);
+        } catch (Exception ex) {
+            return new ArrayList<RepositoryHook>();
+        }
     }
 }
