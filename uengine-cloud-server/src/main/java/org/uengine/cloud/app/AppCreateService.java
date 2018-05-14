@@ -558,6 +558,9 @@ public class AppCreateService {
                     }
                 }
 
+                //미러 프로젝트 삭제
+                gitMirrorService.deleteMirrorProject(appEntity.getName());
+
                 //vcap 서비스, config.yml 삭제
                 try {
                     appConfigService.removeAppToVcapService(appCreate.getAppName());

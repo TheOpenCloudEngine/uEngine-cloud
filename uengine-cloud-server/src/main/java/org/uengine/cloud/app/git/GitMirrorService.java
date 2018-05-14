@@ -161,6 +161,7 @@ public class GitMirrorService {
 
     /**
      * 미러 파이프라인을 실행하기 위한 파라미터들을 수집한다.
+     *
      * @param appName
      * @param oauthUser
      * @param syncTo
@@ -277,6 +278,7 @@ public class GitMirrorService {
 
     /**
      * 미러 프로젝트를 가져온다.
+     *
      * @param appName
      * @return
      * @throws Exception
@@ -295,6 +297,7 @@ public class GitMirrorService {
 
     /**
      * 미러 프로젝트를 생성한다.
+     *
      * @param appName
      * @param gitlabUser
      * @return
@@ -338,5 +341,22 @@ public class GitMirrorService {
                 projectId, "master", ".gitlab-ci.yml", ciText);
 
         return project;
+    }
+
+    public void deleteMirrorProject(String appName) {
+        //미러 프로젝트 삭제
+        try {
+            Project mirrorProject = this.getMirrorProject(appName);
+            if (mirrorProject != null) {
+                gitLabApi.getProjectApi().deleteProject(mirrorProject.getId());
+                try {
+                    gitLabApi.getProjectApi().deleteProject(mirrorProject.getId());
+                } catch (Exception exx) {
+
+                }
+            }
+        } catch (Exception eex) {
+
+        }
     }
 }

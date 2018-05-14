@@ -12,6 +12,7 @@ import org.uengine.cloud.app.config.AppConfigService;
 import org.uengine.cloud.app.deployjson.AppDeployJsonService;
 import org.uengine.cloud.app.emitter.AppEntityBaseMessageHandler;
 import org.uengine.cloud.app.emitter.AppEntityBaseMessageTopic;
+import org.uengine.cloud.app.git.GitMirrorService;
 import org.uengine.cloud.app.git.GitlabExtentApi;
 import org.uengine.cloud.app.log.AppLogAction;
 import org.uengine.cloud.app.log.AppLogService;
@@ -56,6 +57,9 @@ public class AppWebService {
 
     @Autowired
     private AppWebCacheService appWebCacheService;
+
+    @Autowired
+    private GitMirrorService gitMirrorService;
 
     @Autowired
     private AppEntityBaseMessageHandler messageHandler;
@@ -154,6 +158,9 @@ public class AppWebService {
         } catch (Exception ex) {
 
         }
+
+        //미러 프로젝트 삭제
+        gitMirrorService.deleteMirrorProject(appEntity.getName());
 
         //vcap 서비스, config.yml 삭제
         appConfigService.removeAppToVcapService(appName);
