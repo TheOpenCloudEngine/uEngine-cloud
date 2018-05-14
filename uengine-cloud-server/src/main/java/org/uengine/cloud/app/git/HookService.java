@@ -24,6 +24,7 @@ import org.uengine.cloud.app.pipeline.AppLastPipeLine;
 import org.uengine.cloud.app.pipeline.AppPipeLineCacheService;
 import org.uengine.cloud.app.pipeline.AppPipeLineService;
 import org.uengine.cloud.catalog.CatalogCacheService;
+import org.uengine.iam.client.IamClient;
 import org.uengine.iam.util.StringUtils;
 
 import javax.annotation.PostConstruct;
@@ -109,12 +110,14 @@ public class HookService {
         Integer id = (Integer) ((Map) payloads.get("repository")).get("id");
         Long repoId = Long.valueOf(id);
 
-        LOGGER.info("receiveGithubPushEventHook {} ", repoId);
+        String commit = payloads.get("after").toString();
+
+        LOGGER.info("receiveGithubPushEventHook {}, commit {} ", repoId, commit);
 
         AppEntity appEntity = appEntityRepository.findByGithubRepoId(repoId);
         Assert.notNull(appEntity, "Not found appEntity for given github repo.");
 
-        gitMirrorService.syncGithubToGitlab(appEntity.getName());
+        gitMirrorService.syncGithubToGitlab(appEntity.getName(), commit);
     }
 
     public void receivePipeLineEventHook(Map payloads) throws Exception {

@@ -5,10 +5,7 @@ import org.eclipse.egit.github.core.RepositoryHook;
 import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.service.RepositoryService;
 import org.gitlab4j.api.GitLabApi;
-import org.gitlab4j.api.models.ImpersonationToken;
-import org.gitlab4j.api.models.Project;
-import org.gitlab4j.api.models.ProjectHook;
-import org.gitlab4j.api.models.Visibility;
+import org.gitlab4j.api.models.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +50,7 @@ public class GitMirrorService {
     @Autowired
     private Environment environment;
 
-    private static String GITHUB_MIRROR_SERVICE = "github-mirror-service";
+    private static String MIRROR_PROJECT_PREFIX = "-mirror";
     private static String SYNC_TO_GITHUB = "github";
     private static String SYNC_TO_GITLAB = "gitlab";
 
@@ -80,7 +77,7 @@ public class GitMirrorService {
         RepositoryHook repositoryHook = githubExtentApi.createRepositoryHook(githubToken, repository, url);
 
         //push gitlab source codes to github. (trigger project ci will continue in shell script.)
-        this.syncGitlabToGithub(appEntity.getName());
+        this.syncGitlabToGithub(appEntity.getName(), null);
     }
 
     public void manageExistGithubProject(
@@ -113,15 +110,15 @@ public class GitMirrorService {
         }
 
         //push github source codes to gitlab.
-        this.syncGithubToGitlab(appEntity.getName());
+        this.syncGithubToGitlab(appEntity.getName(), null);
     }
 
-    public void syncGithubToGitlab(String appName) throws Exception {
-        this.executeMirrorPipelineTrigger(appName, SYNC_TO_GITLAB);
+    public void syncGithubToGitlab(String appName, String commit) throws Exception {
+        this.executeMirrorPipelineTrigger(appName, commit, SYNC_TO_GITLAB);
     }
 
-    public void syncGitlabToGithub(String appName) throws Exception {
-        this.executeMirrorPipelineTrigger(appName, SYNC_TO_GITHUB);
+    public void syncGitlabToGithub(String appName, String commit) throws Exception {
+        this.executeMirrorPipelineTrigger(appName, commit, SYNC_TO_GITHUB);
     }
 
     /**
@@ -131,14 +128,24 @@ public class GitMirrorService {
      * @return
      * @throws Exception
      */
-    public Map executeMirrorPipelineTrigger(String appName, String syncTo) throws Exception {
+    public Map executeMirrorPipelineTrigger(String appName, String commit, String syncTo) throws Exception {
 
-        LOGGER.info("executeMirrorPipelineTrigger {}, {}", appName, syncTo);
+        //commit just need for user navigate which commit is mirroring.
+        LOGGER.info("executeMirrorPipelineTrigger {}, sync to  {}, commit {}", appName, syncTo, commit);
+
+        AppEntity appEntity = appWebCacheService.findOneCache(appName);
+        String userName = appEntity.getIam();
+        OauthUser oauthUser = iamClient.getUser(userName);
+
+        Assert.notNull(oauthUser.getMetaData().get("gitlab-id"), "gitlab-id required.");
+        int gitlabId = (int) oauthUser.getMetaData().get("gitlab-id");
+        User gitlabUser = gitLabApi.getUserApi().getUser(gitlabId);
+        Assert.notNull(gitlabUser, "gitlabUser not exist.");
 
         //check mirror ci project, and create if not exist.
-        Project mirrorProject = this.getMirrorProject();
+        Project mirrorProject = this.getMirrorProject(appName);
         if (mirrorProject == null) {
-            mirrorProject = this.createMirrorProject();
+            mirrorProject = this.createMirrorProject(appName, gitlabUser);
         }
 
         int mirrorProjectId = mirrorProject.getId();
@@ -146,12 +153,21 @@ public class GitMirrorService {
 
         //콘텐트 교체.
         //교체할 파라미터 셋
-        Map<String, Object> variables = this.getMirrorTriggerVariables(appName, syncTo);
+        Map<String, Object> variables = this.getMirrorTriggerVariables(appName, oauthUser, syncTo);
         Map pipeline = gitlabExtentApi.triggerPipeline(mirrorProjectId, token, "master", variables);
+
         return pipeline;
     }
 
-    private Map<String, Object> getMirrorTriggerVariables(String appName, String syncTo) throws Exception {
+    /**
+     * 미러 파이프라인을 실행하기 위한 파라미터들을 수집한다.
+     * @param appName
+     * @param oauthUser
+     * @param syncTo
+     * @return
+     * @throws Exception
+     */
+    private Map<String, Object> getMirrorTriggerVariables(String appName, OauthUser oauthUser, String syncTo) throws Exception {
 
         Map<String, Object> data = new HashMap<>();
         String APP_NAME = appName;
@@ -161,10 +177,7 @@ public class GitMirrorService {
 
         AppEntity appEntity = appWebCacheService.findOneCache(appName);
         String accessToken = null;
-        OauthUser oauthUser = null;
         try {
-            String userName = appEntity.getIam();
-            oauthUser = iamClient.getUser(userName);
             ResourceOwnerPasswordCredentials passwordCredentials = new ResourceOwnerPasswordCredentials();
             passwordCredentials.setUsername(oauthUser.getUserName());
             passwordCredentials.setPassword(oauthUser.getUserPassword());
@@ -262,23 +275,51 @@ public class GitMirrorService {
         return data;
     }
 
-    private Project getMirrorProject() throws Exception {
+    /**
+     * 미러 프로젝트를 가져온다.
+     * @param appName
+     * @return
+     * @throws Exception
+     */
+    public Project getMirrorProject(String appName) throws Exception {
+        //MIRROR_PROJECT_PREFIX
         Project mirrorProject = null;
-        List<Project> projects = gitLabApi.getProjectApi().getProjects(GITHUB_MIRROR_SERVICE);
+        List<Project> projects = gitLabApi.getProjectApi().getProjects(appName + MIRROR_PROJECT_PREFIX);
         for (int i = 0; i < projects.size(); i++) {
-            if (projects.get(i).getName().equals(GITHUB_MIRROR_SERVICE)) {
+            if (projects.get(i).getName().equals(appName + MIRROR_PROJECT_PREFIX)) {
                 mirrorProject = projects.get(i);
             }
         }
         return mirrorProject;
     }
 
-    private Project createMirrorProject() throws Exception {
+    /**
+     * 미러 프로젝트를 생성한다.
+     * @param appName
+     * @param gitlabUser
+     * @return
+     * @throws Exception
+     */
+    public Project createMirrorProject(String appName, User gitlabUser) throws Exception {
+
+        //set gitlabNamespace as gitlab user namespace
+        Namespace gitlabNamespace = null;
+        String username = gitlabUser.getUsername();
+        List<Namespace> namespaces = gitLabApi.getNamespaceApi().findNamespaces(username);
+        for (Namespace space : namespaces) {
+            if (space.getPath().equals(username)) {
+                gitlabNamespace = space;
+            }
+        }
+        Assert.notNull(gitlabNamespace, "gitlabNamespace for user " + username + " not found.");
+
+        //create mirror project.
         Project projectToBe = new Project();
         projectToBe.setPublic(true);
         projectToBe.setVisibility(Visibility.PUBLIC);
-        projectToBe.setPath(GITHUB_MIRROR_SERVICE);
-        projectToBe.setName(GITHUB_MIRROR_SERVICE);
+        projectToBe.setPath(appName + MIRROR_PROJECT_PREFIX);
+        projectToBe.setName(appName + MIRROR_PROJECT_PREFIX);
+        projectToBe.setNamespace(gitlabNamespace);
 
         Project project = gitLabApi.getProjectApi().createProject(projectToBe);
         Integer projectId = project.getId();
@@ -288,7 +329,7 @@ public class GitMirrorService {
         gitlabExtentApi.enableRunner(projectId, dockerRunnerId);
 
         //트리거 등록
-        gitlabExtentApi.createTrigger(projectId, null, "dcosTrigger");
+        gitlabExtentApi.createTrigger(projectId, gitlabUser.getUsername(), "dcosTrigger");
 
         //ci 파일 복사
         int repoId = Integer.parseInt(environment.getProperty("gitlab.config-repo.projectId"));
