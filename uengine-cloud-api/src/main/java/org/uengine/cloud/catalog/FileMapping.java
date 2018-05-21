@@ -1,6 +1,6 @@
 package org.uengine.cloud.catalog;
 
-import java.util.Map;
+import java.io.Serializable;
 
 /**
  * Created by uengine on 2018. 1. 15..
@@ -9,7 +9,7 @@ public class FileMapping {
     private String path;
     private String file;
 
-    private Map<String, Object> data;
+    private Serializable data;
 
     public String getPath() {
         return path;
@@ -27,14 +27,11 @@ public class FileMapping {
         this.file = file;
     }
 
-    public Map<String, Object> getData() {
+    public Serializable getData() {
         return data;
     }
 
-    public void setData(Map<String, Object> data) {
+    public void setData(Serializable data) {
         this.data = data;
     }
-
-
-
 }
