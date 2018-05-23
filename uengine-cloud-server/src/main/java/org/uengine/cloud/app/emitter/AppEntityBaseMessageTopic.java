@@ -4,5 +4,6 @@ public enum AppEntityBaseMessageTopic {
     app,
     marathonApp,
     deployJson,
-    pipeline
+    pipeline,
+    mirrorPipeline
 }

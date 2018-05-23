@@ -56,6 +56,10 @@ public class GitMirrorService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GitMirrorService.class);
 
+    public String getMirrorProjectPrefix() {
+        return this.MIRROR_PROJECT_PREFIX;
+    }
+
     public void createNewGithubProject(
             AppEntity appEntity,
             OauthUser oauthUser,
@@ -113,12 +117,12 @@ public class GitMirrorService {
         this.syncGithubToGitlab(appEntity.getName(), null);
     }
 
-    public void syncGithubToGitlab(String appName, String commit) throws Exception {
-        this.executeMirrorPipelineTrigger(appName, commit, SYNC_TO_GITLAB);
+    public Map syncGithubToGitlab(String appName, String commit) throws Exception {
+        return this.executeMirrorPipelineTrigger(appName, commit, SYNC_TO_GITLAB);
     }
 
-    public void syncGitlabToGithub(String appName, String commit) throws Exception {
-        this.executeMirrorPipelineTrigger(appName, commit, SYNC_TO_GITHUB);
+    public Map syncGitlabToGithub(String appName, String commit) throws Exception {
+        return this.executeMirrorPipelineTrigger(appName, commit, SYNC_TO_GITHUB);
     }
 
     /**
@@ -284,7 +288,6 @@ public class GitMirrorService {
      * @throws Exception
      */
     public Project getMirrorProject(String appName) throws Exception {
-        //MIRROR_PROJECT_PREFIX
         Project mirrorProject = null;
         List<Project> projects = gitLabApi.getProjectApi().getProjects(appName + MIRROR_PROJECT_PREFIX);
         for (int i = 0; i < projects.size(); i++) {

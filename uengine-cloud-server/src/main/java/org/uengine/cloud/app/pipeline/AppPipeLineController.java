@@ -2,6 +2,7 @@ package org.uengine.cloud.app.pipeline;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.uengine.cloud.app.git.GitMirrorService;
 import org.uengine.cloud.app.log.AppLogAction;
 import org.uengine.cloud.app.log.AppLogService;
 import org.uengine.cloud.app.log.AppLogStatus;
@@ -25,6 +26,9 @@ public class AppPipeLineController {
     private AppPipeLineCacheService pipeLineCacheService;
 
     @Autowired
+    private GitMirrorService gitMirrorService;
+
+    @Autowired
     private AppLogService logService;
 
     /**
@@ -42,6 +46,23 @@ public class AppPipeLineController {
                                               @PathVariable("appName") String appName
     ) throws Exception {
         return pipeLineCacheService.getLastPipeline(appName);
+    }
+
+    /**
+     * 앱의 마지막 미러 파이프라인 결과를 가져온다.
+     *
+     * @param request
+     * @param response
+     * @param appName  앱 이름
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/{appName}/pipeline/lastmirror", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+    public AppLastPipeLine getAppLastMirrorPipeline(HttpServletRequest request,
+                                                    HttpServletResponse response,
+                                                    @PathVariable("appName") String appName
+    ) throws Exception {
+        return pipeLineCacheService.getLastMirrorPipeline(appName);
     }
 
     /**
@@ -114,6 +135,32 @@ public class AppPipeLineController {
             return map;
         } catch (Exception ex) {
             logService.addHistory(appName, AppLogAction.EXCUTE_PIPELINE_TRIGGER, AppLogStatus.FAILED, log);
+            throw ex;
+        }
+    }
+
+
+    /**
+     * 앱 미러 파이프라인을 실행한다. (깃헙 내용을 깃랩과 동기화 시킨다.)
+     *
+     * @param request
+     * @param response
+     * @param appName  앱 이름
+     * @return
+     * @throws Exception
+     */
+    @RequestMapping(value = "/{appName}/pipelinemirror", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    public Map excuteMirrorPipelineTrigger(HttpServletRequest request,
+                                           HttpServletResponse response,
+                                           @PathVariable("appName") String appName
+    ) throws Exception {
+        Map log = new HashMap();
+        try {
+            Map map = gitMirrorService.syncGithubToGitlab(appName, null);
+            logService.addHistory(appName, AppLogAction.EXCUTE_MIRROR_PIPELINE_TRIGGER, AppLogStatus.SUCCESS, log);
+            return map;
+        } catch (Exception ex) {
+            logService.addHistory(appName, AppLogAction.EXCUTE_MIRROR_PIPELINE_TRIGGER, AppLogStatus.FAILED, log);
             throw ex;
         }
     }

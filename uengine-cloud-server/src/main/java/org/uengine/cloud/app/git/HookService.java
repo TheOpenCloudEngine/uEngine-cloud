@@ -180,6 +180,28 @@ public class HookService {
         }
     }
 
+    public void receiveMirrorPipeLineEventHook(Map payloads) throws Exception {
+        //running, pending 은 진행중
+        //success, failed, canceled, skipped 인 경우는 이력에 저장.
+        String mirrorProjectName = (String) ((Map) payloads.get("project")).get("name");
+        int mirrorProjectId = (int) ((Map) payloads.get("project")).get("id");
+        String appName = mirrorProjectName.replace(gitMirrorService.getMirrorProjectPrefix(), "");
+        AppEntity appEntity = appEntityRepository.findOne(appName);
+
+        String status = ((Map) payloads.get("object_attributes")).get("status").toString();
+
+        LOGGER.info("receiveMirrorPipeLineEventHook {}, {}", mirrorProjectId, appName);
+
+        //파이프라인 캐쉬 업데이트
+        AppLastPipeLine lastPipeLine = pipeLineCacheService.updateLastMirrorPipeline(appName);
+
+        //파이프라인 변경 알림
+        messageHandler.publish(AppEntityBaseMessageTopic.mirrorPipeline, appEntity, null, lastPipeLine);
+
+        //이력 저장
+        logService.addHistory(appName, AppLogAction.MIRROR_PIPELINE, AppLogStatus.valueOf(status.toUpperCase()), null);
+    }
+
     public void receivePushEventHook(Map payloads) throws Exception {
         int projectId = (int) ((Map) payloads.get("project")).get("id");
         AppEntity appEntity = appEntityRepository.findByProjectId(projectId);

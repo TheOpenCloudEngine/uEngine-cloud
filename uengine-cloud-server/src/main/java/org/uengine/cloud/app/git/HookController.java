@@ -32,6 +32,9 @@ public class HookController {
     @Autowired
     private HookService hookService;
 
+    @Autowired
+    private GitMirrorService gitMirrorService;
+
     @RequestMapping(value = "/githubhook", method = RequestMethod.POST)
     public void receiveGithubWebHook(HttpServletRequest request,
                                      HttpServletResponse response,
@@ -56,7 +59,16 @@ public class HookController {
 
         try {
             if (payloads.get("object_kind").toString().equals("pipeline")) {
-                hookService.receivePipeLineEventHook(payloads);
+
+                //if mirror project
+                String projectName = (String) ((Map) payloads.get("project")).get("name");
+                if (projectName.endsWith(gitMirrorService.getMirrorProjectPrefix())) {
+                    hookService.receiveMirrorPipeLineEventHook(payloads);
+                }
+                //if project
+                else {
+                    hookService.receivePipeLineEventHook(payloads);
+                }
             } else if (payloads.get("object_kind").toString().equals("push")) {
                 hookService.receivePushEventHook(payloads);
             }
