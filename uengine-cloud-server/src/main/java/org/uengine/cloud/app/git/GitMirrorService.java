@@ -81,7 +81,7 @@ public class GitMirrorService {
         RepositoryHook repositoryHook = githubExtentApi.createRepositoryHook(githubToken, repository, url);
 
         //push gitlab source codes to github. (trigger project ci will continue in shell script.)
-        this.syncGitlabToGithub(appEntity.getName(), null);
+        this.syncGitlabToGithub(appEntity.getName(), null, true);
     }
 
     public void manageExistGithubProject(
@@ -118,11 +118,11 @@ public class GitMirrorService {
     }
 
     public Map syncGithubToGitlab(String appName, String commit) throws Exception {
-        return this.executeMirrorPipelineTrigger(appName, commit, SYNC_TO_GITLAB);
+        return this.executeMirrorPipelineTrigger(appName, commit, SYNC_TO_GITLAB, false);
     }
 
-    public Map syncGitlabToGithub(String appName, String commit) throws Exception {
-        return this.executeMirrorPipelineTrigger(appName, commit, SYNC_TO_GITHUB);
+    public Map syncGitlabToGithub(String appName, String commit, boolean runCiAfterSync) throws Exception {
+        return this.executeMirrorPipelineTrigger(appName, commit, SYNC_TO_GITHUB, runCiAfterSync);
     }
 
     /**
@@ -132,7 +132,7 @@ public class GitMirrorService {
      * @return
      * @throws Exception
      */
-    public Map executeMirrorPipelineTrigger(String appName, String commit, String syncTo) throws Exception {
+    public Map executeMirrorPipelineTrigger(String appName, String commit, String syncTo, boolean runCiAfterSync) throws Exception {
 
         //commit just need for user navigate which commit is mirroring.
         LOGGER.info("executeMirrorPipelineTrigger {}, sync to  {}, commit {}", appName, syncTo, commit);
@@ -158,6 +158,13 @@ public class GitMirrorService {
         //콘텐트 교체.
         //교체할 파라미터 셋
         Map<String, Object> variables = this.getMirrorTriggerVariables(appName, oauthUser, syncTo);
+
+        // CI_RUN if need pipeline run after sync repository.
+        // it will be needed if repository first created.
+        if (runCiAfterSync) {
+            variables.put("CI_RUN", "true");
+        }
+
         Map pipeline = gitlabExtentApi.triggerPipeline(mirrorProjectId, token, "master", variables);
 
         return pipeline;

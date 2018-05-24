@@ -8,6 +8,7 @@ echo "ACCESS_TOKEN: ${ACCESS_TOKEN}"
 echo "UENGINE_CLOUD_URL: ${UENGINE_CLOUD_URL}"
 echo "APP_NAME: ${APP_NAME}"
 echo "SYNC_TO: ${SYNC_TO}"
+echo "CI_RUN: ${CI_RUN}"
 echo "GITHUB_REPO_NAME: ${GITHUB_REPO_NAME}"
 echo "GITHUB_REPO_OWNER: ${GITHUB_REPO_OWNER}"
 echo "GITLAB_REPO_NAME: ${GITLAB_REPO_NAME}"
@@ -29,30 +30,33 @@ if [ ${SYNC_TO} == "github" ]; then
   git --bare fetch -p origin
   git push --mirror -f
 
-  RESULT="$(curl --request POST \
-                -s -o /dev/null -w "%{http_code}" \
-                -H "access_token: ${ACCESS_TOKEN}" \
-                -H "content-type: application/json" \
-                "${UENGINE_CLOUD_URL}/app/${APP_NAME}/pipeline?ref=dev&stage=master")"
+  if [ ${CI_RUN} == "true" ]; then
 
-  echo "RESULT: $RESULT"
+      RESULT="$(curl --request POST \
+                    -s -o /dev/null -w "%{http_code}" \
+                    -H "access_token: ${ACCESS_TOKEN}" \
+                    -H "content-type: application/json" \
+                    "${UENGINE_CLOUD_URL}/app/${APP_NAME}/pipeline?ref=dev&stage=master")"
 
-  #----------------------------------------------------------------------
-  # 파이프라인 요청 성공
-  if [ $RESULT -eq 200 ];then
+      echo "RESULT: $RESULT"
 
-     echo "Trigger pipeline Application to cloud server succeeded."
-     echo ""
-     exit 0
+      #----------------------------------------------------------------------
+      # 파이프라인 요청 성공
+      if [ $RESULT -eq 200 ];then
 
-  #----------------------------------------------------------------------
-  # 파이프라인 요청 실패
+         echo "Trigger pipeline Application to cloud server succeeded."
+         echo ""
+         exit 0
 
-  else
+      #----------------------------------------------------------------------
+      # 파이프라인 요청 실패
 
-     echo "Trigger pipeline Application to cloud server failed."
-     echo ""
-     exit 1
+      else
+
+         echo "Trigger pipeline Application to cloud server failed."
+         echo ""
+         exit 1
+      fi
   fi
 
 else

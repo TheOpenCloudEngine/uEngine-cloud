@@ -57,7 +57,7 @@ public class AppPipeLineController {
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "/{appName}/pipeline/lastmirror", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+    @RequestMapping(value = "/{appName}/pipeline/mirrorlast", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
     public AppLastPipeLine getAppLastMirrorPipeline(HttpServletRequest request,
                                                     HttpServletResponse response,
                                                     @PathVariable("appName") String appName
@@ -145,18 +145,25 @@ public class AppPipeLineController {
      *
      * @param request
      * @param response
-     * @param appName  앱 이름
+     * @param appName
+     * @param target
      * @return
      * @throws Exception
      */
-    @RequestMapping(value = "/{appName}/pipelinemirror", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    @RequestMapping(value = "/{appName}/mirrorpipeline", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
     public Map excuteMirrorPipelineTrigger(HttpServletRequest request,
                                            HttpServletResponse response,
-                                           @PathVariable("appName") String appName
+                                           @PathVariable("appName") String appName,
+                                           @RequestParam(value = "target", defaultValue = "gitlab") String target
     ) throws Exception {
         Map log = new HashMap();
         try {
-            Map map = gitMirrorService.syncGithubToGitlab(appName, null);
+            Map map = null;
+            if ("gitlab".equals(target)) {
+                map = gitMirrorService.syncGithubToGitlab(appName, null);
+            } else {
+                map = gitMirrorService.syncGitlabToGithub(appName, null, false);
+            }
             logService.addHistory(appName, AppLogAction.EXCUTE_MIRROR_PIPELINE_TRIGGER, AppLogStatus.SUCCESS, log);
             return map;
         } catch (Exception ex) {
