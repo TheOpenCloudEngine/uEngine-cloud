@@ -8,6 +8,7 @@ import AvatarUploader from '../components/AvatarUploader'
 Vue.component('avatar-uploader', AvatarUploader);
 
 import VueSlider from 'vue-slider-component'
+
 Vue.component('vue-slider', VueSlider);
 
 import DcosDataProvider from '../components/DcosDataProvider'
@@ -125,6 +126,10 @@ import ScaleApp from '../components/editor/ScaleApp'
 
 Vue.component('scale-app', ScaleApp);
 
+import GithubTokenEditor from '../components/editor/GithubTokenEditor'
+
+Vue.component('github-token-editor', GithubTokenEditor);
+
 
 /**
  * 앱
@@ -145,6 +150,19 @@ Vue.component('apps-overview', AppsOverview);
 import AppsCreate from '../components/apps/AppsCreate'
 
 Vue.component('apps-create', AppsCreate);
+
+import AppsCreateEnv from '../components/apps/AppsCreateEnv'
+
+Vue.component('apps-create-env', AppsCreateEnv);
+
+import AppsCreateGit from '../components/apps/AppsCreateGit'
+
+Vue.component('apps-create-git', AppsCreateGit);
+
+import AppsCreateRepo from '../components/apps/AppsCreateRepo'
+
+Vue.component('apps-create-repo', AppsCreateRepo);
+
 
 import AppsDetail from '../components/apps/AppsDetail'
 

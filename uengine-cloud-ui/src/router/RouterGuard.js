@@ -27,6 +27,10 @@ module.exports = function (iam) {
     });
   };
   module.isAuthenticated = function (callback) {
+    localStorage['userName'] = null;
+    localStorage['acl'] = null;
+    localStorage['gitlab-id'] = null;
+    localStorage['githubToken'] = null;
     if (!localStorage['access_token']) {
       callback(false);
     }
@@ -35,6 +39,7 @@ module.exports = function (iam) {
         localStorage['userName'] = info.context['userName'];
         localStorage['acl'] = info.context.user['metaData'].acl;
         localStorage['gitlab-id'] = info.context.user['metaData']['gitlab-id'];
+        localStorage['githubToken'] = info.context.user['metaData']['githubToken'];
         callback(true);
       })
       .fail(function () {

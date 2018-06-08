@@ -27,7 +27,7 @@
         <md-layout class="category-item" md-flex="33"
                    v-for="item in catalog[focusCategoryIndex].items"
         >
-          <div v-on:click="moveCreate(item.id)">
+          <div v-on:click="moveAppCreate(item.id)">
             <md-layout>
               <md-layout md-flex="20">
                 <div>
@@ -46,10 +46,13 @@
         </md-layout>
       </md-layout>
     </md-layout>
+
+    <github-token-editor ref="github-token-editor"></github-token-editor>
   </md-layout>
 </template>
 <script>
   import DcosDataProvider from '../DcosDataProvider'
+
   export default {
     mixins: [DcosDataProvider],
     props: {},
@@ -59,10 +62,20 @@
         focusCategoryIndex: 0
       }
     },
-    mounted(){
+    mounted() {
       var me = this;
       me.$root.backend('catalog').get()
         .then(function (response) {
+          $.each(response.data, function (i, category) {
+            if (category.id == 'app') {
+              me.getCategoryItem('import', function (item) {
+                category.items = [item].concat(category.items);
+              });
+              me.getCategoryItem('github', function (item) {
+                category.items = [item].concat(category.items);
+              });
+            }
+          })
           me.catalog = response.data;
         });
     },
@@ -72,15 +85,26 @@
       setFocusCategory: function (index) {
         this.focusCategoryIndex = index;
       },
-      moveCreate: function (categoryItemId) {
-        console.log('categoryItemId', categoryItemId);
+      moveAppCreate: function (categoryItemId) {
         var me = this;
-        this.$router.push(
-          {
-            name: 'appsCreate',
-            params: {categoryItemId: categoryItemId}
-          }
-        )
+        var move = function () {
+          me.$router.push(
+            {
+              name: 'appsCreate',
+              params: {
+                categoryItemId: categoryItemId
+              }
+            }
+          )
+        }
+        if (categoryItemId == 'github') {
+          me.$refs['github-token-editor'].validate(function () {
+            move();
+          })
+        }
+        else {
+          move();
+        }
       }
     }
   }

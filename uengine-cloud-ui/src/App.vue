@@ -16,6 +16,10 @@
                      path="/gitlab/"
                      resource-name="gitlab"></service-locator>
 
+    <service-locator :host="backendUrl"
+                     path="/github/"
+                     resource-name="github"></service-locator>
+
     <service-locator v-if="config" :host="'http://' + config.vcap.services['eureka-server'].external"
                      path="/eureka/"
                      resource-name="eureka"></service-locator>

@@ -35,7 +35,10 @@ public class RestFilter extends GenericFilterBean {
         HttpServletResponse response = (HttpServletResponse) res;
         HttpServletRequest request = (HttpServletRequest) req;
         String requestURI = request.getRequestURI();
-        String[] guestPaths = new String[]{"/info", "/", "/health", "/refreshRoute", "/hook", "/migration", "/fetchLBData", "/emitter", "/systemhook", "/githubhook"};
+        String[] guestPaths = new String[]{
+                "/info", "/", "/health", "/refreshRoute",
+                "/hook", "/migration", "/fetchLBData",
+                "/emitter", "/systemhook", "/githubhook"};
 
         if (request.getMethod().equals(HttpMethod.OPTIONS.toString())) {
             chain.doFilter(req, res);
@@ -74,6 +77,16 @@ public class RestFilter extends GenericFilterBean {
                     ExceptionUtils.httpExceptionResponse(ex, response);
                     return;
                 }
+            } else if (requestURI.startsWith("/github")) {
+                try {
+                    doGithubProxy(request, response, user);
+                    return;
+                } catch (Exception ex) {
+                    response.setStatus(400);
+                    this.addCors(response);
+                    ExceptionUtils.httpExceptionResponse(ex, response);
+                    return;
+                }
             } else if (requestURI.startsWith("/dcos")) {
                 try {
                     doDcosProxy(request, response);
@@ -94,6 +107,26 @@ public class RestFilter extends GenericFilterBean {
     @Override
     public void destroy() {
 
+    }
+
+    private void doGithubProxy(HttpServletRequest request, HttpServletResponse response, OauthUser user) throws Exception {
+        if (!user.getMetaData().containsKey("githubToken")) {
+            throw new Exception("user does not have githubToken");
+        }
+        String githubToken = user.getMetaData().get("githubToken").toString();
+        Map requiredHeaders = new HashMap();
+        requiredHeaders.put("Authorization", "token " + githubToken);
+
+        ProxyRequest proxyRequest = new ProxyRequest();
+        proxyRequest.setRequest(request);
+        proxyRequest.setResponse(response);
+
+        proxyRequest.setHost("https://api.github.com");
+        proxyRequest.setPath(request.getRequestURI().replaceFirst("/github", ""));
+        proxyRequest.setHeaders(requiredHeaders);
+        proxyRequest.setResponseHeaders(this.addReponseHeaders());
+
+        new ProxyService().doProxy(proxyRequest);
     }
 
     private void doConfigProxy(HttpServletRequest request, HttpServletResponse response) throws Exception {

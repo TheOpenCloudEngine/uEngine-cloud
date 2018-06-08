@@ -28,83 +28,84 @@
           </table>
         </div>
       </md-layout>
+
       <md-layout md-flex="70">
-        <div class="bold">앱 이름:</div>
-        <md-input-container v-bind:class="{ 'md-input-invalid': invalidAppName }">
-          <label>고유한 이름 입력</label>
-          <md-input v-model="appName"></md-input>
-          <span class="md-error">'-' 를 제외한 공백,또는 특수문자를 허용하지 않습니다.</span>
-        </md-input-container>
-        <br><br>
-        <md-layout md-flex="100" :md-gutter="16">
-          <md-layout>
-            <div class="bold">외부 접속 주소:</div>
-            <md-input-container>
-              <label>외부 프로덕션 도메인 주소</label>
-              <md-input v-model="externalProdDomain"></md-input>
+        <!--Manage exist github-->
+        <md-stepper v-if="categoryItemId == 'github'">
+          <md-step
+            :md-editable="true"
+            md-label="Github"
+            :md-error="!githubSelected()"
+            :md-continue="githubSelected()"
+            :md-message="githubRepoName ? githubRepoName : 'Git 레파지토리를 선택하세요'">
+            <apps-create-git
+              :githubRepoId.sync="githubRepoId"
+              :githubRepoName.sync="githubRepoName"
+            ></apps-create-git>
+          </md-step>
+          <md-step
+            :md-disabled="!githubSelected()"
+            :md-error="!appEnvSelected()"
+            :md-continue="appEnvSelected()"
+            md-message="앱 정보를 기입하세요."
+            md-label="Environment">
+            <apps-create-env
+              :env.sync="appEnv"
+            ></apps-create-env>
+          </md-step>
+        </md-stepper>
+
+        <!--Import git url-->
+        <md-stepper v-else-if="categoryItemId == 'import'">
+          <md-step
+            md-label="Git url"
+            :md-error="!importGitUrlSelected()"
+            :md-continue="importGitUrlSelected()"
+            md-message="임포트할 Git 주소가 필요합니다">
+            <md-input-container :class="{'md-input-invalid': !importGitUrlSelected()}">
+              <md-input type="text" v-model="importGitUrl" required/>
+              <label>Git Url</label>
             </md-input-container>
-            <md-input-container>
-              <label>외부 스테이징 도메인 주소</label>
-              <md-input readonly v-model="externalStgDomain"></md-input>
-            </md-input-container>
-            <md-input-container>
-              <label>외부 개발 도메인 주소</label>
-              <md-input readonly v-model="externalDevDomain"></md-input>
-            </md-input-container>
-          </md-layout>
-          <md-layout>
-            <div class="bold">내부 접속 주소:</div>
-            <md-input-container>
-              <label>내부 프로덕션 주소</label>
-              <md-input readonly v-model="internalProdDomain"></md-input>
-            </md-input-container>
-            <md-input-container>
-              <label>내부 스테이징 주소</label>
-              <md-input readonly v-model="internalStgDomain"></md-input>
-            </md-input-container>
-            <md-input-container>
-              <label>내부 개발 주소</label>
-              <md-input readonly v-model="internalDevDomain"></md-input>
-            </md-input-container>
-          </md-layout>
-        </md-layout>
-        <md-layout md-flex="50">
-          <div class="bold">리소스:</div>
-          <md-layout md-flex="100" :md-gutter="16">
-            <md-layout>
-              <md-input-container>
-                <label>cpu</label>
-                <md-input type="number" v-model.number="cpu"></md-input>
-              </md-input-container>
-            </md-layout>
-            <md-layout>
-              <md-input-container>
-                <label>메모리 (MB)</label>
-                <md-input type="number" v-model.number="mem"></md-input>
-              </md-input-container>
-            </md-layout>
-            <md-layout>
-              <md-input-container>
-                <label>인스턴스 수</label>
-                <md-input type="number" v-model.number="instances"></md-input>
-              </md-input-container>
-            </md-layout>
-          </md-layout>
-        </md-layout>
-        <md-layout md-flex="50" :md-gutter="16">
-          <div class="bold">깃랩 그룹: (생성 후에도 변경가능합니다.)</div>
-          <md-layout md-flex="100">
-            <md-input-container>
-              <md-select v-model="namespace">
-                <md-option value="">내 아이디로 생성</md-option>
-                <md-option v-for="group in groups" :value="group.path">{{group.name}}</md-option>
-              </md-select>
-            </md-input-container>
-          </md-layout>
-        </md-layout>
+          </md-step>
+          <md-step
+            :md-disabled="!importGitUrlSelected()"
+            :md-error="!appEnvSelected()"
+            :md-continue="appEnvSelected()"
+            md-message="앱 정보를 기입하세요."
+            md-label="Environment">
+            <apps-create-env
+              :env.sync="appEnv"
+            ></apps-create-env>
+          </md-step>
+          <md-step
+            :md-disabled="!importGitUrlSelected() || !appEnvSelected()"
+            :md-error="!appRepoSelected()"
+            :md-continue="appRepoSelected()"
+            md-message="레파지토리 정보를 기입하세요."
+            md-label="Repository">
+            <apps-create-repo
+              :repo.sync="appRepo"
+            ></apps-create-repo>
+          </md-step>
+        </md-stepper>
 
 
-        <md-button class="md-primary md-raised" @click="create">생성하기</md-button>
+        <md-stepper v-else>
+          <md-step :md-disabled="!appEnvSelected()"
+                   :md-continue="appEnvSelected()"
+                   md-message="앱 정보를 기입하세요."
+                   md-label="Environment">
+            <apps-create-env
+              :env.sync="appEnv"
+            ></apps-create-env>
+          </md-step>
+          <md-step :md-disabled="!mailValid"
+                   :md-continue="mailValid"
+                   md-message="레파지토리 정보를 기입하세요."
+                   md-label="Repository">
+            <p>This seems something important I need to fix just right before the last step.</p>
+          </md-step>
+        </md-stepper>
       </md-layout>
     </md-layout>
   </div>
@@ -118,6 +119,13 @@
     props: {},
     data() {
       return {
+        appEnv: null,
+        githubRepoId: null,
+        githubRepoName: null,
+        importGitUrl: null,
+        appRepo: null,
+
+        mailValid: false,
         defaultHost: window.config['default-host'],
         categoryItem: null,
         cpu: 0.4,
@@ -138,59 +146,32 @@
         prodPort: null,
         stgPort: null,
         devPort: null,
-        invalidAppName: false
+        invalidAppName: false,
       }
     },
     mounted() {
       var me = this;
-      me.getGroupsIncludeMe(localStorage['gitlab-id'], function (groups) {
-        if (groups) {
-          me.groups = groups;
-        }
-      });
       this.getCategoryItem(me.categoryItemId, function (item) {
         me.categoryItem = item;
       });
     },
-    watch: {
-      appName: function (val) {
-        var me = this;
-        if (!val) {
-          val = '';
-        }
-        this.internalProdDomain = 'marathon-lb-internal.marathon.mesos:port';
-        this.internalStgDomain = 'marathon-lb-internal.marathon.mesos:port';
-        this.internalDevDomain = 'marathon-lb-internal.marathon.mesos:port';
-        this.externalProdDomain = val + '.' + this.defaultHost;
-
-        var special_pattern = /[_`~!@#$%^&*|\\\'\";:\/?]/gi;
-        if (special_pattern.test(val) == true) {
-          this.invalidAppName = true;
-        }
-        else if (val.indexOf(' ') != -1) {
-          this.invalidAppName = true;
-        }
-        else {
-          this.invalidAppName = false;
-        }
-      },
-      externalProdDomain: function (val) {
-        if (val) {
-          let split = val.split('.');
-          let subDomain = split[0];
-          if (subDomain && subDomain.length > 0) {
-            var left = val.substring(subDomain.length, val.length);
-            this.externalStgDomain = subDomain + '-stg' + left;
-            this.externalDevDomain = subDomain + '-dev' + left;
-          }
-        } else {
-          this.externalStgDomain = '';
-          this.externalDevDomain = '';
-        }
-      }
-    }
+    watch: {}
     ,
     methods: {
+      appRepoSelected: function () {
+        return this.appRepo != null;
+      },
+      importGitUrlSelected: function () {
+        return this.importGitUrl != null && this.importGitUrl.length > 0;
+      },
+
+      appEnvSelected: function () {
+        return this.appEnv != null;
+      },
+      githubSelected: function () {
+        return this.githubRepoId && this.githubRepoId > 0;
+      },
+
       create: function () {
         var me = this;
         var appCreate = {
