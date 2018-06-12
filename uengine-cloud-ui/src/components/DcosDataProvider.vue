@@ -860,8 +860,8 @@
           cb({
             id: "import",
             category: "app",
-            header: "Import Project",
-            title: "Import Project",
+            header: "Fork from git",
+            title: "Fork from git",
             description: "Git url 로부터 소스코드를 임포트하여 새로운 앱을 시작합니다.",
             version: "1.0",
             logoSrc: '/static/image/catalog/import.png',
@@ -874,8 +874,8 @@
           cb({
             id: "github",
             category: "app",
-            header: "Exist Github Project",
-            title: "Exist Github Project",
+            header: "Sync with github",
+            title: "Sync with github",
             description: "기존의 보유한 Github 레파지토리를 클라우드 플랫폼과 연동합니다.",
             version: "1.0",
             logoSrc: '/static/image/catalog/github.svg',

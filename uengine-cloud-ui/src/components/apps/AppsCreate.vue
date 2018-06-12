@@ -84,13 +84,14 @@
             md-message="레파지토리 정보를 기입하세요."
             md-label="Repository">
             <apps-create-repo
+              :appEnv="appEnv"
               :repo.sync="appRepo"
             ></apps-create-repo>
           </md-step>
         </md-stepper>
 
 
-        <md-stepper v-else>
+        <md-stepper v-else v-on:completed="create">
           <md-step :md-disabled="!appEnvSelected()"
                    :md-continue="appEnvSelected()"
                    md-message="앱 정보를 기입하세요."
@@ -99,11 +100,16 @@
               :env.sync="appEnv"
             ></apps-create-env>
           </md-step>
-          <md-step :md-disabled="!mailValid"
-                   :md-continue="mailValid"
-                   md-message="레파지토리 정보를 기입하세요."
-                   md-label="Repository">
-            <p>This seems something important I need to fix just right before the last step.</p>
+          <md-step
+            :md-disabled="!appEnvSelected()"
+            :md-error="!appRepoSelected()"
+            :md-continue="appRepoSelected()"
+            md-message="레파지토리 정보를 기입하세요."
+            md-label="Repository">
+            <apps-create-repo
+              :appEnv="appEnv"
+              :repo.sync="appRepo"
+            ></apps-create-repo>
           </md-step>
         </md-stepper>
       </md-layout>
@@ -119,39 +125,18 @@
     props: {},
     data() {
       return {
+        categoryItem: null,
         appEnv: null,
         githubRepoId: null,
         githubRepoName: null,
         importGitUrl: null,
-        appRepo: null,
-
-        mailValid: false,
-        defaultHost: window.config['default-host'],
-        categoryItem: null,
-        cpu: 0.4,
-        mem: 512,
-        instances: 1,
-        namespace: "",
-        groups: [],
-        projectId: "",
-        projects: [],
-        existRepository: false,
-        appName: null,
-        externalProdDomain: null,
-        externalStgDomain: null,
-        externalDevDomain: null,
-        internalProdDomain: null,
-        internalStgDomain: null,
-        internalDevDomain: null,
-        prodPort: null,
-        stgPort: null,
-        devPort: null,
-        invalidAppName: false,
+        appRepo: null
       }
     },
     mounted() {
       var me = this;
       this.getCategoryItem(me.categoryItemId, function (item) {
+        console.log('item', item);
         me.categoryItem = item;
       });
     },
@@ -164,39 +149,87 @@
       importGitUrlSelected: function () {
         return this.importGitUrl != null && this.importGitUrl.length > 0;
       },
-
       appEnvSelected: function () {
         return this.appEnv != null;
       },
       githubSelected: function () {
         return this.githubRepoId && this.githubRepoId > 0;
       },
-
       create: function () {
         var me = this;
         var appCreate = {
-          categoryItemId: me.categoryItemId,
-          cpu: me.cpu,
-          mem: me.mem,
-          instances: me.instances,
-          appNumber: me.appNumber,
-          projectId: me.projectId,
-          appName: me.appName,
-          externalProdDomain: me.externalProdDomain,
-          externalStgDomain: me.externalStgDomain,
-          externalDevDomain: me.externalDevDomain,
-          namespace: me.namespace
+          categoryItemId: null,
+          cpu: me.appEnv.cpu,
+          mem: me.appEnv.mem,
+          instances: me.appEnv.instances,
+          appName: me.appEnv.appName,
+          externalProdDomain: me.appEnv.externalProdDomain,
+          externalStgDomain: me.appEnv.externalStgDomain,
+          externalDevDomain: me.appEnv.externalDevDomain,
+
+          //null if namespace is self target.
+          //namespace: me.appRepo.namespace,
+          //repositoryName: me.appRepo.repositoryName,
+          //github repoId
         };
+        if (me.categoryItemId == 'github') {
+          //required githubRepoId
+          appCreate.repoType = 'github';
+          githubRepoId: me.githubRepoId;
+
+        } else if (me.categoryItemId == 'import') {
+          //required importGitUrl
+          appCreate.importGitUrl = me.importGitUrl;
+
+          //required repo information to create
+          appCreate.repoType = me.appRepo.repoType;
+          appCreate.repositoryName = me.appRepo.repositoryName;
+          appCreate.namespace = me.appRepo.namespace;
+
+        } else {
+          //required categoryItemId
+          appCreate.categoryItemId = me.categoryItemId;
+
+          //required repo information to create
+          appCreate.repoType = me.appRepo.repoType;
+          appCreate.repositoryName = me.appRepo.repositoryName;
+          appCreate.namespace = me.appRepo.namespace;
+        }
+
         me.createApp(appCreate, function (response) {
           if (response) {
             me.$router.push(
               {
                 name: 'appsDetail',
-                params: {appName: me.appName}
+                params: {appName: appCreate.appName}
               }
             );
           }
         });
+
+        // var appCreate = {
+        //   categoryItemId: me.categoryItemId,
+        //   cpu: me.cpu,
+        //   mem: me.mem,
+        //   instances: me.instances,
+        //   appNumber: me.appNumber,
+        //   projectId: me.projectId,
+        //   appName: me.appName,
+        //   externalProdDomain: me.externalProdDomain,
+        //   externalStgDomain: me.externalStgDomain,
+        //   externalDevDomain: me.externalDevDomain,
+        //   namespace: me.namespace
+        // };
+        // me.createApp(appCreate, function (response) {
+        //   if (response) {
+        //     me.$router.push(
+        //       {
+        //         name: 'appsDetail',
+        //         params: {appName: me.appName}
+        //       }
+        //     );
+        //   }
+        // });
       }
     }
   }

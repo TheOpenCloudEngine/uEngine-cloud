@@ -18,7 +18,7 @@ echo "GITLAB_TOKEN: ${GITLAB_TOKEN}"
 echo "GITLAB_URL: ${GITLAB_URL}"
 
 
-if [ ${SYNC_TO} == "github" ]; then
+if [ "${SYNC_TO}" = "github" ]; then
 
   echo "sync to github: push gitlab source codes to github, next, trigger project ci"
 
@@ -30,13 +30,13 @@ if [ ${SYNC_TO} == "github" ]; then
   git --bare fetch -p origin
   git push --mirror -f
 
-  if [ ${CI_RUN} == "true" ]; then
+  if [ "${CI_RUN}" = "true" ]; then
 
       RESULT="$(curl --request POST \
                     -s -o /dev/null -w "%{http_code}" \
                     -H "access_token: ${ACCESS_TOKEN}" \
                     -H "content-type: application/json" \
-                    "${UENGINE_CLOUD_URL}/app/${APP_NAME}/pipeline?ref=dev&stage=master")"
+                    "${UENGINE_CLOUD_URL}/app/${APP_NAME}/pipeline?ref=master&stage=dev")"
 
       echo "RESULT: $RESULT"
 

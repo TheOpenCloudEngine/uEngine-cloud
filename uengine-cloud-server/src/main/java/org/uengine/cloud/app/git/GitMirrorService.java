@@ -326,16 +326,43 @@ public class GitMirrorService {
         }
         Assert.notNull(gitlabNamespace, "gitlabNamespace for user " + username + " not found.");
 
-        //create mirror project.
-        Project projectToBe = new Project();
-        projectToBe.setPublic(true);
-        projectToBe.setVisibility(Visibility.PUBLIC);
-        projectToBe.setPath(appName + MIRROR_PROJECT_PREFIX);
-        projectToBe.setName(appName + MIRROR_PROJECT_PREFIX);
-        projectToBe.setNamespace(gitlabNamespace);
-
-        Project project = gitLabApi.getProjectApi().createProject(projectToBe);
+        //포크하기
+        String mirrorBaseProjectName = "github-mirror-service";
+        Project mirrorBaseProject = null;
+        List<Project> projects = gitLabApi.getProjectApi().getProjects("github-mirror-service");
+        for (Project project : projects) {
+            if (project.getName().equals(mirrorBaseProjectName)) {
+                mirrorBaseProject = project;
+            }
+        }
+        Project project = gitLabApi.getProjectApi().forkProject(mirrorBaseProject.getId(), gitlabNamespace.getPath());
         Integer projectId = project.getId();
+
+        //포크릴레이션 삭제
+        try {
+            gitlabExtentApi.deleteForkRelation(project.getId());
+        } catch (Exception ex) {
+            //resome.
+            ex.printStackTrace();
+        }
+
+        //레파지토리 이름 변경, 프로젝트 이름 변경, 퍼블릭 변경
+        project.setPublic(true);
+        project.setVisibility(Visibility.PUBLIC);
+        project.setPath(appName + MIRROR_PROJECT_PREFIX);
+        project.setName(appName + MIRROR_PROJECT_PREFIX);
+        gitLabApi.getProjectApi().updateProject(project);
+
+        //create mirror project.
+//        Project projectToBe = new Project();
+//        projectToBe.setPublic(true);
+//        projectToBe.setVisibility(Visibility.PUBLIC);
+//        projectToBe.setPath(appName + MIRROR_PROJECT_PREFIX);
+//        projectToBe.setName(appName + MIRROR_PROJECT_PREFIX);
+//        projectToBe.setNamespace(gitlabNamespace);
+//
+//        Project project = gitLabApi.getProjectApi().createProject(projectToBe);
+//        Integer projectId = project.getId();
 
         //러너 등록.
         int dockerRunnerId = gitlabExtentApi.getDockerRunnerId();
@@ -345,10 +372,11 @@ public class GitMirrorService {
         gitlabExtentApi.createTrigger(projectId, gitlabUser.getUsername(), "dcosTrigger");
 
         //ci 파일 복사
-        int repoId = Integer.parseInt(environment.getProperty("gitlab.config-repo.projectId"));
-        String ciText = gitlabExtentApi.getRepositoryFile(repoId, "master", "template/common/.gitlab-ci-mirror.yml");
-        gitlabExtentApi.updateOrCraeteRepositoryFile(
-                projectId, "master", ".gitlab-ci.yml", ciText);
+//        int repoId = Integer.parseInt(environment.getProperty("gitlab.config-repo.projectId"));
+//        String ciText = gitlabExtentApi.getRepositoryFile(repoId, "master", "template/common/.gitlab-ci-mirror.yml");
+//        //TODO not work. test this.
+//        gitlabExtentApi.updateOrCraeteRepositoryFile(
+//                projectId, "master", ".gitlab-ci.yml", ciText);
 
         return project;
     }
