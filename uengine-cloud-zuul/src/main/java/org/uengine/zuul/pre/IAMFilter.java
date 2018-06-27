@@ -192,7 +192,8 @@ public class IAMFilter extends ZuulFilter {
             }
 
         } catch (MalformedURLException e) {
-            e.printStackTrace();
+            ctx.unset();
+            ctx.setResponseStatusCode(HttpStatus.UNAUTHORIZED.value());
         }
         log.info(String.format("%s request to %s", request.getMethod(), request.getRequestURL().toString()));
 
