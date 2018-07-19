@@ -126,3 +126,26 @@
 본 가이드에서는 VirtualBox 가상화 솔루션을 사용한 설치법을 제공합니다.
 
 - [VirtualBox](infra/additional-virtualbox.md)
+
+
+
+### 서버 예시(워크스테이션/학습용 기준 Full setting)
+
+- 아래 표기된 Disk 사이즈 Minimal 기준이므로, 해당 사이즈보다 작게 vm 을 생성하지 마십시오.
+- Gitlab 
+
+| 역할 / 호스트네임 | 사양                     | IP 주소      | 공유기 외부 IP 주소 | 외부 포트바인딩     |
+|-------------------|--------------------------|--------------|----------------|---------------------|
+| bootstrap         | 1 CPU /2 GB/30 GB Disk  | 192.168.0.143 |                |                     |
+| master1           | 2 CPU /4 GB/30 GB Disk  | 192.168.0.123 | 52.79.125.242   | 8081                  |
+| public-agent      | 2 CPU /4 GB/30 GB Disk  | 192.168.0.136 | 52.79.125.242    | 80,443,9000 - 60000 |
+| agent1            | 2 CPU /4 GB/30 GB Disk  | 192.168.0.35 |                |                     |
+| agent2            | 2 CPU /4 GB/30 GB Disk  | 192.168.0.235 |                |                     |
+| agent3            | 2 CPU /4 GB/30 GB Disk  | 192.168.0.245 |                |                     |
+| agent4            | 2 CPU /4 GB/30 GB Disk  | 192.168.0.246 |                |                     |
+| gitlab            | 4 CPU /8 GB/100 GB Disk | 192.168.0.249 | 52.79.125.242    | 8080,5000             |
+| pinpoint          | 2 CPU /4 GB/30 GB Disk  | 192.168.0.246 |                |                     |
+| elk               | 2 CPU /4 GB/30 GB Disk  | 192.168.0.246 |                |                     |
+
+
+
