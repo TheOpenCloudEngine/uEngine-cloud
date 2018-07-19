@@ -152,26 +152,26 @@
 
 다음은 EC2 에서의 포트포워딩 보안그룹 설정 예시입니다. 
 
-*master*
+보안그룹 이름 *dc-os-master*
 
 ![](image/ports/master.png)
 
-*agent*
+보안그룹 이름 *dc-os-slave*
 
 ![](image/ports/slave.png)
 
-*public*
+보안그룹 이름 *dc-os-public*
 
 ![](image/ports/public.png)
 
-*gitlab*
+보안그룹 이름 *gitlab*
 
 ![](image/ports/gitlab.png)
 
-*elk*
+보안그룹 이름 *ELK*
 
 ![](image/ports/elk.png)
 
-*pinpoint*
+보안그룹 이름 *pinpoint*
 
 ![](image/ports/pinpoint.png)
