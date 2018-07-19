@@ -175,3 +175,12 @@
 보안그룹 이름 *pinpoint*
 
 ![](image/ports/pinpoint.png)
+
+---
+
+그 다음, 보안그룹을 적용을 하도록 합니다.
+
+![](image/ports/network-1.png)
+
+![](image/ports/network-2.png)
+
