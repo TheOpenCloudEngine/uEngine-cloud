@@ -148,4 +148,30 @@
 | elk               | 2 CPU /4 GB/30 GB Disk  | 192.168.0.246 |                |                     |
 
 
+### 포트포워딩
 
+다음은 EC2 에서의 포트포워딩 보안그룹 설정 예시입니다. 
+
+*master*
+
+![](image/ports/master.png)
+
+*agent*
+
+![](image/ports/slave.png)
+
+*public*
+
+![](image/ports/public.png)
+
+*gitlab*
+
+![](image/ports/gitlab.png)
+
+*elk*
+
+![](image/ports/elk.png)
+
+*pinpoint*
+
+![](image/ports/pinpoint.png)
