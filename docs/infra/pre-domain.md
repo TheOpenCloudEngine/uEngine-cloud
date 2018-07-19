@@ -32,7 +32,6 @@
 
 ![](image/route53.png)
 
-Route53 을
 
 
 ## 호스트네임 변경
@@ -64,6 +63,19 @@ bootstrap
 # 적용
 sudo hostname bootstrap
 ```
+
+*Tip*
+
+- bootstrap
+- master
+- agent1
+- agent2
+- agent3
+- agent4
+- public
+- pinpoint
+- elk
+
 
 ## ssh root 접속 허용
 
