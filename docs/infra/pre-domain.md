@@ -93,6 +93,7 @@ sudo vi /etc/ssh/ssh_config
 .
 .
 # PermitRootLogin no
+PermitRootLogin yes
 .
 .
 sudo service sshd restart
