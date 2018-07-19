@@ -679,6 +679,18 @@ $ mvn clean install exec:java package
 
 ### 유틸리티 및 도커 프로비져닝
 
+지금부터는 Ansible 을 통하여 프로비저닝 작업을 하게 됩니다.
+
+그러기 위해서는, bootstrap 에서 모든 서버 목록이 know host 로 등록되어있어야 합니다.
+
+bootstrap 서버에서 각 서버로 ssh 접속을 한번씩 하게 되면, 등록이 자동으로 이루어집니다.
+
+```
+예)
+
+$ ssh -i <private_key> centos@master
+``` 
+
 ```
 $ cd install
 $ sudo sh -c "cat ansible-hosts.yml > /etc/ansible/hosts"
