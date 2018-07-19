@@ -61,6 +61,10 @@ dns_search: ap-northeast-2.compute.internal
 * 주의: ansible_ssh_private_key_file 에 명시된 키파일은 모든 서버에 ssh 접속이 가능한 키여야 합니다.
 * 주의: 키파일의 퍼미션이 400 인지 확인하십시오.
 
+```
+$ sudo chmod 400 /home/centos/belugarKey.pem
+```
+
 여기서 resolvers 와 dns_search 는 다소 생소할 수 있지만, /etc/resolv.conf 조회를 통해 간단히 알아낼 수 있습니다.
 
 ```
