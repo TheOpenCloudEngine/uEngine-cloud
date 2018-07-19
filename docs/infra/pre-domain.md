@@ -87,6 +87,9 @@ sudo hostname bootstrap
    
 ```
 sudo vi /etc/ssh/ssh_config
+
+(만일 위 파일에 PermitRootLogin 항목이 없으면
+/etc/ssh/sshd_config 파일에 있음)
 .
 .
 # PermitRootLogin no
