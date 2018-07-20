@@ -70,6 +70,8 @@ $ rm -rf tomcat8/webapps/ROOT
 $ chmod +x tomcat8/webapps/collector.war
 $ chmod +x tomcat8/webapps/ROOT.war
 
+# do as root
+$ sudo su
 $ sh tomcat8/bin/startup.sh
 ```
 
