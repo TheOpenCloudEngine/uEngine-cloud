@@ -168,6 +168,21 @@ $ git push -u origin master
 
 ## 클라우드 패키지 빌드
 
+Docker Hub 에 로그인합니다.
+
+```
+$ sudo docker login
+
+Login with your Docker ID to push and pull images from Docker Hub. If you don't have a Docker ID, head over to https://hub.docker.com to create one.
+Username: sppark
+Password: 
+WARNING! Your password will be stored unencrypted in /root/.docker/config.json.
+Configure a credential helper to remove this warning. See
+https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+
+Login Succeeded
+```
+
 `uEngine-cloud/install` 폴더에서, `sh docker-build.sh` 를 수행하도록 합니다.
 
 이 스크립트는 `config.yml` 의 환경설정에 따라 커스터마이징 된 소스코드를 빌드하고, 도커 이미지 생성 후, 지정된 도커 레파지토리로 업로드합니다.
