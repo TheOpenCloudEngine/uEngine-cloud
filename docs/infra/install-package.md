@@ -117,8 +117,16 @@ drwxrwxr-x. 8 centos centos   230  1월 18 06:31 uengine-resource
 
 이 중 `cloud-config-repository` 과 `template-*` 로 시작되는 프로젝트들을 [Create Gitlab Projects](#create-gitlab-projects) 
  단계에서 만들어 두었던 프로젝트로 업로드 해야 합니다.
+
+
+Git 글로벌 설정에 user 정보를 추가합니다.
+
+```
+git config --global user.name "Administrator"
+```
  
 업로드 중 유저이름, 패스워드를 묻는 프롬프트가 뜰 경우 깃랩 루트 유저네임과 패스워드를 입력하시면 됩니다.
+
  
 ``` 
 $ cd cloud-config-repository
