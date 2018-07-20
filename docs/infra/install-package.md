@@ -88,7 +88,7 @@ $ cd uEngine-cloud/uengine-resource
 $ mvn clean install exec:java package
 ```
 
-## 데이터 베이스 업로드
+## 템플릿 프로젝트 업로드
 
 설정을 생성하고 나면, 다음과 같은 디렉토리 리스트를 볼수 있습니다.
 
