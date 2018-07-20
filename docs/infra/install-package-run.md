@@ -44,6 +44,18 @@ dcos marathon app add redis.json
 이후, DC/OS ui 로 접속하여 네가지 서비스가 모두 health 상태가 될때까지 기다리도록 합니다. 이 과정은 수분이 소요될 수 있습니다.
  혹시 Failed 된 Task 가 발생하게 된다면 로그를 확인 후 조치를 취하도록 합니다. 
 
+**Haproxy**
+
+다음은, 서비스들을 외부 네트워크 세계로 연결시키기 위한 Haproxy 모듈들을 설치합니다.
+
+- marathon-lb.json : Public 노드에 설치되는 외부세계 연결용 Haproxy
+- marathon-lb-internal.json : 내부 서비스들끼리의 통신의 연결에 사용되는 Haproxy
+
+```
+dcos marathon app add marathon-lb.json
+dcos marathon app add marathon-lb-internal.json
+```
+
 
 **Kafka**
 
