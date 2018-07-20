@@ -66,7 +66,7 @@ docker rmi mysql:5.7
 생성된 스크립트를 실행하면, 수분가량 소요되며 private registry 로 도커 이미지를 업로드 하게 됩니다.
 
 ```
-$ sh install/mandatory-docker-upload.sh
+$ sudo sh install/mandatory-docker-upload.sh
 ```
 
 
