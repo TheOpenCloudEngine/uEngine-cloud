@@ -721,7 +721,7 @@ $ ansible-playbook --step ansible-install.yml
 
 ### DC/OS 클러스터 인스톨
 
-배포 패키지 생성
+배포 패키지 생성 `uEngine-cloud/install` 폴더에서 실행하도록 합니다.
 
 ```
 # copy your ssh key file to genconf folder
