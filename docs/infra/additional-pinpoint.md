@@ -65,6 +65,8 @@ $ vi tomcat8/conf/server.xml
 $ cp pinpoint-collector-1.7.1.war tomcat8/webapps/collector.war
 $ cp pinpoint-web-1.7.1.war tomcat8/webapps/ROOT.war
 
+$ rm -rf tomcat8/webapps/ROOT
+
 $ chmod +x tomcat8/webapps/collector.war
 $ chmod +x tomcat8/webapps/ROOT.war
 
