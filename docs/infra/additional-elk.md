@@ -110,6 +110,8 @@ $ sudo /usr/local/bin/docker-compose up -d
 
 ## Copy Beats to all nodes
 
+Bootstrap 노드로 이동하여, 다음 항목들을 수행하도록 합니다.
+
 `config.yml` 파일을 다음과 같이 수정합니다. `private` 에 해당 스택의 주소를 넣고, `web` 에는 외부에서 접속 가능한 주소를 기입합니다.
 
 ```
