@@ -26,6 +26,7 @@
 에서 소스코드를 내려받습니다.
 
 ```
+$ sudo yum install git -y
 $ git clone https://github.com/TheOpenCloudEngine/uEngine-cloud-elk-compose 
 ```
 
@@ -76,13 +77,15 @@ services:
 다음 명령어로 구동합니다.
 
 ```
-$ docker-compose up
+$ sudo service docker start
+$ sudo /usr/local/bin/docker-compose up
 ```
 
 데몬 모드 구동을 위해서는 아래 명령어를 사용합니다.
 
 ```
-$ docker-compose up -d
+$ sudo service docker start
+$ sudo /usr/local/bin/docker-compose up -d
 ```
 
 수분에 걸쳐 Elasticsearch 와 Kibana 가 구동되면, [http://localhost:5601](http://localhost:5601) 을 통해 `Kibana web UI` 로 접근가능합니다.
