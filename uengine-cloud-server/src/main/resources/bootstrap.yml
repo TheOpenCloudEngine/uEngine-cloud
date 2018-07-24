@@ -13,4 +13,7 @@ spring:
   profiles: docker
   cloud:
     config:
+    # 클라우드 서버 URL 로부터 config 받아옴.
+    # marathon-lb-internal.marathon.mesos 주소는 marathon-lb-internal 서비스 주소
+    # 10000 포트는 cloud config server 포트.
       uri: http://marathon-lb-internal.marathon.mesos:10000

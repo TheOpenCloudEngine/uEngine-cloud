@@ -8,6 +8,10 @@
 - Docker registry
 
 지금부터는 `Devops` 운영 포탈인 `유엔진 클라우드` 를 설치하게 되는데, DC/OS 클러스터와 깃랩 각각의 어드민 토큰이 필요합니다.
+
+## 필수 도커 업로드
+
+먼저, [필수 도커 업로드](infra/additional-docker-upload.md) 과정을 통해 클라우드 시스템이 구동되는 데 필요한 필수 도커를 프라이빗 레지스트리로 업로드 하도록 합니다.
   
 ## Get admin token
 

@@ -88,3 +88,10 @@ docker rmi sppark/nexus:2.14.6-02
 docker rmi sonatype/nexus:2.14.6-02
 
 
+docker pull sppark/kafka:v1
+docker tag sppark/kafka:v1 sppark/kafka:v1
+docker push sppark/kafka:v1
+docker rmi sppark/kafka:v1
+docker rmi sppark/kafka:v1
+
+
