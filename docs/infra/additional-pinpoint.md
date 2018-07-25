@@ -40,11 +40,11 @@ $ quickstart/bin/init-hbase.sh
 
 **Download Tomcat**
 
-[Tomcat8 Download](http://mirror.navercorp.com/apache/tomcat/tomcat-8/v8.5.28/bin/apache-tomcat-8.5.28.tar.gz)
+[Tomcat8 Download](http://mirror.navercorp.com/apache/tomcat/tomcat-8/v8.5.32/bin/apache-tomcat-8.5.32.tar.gz)
 
 ```
-$ tar xvf apache-tomcat-8.5.28.tar.gz
-$ mv apache-tomcat-8.5.28 tomcat8
+$ tar xvf apache-tomcat-8.5.32.tar.gz
+$ mv apache-tomcat-8.5.32 tomcat8
 
 # Edit web port 80
 
