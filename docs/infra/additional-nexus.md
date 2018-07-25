@@ -63,8 +63,8 @@ nexus:
 ```
 $ sudo mkdir /nexus2
 $ cd /nexus2
-$ wget https://s3.ap-northeast-2.amazonaws.com/uengine-cloud/sonatype-work.zip
-$ unzip sonatype-work.zip
+$ sudo wget https://s3.ap-northeast-2.amazonaws.com/uengine-cloud/sonatype-work.zip
+$ sudo unzip sonatype-work.zip
 
 $ sudo chown -R 200 /nexus2/sonatype-work
 ```
