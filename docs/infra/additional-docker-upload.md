@@ -30,6 +30,7 @@ mandatory-docker:
   - webratio/nodejs-http-server
   - google/cadvisor:latest
   - sonatype/nexus:2.14.6-02
+  - sppark/kafka:v1
 ```
 
 
