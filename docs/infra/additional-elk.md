@@ -32,6 +32,12 @@ $ git clone https://github.com/TheOpenCloudEngine/uEngine-cloud-elk-compose
 
 해당 소스코드는 `Docker-compose` 를 통해 elk 스택을 설치하게 됩니다. `Docker-compose` 설치에 관해 [https://docs.docker.com/compose/](https://docs.docker.com/compose/)
  링크를 참조하세요.
+
+**Install docker-compose** 
+```
+$ sudo curl -L https://github.com/docker/compose/releases/download/1.22.0/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
+$ sudo chmod +x /usr/local/bin/docker-compose
+```
  
 ## ELK Configuration && Run
 
@@ -208,6 +214,29 @@ $ curl -XDELETE localhost:9200/filebeat-6.2.1-2018.03.*
 $ curl -XDELETE localhost:9200/metricbeat-6.2.1-2018.03.*
 ```  
 
+용량이 오바되어 해당 비트 인덱스 적재가 block 상태로 자동전환 될 수 있습니다. 이럴경우 block 을 다음과 같이 해지해주도록 합니다.
+
+```
+DELETE /filebeat-6.2.2-2018.03.*
+
+PUT /metricbeat*/_settings
+{
+    "index": {
+    "blocks": {
+        "read_only_allow_delete": "false"
+        }
+    }
+}
+
+PUT /filebeat*/_settings
+{
+    "index": {
+    "blocks": {
+        "read_only_allow_delete": "false"
+        }
+    }
+}
+```
 
 
  
