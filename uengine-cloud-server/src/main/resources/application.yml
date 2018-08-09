@@ -123,7 +123,7 @@ vcap:
       external: "@host.nexus@"
       internal: "marathon-lb-internal.marathon.mesos:10007"
     redis:
-      external: "52.79.51.79:6380"
+      external: "cloud.pas-mini.io:6380"
       #external: "@host.redis@:6379"
       internal: "marathon-lb-internal.marathon.mesos:6379"
     kafka:
