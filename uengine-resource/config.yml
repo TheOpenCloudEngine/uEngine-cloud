@@ -96,7 +96,7 @@ iam:
     port: 587
     smtp-auth: true
     smtp-starttls-enable: true
-    from-address: sppark@uengine.org
+    from-address: "sppark@uengine.org"
     from-name: uengine
 
 # Mandatory-docker part

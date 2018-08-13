@@ -1,6 +1,7 @@
 package org.uengine.zuul;
 
-import org.springframework.cloud.netflix.zuul.filters.route.ZuulFallbackProvider;
+import com.netflix.hystrix.exception.HystrixTimeoutException;
+import org.springframework.cloud.netflix.zuul.filters.route.FallbackProvider;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -13,7 +14,7 @@ import java.io.InputStream;
 /**
  * Created by uengine on 2017. 10. 6..
  */
-public class AddFallbackProvider implements ZuulFallbackProvider {
+public class AddFallbackProvider implements FallbackProvider {
 
     @Override
     public String getRoute() {
@@ -21,26 +22,33 @@ public class AddFallbackProvider implements ZuulFallbackProvider {
     }
 
     @Override
-    public ClientHttpResponse fallbackResponse() {
+    public ClientHttpResponse fallbackResponse(String route, Throwable cause) {
+        if (cause instanceof HystrixTimeoutException) {
+            return response(HttpStatus.GATEWAY_TIMEOUT);
+        } else {
+            return response(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private ClientHttpResponse response(final HttpStatus status) {
         return new ClientHttpResponse() {
             @Override
             public HttpStatus getStatusCode() throws IOException {
-                return HttpStatus.OK;
+                return status;
             }
 
             @Override
             public int getRawStatusCode() throws IOException {
-                return 200;
+                return status.value();
             }
 
             @Override
             public String getStatusText() throws IOException {
-                return "OK";
+                return status.getReasonPhrase();
             }
 
             @Override
             public void close() {
-
             }
 
             @Override

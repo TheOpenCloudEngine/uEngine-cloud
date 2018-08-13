@@ -1,35 +1,40 @@
 server:
   port: 8080
+  servlet:
+    context-path: /
 
-endpoints:
-  routes:
-    sensitive: false
-
-management:
-  security:
-    enabled: false
-
-security:
-  basic:
-    enabled: false
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} ${LOG_LEVEL_PATTERN:-%5p} %m%n"
 
 ---
 spring:
   profiles: local
-
-dcos:
-  deployment:
-    role: local
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: 52.79.164.208:9092
+      bindings:
+        billing-sub:
+          group: ${spring.application.name}
+          destination: billing
+        metering-pub:
+          destination: metering
 
 eureka:
   client:
+    registry-fetch-interval-seconds: 5
+    register-with-eureka: true
     serviceUrl:
       defaultZone: http://localhost:8761/eureka/
     healthcheck:
       enabled: true
   instance:
-    statusPageUrlPath: ${server.servletPath}info
-    healthCheckUrlPath: ${server.servletPath}health
+    leaseRenewalIntervalInSeconds: 5
+    leaseExpirationDurationInSeconds: 5
+    statusPageUrlPath: ${server.servlet.context-path}info
+    healthCheckUrlPath: ${server.servlet.context-path}health
     metadataMap:
         deployment: local
         profile: local
@@ -38,10 +43,8 @@ eureka:
 zuul:
   ignored-headers: Access-Control-Allow-Credentials, Access-Control-Allow-Origin
   addProxyHeaders: true
-
   # Decides to check the token.
   iam-authentication: true
-
   # Key to determine if the token's signature is correct.
   # It must be the same key that IAM used to issue the token.
   # Copy and paste from your IAM's iam.jwt.key
@@ -55,154 +58,92 @@ zuul:
   secure-metadata-fields:
     - "$.gitlabToken"
 
+  # 레디스 저장소
+  redis:
+    host: redis.pas-mini.io
+    port: 6379
+
+  billing:
+    enable: true
+    url: "http://billing.pas-mini.io"
+    authentication: "Basic YmlsbGluZ0B1ZW5naW5lLm9yZzoxODkyNXVuZw=="
+    organization: "562980b6-9ad6-4257-b276-a38825522f69"
+
   routes:
-#    order:
-#      path: /orders/**
-#      serviceId: order-service
-#      stripPrefix: false
-#      # List of scopes needed for this path
-#      iam-scopes:
-#        - guest/GET
-#        - catalog-order/PUT-PATCH-POST-DELETE
-
-#    # If no iam-scopes, all request will be passed.
-#    customer:
-#      path: /customers/**
-#      serviceId: customer-service
-#      stripPrefix: false
-
-
-#    item:
-#      path: /items/**
-#      serviceId: order-service
-#      stripPrefix: false
-#      iam-scopes:
-#        - guest/GET
-#        - catalog-manage/PUT-PATCH-POST-DELETE
-
     definition:
       path: /definition/**
       serviceId: definition
       stripPrefix: false
-    version:
-      path: /version/**
-      serviceId: definition
-      stripPrefix: false
-    instance:
-      path: /instance/**
-      serviceId: bpm
-      stripPrefix: false
-    instance-entity:
-      path: /instances/**
-      serviceId: bpm
-      stripPrefix: false
-    instance-service:
-      path: /service/**
-      serviceId: bpm
-      stripPrefix: false
-    instance-create-app:
-      path: /create-app/**
-      serviceId: definition
-      stripPrefix: false
-    instance-services:
-      path: /services/**
-      serviceId: bpm
-      stripPrefix: false
-    worklist-entity:
-      path: /worklist/**
-      serviceId: bpm
-      stripPrefix: false
-    instance-workitem:
-      path: /work-item/**
-      serviceId: bpm
-      stripPrefix: false
-    metadata:
-      path: /classdefinition/**
-      serviceId: bpm
-      stripPrefix: false
-
-
-#### important for BPM introspection  ####
-
-    eureka:
-      path: /eureka/**
-      url: ${eureka.client.serviceUrl.defaultZone}
-      stripPrefix: true
-
-    bpm:
-      path: /bpm/**
-      serviceId: bpm
-      stripPrefix: true
+      iam-scopes:
+        - guest/GET
+        - cloud-server/PUT-PATCH-POST-DELETE
+      billing-plans:
+        - guest/GET
+        - PRD_0000000007_PL_000001/PUT-PATCH-POST-DELETE
+        - PRD_0000000007_PL_000002/PUT-PATCH-POST-DELETE
 
 #### proxies for reverse engineering and java code generation ###
-
     gitlab:
       url: http://gitlab.pas-mini.io/api/v4/
       stripPrefix: true
       addHeader:
         PRIVATE-TOKEN: "$.gitlabToken"
 
-###########################################
+  usages:
+    - path: /definition/**
+      billing-plans:
+       - PRD_0000000008_PL_000001/*
+      unit: instance
+      when:
+       - 200
+       - 201
 
-ribbon:
-  # Max number of retries on the same server (excluding the first try)
-  MaxAutoRetries: 1
-
-  # Max number of next servers to retry (excluding the first server)
-  MaxAutoRetriesNextServer: 1
-
-  # Whether all operations can be retried for this client
-  OkToRetryOnAllOperations: true
-
-  # Interval to refresh the server list from the source
-  ServerListRefreshInterval: 2000
-
-  # Connect timeout used by Apache HttpClient
-  ConnectTimeout: 3000
-
-  # Read timeout used by Apache HttpClient
-  ReadTimeout: 3000
-
-  # Initial list of servers, can be changed via Archaius dynamic property at runtime
-  #listOfServers: www.microsoft.com:80,www.yahoo.com:80,www.google.com:80
-
-
-## When your api call is over than timeoutInMilliseconds, api would be fallback.
-#hystrix:
-#  command:
-#    default:
-#      execution:
-#        isolation:
-#          thread:
-#            timeoutInMilliseconds: 5000
-#
-#turbine:
-#  # set appConfig as services which registered in eureka server.
-#  appConfig: service-A,service-B
-#
-#  # You can monitor by application profile.
-#  # stream url is hosted on zuul server, with parameter "cluster=[profile]"
-#  # ex) http://localhost:8080/turbine.stream?cluster=local
-#  aggregator:
-#      clusterConfig: local,dev,stg,prod
-#  clusterNameExpression: metadata['profile']
+  ratelimit:
+    key-prefix: your-prefix
+    enabled: true
+    repository: REDIS
+    behind-proxy: true
+    default-policy-list: #optional - will apply unless specific policy exists
+      - limit: 10 #optional - request number limit per refresh interval window
+        quota: 1000 #optional - request time limit per refresh interval window (in seconds)
+        refresh-interval: 60 #default value (in seconds)
+        type: #optional
+          - user
+          - origin
+          - url
+    policy-list:
+      definition:
+        - limit: 5 #optional - request number limit per refresh interval window
+          quota: 1000 #optional - request time limit per refresh interval window (in seconds)
+          refresh-interval: 60 #default value (in seconds)
+          type: #optional
+            - user
+            - origin
+            - url
+      definition2:
+        - limit: 10 #optional - request number limit per refresh interval window
+          quota: 1000 #optional - request time limit per refresh interval window (in seconds)
+          refresh-interval: 60 #default value (in seconds)
+          type: #optional
+            - user
+            - origin
+            - url
 
 ---
 spring:
   profiles: dev,stg,prod
 
-dcos:
-  apps-file: dcos-apps.yml
-  deployment:
-    role: ${PROFILE}
-
 eureka:
   client:
+    registry-fetch-interval-seconds: 5
+    register-with-eureka: true
     serviceUrl:
       defaultZone: http://${vcap.services.eureka-server.internal}/eureka/
     healthcheck:
       enabled: true
   instance:
+    leaseRenewalIntervalInSeconds: 5
+    leaseExpirationDurationInSeconds: 5
     hostname: ${HOST}
     nonSecurePort: ${PORT}
     preferIpAddress: false

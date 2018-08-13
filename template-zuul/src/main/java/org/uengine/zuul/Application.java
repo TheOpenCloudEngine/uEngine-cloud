@@ -1,6 +1,6 @@
 package org.uengine.zuul;
 
-import org.uengine.iam.util.ApplicationContextRegistry;
+import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -12,11 +12,13 @@ import org.springframework.cloud.netflix.turbine.EnableTurbine;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
-import org.uengine.zuul.pre.AddingCustomHeaderFilter;
-import org.uengine.zuul.pre.IAMFilter;
+import org.uengine.iam.util.ApplicationContextRegistry;
+import org.uengine.zuul.post.LogFilter;
+import org.uengine.zuul.pre.*;
 
 /**
  * Created by uengine on 2017. 10. 5..
@@ -28,6 +30,7 @@ import org.uengine.zuul.pre.IAMFilter;
 @EnableHystrix
 @EnableHystrixDashboard
 @EnableTurbine
+@EnableScheduling
 public class Application {
 
     @Autowired
@@ -61,10 +64,8 @@ public class Application {
     }
 
     @Bean
-    public ApplicationContextRegistry applicationContextRegistry() {
-        ApplicationContextRegistry contextRegistry = new ApplicationContextRegistry();
-        contextRegistry.setApplicationContext(applicationContext);
-        return contextRegistry;
+    public BaseFilter tokenFilter(RouteLocator routeLocator) {
+        return new BaseFilter(routeLocator);
     }
 
     @Bean
@@ -73,9 +74,29 @@ public class Application {
     }
 
     @Bean
-    public AddingCustomHeaderFilter addingCustomHeaderFilter() {
-        return new AddingCustomHeaderFilter();
+    public CustomHeaderFilter addingCustomHeaderFilter() {
+        return new CustomHeaderFilter();
     }
 
+    @Bean
+    public BillingRouterFilter billingRouterFilter() {
+        return new BillingRouterFilter();
+    }
 
+    @Bean
+    public BillingUsageFilter billingUsageFilter() {
+        return new BillingUsageFilter();
+    }
+
+    @Bean
+    public LogFilter logFilter() {
+        return new LogFilter();
+    }
+
+    @Bean
+    public ApplicationContextRegistry applicationContextRegistry(ApplicationContext applicationContext){
+        ApplicationContextRegistry contextRegistry = new ApplicationContextRegistry();
+        contextRegistry.setApplicationContext(applicationContext);
+        return contextRegistry;
+    }
 }
