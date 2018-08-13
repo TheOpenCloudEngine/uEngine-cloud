@@ -13,6 +13,8 @@ import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
@@ -31,10 +33,16 @@ import org.uengine.zuul.pre.*;
 @EnableHystrixDashboard
 @EnableTurbine
 @EnableScheduling
+@RestController
 public class Application {
 
     @Autowired
     ApplicationContext applicationContext;
+
+    @RequestMapping("/health")
+    public String home() throws Exception {
+        return "";
+    }
 
     @Bean
     public AddFallbackProvider addResponseHeaderFilter() {
