@@ -9,7 +9,7 @@ public class FileMapping {
     private String path;
     private String file;
 
-    private Serializable data;
+    private Object data;
 
     public String getPath() {
         return path;
@@ -27,11 +27,11 @@ public class FileMapping {
         this.file = file;
     }
 
-    public Serializable getData() {
+    public Object getData() {
         return data;
     }
 
-    public void setData(Serializable data) {
+    public void setData(Object data) {
         this.data = data;
     }
 }

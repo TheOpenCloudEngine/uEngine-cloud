@@ -1,6 +1,7 @@
 package org.uengine.cloud.app;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.gitlab4j.api.models.Member;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -229,22 +230,23 @@ public class AppController {
      *
      * @param request
      * @param response
-     * @param appCreate 앱 생성 내용
+     * @param body 앱 생성 내용
      * @return
      * @throws Exception
      */
     @RequestMapping(value = "", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
     public Map createApp(HttpServletRequest request,
                          HttpServletResponse response,
-                         @RequestBody AppCreate appCreate) throws Exception {
+                         @RequestBody Map body) throws Exception {
 
-        Map<String, Object> log = JsonUtils.convertClassToMap(appCreate);
+        Map<String, Object> log = JsonUtils.convertClassToMap(body);
         try {
+            AppCreate appCreate = new ObjectMapper().convertValue(body, AppCreate.class);
             AppEntity appEntity = appCreateService.initCreateApp(appCreate);
             logService.addHistory(appCreate.getAppName(), AppLogAction.CREATE_APP_REQUEST, AppLogStatus.SUCCESS, log);
             return JsonUtils.convertClassToMap(appEntity);
         } catch (Exception ex) {
-            logService.addHistory(appCreate.getAppName(), AppLogAction.CREATE_APP_REQUEST, AppLogStatus.FAILED, log);
+            logService.addHistory(body.get("appName").toString(), AppLogAction.CREATE_APP_REQUEST, AppLogStatus.FAILED, log);
             throw ex;
         }
     }

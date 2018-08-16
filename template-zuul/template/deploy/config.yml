@@ -34,6 +34,11 @@ zuul:
   secure-metadata-fields:
     - "$.gitlabToken"
 
+  # 레디스 저장소
+  redis:
+    host: redis.pas-mini.io
+    port: 6379
+
   billing:
     enable: false
     url: "http://billing.pas-mini.io"
@@ -71,7 +76,7 @@ zuul:
     repository: IN_MEMORY
     behind-proxy: true
     default-policy-list: #optional - will apply unless specific policy exists
-      - limit: 10 #optional - request number limit per refresh interval window
+      - limit: 100 #optional - request number limit per refresh interval window
         quota: 1000 #optional - request time limit per refresh interval window (in seconds)
         refresh-interval: 60 #default value (in seconds)
         type: #optional
@@ -80,15 +85,7 @@ zuul:
           - url
     policy-list:
       definition:
-        - limit: 5 #optional - request number limit per refresh interval window
-          quota: 1000 #optional - request time limit per refresh interval window (in seconds)
-          refresh-interval: 60 #default value (in seconds)
-          type: #optional
-            - user
-            - origin
-            - url
-      definition2:
-        - limit: 10 #optional - request number limit per refresh interval window
+        - limit: 100 #optional - request number limit per refresh interval window
           quota: 1000 #optional - request time limit per refresh interval window (in seconds)
           refresh-interval: 60 #default value (in seconds)
           type: #optional
