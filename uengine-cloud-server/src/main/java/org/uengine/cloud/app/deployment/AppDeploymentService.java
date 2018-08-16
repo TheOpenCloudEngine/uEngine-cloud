@@ -261,8 +261,10 @@ public class AppDeploymentService {
                  * move field
                  1)commit => commitOld
                  */
-                appStage.setDeploymentOld(appStage.getDeployment());
-                appStage.setMarathonAppIdOld(appStage.getMarathonAppId());
+//                appStage.setDeploymentOld(appStage.getDeployment());
+//                appStage.setMarathonAppIdOld(appStage.getMarathonAppId());
+                appStage.setDeploymentOld(null);
+                appStage.setMarathonAppIdOld(null);
                 if (marathonApp != null) {
                     appStage.setCommitOld(this.getCommitRefFromMarathonApp(marathonApp));
                 } else {
