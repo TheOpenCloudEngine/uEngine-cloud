@@ -11,8 +11,11 @@ import java.util.Map;
 
 @Service
 @Data
-@ConfigurationProperties(prefix = "zuul.billing")
+@ConfigurationProperties(BillingConfig.PREFIX)
 public class BillingConfig {
+
+    public static final String PREFIX = "zuul.billing";
+
     private boolean enable;
     private String url;
     private String authentication;
