@@ -1,6 +1,19 @@
 ---
 # Sample Zuul configuration
 
+spring:
+  cloud:
+    stream:
+      kafka:
+        binder:
+          brokers: 52.79.164.208:9092
+      bindings:
+        billing-sub:
+          group: ${spring.application.name}
+          destination: billing
+        metering-pub:
+          destination: metering
+
 zuul:
   ignored-headers: Access-Control-Allow-Credentials, Access-Control-Allow-Origin
   addProxyHeaders: true
@@ -20,6 +33,12 @@ zuul:
   # 복호화 할 메타데이터 필드.
   secure-metadata-fields:
     - "$.gitlabToken"
+
+  billing:
+    enable: false
+    url: "http://billing.pas-mini.io"
+    authentication: "Basic YmlsbGluZ0B1ZW5naW5lLm9yZzoxODkyNXVuZw=="
+    organization: "562980b6-9ad6-4257-b276-a38825522f69"
 
   routes:
     order:
@@ -45,3 +64,34 @@ zuul:
       iam-scopes:
         - guest/GET
         - catalog-manage/PUT-PATCH-POST-DELETE
+
+  ratelimit:
+    key-prefix: your-prefix
+    enabled: true
+    repository: IN_MEMORY
+    behind-proxy: true
+    default-policy-list: #optional - will apply unless specific policy exists
+      - limit: 10 #optional - request number limit per refresh interval window
+        quota: 1000 #optional - request time limit per refresh interval window (in seconds)
+        refresh-interval: 60 #default value (in seconds)
+        type: #optional
+          - user
+          - origin
+          - url
+    policy-list:
+      definition:
+        - limit: 5 #optional - request number limit per refresh interval window
+          quota: 1000 #optional - request time limit per refresh interval window (in seconds)
+          refresh-interval: 60 #default value (in seconds)
+          type: #optional
+            - user
+            - origin
+            - url
+      definition2:
+        - limit: 10 #optional - request number limit per refresh interval window
+          quota: 1000 #optional - request time limit per refresh interval window (in seconds)
+          refresh-interval: 60 #default value (in seconds)
+          type: #optional
+            - user
+            - origin
+            - url

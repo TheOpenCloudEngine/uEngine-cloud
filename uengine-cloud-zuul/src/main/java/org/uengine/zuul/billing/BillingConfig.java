@@ -13,6 +13,7 @@ import java.util.Map;
 @Data
 @ConfigurationProperties(prefix = "zuul.billing")
 public class BillingConfig {
+
     private boolean enable;
     private String url;
     private String authentication;

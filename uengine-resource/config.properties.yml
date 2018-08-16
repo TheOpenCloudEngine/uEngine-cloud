@@ -47,7 +47,7 @@ gitlab.config-repo.deployment-path: /deployment
 gitlab.config-repo.template-path: /template
 
 kafka.private: 172.31.5.136:9092
-kafka.public: kafka.pas-mini.io:9092
+kafka.public: 52.79.164.208:9092
 
 nexus.ip: 172.31.10.202
 nexus.username: admin

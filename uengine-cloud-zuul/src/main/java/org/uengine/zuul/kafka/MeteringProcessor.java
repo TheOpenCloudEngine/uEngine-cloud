@@ -11,6 +11,7 @@ import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MimeTypeUtils;
+import org.uengine.zuul.billing.BillingConfig;
 import org.uengine.zuul.billing.BillingService;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
@@ -25,6 +26,9 @@ public class MeteringProcessor {
 
     @Autowired
     private BillingService billingService;
+
+    @Autowired
+    private BillingConfig billingConfig;
 
     private MeteringStreams meteringStreams;
 
@@ -49,34 +53,36 @@ public class MeteringProcessor {
 
     @StreamListener
     public void receiveBillingMessage(@Input(MeteringStreams.INPUT) Flux<String> inbound) {
-        inbound
-                .log()
-                .subscribeOn(Schedulers.elastic())
-                .subscribe(value -> {
-                    try {
-                        logger.info("receive BillingMessage : " + value);
-                        Map map = new ObjectMapper().readValue(value, Map.class);
-                        String eventType = map.get("eventType").toString();
-                        String accountId = map.get("accountId").toString();
+        if(billingConfig.isEnable()){
+            inbound
+                    .log()
+                    .subscribeOn(Schedulers.elastic())
+                    .subscribe(value -> {
+                        try {
+                            logger.info("receive BillingMessage : " + value);
+                            Map map = new ObjectMapper().readValue(value, Map.class);
+                            String eventType = map.get("eventType").toString();
+                            String accountId = map.get("accountId").toString();
 
-                        String[] acceptTypes = new String[]{
-                                "ACCOUNT_CREATION",
-                                "ACCOUNT_CHANGE",
-                                "SUBSCRIPTION_CREATION",
-                                "SUBSCRIPTION_PHASE",
-                                "SUBSCRIPTION_CHANGE",
-                                "SUBSCRIPTION_CANCEL",
-                                "SUBSCRIPTION_UNCANCEL",
-                                "SUBSCRIPTION_BCD_CHANGE"
-                        };
+                            String[] acceptTypes = new String[]{
+                                    "ACCOUNT_CREATION",
+                                    "ACCOUNT_CHANGE",
+                                    "SUBSCRIPTION_CREATION",
+                                    "SUBSCRIPTION_PHASE",
+                                    "SUBSCRIPTION_CHANGE",
+                                    "SUBSCRIPTION_CANCEL",
+                                    "SUBSCRIPTION_UNCANCEL",
+                                    "SUBSCRIPTION_BCD_CHANGE"
+                            };
 
-                        if (Arrays.asList(acceptTypes).contains(eventType)) {
-                            billingService.updateUserSubscriptionsByAccountId(accountId);
+                            if (Arrays.asList(acceptTypes).contains(eventType)) {
+                                billingService.updateUserSubscriptionsByAccountId(accountId);
+                            }
+                        } catch (Exception ex) {
+                            logger.error("update UserSubscriptions failed");
                         }
-                    } catch (Exception ex) {
-                        logger.error("update UserSubscriptions failed");
-                    }
-                }, error -> System.err.println("CAUGHT " + error));
+                    }, error -> System.err.println("CAUGHT " + error));
+        }
     }
 }
 
