@@ -61,7 +61,7 @@ redis:
 
 # Kafka part
 kafka:
-  private: 172.31.5.136:9092
+  private: 52.79.164.208:9092
   public: 52.79.164.208:9092
 
 # Domain part

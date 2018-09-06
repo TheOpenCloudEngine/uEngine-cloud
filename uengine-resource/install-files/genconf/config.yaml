@@ -29,8 +29,8 @@ agent_list:
 telemetry_enabled: true
 ssh_key_path: "genconf/ssh_key"
 master_list:
-- "172.31.12.143"
-- "172.31.4.125"
-- "172.31.1.198"
+- "172.31.31.154"
+- "172.31.20.244"
+- "172.31.19.181"
 ssh_user: "centos"
 mesos_max_completed_tasks_per_framework: 10
