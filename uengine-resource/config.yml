@@ -16,9 +16,9 @@ server:
     public: 172.31.5.136
 
     master:
-      master1: 172.31.12.143
-      master2: 172.31.4.125
-      master3: 172.31.1.198
+      master1: 172.31.31.154
+      master2: 172.31.20.244
+      master3: 172.31.19.181
 
     agent:
       agent1: 172.31.6.35
