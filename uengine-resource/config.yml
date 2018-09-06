@@ -119,7 +119,7 @@ mandatory-docker:
 # Fill out those properties after install DC/OS cluster && Gitlab
 # Then, you should re-command "mvn clean install exec:java package"
 dcos:
-  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJkYXJrZ29kYXJrZ29AZ21haWwuY29tIiwiZXhwIjozMTI1NTU5MDY0MzkuODk0MX0.aHgH_M-g-n-WlnPg_CorMGYEprULPSeUTIGu3GyZQ-U
+  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJkYXJrZ29kYXJrZ29AZ21haWwuY29tIiwiZXhwIjozMTI1NzYyMTAyNzIuODk1NzV9.e8UcOSftGG2Patu1K-o6WCkZp_cUlyRIP3-v0-Px4ls
 
 gitlab:
   root:
