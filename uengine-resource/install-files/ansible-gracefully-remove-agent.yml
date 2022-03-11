@@ -1,9 +1,0 @@
----
-- hosts: gracefully-remove-agent
-  remote_user: "{{ansible_user}}"
-  tasks:
-    - name: Remove all
-      command: "{{ item }}"
-      with_items:
-        - sudo systemctl kill -s SIGUSR1 dcos-mesos-slave
-        - sudo systemctl stop dcos-mesos-slave
