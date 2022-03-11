@@ -1,1 +1,0 @@
-ps xu | grep marathon_lb.py | grep -v grep | awk '{ print $2 }' | xargs kill -9

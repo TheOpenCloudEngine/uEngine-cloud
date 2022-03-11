@@ -1,4 +1,0 @@
-#!/bin/sh
-exec 2>&1
-cd /marathon-lb
-exec /marathon-lb/marathon_lb.py     --syslog-socket /dev/null     --haproxy-config /marathon-lb/haproxy.cfg     --ssl-certs "/etc/ssl/cert.pem"     --command "sv reload /marathon-lb/service/haproxy"     --sse -m http://52.79.51.79:9201 --health-check --haproxy-map --max-reload-retries 10 --reload-interval 10 --group external
