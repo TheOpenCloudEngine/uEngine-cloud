@@ -1,6 +1,0 @@
----
-# Sample cloud configuration
-
-aaa:
-  bbb:
-    ccc: "Hello"
